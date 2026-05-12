@@ -1,12 +1,6 @@
-import React from 'react'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+﻿import React from 'react'
+import MapPage from './pages/MapPage'
 
-export default function App(){
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<div>Residuum - Home shell</div>} />
-      </Routes>
-    </BrowserRouter>
-  )
+export default function App() {
+  return <MapPage />
 }
