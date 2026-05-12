@@ -1,17 +1,25 @@
-import React, { createContext, useContext } from 'react'
+﻿import React, { createContext, useContext } from 'react'
 import { useLoadScript } from '@react-google-maps/api'
 
-const GoogleMapsContext = createContext({ isLoaded: false, loadError: null })
+const libraries = ['places']
+const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_KEY || ''
+
+const GoogleMapsContext = createContext({
+  isLoaded: false,
+  loadError: null,
+  hasApiKey: false
+})
 
 export const GoogleMapsProvider = ({ children }) => {
+  const hasApiKey = Boolean(googleMapsApiKey)
+
   const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_KEY || '',
-    libraries: ['places'],
-    // preventAutoReload: true // optional fine-tuning
+    googleMapsApiKey,
+    libraries
   })
 
   return (
-    <GoogleMapsContext.Provider value={{ isLoaded, loadError }}>
+    <GoogleMapsContext.Provider value={{ isLoaded, loadError, hasApiKey }}>
       {children}
     </GoogleMapsContext.Provider>
   )
