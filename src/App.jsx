@@ -1,6 +1,6 @@
 ﻿import React from 'react'
-import MapPage from './pages/MapPage'
+import ProfilePage from './pages/ProfilePage'
 
 export default function App() {
-  return <MapPage />
+  return <ProfilePage />
 }
