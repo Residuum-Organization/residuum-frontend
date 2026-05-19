@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 
 // ── Icons (inline SVG components) ──────────────────────────────────────────
 const RecycleIcon = ({ size = 40, color = "#fff" }) => (
