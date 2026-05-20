@@ -1,6 +1,6 @@
 ﻿import React, { useMemo, useState } from 'react'
 import Map from '../components/maps/Map'
-import { collectionPoints, wasteTypes } from '../data/collectionPoints'
+import { collectionPoints, wasteTypes } from '../mocks/collectionPoints'
 
 const initialCenter = { lat: -3.119, lng: -60.0217 }
 
