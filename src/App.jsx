@@ -9,10 +9,13 @@ import ScheduleScreen from "./pages/ScheduleScreen";
 import EscanearQrCodePage from "./pages/EscanearQrCodePage";
 import ValidacaoPresencaPage from "./pages/ValidacaoPresencaPage";
 import WelcomePage from "./pages/WelcomePage";
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
 
 function DemoNav() {
   const links = [
     { to: "/welcome", label: "Welcome" },
+    { to: "/login", label: "Login" },
     { to: "/perfil", label: "Perfil" },
     { to: "/cadastrar-residuo", label: "Cadastrar" },
     { to: "/meu-estoque", label: "Estoque" },
@@ -24,7 +27,8 @@ function DemoNav() {
   ];
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 px-4 py-3 backdrop-blur">
+    <nav /* className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 px-4 py-3 backdrop-blur" */
+    >
       {/* <div className="mx-auto flex w-full max-w-6xl flex-wrap gap-2">
         {links.map((link) => (
           <NavLink
@@ -53,6 +57,8 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Navigate to="/welcome" replace />} />
         <Route path="/welcome" element={<WelcomePage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/cadastro" element={<RegisterPage />} />
         <Route path="/perfil" element={<ProfilePage />} />
         <Route path="/cadastrar-residuo" element={<CadastrarResiduoPage />} />
         <Route path="/meu-estoque" element={<MeuEstoquePage />} />

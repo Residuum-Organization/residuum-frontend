@@ -24,7 +24,7 @@ export default function WelcomePage() {
 
         <div className="mt-6 space-y-3 sm:mt-7 sm:space-y-4">
           <Button
-            variant="welcomeBlue"
+            variant="brandPrimary"
             className="h-14 w-full rounded-full text-lg font-semibold sm:h-16 sm:text-xl"
           >
             Entrar como morador
@@ -39,14 +39,14 @@ export default function WelcomePage() {
           </div>
 
           <Button
-            variant="welcomeGray"
+            variant="brandOutline"
             className="h-14 w-full rounded-full border-2 text-lg font-semibold sm:h-16 sm:text-xl"
           >
             Entrar como funcionário
           </Button>
 
           <Button
-            variant="welcomeGray"
+            variant="brandOutline"
             className="h-14 w-full rounded-full border-2 text-lg font-semibold sm:h-16 sm:text-xl"
           >
             Entrar como ponto de coleta

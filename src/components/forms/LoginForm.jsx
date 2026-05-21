@@ -1,41 +1,142 @@
-import React from 'react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { loginSchema } from '../../schemas/auth'
-import { useAuth } from '../../contexts/AuthContext'
+import React from "react";
+import { Link } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { Eye, EyeOff } from "lucide-react";
+import { loginSchema } from "../../schemas/auth";
+import { useAuth } from "../../contexts/AuthContext";
+import Label from "../ui/Label";
+import Input from "../ui/Input";
+import Button from "../ui/Button";
+import GoogleIcon from "../../../assets/icons/GoogleIcon";
+import FacebookIcon from "../../../assets/icons/FacebookIcon";
 
-export default function LoginForm(){
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm({
-    resolver: zodResolver(loginSchema)
-  })
+export default function LoginForm() {
+  const [showPassword, setShowPassword] = React.useState(false);
 
-  const { login } = useAuth()
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: zodResolver(loginSchema),
+    mode: "onSubmit",
+    reValidateMode: "onChange",
+  });
+
+  const { login } = useAuth();
 
   const onSubmit = async (data) => {
-    try{
-      await login(data.email, data.password)
-    }catch(e){
-      console.error(e)
+    try {
+      await login(data.email, data.password);
+    } catch (e) {
+      console.error(e);
     }
-  }
+  };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="space-y-4 sm:space-y-5"
+      noValidate
+    >
       <div>
-        <label className="block text-sm">E-mail</label>
-        <input {...register('email')} className="w-full border p-2 rounded" />
-        {errors.email && <p className="text-xs text-red-600">{errors.email.message}</p>}
+        <label htmlFor="email" className="mb-1.5 block">
+          <Label className="text-sm font-semibold text-slate-600">E-mail</Label>
+        </label>
+        <Input
+          id="email"
+          type="email"
+          placeholder="voce@email.com"
+          autoComplete="email"
+          invalid={Boolean(errors.email)}
+          {...register("email")}
+        />
+        {errors.email && (
+          <p className="mt-1.5 text-xs text-red-600">{errors.email.message}</p>
+        )}
       </div>
 
       <div>
-        <label className="block text-sm">Senha</label>
-        <input type="password" {...register('password')} className="w-full border p-2 rounded" />
-        {errors.password && <p className="text-xs text-red-600">{errors.password.message}</p>}
+        <label htmlFor="password" className="mb-1.5 block">
+          <Label className="text-sm font-semibold text-slate-600">Senha</Label>
+        </label>
+        <div className="relative">
+          <Input
+            id="password"
+            type={showPassword ? "text" : "password"}
+            placeholder="Sua senha"
+            autoComplete="current-password"
+            invalid={Boolean(errors.password)}
+            className="pr-12"
+            {...register("password")}
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(prev => !prev)}
+            className="absolute inset-y-0 right-0 inline-flex w-12 items-center justify-center text-slate-500 hover:text-slate-700"
+            aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+          >
+            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
+        </div>
+        {errors.password && (
+          <p className="mt-1.5 text-xs text-red-600">
+            {errors.password.message}
+          </p>
+        )}
+        <div className="mt-2 flex justify-end">
+          <Link
+            to="/recuperar-senha"
+            className="text-sm text-[var(--color-welcome-muted)] hover:opacity-80"
+          >
+            Esqueceu a senha?
+          </Link>
+        </div>
       </div>
 
-      <button disabled={isSubmitting} className="w-full bg-blue-800 text-white p-2 rounded">
+      <Button
+        type="submit"
+        variant="brandPrimary"
+        disabled={isSubmitting}
+        className="h-14 w-full rounded-full text-lg font-semibold disabled:cursor-not-allowed disabled:opacity-70"
+      >
         Entrar
-      </button>
+      </Button>
+
+      <div className="flex w-full items-center gap-2.5 text-[var(--color-welcome-muted)] sm:gap-3">
+        <hr className="m-0 h-px basis-0 grow border-0 bg-current" />
+        <span className="shrink-0 text-base font-semibold leading-none">
+          ou
+        </span>
+        <hr className="m-0 h-px basis-0 grow border-0 bg-current" />
+      </div>
+
+      <div className="flex items-center justify-center gap-4 pt-1">
+        <button
+          type="button"
+          className="rounded-full p-1 transition hover:scale-105"
+          aria-label="Entrar com Google"
+        >
+          <GoogleIcon />
+        </button>
+        <button
+          type="button"
+          className="rounded-full p-1 transition hover:scale-105"
+          aria-label="Entrar com Facebook"
+        >
+          <FacebookIcon />
+        </button>
+      </div>
+
+      <p className="pt-1 text-center text-sm text-[var(--color-welcome-muted)]">
+        Nao tem conta?{" "}
+        <Link
+          to="/cadastro"
+          className="font-semibold text-[var(--color-welcome-blue)] underline underline-offset-2"
+        >
+          Cadastre-se
+        </Link>
+      </p>
     </form>
-  )
+  );
 }
