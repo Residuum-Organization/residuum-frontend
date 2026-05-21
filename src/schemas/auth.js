@@ -9,6 +9,11 @@ const requiredString = (label) =>
     .trim()
     .min(1, { message: `${label} é obrigatório` });
 
+const requiredPhone = requiredString("Telefone").refine((value) => {
+  const digits = value.replace(/\D/g, "");
+  return digits.length >= 10;
+}, { message: "Telefone inválido" });
+
 export const loginSchema = z.object({
   email: requiredString("E-mail").email({ message: "E-mail inválido" }),
   password: requiredString("Senha").min(6, {
@@ -20,7 +25,7 @@ export const registerSchema = z
   .object({
     name: requiredString("Nome").min(2, { message: "Nome muito curto" }),
     email: requiredString("E-mail").email({ message: "E-mail inválido" }),
-    phone: z.string().optional(),
+    phone: requiredPhone,
     password: requiredString("Senha").min(6, {
       message: "Senha mínima de 6 caracteres",
     }),
