@@ -9,10 +9,13 @@ const requiredString = (label) =>
     .trim()
     .min(1, { message: `${label} é obrigatório` });
 
-const requiredPhone = requiredString("Telefone").refine((value) => {
-  const digits = value.replace(/\D/g, "");
-  return digits.length >= 10;
-}, { message: "Telefone inválido" });
+const requiredPhone = requiredString("Telefone").refine(
+  (value) => {
+    const digits = value.replace(/\D/g, "");
+    return digits.length >= 10;
+  },
+  { message: "Telefone inválido" }
+);
 
 export const loginSchema = z.object({
   email: requiredString("E-mail").email({ message: "E-mail inválido" }),
@@ -37,3 +40,7 @@ export const registerSchema = z
     path: ["confirmPassword"],
     message: "As senhas não coincidem",
   });
+
+export const forgotPasswordSchema = z.object({
+  email: requiredString("E-mail").email({ message: "E-mail inválido" }),
+});

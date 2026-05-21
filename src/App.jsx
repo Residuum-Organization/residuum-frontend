@@ -11,9 +11,10 @@ import ValidacaoPresencaPage from "./pages/ValidacaoPresencaPage";
 import WelcomePage from "./pages/WelcomePage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 
 function DemoNav() {
-  const links = [
+/*   const links = [
     { to: "/welcome", label: "Welcome" },
     { to: "/login", label: "Login" },
     { to: "/perfil", label: "Perfil" },
@@ -24,7 +25,7 @@ function DemoNav() {
     { to: "/schedule", label: "Schedule" },
     { to: "/escanear-qr", label: "QR Code" },
     { to: "/validacao-presenca", label: "Presenca" },
-  ];
+  ]; */
 
   return (
     <nav /* className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 px-4 py-3 backdrop-blur" */
@@ -58,6 +59,7 @@ export default function App() {
         <Route path="/" element={<Navigate to="/welcome" replace />} />
         <Route path="/welcome" element={<WelcomePage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/recuperar-senha" element={<ForgotPasswordPage />} />
         <Route path="/cadastro" element={<RegisterPage />} />
         <Route path="/perfil" element={<ProfilePage />} />
         <Route path="/cadastrar-residuo" element={<CadastrarResiduoPage />} />
