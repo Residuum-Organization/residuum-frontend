@@ -5,6 +5,9 @@
 :root{
   --color-primary: #1F4E79;
   --color-accent: #2EA44F;
+  --color-welcome-blue: #110A88;
+  --color-welcome-muted: #645353;
+  --color-welcome-surface: #E9E9E9;
 }
 
 html,body,#root{height:100%;}

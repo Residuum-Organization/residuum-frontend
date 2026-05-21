@@ -4,6 +4,8 @@ const variants = {
   primary: 'bg-[#0D2C8B] text-white shadow-lg',
   secondary: 'bg-white border border-gray-100 text-[#0D2C8B] shadow-md',
   ghost: 'bg-white/20 text-white',
+  welcomeBlue: 'bg-[var(--color-welcome-blue)] text-white',
+  welcomeGray: 'bg-transparent border border-[var(--color-welcome-blue)] text-[var(--color-welcome-blue)]',
 }
 
 export default function Button({ children, variant = 'primary', className = '', ...props }) {
