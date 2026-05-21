@@ -1,7 +1,8 @@
 import React from "react";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import Label from "../ui/Label";
 import Input from "../ui/Input";
+import InputPassword from "../ui/InputPassword";
 import Button from "../ui/Button";
 
 export default function RegisterForm({
@@ -10,9 +11,6 @@ export default function RegisterForm({
   isSubmitting,
   onContinue,
 }) {
-  const [showPassword, setShowPassword] = React.useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
-
   return (
     <form className="space-y-4 sm:space-y-5" noValidate>
       <div>
@@ -73,24 +71,12 @@ export default function RegisterForm({
             Senha
           </Label>
         </label>
-        <div className="relative">
-          <Input
-            id="password"
-            type={showPassword ? "text" : "password"}
-            placeholder="Crie uma senha"
-            invalid={Boolean(errors.password)}
-            className="pr-12"
-            {...register("password")}
-          />
-          <button
-            type="button"
-            onClick={() => setShowPassword((prev) => !prev)}
-            className="absolute inset-y-0 right-0 inline-flex w-12 items-center justify-center text-slate-500 hover:text-slate-700"
-            aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
-          >
-            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-          </button>
-        </div>
+        <InputPassword
+          id="password"
+          placeholder="Crie uma senha"
+          invalid={Boolean(errors.password)}
+          {...register("password")}
+        />
         {errors.password && (
           <p className="mt-1.5 text-xs text-red-600">
             {errors.password.message}
@@ -104,24 +90,12 @@ export default function RegisterForm({
             Confirmar senha
           </Label>
         </label>
-        <div className="relative">
-          <Input
-            id="confirmPassword"
-            type={showConfirmPassword ? "text" : "password"}
-            placeholder="Repita a senha"
-            invalid={Boolean(errors.confirmPassword)}
-            className="pr-12"
-            {...register("confirmPassword")}
-          />
-          <button
-            type="button"
-            onClick={() => setShowConfirmPassword((prev) => !prev)}
-            className="absolute inset-y-0 right-0 inline-flex w-12 items-center justify-center text-slate-500 hover:text-slate-700"
-            aria-label={showConfirmPassword ? "Ocultar senha" : "Mostrar senha"}
-          >
-            {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-          </button>
-        </div>
+        <InputPassword
+          id="confirmPassword"
+          placeholder="Repita a senha"
+          invalid={Boolean(errors.confirmPassword)}
+          {...register("confirmPassword")}
+        />
         {errors.confirmPassword && (
           <p className="mt-1.5 text-xs text-red-600">
             {errors.confirmPassword.message}

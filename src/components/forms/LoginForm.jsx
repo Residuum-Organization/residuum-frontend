@@ -1,18 +1,18 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { loginSchema } from "../../schemas/auth";
 import { useAuth } from "../../contexts/AuthContext";
 import Label from "../ui/Label";
 import Input from "../ui/Input";
+import InputPassword from "../ui/InputPassword";
 import Button from "../ui/Button";
 import GoogleIcon from "../../../assets/icons/GoogleIcon";
 import FacebookIcon from "../../../assets/icons/FacebookIcon";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 export default function LoginForm() {
-  const [showPassword, setShowPassword] = React.useState(false);
   const [authError, setAuthError] = React.useState("");
 
   const {
@@ -26,7 +26,7 @@ export default function LoginForm() {
   });
 
   const { login } = useAuth();
- 
+
   //somente state, futuramente colocar com react query para gerenciar estado de autenticação globalmente
   const onSubmit = async (data) => {
     setAuthError("");
@@ -64,25 +64,13 @@ export default function LoginForm() {
         <label htmlFor="password" className="mb-1.5 block">
           <Label className="text-sm font-semibold text-slate-600">Senha</Label>
         </label>
-        <div className="relative">
-          <Input
-            id="password"
-            type={showPassword ? "text" : "password"}
-            placeholder="Sua senha"
-            autoComplete="current-password"
-            invalid={Boolean(errors.password)}
-            className="pr-12"
-            {...register("password")}
-          />
-          <button
-            type="button"
-            onClick={() => setShowPassword((prev) => !prev)}
-            className="absolute inset-y-0 right-0 inline-flex w-12 items-center justify-center text-slate-500 hover:text-slate-700"
-            aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
-          >
-            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-          </button>
-        </div>
+        <InputPassword
+          id="password"
+          placeholder="Sua senha"
+          autoComplete="current-password"
+          invalid={Boolean(errors.password)}
+          {...register("password")}
+        />
         {errors.password && (
           <p className="mt-1.5 text-xs text-red-600">
             {errors.password.message}
