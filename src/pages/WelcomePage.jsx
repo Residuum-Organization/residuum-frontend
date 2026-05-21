@@ -11,8 +11,8 @@ export default function WelcomePage() {
           </h1>
 
           <p className="text-base font-semibold leading-relaxed text-[var(--color-welcome-muted)] sm:text-lg">
-            Agora e facil visualizar os pontos de coleta em sua regiao. Juntos,
-            estamos construindo comunidades mais limpas e sustentaveis.
+            Agora e facil visualizar os pontos de coleta em sua região. Juntos,
+            estamos construindo comunidades mais limpas e sustentáveis.
           </p>
         </div>
 

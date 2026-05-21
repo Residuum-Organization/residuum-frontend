@@ -67,8 +67,13 @@ export default function RegisterPage() {
       <Card className="mx-auto w-full max-w-md border-0 p-6 shadow-xl sm:p-8 lg:max-w-6xl lg:p-0">
         <div className="lg:flex lg:min-h-[650px] lg:items-stretch">
           <CardResiduum
-            description="Crie sua conta para acessar os pontos de coleta, cadastrar descartes e acompanhar seu impacto ambiental de forma simples."
-            footer="Comece em minutos e faca parte da rede que transforma descarte em impacto positivo."
+            description="Transforme descarte em impacto positivo. O Residuum conecta você aos pontos de coleta e simplifica a reciclagem no dia a dia."
+            highlights={[
+              "Encontre pontos de coleta próximos em segundos",
+              "Registre seus descartes com poucos cliques",
+              "Acompanhe seu impacto ambiental ao longo do tempo",
+            ]}
+            footer='"Pequenas escolhas diárias geram grandes transformações para a cidade e para o planeta."'
           />
 
           <div className="hidden lg:block lg:w-px lg:bg-slate-200" />
@@ -96,17 +101,7 @@ export default function RegisterPage() {
 
             <div className="mb-7">
               <div className="mx-auto flex w-full max-w-[220px] items-center">
-                <div
-                  className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 ${
-                    step === 1
-                      ? "border-[var(--color-welcome-blue)] bg-[var(--color-welcome-blue)] text-white"
-                      : "border-[var(--color-welcome-blue)] bg-white text-[var(--color-welcome-blue)]"
-                  }`}
-                >
-                  {step === 2 ? (
-                    <span className="h-2.5 w-2.5 rounded-full bg-[var(--color-welcome-blue)]" />
-                  ) : null}
-                </div>
+                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 border-[var(--color-welcome-blue)] bg-[var(--color-welcome-blue)] text-white" />
 
                 <div className="h-0.5 w-full bg-[var(--color-welcome-blue)]" />
 
@@ -121,7 +116,7 @@ export default function RegisterPage() {
 
               <div className="mx-auto mt-2 flex w-full max-w-[280px] items-start justify-between text-sm font-semibold text-[var(--color-welcome-blue)]">
                 <p>Dados pessoais</p>
-                <p>Confirmacao</p>
+                <p>Confirmação</p>
               </div>
             </div>
 
@@ -142,7 +137,7 @@ export default function RegisterPage() {
             )}
 
             <p className="mt-5 text-center text-sm text-[var(--color-welcome-muted)]">
-              Ja tem conta?{" "}
+              Já tem conta?{" "}
               <Link
                 to="/login"
                 className="font-semibold text-[var(--color-welcome-blue)] underline underline-offset-2"

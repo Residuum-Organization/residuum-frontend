@@ -12,7 +12,7 @@ export default function CardResiduum({ description, highlights = [], footer }) {
         <h2 className="mt-6 text-4xl font-bold leading-tight tracking-tight">
           Residuum
         </h2>
-        <p className="mt-4 max-w-sm text-base leading-relaxed text-white/90">
+        <p className="mt-4 max-w-sm text-base font-semibold leading-relaxed text-white/90">
           {description}
         </p>
 

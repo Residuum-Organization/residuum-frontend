@@ -138,7 +138,7 @@ export default function LoginForm() {
       </div>
 
       <p className="pt-1 text-center text-sm text-[var(--color-welcome-muted)]">
-        Nao tem conta?{" "}
+        Não tem conta?{" "}
         <Link
           to="/cadastro"
           className="font-semibold text-[var(--color-welcome-blue)] underline underline-offset-2"
