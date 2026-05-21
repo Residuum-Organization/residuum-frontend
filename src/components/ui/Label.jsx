@@ -1,12 +1,14 @@
-import React from 'react'
+import React from "react";
 
-export default function Label({ children, className = '', ...props }) {
+export default function Label({
+  as: Component = "span",
+  children,
+  className = "",
+  ...props
+}) {
   return (
-    <span
-      className={`text-sm text-gray-500 ${className}`}
-      {...props}
-    >
+    <Component className={`text-sm text-gray-500 ${className}`} {...props}>
       {children}
-    </span>
-  )
+    </Component>
+  );
 }
