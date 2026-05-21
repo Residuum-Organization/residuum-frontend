@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { loginSchema } from "../../schemas/auth";
 import { useAuth } from "../../contexts/AuthContext";
 import Label from "../ui/Label";
@@ -9,9 +9,11 @@ import Input from "../ui/Input";
 import Button from "../ui/Button";
 import GoogleIcon from "../../../assets/icons/GoogleIcon";
 import FacebookIcon from "../../../assets/icons/FacebookIcon";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 export default function LoginForm() {
   const [showPassword, setShowPassword] = React.useState(false);
+  const [authError, setAuthError] = React.useState("");
 
   const {
     register,
@@ -24,12 +26,14 @@ export default function LoginForm() {
   });
 
   const { login } = useAuth();
-
+ 
+  //somente state, futuramente colocar com react query para gerenciar estado de autenticação globalmente
   const onSubmit = async (data) => {
+    setAuthError("");
     try {
       await login(data.email, data.password);
     } catch (e) {
-      console.error(e);
+      setAuthError("Credenciais inválidas");
     }
   };
 
@@ -72,7 +76,7 @@ export default function LoginForm() {
           />
           <button
             type="button"
-            onClick={() => setShowPassword(prev => !prev)}
+            onClick={() => setShowPassword((prev) => !prev)}
             className="absolute inset-y-0 right-0 inline-flex w-12 items-center justify-center text-slate-500 hover:text-slate-700"
             aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
           >
@@ -98,10 +102,19 @@ export default function LoginForm() {
         type="submit"
         variant="brandPrimary"
         disabled={isSubmitting}
-        className="h-14 w-full rounded-full text-lg font-semibold disabled:cursor-not-allowed disabled:opacity-70"
+        className="h-14 w-full rounded-full text-lg font-semibold disabled:cursor-not-allowed disabled:opacity-80"
       >
-        Entrar
+        <span className="inline-flex items-center gap-2">
+          {isSubmitting && <Loader2 size={18} className="animate-spin" />}
+          {isSubmitting ? "Entrando..." : "Entrar"}
+        </span>
       </Button>
+
+      {authError && (
+        <p className="text-center text-sm font-medium text-red-600">
+          {authError}
+        </p>
+      )}
 
       <div className="flex w-full items-center gap-2.5 text-[var(--color-welcome-muted)] sm:gap-3">
         <hr className="m-0 h-px basis-0 grow border-0 bg-current" />
