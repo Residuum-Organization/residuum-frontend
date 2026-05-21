@@ -14,11 +14,13 @@ export default function RegisterForm({
   return (
     <form className="space-y-4 sm:space-y-5" noValidate>
       <div>
-        <label htmlFor="name" className="mb-1.5 block">
-          <Label className="text-sm font-semibold text-[var(--color-welcome-blue)]">
-            Nome completo
-          </Label>
-        </label>
+        <Label
+          as="label"
+          htmlFor="name"
+          className="mb-1.5 block text-sm font-semibold text-[var(--color-welcome-blue)]"
+        >
+          Nome completo
+        </Label>
         <Input
           id="name"
           placeholder="Digite seu nome"
@@ -31,11 +33,13 @@ export default function RegisterForm({
       </div>
 
       <div>
-        <label htmlFor="email" className="mb-1.5 block">
-          <Label className="text-sm font-semibold text-[var(--color-welcome-blue)]">
-            E-mail
-          </Label>
-        </label>
+        <Label
+          as="label"
+          htmlFor="email"
+          className="mb-1.5 block text-sm font-semibold text-[var(--color-welcome-blue)]"
+        >
+          E-mail
+        </Label>
         <Input
           id="email"
           type="email"
@@ -49,11 +53,13 @@ export default function RegisterForm({
       </div>
 
       <div>
-        <label htmlFor="phone" className="mb-1.5 block">
-          <Label className="text-sm font-semibold text-[var(--color-welcome-blue)]">
-            Telefone
-          </Label>
-        </label>
+        <Label
+          as="label"
+          htmlFor="phone"
+          className="mb-1.5 block text-sm font-semibold text-[var(--color-welcome-blue)]"
+        >
+          Telefone
+        </Label>
         <Input
           id="phone"
           placeholder="(00) 00000-0000"
@@ -66,11 +72,13 @@ export default function RegisterForm({
       </div>
 
       <div>
-        <label htmlFor="password" className="mb-1.5 block">
-          <Label className="text-sm font-semibold text-[var(--color-welcome-blue)]">
-            Senha
-          </Label>
-        </label>
+        <Label
+          as="label"
+          htmlFor="password"
+          className="mb-1.5 block text-sm font-semibold text-[var(--color-welcome-blue)]"
+        >
+          Senha
+        </Label>
         <InputPassword
           id="password"
           placeholder="Crie uma senha"
@@ -85,11 +93,13 @@ export default function RegisterForm({
       </div>
 
       <div>
-        <label htmlFor="confirmPassword" className="mb-1.5 block">
-          <Label className="text-sm font-semibold text-[var(--color-welcome-blue)]">
-            Confirmar senha
-          </Label>
-        </label>
+        <Label
+          as="label"
+          htmlFor="confirmPassword"
+          className="mb-1.5 block text-sm font-semibold text-[var(--color-welcome-blue)]"
+        >
+          Confirmar senha
+        </Label>
         <InputPassword
           id="confirmPassword"
           placeholder="Repita a senha"

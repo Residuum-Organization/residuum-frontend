@@ -44,9 +44,13 @@ export default function LoginForm() {
       noValidate
     >
       <div>
-        <label htmlFor="email" className="mb-1.5 block">
-          <Label className="text-sm font-semibold text-slate-600">E-mail</Label>
-        </label>
+        <Label
+          as="label"
+          htmlFor="email"
+          className="mb-1.5 block text-sm font-semibold text-slate-600"
+        >
+          E-mail
+        </Label>
         <Input
           id="email"
           type="email"
@@ -61,9 +65,13 @@ export default function LoginForm() {
       </div>
 
       <div>
-        <label htmlFor="password" className="mb-1.5 block">
-          <Label className="text-sm font-semibold text-slate-600">Senha</Label>
-        </label>
+        <Label
+          as="label"
+          htmlFor="password"
+          className="mb-1.5 block text-sm font-semibold text-slate-600"
+        >
+          Senha
+        </Label>
         <InputPassword
           id="password"
           placeholder="Sua senha"
@@ -107,7 +115,7 @@ export default function LoginForm() {
       <div className="flex w-full items-center gap-2.5 text-[var(--color-welcome-muted)] sm:gap-3">
         <hr className="m-0 h-px basis-0 grow border-0 bg-current" />
         <span className="shrink-0 text-base font-semibold leading-none">
-          ou
+          ou entre com
         </span>
         <hr className="m-0 h-px basis-0 grow border-0 bg-current" />
       </div>
