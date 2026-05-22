@@ -15,7 +15,7 @@ import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import SorteiosPage from "./pages/SorteiosPage";
 import SorteioDetalhesPage from "./pages/SorteioDetalhesPage";
 import ExtratoPage from "./pages/ExtratoPage";
-
+import CampanhaHeineken from "./pages/CampanhaHeineken";
 function DemoNav() {
 /*   const links = [
     { to: "/welcome", label: "Welcome" },
@@ -75,6 +75,7 @@ export default function App() {
         <Route path="/sorteios" element={<SorteiosPage />} />
         <Route path="/sorteios/:id" element={<SorteioDetalhesPage />} />
         <Route path="/extrato" element={<ExtratoPage />} />
+        <Route path="/campanha-heineken" element={<CampanhaHeineken />} />
 
         <Route path="*" element={<Navigate to="/welcome" replace />} />
       </Routes>
