@@ -17,10 +17,12 @@ import SorteioDetalhesPage from "./pages/SorteioDetalhesPage";
 import ExtratoPage from "./pages/ExtratoPage";
 import Aprovacao from "./pages/Aprovacao";
 import AdminPage from "./pages/AdminPage";
+import WelcomeResiduum from "./pages/WelcomeResiduum";
 
 function DemoNav() {
   const demoNavLinks = [
     { to: "/welcome", label: "Welcome" },
+    { to: "/welcome-residuum", label: "Welcome-residuum" },
     { to: "/login", label: "Login" },
     { to: "/recuperar-senha", label: "Recuperar Senha" },
     { to: "/cadastro", label: "Cadastro" },
@@ -68,6 +70,7 @@ export default function App() {
         <Route path="/" element={<Navigate to="/welcome" replace />} />
         <Route path="/demo" element={<Navigate to="/welcome" replace />} />
         <Route path="/welcome" element={<WelcomePage />} />
+        <Route path="/welcome-residuum" element={<WelcomeResiduum />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/recuperar-senha" element={<ForgotPasswordPage />} />
         <Route path="/cadastro" element={<RegisterPage />} />
