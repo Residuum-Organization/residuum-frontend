@@ -12,12 +12,18 @@ import WelcomePage from "./pages/WelcomePage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import SorteiosPage from "./pages/SorteiosPage";
+import SorteioDetalhesPage from "./pages/SorteioDetalhesPage";
+import ExtratoPage from "./pages/ExtratoPage";
 import Aprovacao from "./pages/Aprovacao";
+import AdminPage from "./pages/AdminPage";
 
 function DemoNav() {
-/*   const links = [
+  const demoNavLinks = [
     { to: "/welcome", label: "Welcome" },
     { to: "/login", label: "Login" },
+    { to: "/recuperar-senha", label: "Recuperar Senha" },
+    { to: "/cadastro", label: "Cadastro" },
     { to: "/perfil", label: "Perfil" },
     { to: "/cadastrar-residuo", label: "Cadastrar" },
     { to: "/meu-estoque", label: "Estoque" },
@@ -26,13 +32,15 @@ function DemoNav() {
     { to: "/schedule", label: "Schedule" },
     { to: "/escanear-qr", label: "QR Code" },
     { to: "/validacao-presenca", label: "Presenca" },
-  ]; */
-
+    { to: "/sorteios", label: "Sorteios" },
+    { to: "/extrato", label: "Extrato" },
+    { to: "/aprovacao", label: "Aprovação" },
+    { to: "/admin", label: "Admin" },
+  ];
   return (
-    <nav /* className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 px-4 py-3 backdrop-blur" */
-    >
-      {/* <div className="mx-auto flex w-full max-w-6xl flex-wrap gap-2">
-        {links.map((link) => (
+    <nav className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 px-4 py-3 backdrop-blur">
+      <div className="mx-auto flex w-full max-w-6xl flex-wrap gap-2">
+        {demoNavLinks.map((link) => (
           <NavLink
             key={link.to}
             to={link.to}
@@ -47,7 +55,7 @@ function DemoNav() {
             {link.label}
           </NavLink>
         ))}
-      </div> */}
+      </div>
     </nav>
   );
 }
@@ -58,6 +66,7 @@ export default function App() {
       <DemoNav />
       <Routes>
         <Route path="/" element={<Navigate to="/welcome" replace />} />
+        <Route path="/demo" element={<Navigate to="/welcome" replace />} />
         <Route path="/welcome" element={<WelcomePage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/recuperar-senha" element={<ForgotPasswordPage />} />
@@ -66,12 +75,16 @@ export default function App() {
         <Route path="/cadastrar-residuo" element={<CadastrarResiduoPage />} />
         <Route path="/meu-estoque" element={<MeuEstoquePage />} />
         <Route path="/mapa" element={<MapPage />} />
-        <Route path="/dashboard" element={<DashboardScreen />} />
         <Route path="/aprovacao" element={<Aprovacao />} />
+        <Route path="/dashboard" element={<DashboardScreen />} />
+        <Route path="/admin" element={<AdminPage />} />
         <Route path="/schedule" element={<ScheduleScreen />} />
         <Route path="/escanear-qr" element={<EscanearQrCodePage />} />
         <Route path="/validacao-presenca" element={<ValidacaoPresencaPage />} />
-        <Route path="*" element={<Navigate to="/welcome" replace />} />
+        <Route path="/sorteios" element={<SorteiosPage />} />
+        <Route path="/sorteios/:id" element={<SorteioDetalhesPage />} />
+        <Route path="/extrato" element={<ExtratoPage />} />
+        <Route path="*" element={<Navigate to="/demo" replace />} />
       </Routes>
     </>
   );
