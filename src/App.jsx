@@ -12,9 +12,7 @@ import WelcomePage from "./pages/WelcomePage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
-import SorteiosPage from "./pages/SorteiosPage";
-import SorteioDetalhesPage from "./pages/SorteioDetalhesPage";
-import ExtratoPage from "./pages/ExtratoPage";
+import Aprovacao from "./pages/Aprovacao";
 
 function DemoNav() {
 /*   const links = [
@@ -69,13 +67,10 @@ export default function App() {
         <Route path="/meu-estoque" element={<MeuEstoquePage />} />
         <Route path="/mapa" element={<MapPage />} />
         <Route path="/dashboard" element={<DashboardScreen />} />
+        <Route path="/aprovacao" element={<Aprovacao />} />
         <Route path="/schedule" element={<ScheduleScreen />} />
         <Route path="/escanear-qr" element={<EscanearQrCodePage />} />
         <Route path="/validacao-presenca" element={<ValidacaoPresencaPage />} />
-        <Route path="/sorteios" element={<SorteiosPage />} />
-        <Route path="/sorteios/:id" element={<SorteioDetalhesPage />} />
-        <Route path="/extrato" element={<ExtratoPage />} />
-
         <Route path="*" element={<Navigate to="/welcome" replace />} />
       </Routes>
     </>
