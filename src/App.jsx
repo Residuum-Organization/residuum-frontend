@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 import React from "react";
-=======
-﻿import React from "react";
->>>>>>> a0256c53e1b5801ef83f885b70266906d8b62e30
 import { Navigate, NavLink, Route, Routes } from "react-router-dom";
 import MapPage from "./pages/MapPage";
 import ProfilePage from "./pages/ProfilePage";
@@ -76,12 +72,10 @@ export default function App() {
         <Route path="/schedule" element={<ScheduleScreen />} />
         <Route path="/escanear-qr" element={<EscanearQrCodePage />} />
         <Route path="/validacao-presenca" element={<ValidacaoPresencaPage />} />
-<<<<<<< HEAD
         <Route path="/sorteios" element={<SorteiosPage />} />
         <Route path="/sorteios/:id" element={<SorteioDetalhesPage />} />
         <Route path="/extrato" element={<ExtratoPage />} />
-=======
->>>>>>> a0256c53e1b5801ef83f885b70266906d8b62e30
+
         <Route path="*" element={<Navigate to="/welcome" replace />} />
       </Routes>
     </>
