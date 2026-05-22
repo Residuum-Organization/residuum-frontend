@@ -15,6 +15,7 @@ import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import SorteiosPage from "./pages/SorteiosPage";
 import SorteioDetalhesPage from "./pages/SorteioDetalhesPage";
 import ExtratoPage from "./pages/ExtratoPage";
+import CampanhaHeineken from "./pages/CampanhaHeineken";
 import Aprovacao from "./pages/Aprovacao";
 import AdminPage from "./pages/AdminPage";
 import WelcomeResiduum from "./pages/WelcomeResiduum";
@@ -87,7 +88,9 @@ export default function App() {
         <Route path="/sorteios" element={<SorteiosPage />} />
         <Route path="/sorteios/:id" element={<SorteioDetalhesPage />} />
         <Route path="/extrato" element={<ExtratoPage />} />
-        <Route path="*" element={<Navigate to="/demo" replace />} />
+        <Route path="/campanha-heineken" element={<CampanhaHeineken />} />
+
+        <Route path="*" element={<Navigate to="/welcome" replace />} />
       </Routes>
     </>
   );
