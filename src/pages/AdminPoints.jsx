@@ -1,5 +1,9 @@
 import React from "react";
 import Navbar from "../components/ui/Navbar";
+import {
+  MapPin,
+  AlertTriangle,
+} from "lucide-react";
 
 const points = [
   {
@@ -19,7 +23,6 @@ const points = [
     address: "Rua Norte, 456 - bairro",
     percent: 88,
     color: "orange",
-    link: true,
   },
   {
     name: "Ponto Leste",
@@ -31,19 +34,19 @@ const points = [
 
 const colorMap = {
   green: {
-    dot: "bg-green-600",
-    bar: "bg-green-600",
+    dot: "bg-green-700",
+    bar: "bg-green-700",
     text: "text-green-700",
   },
   orange: {
-    dot: "bg-orange-400",
-    bar: "bg-orange-400",
-    text: "text-orange-600",
+    dot: "bg-orange-500",
+    bar: "bg-orange-500",
+    text: "text-orange-500",
   },
   red: {
-    dot: "bg-red-600",
-    bar: "bg-red-600",
-    text: "text-red-700",
+    dot: "bg-red-500",
+    bar: "bg-red-500",
+    text: "text-red-500",
   },
 };
 
@@ -51,52 +54,120 @@ export default function AdminPoints() {
   return (
     <>
       <Navbar />
-      <div className="bg-white min-h-screen flex flex-col items-center py-6">
-        <div className="w-full max-w-md">
-          <div className="flex justify-end mb-2">
-            <img src="/assets/icons/logo.svg" alt="logo" className="h-8" />
+
+      <div className="min-h-screen bg-[#ECECEC] flex justify-center px-4 py-6">
+      <div className="w-full max-w-[350px] bg-white rounded-[32px] p-5 shadow-sm">
+        <div className="w-full max-w-[350px]">
+
+          {/* TOPO */}
+          <div className="flex justify-between items-start mb-5">
+            <div>
+              <p className="text-[#2B248C] font-semibold text-sm">
+                Painel Geral
+              </p>
+
+              <h1 className="text-[36px] leading-none font-bold text-[#2B248C] mt-1">
+                Pontos de coleta
+              </h1>
+            </div>
+
+            <img
+              src="https://tse3.mm.bing.net/th/id/OIP.lMsrniFpgibNNL_T3pNjqwHaHZ?r=0&rs=1&pid=ImgDetMain&o=7&rm=3"
+              className="w-20 object-contain"
+            />
           </div>
-          <div className="text-blue-900 font-semibold text-sm mb-1">Painel Geral</div>
-          <div className="text-2xl font-bold text-blue-800 mb-4">Pontos de coleta</div>
-          <div className="flex gap-2 mb-4 flex-wrap">
-            <div className="flex items-center gap-2 bg-green-100 px-3 py-1 rounded-full">
-              <span className="bg-green-500 text-white text-xs px-2 py-0.5 rounded-full font-bold">70%</span>
-              <span className="text-xs text-green-700 font-medium">Média geral de preenchimento</span>
+
+          {/* STATUS */}
+          <div className="flex flex-wrap gap-3 mb-6">
+
+            <div className="flex items-center gap-2 bg-[#E5F5E8] border border-[#A7C7AE] rounded-full px-3 py-2">
+              <span className="bg-green-500 text-white text-[10px] font-bold px-2 py-[2px] rounded-full">
+                70%
+              </span>
+
+              <span className="text-[13px] font-medium text-[#1E1E1E] leading-tight">
+                Média geral
+                <br />
+                de preenchimento
+              </span>
             </div>
-            <div className="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-full">
-              <svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path fill="#2B4B6F" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
-              <span className="text-xs text-blue-900 font-medium">3 de 4 Pontos ativos</span>
+
+            <div className="flex items-center gap-2 border border-[#9A87E8] rounded-full px-4 py-2 bg-white">
+              <MapPin size={16} className="text-green-700" />
+
+              <span className="text-[13px] font-semibold leading-tight">
+                3 de 4
+                <br />
+                Pontos ativos
+              </span>
             </div>
-            <div className="flex items-center gap-2 bg-red-100 px-3 py-1 rounded-full">
-              <span className="text-red-600 text-lg">⚠️</span>
-              <span className="text-xs text-red-700 font-medium">1 ponto crítico</span>
+
+            <div className="flex items-center gap-2 bg-[#FF3A3A] rounded-full px-4 py-2 text-white font-semibold text-sm">
+              <AlertTriangle size={16} fill="yellow" color="yellow" />
+              1 ponto crítico
             </div>
-            <div className="flex items-center gap-2 bg-orange-100 px-3 py-1 rounded-full">
-              <span className="text-orange-500 text-lg">⚠️</span>
-              <span className="text-xs text-orange-700 font-medium">1 ponto requer atenção</span>
+
+            <div className="flex items-center gap-2 bg-[#F5D4A4] rounded-full px-4 py-2 text-black text-sm">
+              <div className="w-5 h-5 rounded-full bg-orange-500 flex items-center justify-center text-white text-xs font-bold">
+                !
+              </div>
+
+              1 ponto requer atenção
             </div>
           </div>
-          <div className="border-2 border-blue-200 rounded-xl p-4">
+
+          {/* CARD */}
+          <div className="border-2 border-[#8B7AE6] rounded-[28px] overflow-hidden bg-white">
+
             {points.map((point, idx) => (
-              <div key={idx} className="mb-4 last:mb-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className={`w-3 h-3 rounded-full ${colorMap[point.color].dot}`}></span>
-                  <span className={`font-semibold ${colorMap[point.color].text}`}>{point.name}</span>
-                  {point.link && (
-                    <a href="#" className="underline text-xs text-blue-800 ml-2">{point.address}</a>
-                  )}
-                  {!point.link && (
-                    <span className="text-xs text-gray-600 ml-2">{point.address}</span>
-                  )}
-                  <span className={`ml-auto font-bold ${colorMap[point.color].text}`}>{point.percent}%</span>
-                </div>
-                <div className="w-full h-2 bg-gray-200 rounded-full">
-                  <div className={`h-2 rounded-full ${colorMap[point.color].bar}`} style={{width: `${point.percent}%`}}></div>
+              <div
+                key={idx}
+                className={`
+                  px-6 py-6
+                  ${idx !== points.length - 1
+                    ? "border-b border-[#8B7AE6]"
+                    : ""
+                  }
+                `}
+              >
+                <div className="flex items-start justify-between">
+
+                  <div className="flex-1">
+
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`w-3 h-3 rounded-full ${colorMap[point.color].dot}`}
+                      />
+
+                      <h2 className="text-[20px] font-bold text-[#27466B]">
+                        {point.name}
+                      </h2>
+                    </div>
+
+                    <p className="text-black text-[15px] mt-1 ml-5">
+                      {point.address}
+                    </p>
+
+                    <div className="w-[155px] h-[7px] bg-[#D9D9D9] rounded-full mt-4 ml-5">
+                      <div
+                        className={`h-[7px] rounded-full ${colorMap[point.color].bar}`}
+                        style={{ width: `${point.percent}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  <span
+                    className={`font-bold text-[34px] ${colorMap[point.color].text}`}
+                  >
+                    {point.percent}%
+                  </span>
                 </div>
               </div>
             ))}
           </div>
+
         </div>
+      </div>
       </div>
     </>
   );
