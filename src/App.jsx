@@ -19,6 +19,8 @@ import CampanhaHeineken from "./pages/CampanhaHeineken";
 import Aprovacao from "./pages/Aprovacao";
 import AdminPage from "./pages/AdminPage";
 import WelcomeResiduum from "./pages/WelcomeResiduum";
+import PageUsers from "./pages/PageUsers";
+import AdminPoints from "./pages/AdminPoints";
 
 function DemoNav() {
   const demoNavLinks = [
@@ -39,6 +41,8 @@ function DemoNav() {
     { to: "/extrato", label: "Extrato" },
     { to: "/aprovacao", label: "Aprovação" },
     { to: "/admin", label: "Admin" },
+    { to: "/usuarios", label: "Usuários" },
+    { to: "/admin-pontos", label: "Admin Points" },
   ];
   return (
     <nav className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 px-4 py-3 backdrop-blur">
@@ -89,11 +93,10 @@ export default function App() {
         <Route path="/sorteios/:id" element={<SorteioDetalhesPage />} />
         <Route path="/extrato" element={<ExtratoPage />} />
         <Route path="/campanha-heineken" element={<CampanhaHeineken />} />
-
+        <Route path="/usuarios" element={<PageUsers />} />
+        <Route path="/admin-pontos" element={<AdminPoints />} />
         <Route path="*" element={<Navigate to="/welcome" replace />} />
       </Routes>
     </>
   );
 }
-
-//comentario
