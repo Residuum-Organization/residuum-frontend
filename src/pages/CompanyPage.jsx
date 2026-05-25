@@ -16,7 +16,7 @@ export default function Company() {
         </div>
 
         <h1 className="text-4xl font-bold text-blue-900 text-center mb-8">
-          Endereço de Coleta
+          Endereco de Coleta
         </h1>
 
         <form className="space-y-5">
@@ -24,7 +24,7 @@ export default function Company() {
           {[
             ["CEP", "text"],
             ["Nome da Rua", "text"],
-            ["Número", "text"],
+            ["Numero", "text"],
             ["Bairro", "text"],
             ["Cidade", "text"],
             ["Complemento", "text"],

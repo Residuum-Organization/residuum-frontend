@@ -18,6 +18,12 @@ type(area): short summary
 - `fix`: bug fix or regression correction
 - `docs`: documentation changes only
 - `chore`: maintenance, organization, or non-feature adjustments
+- `refactor`: code changes that do not add features or fix bugs
+- `test`: test additions or updates
+- `perf`: performance improvements
+- `build`: build system or dependency changes
+- `ci`: continuous integration changes
+- `revert`: reverts a previous commit
 
 ## Rules
 

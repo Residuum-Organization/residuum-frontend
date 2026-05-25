@@ -30,7 +30,7 @@ export default function ForgotPasswordPage() {
       <Card className="mx-auto flex h-full w-full max-w-md flex-col border-0 p-6 shadow-xl sm:p-8">
         <div>
           <img
-            src="/residuum-logo.png"
+            src="/logo.jpeg"
             alt="Logo Residuum"
             className="mx-auto h-16 w-16 object-contain sm:h-20 sm:w-20"
           />

@@ -4,8 +4,8 @@ import MapPage from "./pages/MapPage";
 import ProfilePage from "./pages/ProfilePage";
 import CadastrarResiduoPage from "./pages/CadastrarResiduoPage";
 import MeuEstoquePage from "./pages/MeuEstoquePage";
-import DashboardScreen from "./pages/DashboardScreen";
-import ScheduleScreen from "./pages/ScheduleScreen";
+import DashboardScreen from "./pages/DashboardScreenPage";
+import ScheduleScreen from "./pages/ScheduleScreenPage";
 import EscanearQrCodePage from "./pages/EscanearQrCodePage";
 import ValidacaoPresencaPage from "./pages/ValidacaoPresencaPage";
 import WelcomePage from "./pages/WelcomePage";
@@ -15,12 +15,15 @@ import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import SorteiosPage from "./pages/SorteiosPage";
 import SorteioDetalhesPage from "./pages/SorteioDetalhesPage";
 import ExtratoPage from "./pages/ExtratoPage";
-import CampanhaHeineken from "./pages/CampanhaHeineken";
-import Aprovacao from "./pages/Aprovacao";
+import CampanhaHeineken from "./pages/CampanhaHeinekenPage";
+import Aprovacao from "./pages/AprovacaoPage";
 import AdminPage from "./pages/AdminPage";
-import WelcomeResiduum from "./pages/WelcomeResiduum";
-import PageUsers from "./pages/PageUsers";
-import AdminPoints from "./pages/AdminPoints";
+import WelcomeResiduum from "./pages/WelcomeResiduumPage";
+import PageUsers from "./pages/PageUsersPage";
+import AdminPoints from "./pages/AdminPointsPage";
+import Company from "./pages/CompanyPage";
+import Confirmation from "./pages/ConfirmationPage";
+import RegisterPontoColetaPage from "./pages/RegisterPontoColetaPage";
 
 function DemoNav() {
   const demoNavLinks = [
@@ -43,6 +46,9 @@ function DemoNav() {
     { to: "/admin", label: "Admin" },
     { to: "/usuarios", label: "Usuários" },
     { to: "/admin-pontos", label: "Admin Points" },
+    { to: "/cadastro-ponto-coleta", label: "Cadastro Ponto" },
+    { to: "/empresa", label: "Empresa" },
+    { to: "/confirmacao", label: "Confirmacao" },
   ];
   return (
     <nav className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 px-4 py-3 backdrop-blur">
@@ -95,6 +101,9 @@ export default function App() {
         <Route path="/campanha-heineken" element={<CampanhaHeineken />} />
         <Route path="/usuarios" element={<PageUsers />} />
         <Route path="/admin-pontos" element={<AdminPoints />} />
+        <Route path="/cadastro-ponto-coleta" element={<RegisterPontoColetaPage />} />
+        <Route path="/empresa" element={<Company />} />
+        <Route path="/confirmacao" element={<Confirmation />} />
         <Route path="*" element={<Navigate to="/welcome" replace />} />
       </Routes>
     </>

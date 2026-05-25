@@ -6,7 +6,7 @@ export default function Confirmation() {
 
   const [residuosSelecionados, setResiduosSelecionados] = useState([]);
 
-  const residuos = ["Plástico", "Metal", "Vidro", "Papelão"];
+  const residuos = ["Plastico", "Metal", "Vidro", "Papelao"];
 
   function adicionarResiduo(residuo) {
     if (!residuosSelecionados.includes(residuo)) {
@@ -29,18 +29,18 @@ export default function Confirmation() {
         </div>
 
         <h1 className="text-4xl font-bold text-blue-900 text-center mb-8">
-          Endereço de Coleta
+          Endereco de Coleta
         </h1>
 
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-blue-900 mb-4">
-            Tipo de Resíduo
+            Tipo de Residuo
           </h2>
 
           <div className="min-h-24 border-2 border-blue-900 rounded-3xl p-4 flex flex-wrap gap-3 mb-4">
             {residuosSelecionados.length === 0 ? (
               <p className="text-gray-400 text-lg">
-                Clique nos resíduos abaixo para adicionar
+                Clique nos residuos abaixo para adicionar
               </p>
             ) : (
               residuosSelecionados.map((residuo) => (
@@ -50,7 +50,7 @@ export default function Confirmation() {
                   onClick={() => removerResiduo(residuo)}
                   className="bg-blue-900 text-white px-4 py-2 rounded-full text-base font-semibold cursor-pointer"
                 >
-                  {residuo} ×
+                  {residuo} x
                 </button>
               ))
             )}
@@ -94,7 +94,7 @@ export default function Confirmation() {
 
           <div>
             <label className="block mb-2 text-lg font-semibold text-blue-900">
-              Horário
+              Horario
             </label>
             <input
               type="time"
@@ -104,10 +104,10 @@ export default function Confirmation() {
 
           <div>
             <label className="block mb-2 text-lg font-semibold text-blue-900">
-              Observações
+              Observacoes
             </label>
             <textarea
-              placeholder="Digite alguma observação"
+              placeholder="Digite alguma observacao"
               rows="4"
               className="w-full border-2 border-blue-900 rounded-2xl shadow-sm px-6 py-4 text-lg focus:outline-none focus:ring-2 focus:ring-blue-900"
             />
@@ -120,7 +120,7 @@ export default function Confirmation() {
               className="bg-blue-900 text-white px-12 py-4 rounded-full text-xl font-semibold hover:bg-blue-950 transition cursor-pointer flex items-center gap-3"
             >
               Finalizar Cadastro
-              <span className="text-2xl">→</span>
+              <span className="text-2xl">{"->"}</span>
             </button>
           </div>
         </form>

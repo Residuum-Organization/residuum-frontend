@@ -24,7 +24,7 @@ export default function LoginPage() {
             <section className="lg:w-1/2 lg:p-10">
               <div className="mx-auto mb-6 flex w-full max-w-xs flex-col items-center text-center sm:mb-7 lg:hidden">
                 <img
-                  src="/residuum-logo.png"
+                  src="/logo.jpeg"
                   alt="Logo Residuum"
                   className="h-16 w-16 object-contain"
                 />

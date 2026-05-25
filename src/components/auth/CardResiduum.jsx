@@ -5,7 +5,7 @@ export default function CardResiduum({ description, highlights = [], footer }) {
     <section className="hidden lg:flex lg:w-1/2 lg:flex-col lg:justify-between lg:rounded-l-3xl lg:bg-[var(--color-welcome-blue)] lg:p-10 lg:text-white">
       <div>
         <img
-          src="/residuum-logo.png"
+          src="/logo.jpeg"
           alt="Residuum"
           className="h-16 w-16 object-contain"
         />

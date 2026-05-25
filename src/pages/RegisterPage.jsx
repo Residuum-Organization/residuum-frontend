@@ -81,7 +81,7 @@ export default function RegisterPage() {
           <section className="lg:w-1/2 lg:p-10">
             <div className="mb-6 text-center lg:hidden">
               <img
-                src="/residuum-logo.png"
+                src="/logo.jpeg"
                 alt="Logo Residuum"
                 className="mx-auto h-14 w-14 object-contain"
               />
