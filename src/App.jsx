@@ -57,6 +57,13 @@ const authRoutes = [
   { path: "/login", label: "Login", Component: LoginPage },
   { path: "/cadastro", label: "Cadastro morador", Component: RegisterPage },
   {
+    path: "/cadastro-ponto-coleta",
+    label: "Cadastro ponto",
+    Component: RegisterPontoColetaPage,
+  },
+  { path: "/empresa", label: "Endereço ponto", Component: Company },
+  { path: "/confirmacao", label: "Confirmação ponto", Component: Confirmation },
+  {
     path: "/recuperar-senha",
     label: "Recuperar senha",
     Component: ForgotPasswordPage,
@@ -64,13 +71,6 @@ const authRoutes = [
 ];
 
 const parceiroRoutes = [
-  {
-    path: "/cadastro-ponto-coleta",
-    label: "Cadastro do ponto",
-    Component: RegisterPontoColetaPage,
-  },
-  { path: "/empresa", label: "Endereço", Component: Company },
-  { path: "/confirmacao", label: "Confirmação", Component: Confirmation },
   { path: "/dashboard", label: "Dashboard", Component: DashboardScreen },
   { path: "/schedule", label: "Agenda", Component: ScheduleScreen },
 ];

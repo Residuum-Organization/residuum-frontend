@@ -7,38 +7,38 @@ export default function ActivePoints() {
       <SectionTitle title="Pontos mais ativos" buttonText="Ver todos" />
 
       <div className="flex gap-3 overflow-hidden">
-        <div className="w-[145px] bg-white rounded-2xl border border-[#DDE5EE] shadow-sm p-3 flex-shrink-0">
+        <div className="w-[145px] flex-shrink-0 rounded-2xl border border-[#DDE5EE] bg-white p-4 shadow-sm">
           <div className="flex justify-between items-start">
-            <div className="w-10 h-10 rounded-full bg-[#EAF7EE] flex items-center justify-center text-lg">
+            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#EAF7EE] text-xl">
               🏅
             </div>
 
-            <span className="text-[#2FA84F] text-xs font-bold">#1</span>
+            <span className="text-sm font-bold text-[#2FA84F]">#1</span>
           </div>
 
-          <h3 className="text-[#1F4E79] text-[13px] font-bold mt-3">
+          <h3 className="mt-4 text-[17px] font-bold text-[#1F4E79]">
             Ponto Leste
           </h3>
 
-          <p className="text-gray-500 text-[10px] mt-1">
+          <p className="mt-1 text-xs text-gray-500">
             316 entregas realizadas
           </p>
         </div>
 
-        <div className="w-[145px] bg-white rounded-2xl border border-[#DDE5EE] shadow-sm p-3 flex-shrink-0">
+        <div className="w-[145px] flex-shrink-0 rounded-2xl border border-[#DDE5EE] bg-white p-4 shadow-sm">
           <div className="flex justify-between items-start">
-            <div className="w-10 h-10 rounded-full bg-[#EAF7EE] flex items-center justify-center text-lg">
+            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#EAF7EE] text-xl">
               🏅
             </div>
 
-            <span className="text-[#2FA84F] text-xs font-bold">#2</span>
+            <span className="text-sm font-bold text-[#2FA84F]">#2</span>
           </div>
 
-          <h3 className="text-[#1F4E79] text-[13px] font-bold mt-3">
+          <h3 className="mt-4 text-[17px] font-bold text-[#1F4E79]">
             Ponto Norte
           </h3>
 
-          <p className="text-gray-500 text-[10px] mt-1">
+          <p className="mt-1 text-xs text-gray-500">
             151 entregas realizadas
           </p>
         </div>

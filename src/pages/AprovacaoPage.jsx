@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import ApprovalCard from "../components/coleta-dados/ApprovalCard";
-import BottomNav from "../components/admin/BottomNav";
+import AdminShell from "../components/admin/AdminShell";
 
 const solicitacoes = [
   {
@@ -51,48 +51,47 @@ export default function Aprovacao() {
   const rejeitar = (id) => setCards((prev) => prev.filter((c) => c.id !== id));
 
   return (
-    <div className="bg-[#f5f7f8] min-h-screen p-6 pb-28 relative">
-      <div className="max-w-sm mx-auto">
-        {/* Título */}
-        <h1 className="text-3xl font-bold text-gray-800 leading-tight mb-2">
-          Aprovação de
-          <br />
-          Pontos de Coleta
-        </h1>
-
-        {/* Pendências */}
-        <p className="flex items-center text-yellow-500 font-medium mb-6 gap-2">
-          <span className="w-3 h-3 rounded-full bg-yellow-500 inline-block"></span>
-          {cards.length} solicitações pendentes
-        </p>
-
-        {/* Mensagem caso não haja cards */}
-        {cards.length === 0 && (
-          <p className="text-center text-gray-500 mt-10">
-            Nenhuma solicitação pendente
+    <AdminShell contentClassName="px-5 pt-5">
+      <header className="mb-6 flex items-start justify-between gap-4">
+        <div>
+          <p className="text-sm font-semibold text-[#1F4E79]">
+            Painel Administrativo
           </p>
-        )}
+          <h1 className="mt-1 text-3xl font-bold leading-tight text-gray-800">
+            Aprovação de
+            <br />
+            Pontos de Coleta
+          </h1>
+        </div>
 
-        {/* Cards */}
-        {cards.map((item) => (
-          <ApprovalCard
-            key={item.id}
-            item={item}
-            onAprovar={() => aprovar(item.id)}
-            onRejeitar={() => rejeitar(item.id)}
+        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white shadow-sm">
+          <img
+            src="https://tse3.mm.bing.net/th/id/OIP.lMsrniFpgibNNL_T3pNjqwHaHZ?r=0&rs=1&pid=ImgDetMain&o=7&rm=3"
+            alt="Logo Residuum"
+            className="w-10 object-contain"
           />
-        ))}
-      </div>
+        </div>
+      </header>
 
-      {/* Logo fixa no canto superior direito */}
-      <img
-        src="https://tse3.mm.bing.net/th/id/OIP.lMsrniFpgibNNL_T3pNjqwHaHZ?r=0&rs=1&pid=ImgDetMain&o=7&rm=3"
-        alt="Logo do projeto"
-        className="fixed top-4 right-4 w-16 h-16 object-contain z-50"
-      />
+      <p className="mb-6 flex items-center gap-2 font-medium text-yellow-500">
+        <span className="inline-block h-3 w-3 rounded-full bg-yellow-500"></span>
+        {cards.length} solicitações pendentes
+      </p>
 
-      {/* Rodapé responsivo (apenas mobile) */}
-      <BottomNav />
-    </div>
+      {cards.length === 0 && (
+        <p className="mt-10 text-center text-gray-500">
+          Nenhuma solicitação pendente
+        </p>
+      )}
+
+      {cards.map((item) => (
+        <ApprovalCard
+          key={item.id}
+          item={item}
+          onAprovar={() => aprovar(item.id)}
+          onRejeitar={() => rejeitar(item.id)}
+        />
+      ))}
+    </AdminShell>
   );
 }

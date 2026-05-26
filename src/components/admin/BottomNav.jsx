@@ -12,7 +12,7 @@ const adminNavItems = [
 
 export default function BottomNav() {
   return (
-    <nav className="fixed bottom-4 left-1/2 z-[999] grid w-[360px] -translate-x-1/2 grid-cols-5 bg-[#1F4E79] px-3 py-4 text-white shadow-xl lg:left-[calc(50%+9rem)]">
+    <nav className="grid w-full grid-cols-5 bg-[#1F4E79] px-3 py-4 text-white shadow-xl">
       {adminNavItems.map(({ to, label, Icon }) => (
         <NavLink
           key={to}

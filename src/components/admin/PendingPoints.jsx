@@ -8,13 +8,13 @@ export default function PendingPoints() {
     <section className="mt-5">
       <SectionTitle title="Pontos pendentes" buttonText="Ver todos" />
 
-      <div className="bg-white rounded-2xl border border-[#DDE5EE] shadow-sm overflow-hidden">
-        <div className="px-4 py-3 border-b border-[#EEF2F6] flex justify-between items-center">
+      <div className="overflow-hidden rounded-2xl border border-[#DDE5EE] bg-white shadow-sm">
+        <div className="flex items-center justify-between border-b border-[#EEF2F6] px-4 py-4">
           <div>
-            <h3 className="text-[#1F4E79] text-[13px] font-bold">
+            <h3 className="text-[17px] font-bold text-[#1F4E79]">
               Eco Ponto Centro
             </h3>
-            <p className="text-gray-500 text-[10px]">
+            <p className="mt-1 text-xs text-gray-500">
               Plástico • Metal • Papel
             </p>
           </div>
@@ -26,12 +26,12 @@ export default function PendingPoints() {
           />
         </div>
 
-        <div className="px-4 py-3 flex justify-between items-center">
+        <div className="flex items-center justify-between px-4 py-4">
           <div>
-            <h3 className="text-[#1F4E79] text-[13px] font-bold">
+            <h3 className="text-[17px] font-bold text-[#1F4E79]">
               Coleta Norte
             </h3>
-            <p className="text-gray-500 text-[10px]">Vidro • Alumínio</p>
+            <p className="mt-1 text-xs text-gray-500">Vidro • Alumínio</p>
           </div>
 
           <StatusBadge

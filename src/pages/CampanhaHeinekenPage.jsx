@@ -10,39 +10,36 @@ import {
   Trophy,
   CircleDollarSign,
 } from "lucide-react";
-import BottomNav from "../components/admin/BottomNav";
+import AdminShell from "../components/admin/AdminShell";
 
 export default function CampanhaHeineken() {
   const [tela, setTela] = useState("funciona");
 
   return (
-    <div className="min-h-screen bg-[#f1f3ff] flex justify-center">
-      <div className="w-full max-w-[430px] min-h-screen bg-[#fbfbff] flex flex-col">
+    <AdminShell
+      shellClassName="bg-[#fbfbff]"
+      contentClassName="px-4 pt-0 sm:px-6"
+    >
         <Topo />
 
-        <main className="flex-1 w-full px-4 pb-28 sm:px-6">
-          <section className="w-full max-w-[430px] mx-auto border-2 border-[#119cff] rounded-[18px] px-4 pt-5 pb-5 bg-[#fbfbff] shadow-sm sm:px-5">
-            <CabecalhoCampanha />
-            <Progresso />
-            <Abas tela={tela} setTela={setTela} />
+        <section className="mx-auto w-full max-w-[430px] rounded-[18px] border-2 border-[#119cff] bg-[#fbfbff] px-4 pb-5 pt-5 shadow-sm sm:px-5">
+          <CabecalhoCampanha />
+          <Progresso />
+          <Abas tela={tela} setTela={setTela} />
 
-            <div>
-              {tela === "funciona" && <ComoFunciona />}
-              {tela === "sobre" && <Sobre />}
-              {tela === "premios" && <Premios />}
-            </div>
+          <div>
+            {tela === "funciona" && <ComoFunciona />}
+            {tela === "sobre" && <Sobre />}
+            {tela === "premios" && <Premios />}
+          </div>
 
-            <div className="hidden">
-              <ComoFunciona />
-              <Sobre />
-              <Premios />
-            </div>
-          </section>
-        </main>
-
-        <BottomNav />
-      </div>
-    </div>
+          <div className="hidden">
+            <ComoFunciona />
+            <Sobre />
+            <Premios />
+          </div>
+        </section>
+    </AdminShell>
   );
 }
 

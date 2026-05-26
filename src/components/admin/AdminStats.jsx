@@ -2,29 +2,29 @@ import React from "react";
 
 export default function AdminStats() {
   return (
-    <div className="grid grid-cols-4 gap-2 mt-5">
-      <div className="bg-white rounded-2xl p-2.5 shadow-sm border border-[#DDE5EE] text-center">
-        <p className="text-lg">👤</p>
-        <h2 className="text-[#1F4E79] text-[20px] font-bold leading-6">2.8k</h2>
-        <p className="text-[#1F4E79] text-[9px] font-semibold">Usuários</p>
+    <div className="mt-5 grid grid-cols-4 gap-3">
+      <div className="rounded-2xl border border-[#DDE5EE] bg-white p-3 text-center shadow-sm">
+        <p className="text-xl">👤</p>
+        <h2 className="text-[21px] font-bold leading-6 text-[#1F4E79]">2.8k</h2>
+        <p className="mt-1 text-[11px] font-semibold text-[#1F4E79]">Usuários</p>
       </div>
 
-      <div className="bg-white rounded-2xl p-2.5 shadow-sm border border-[#DDE5EE] text-center">
-        <p className="text-lg">📍</p>
-        <h2 className="text-[#1F4E79] text-[20px] font-bold leading-6">12</h2>
-        <p className="text-[#1F4E79] text-[9px] font-semibold">Pontos</p>
+      <div className="rounded-2xl border border-[#DDE5EE] bg-white p-3 text-center shadow-sm">
+        <p className="text-xl">📍</p>
+        <h2 className="text-[21px] font-bold leading-6 text-[#1F4E79]">12</h2>
+        <p className="mt-1 text-[11px] font-semibold text-[#1F4E79]">Pontos</p>
       </div>
 
-      <div className="bg-white rounded-2xl p-2.5 shadow-sm border border-[#DDE5EE] text-center">
-        <p className="text-lg">♻️</p>
-        <h2 className="text-[#1F4E79] text-[20px] font-bold leading-6">35t</h2>
-        <p className="text-[#1F4E79] text-[9px] font-semibold">Volume</p>
+      <div className="rounded-2xl border border-[#DDE5EE] bg-white p-3 text-center shadow-sm">
+        <p className="text-xl">♻️</p>
+        <h2 className="text-[21px] font-bold leading-6 text-[#1F4E79]">35t</h2>
+        <p className="mt-1 text-[11px] font-semibold text-[#1F4E79]">Volume</p>
       </div>
 
-      <div className="bg-white rounded-2xl p-2.5 shadow-sm border border-[#DDE5EE] text-center">
-        <p className="text-lg">💰</p>
-        <h2 className="text-[#1F4E79] text-[20px] font-bold leading-6">4.2k</h2>
-        <p className="text-[#1F4E79] text-[9px] font-semibold">Resgate</p>
+      <div className="rounded-2xl border border-[#DDE5EE] bg-white p-3 text-center shadow-sm">
+        <p className="text-xl">💰</p>
+        <h2 className="text-[21px] font-bold leading-6 text-[#1F4E79]">4.2k</h2>
+        <p className="mt-1 text-[11px] font-semibold text-[#1F4E79]">Resgate</p>
       </div>
     </div>
   );
