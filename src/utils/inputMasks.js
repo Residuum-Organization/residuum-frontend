@@ -17,3 +17,11 @@ export function applyPhoneMask(value = "") {
 
   return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7, 11)}`;
 }
+
+export function applyCepMask(value = "") {
+  const digits = limitLength(onlyDigits(value), 8);
+
+  if (digits.length <= 5) return digits;
+
+  return `${digits.slice(0, 5)}-${digits.slice(5)}`;
+}
