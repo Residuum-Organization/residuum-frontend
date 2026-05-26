@@ -52,7 +52,7 @@ export default function Aprovacao() {
 
   return (
     <div className="bg-[#f5f7f8] min-h-screen p-6 pb-28 relative">
-      <div className="max-w-md mx-auto">
+      <div className="max-w-sm mx-auto">
         {/* Título */}
         <h1 className="text-3xl font-bold text-gray-800 leading-tight mb-2">
           Aprovação de

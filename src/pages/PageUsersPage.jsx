@@ -64,7 +64,7 @@ export default function PageUsers() {
     <>
       <Navbar />
       <div className="bg-gray-100 min-h-screen flex flex-col items-center py-6">
-        <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-6">
+        <div className="w-full max-w-sm bg-white rounded-xl shadow-lg p-6">
           
           {/* Cabeçalho do Card Principal */}
           <div className="flex items-center mb-4">

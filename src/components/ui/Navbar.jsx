@@ -5,7 +5,7 @@ import { Home, MapPin, QrCode, Recycle, Star, User } from 'lucide-react';
 const navItems = [
   { to: '/mapa', label: 'Localizacao', Icon: MapPin },
   { to: '/meu-estoque', label: 'Estoque', Icon: Recycle },
-  { to: '/welcome-residuum', label: 'Inicio', Icon: Home },
+  { to: '/inicio', label: 'Inicio', Icon: Home },
   { to: '/escanear-qr', label: 'QR Code', Icon: QrCode },
   { to: '/sorteios', label: 'Sorteios', Icon: Star },
   { to: '/perfil', label: 'Perfil', Icon: User },

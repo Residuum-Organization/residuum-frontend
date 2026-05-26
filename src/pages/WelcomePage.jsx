@@ -7,7 +7,7 @@ export default function WelcomePage() {
 
   return (
     <main className="h-dvh overflow-hidden bg-[var(--color-welcome-surface)] px-4 py-4 sm:px-6 sm:py-5">
-      <section className="mx-auto flex h-full w-full max-w-md flex-col justify-between rounded-3xl bg-[var(--color-welcome-surface)] px-5 py-5 sm:max-w-lg sm:px-8 sm:py-6">
+      <section className="mx-auto flex h-full w-full max-w-sm flex-col justify-between rounded-3xl bg-[var(--color-welcome-surface)] px-5 py-5 sm:px-8 sm:py-6">
         <div className="space-y-4">
           <h1 className="text-2xl font-extrabold leading-tight text-[var(--color-welcome-blue)] sm:text-[1.65rem]">
             Boas vindas ao Residuum seu sistema inteligente de coleta!

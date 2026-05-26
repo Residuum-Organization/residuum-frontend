@@ -1,6 +1,5 @@
 import React from "react";
 import Card from "../ui/Card";
-import CardResiduum from "./CardResiduum";
 
 const defaultHighlights = [
   "Cadastre dados essenciais em poucos passos",
@@ -15,22 +14,13 @@ export default function AuthShell({
   description = "O Residuum conecta moradores, pontos de coleta e parceiros para transformar descarte em impacto positivo.",
   highlights = defaultHighlights,
   footer = '"Dados organizados tornam a coleta mais simples, rastreável e sustentável."',
-  minHeight = "lg:min-h-[650px]",
 }) {
   return (
     <main className="min-h-screen bg-[var(--color-welcome-surface)] px-4 py-6 sm:px-6 sm:py-8 lg:grid lg:place-items-center">
-      <Card className="mx-auto w-full max-w-md border-0 p-6 shadow-xl sm:p-8 lg:max-w-6xl lg:p-0">
-        <div className={`lg:flex ${minHeight} lg:items-stretch`}>
-          <CardResiduum
-            description={description}
-            highlights={highlights}
-            footer={footer}
-          />
-
-          <div className="hidden lg:block lg:w-px lg:bg-slate-200" />
-
-          <section className="lg:w-1/2 lg:p-10">
-            <div className="mb-6 text-center lg:hidden">
+      <Card className="mx-auto w-full max-w-sm border-0 p-6 shadow-xl sm:p-8">
+        <div>
+          <section>
+            <div className="mb-6 text-center">
               <img
                 src="/logo.jpeg"
                 alt="Logo Residuum"
@@ -39,6 +29,10 @@ export default function AuthShell({
               <h1 className="mt-2 text-3xl font-bold text-[var(--color-welcome-blue)]">
                 Residuum
               </h1>
+            </div>
+
+            <div className="mb-6 rounded-2xl bg-[var(--color-welcome-blue)]/5 p-4 text-sm font-semibold leading-relaxed text-[var(--color-welcome-muted)]">
+              {description}
             </div>
 
             <div className="mb-6">

@@ -27,7 +27,7 @@ export default function ForgotPasswordPage() {
 
   return (
     <main className="h-dvh overflow-hidden bg-[var(--color-welcome-surface)] px-4 py-6 sm:px-6 sm:py-8">
-      <Card className="mx-auto flex h-full w-full max-w-md flex-col border-0 p-6 shadow-xl sm:p-8">
+      <Card className="mx-auto flex h-full w-full max-w-sm flex-col border-0 p-6 shadow-xl sm:p-8">
         <div>
           <img
             src="/logo.jpeg"

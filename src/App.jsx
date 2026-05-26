@@ -24,6 +24,7 @@ import AdminPoints from "./pages/AdminPointsPage";
 import Company from "./pages/CompanyPage";
 import Confirmation from "./pages/ConfirmationPage";
 import RegisterPontoColetaPage from "./pages/RegisterPontoColetaPage";
+import ComingSoonPage from "./pages/ComingSoonPage";
 
 const moradorRoutes = [
   { path: "/welcome", label: "Boas-vindas", Component: WelcomePage },
@@ -39,6 +40,7 @@ const moradorRoutes = [
     label: "Welcome Residuum",
     Component: WelcomeResiduum,
   },
+  { path: "/inicio", label: "Início", Component: ComingSoonPage },
   { path: "/mapa", label: "Mapa", Component: MapPage },
   { path: "/meu-estoque", label: "Meu estoque", Component: MeuEstoquePage },
   {
@@ -56,8 +58,6 @@ const moradorRoutes = [
   { path: "/sorteios", label: "Sorteios", Component: SorteiosPage },
   { path: "/sorteios/:id", Component: SorteioDetalhesPage, sidebar: false },
   { path: "/perfil", label: "Perfil", Component: ProfilePage },
-  { path: "/dashboard", label: "Dashboard", Component: DashboardScreen },
-  { path: "/schedule", label: "Agenda", Component: ScheduleScreen },
 ];
 
 const parceiroRoutes = [
@@ -68,6 +68,8 @@ const parceiroRoutes = [
   },
   { path: "/empresa", label: "Endereço", Component: Company },
   { path: "/confirmacao", label: "Confirmação", Component: Confirmation },
+  { path: "/dashboard", label: "Dashboard", Component: DashboardScreen },
+  { path: "/schedule", label: "Agenda", Component: ScheduleScreen },
 ];
 
 const adminRoutes = [
