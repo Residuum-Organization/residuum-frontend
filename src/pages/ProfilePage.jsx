@@ -1,12 +1,15 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useProfile } from '../hooks/useProfile'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
 import Badge from '../components/ui/Badge'
 import Label from '../components/ui/Label'
+import Navbar from '../components/ui/Navbar'
 
 export default function ProfilePage() {
   const { data: profile, isLoading, isError } = useProfile()
+  const navigate = useNavigate()
 
   if (isLoading) {
     return (
@@ -28,7 +31,7 @@ export default function ProfilePage() {
 
   return (
     <div className="bg-[#F4F7FA] min-h-screen flex justify-center py-8 px-4 font-sans">
-      <div className="w-full max-w-[420px] bg-white rounded-[32px] shadow-2xl overflow-hidden border border-gray-100">
+      <div className="w-full max-w-[420px] bg-white rounded-[32px] shadow-2xl overflow-hidden border border-gray-100 pb-28">
 
         <div className="bg-[#0D2C8B] px-6 pt-8 pb-10 text-white relative">
           <div className="flex justify-between items-start">
@@ -77,12 +80,22 @@ export default function ProfilePage() {
         <div className="px-5 mt-8">
           <h2 className="text-2xl font-bold text-[#0D2C8B] mb-4">Acesso rápido</h2>
           <div className="grid grid-cols-2 gap-4">
-            <Button variant="primary" className="p-5 text-left">
+            <Button
+              type="button"
+              variant="primary"
+              onClick={() => navigate('/mapa')}
+              className="p-5 text-left"
+            >
               <div className="text-3xl">♻️</div>
               <h3 className="font-bold text-lg mt-4">Pontos de coleta</h3>
               <p className="text-sm opacity-80 mt-1">encontre locais próximos</p>
             </Button>
-            <Button variant="secondary" className="p-5 text-left">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => navigate('/sorteios')}
+              className="p-5 text-left"
+            >
               <div className="text-3xl">🎁</div>
               <h3 className="font-bold text-lg text-[#0D2C8B] mt-4">Recompensas</h3>
               <p className="text-sm text-gray-500 mt-1">troque seus pontos</p>
@@ -90,11 +103,7 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[420px] bg-white border-t border-gray-200 px-8 py-4 flex justify-between items-center rounded-t-3xl shadow-2xl">
-          <button className="flex flex-col items-center text-gray-400 text-xs gap-1"><span className="text-2xl">🏠</span>Início</button>
-          <button className="flex flex-col items-center text-gray-400 text-xs gap-1"><span className="text-2xl">📍</span>Pontos</button>
-          <button className="flex flex-col items-center text-[#0D2C8B] text-xs gap-1 font-bold"><span className="text-2xl">👤</span>Perfil</button>
-        </div>
+        <Navbar />
 
       </div>
     </div>

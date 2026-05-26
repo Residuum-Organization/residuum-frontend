@@ -1,15 +1,12 @@
 // src/pages/MeuEstoque.jsx
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
-  MapPin,
-  RefreshCw,
-  Home,
-  Barcode,
-  Star,
   Trash2,
   Wine,
   CircleDot,
 } from 'lucide-react'
+import Navbar from '../components/ui/Navbar'
 
 const itensIniciais = [
   { id: 1, nome: 'Garrafa Pet 2L', codigo: '7891000053508', quantidade: 2, pontos: 40, tipo: 'garrafa' },
@@ -22,6 +19,7 @@ const getItemIcon = (tipo) => (tipo === 'metal' ? CircleDot : Wine)
 
 export default function MeuEstoque() {
   const [itens, setItens] = useState(itensIniciais)
+  const navigate = useNavigate()
 
   const incrementar = (id) => {
     setItens((prev) =>
@@ -120,19 +118,16 @@ export default function MeuEstoque() {
         </div>
 
         {/* Botão Adicionar Resíduo */}
-        <button className="w-full bg-[#1e4d6b] text-white font-semibold py-4 rounded-full text-sm mt-6">
+        <button
+          type="button"
+          onClick={() => navigate('/cadastrar-residuo')}
+          className="w-full bg-[#1e4d6b] text-white font-semibold py-4 rounded-full text-sm mt-6"
+        >
           Adicionar Resíduo
         </button>
       </div>
 
-      {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-sm bg-[#1e4d6b] flex justify-around items-center py-4 px-6">
-        <button className="text-white"><MapPin size={22} /></button>
-        <button className="text-white"><RefreshCw size={22} /></button>
-        <button className="text-white"><Home size={22} /></button>
-        <button className="text-white"><Barcode size={22} /></button>
-        <button className="text-white"><Star size={22} /></button>
-      </nav>
+      <Navbar />
     </div>
   )
 }

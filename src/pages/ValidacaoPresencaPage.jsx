@@ -1,6 +1,8 @@
 // src/pages/ValidacaoPresenca.jsx
 import React, { useState, useEffect } from 'react'
-import { MapPin, RefreshCw, Home, Barcode, Star } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { MapPin } from 'lucide-react'
+import Navbar from '../components/ui/Navbar'
 
 const DISTANCIA_MAXIMA = 100
 const PONTO = {
@@ -12,6 +14,7 @@ const PONTO = {
 export default function ValidacaoPresenca() {
   const [distancia, setDistancia] = useState(42)
   const [detectando, setDetectando] = useState(true)
+  const navigate = useNavigate()
 
   useEffect(() => {
     const timer = setTimeout(() => setDetectando(false), 3000)
@@ -100,20 +103,17 @@ export default function ValidacaoPresenca() {
             {proximidade ? 'Aguardando proximidade' : 'Validar Presença'}
           </button>
 
-          <button className="w-full py-4 rounded-full font-semibold text-sm border-2 border-[#1e4d6b] text-[#1e4d6b] bg-white">
+          <button
+            type="button"
+            onClick={() => navigate('/escanear-qr')}
+            className="w-full py-4 rounded-full font-semibold text-sm border-2 border-[#1e4d6b] text-[#1e4d6b] bg-white"
+          >
             Usar Qr Code como alternativa
           </button>
         </div>
       </div>
 
-      {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-sm bg-[#1e4d6b] flex justify-around items-center py-4 px-6">
-        <button className="text-white"><MapPin size={22} /></button>
-        <button className="text-white"><RefreshCw size={22} /></button>
-        <button className="text-white"><Home size={22} /></button>
-        <button className="text-white"><Barcode size={22} /></button>
-        <button className="text-white"><Star size={22} /></button>
-      </nav>
+      <Navbar />
     </div>
   )
 }

@@ -1,10 +1,12 @@
 // src/pages/EscanearQrCode.jsx
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { CheckCircle } from 'lucide-react'
-import { MapPin, RefreshCw, Home, Barcode, Star } from 'lucide-react'
+import Navbar from '../components/ui/Navbar'
 
 export default function EscanearQrCode() {
   const [lido, setLido] = useState(false)
+  const navigate = useNavigate()
 
   const simularLeitura = () => {
     setLido(true)
@@ -60,7 +62,7 @@ export default function EscanearQrCode() {
 
         {/* Botão confirmar */}
         <button
-          onClick={simularLeitura}
+          onClick={() => navigate('/validacao-presenca')}
           disabled={!lido}
           className={`w-full mt-6 py-4 rounded-full font-semibold text-sm transition-all ${
             lido
@@ -79,14 +81,7 @@ export default function EscanearQrCode() {
         )}
       </div>
 
-      {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-sm bg-[#1e4d6b] flex justify-around items-center py-4 px-6">
-        <button className="text-white"><MapPin size={22} /></button>
-        <button className="text-white"><RefreshCw size={22} /></button>
-        <button className="text-white"><Home size={22} /></button>
-        <button className="text-white"><Barcode size={22} /></button>
-        <button className="text-white"><Star size={22} /></button>
-      </nav>
+      <Navbar />
     </div>
   )
 }

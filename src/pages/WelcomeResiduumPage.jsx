@@ -1,8 +1,11 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 function WelcomeResiduum() {
+  const navigate = useNavigate();
+
   return (
-    <main className="min-h-screen bg-white font-sans">
+    <main className="mx-auto min-h-screen w-full max-w-sm bg-white font-sans">
       <section className="bg-gradient-to-b from-blue-950 to-teal-800 text-white text-center px-6 pt-12 pb-10">
         <div className="text-5xl mb-4">🎉</div>
 
@@ -56,7 +59,11 @@ function WelcomeResiduum() {
           </p>
         </div>
 
-        <button className="block mx-auto mt-7 bg-blue-900 text-white font-bold text-lg px-14 py-3 rounded-full">
+        <button
+          type="button"
+          onClick={() => navigate("/cadastrar-residuo")}
+          className="block mx-auto mt-7 bg-blue-900 text-white font-bold text-lg px-14 py-3 rounded-full"
+        >
           Começar a reciclar
         </button>
       </section>
