@@ -91,6 +91,15 @@ const navigationGroups = [
 ];
 
 function PresentationSidebar() {
+  const [collapsedGroups, setCollapsedGroups] = React.useState({});
+
+  function toggleGroup(title) {
+    setCollapsedGroups((current) => ({
+      ...current,
+      [title]: !current[title],
+    }));
+  }
+
   return (
     <aside className="fixed inset-y-0 left-0 z-[2000] hidden w-72 flex-col border-r border-slate-200 bg-slate-50 px-5 py-6 shadow-xl lg:flex">
       <div className="mb-6 flex items-center gap-3 rounded-3xl bg-[var(--color-welcome-blue)] p-4 text-white shadow-lg shadow-blue-950/10">
@@ -113,31 +122,42 @@ function PresentationSidebar() {
             key={group.title}
             className="rounded-3xl border border-slate-200 bg-white p-3 shadow-sm"
           >
-            <div className="mb-3 flex items-center gap-3 px-1">
+            <button
+              type="button"
+              onClick={() => toggleGroup(group.title)}
+              className="mb-3 flex w-full items-center gap-3 px-1 text-left"
+              aria-expanded={!collapsedGroups[group.title]}
+            >
               <h2 className="text-sm font-black uppercase tracking-[0.16em] text-[var(--color-welcome-blue)]">
                 {group.title}
               </h2>
               <span className="h-0.5 flex-1 rounded-full bg-[var(--color-welcome-blue)]/35" />
-            </div>
-            <div className="space-y-1.5">
-              {group.routes
-                .filter((route) => route.sidebar !== false)
-                .map((route) => (
-                  <NavLink
-                    key={route.path}
-                    to={route.path}
-                    className={({ isActive }) =>
-                      `block rounded-2xl border px-3 py-2.5 text-sm font-bold transition ${
-                        isActive
-                          ? "border-[var(--color-welcome-blue)] bg-[var(--color-welcome-blue)] text-white shadow-sm"
-                          : "border-transparent text-slate-600 hover:border-slate-200 hover:bg-slate-50 hover:text-[var(--color-welcome-blue)]"
-                      }`
-                    }
-                  >
-                    {route.label}
-                  </NavLink>
-                ))}
-            </div>
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-sm font-black text-[var(--color-welcome-blue)]">
+                {collapsedGroups[group.title] ? "+" : "−"}
+              </span>
+            </button>
+
+            {!collapsedGroups[group.title] ? (
+              <div className="space-y-1.5">
+                {group.routes
+                  .filter((route) => route.sidebar !== false)
+                  .map((route) => (
+                    <NavLink
+                      key={route.path}
+                      to={route.path}
+                      className={({ isActive }) =>
+                        `block rounded-2xl border px-3 py-2.5 text-sm font-bold transition ${
+                          isActive
+                            ? "border-[var(--color-welcome-blue)] bg-[var(--color-welcome-blue)] text-white shadow-sm"
+                            : "border-transparent text-slate-600 hover:border-slate-200 hover:bg-slate-50 hover:text-[var(--color-welcome-blue)]"
+                        }`
+                      }
+                    >
+                      {route.label}
+                    </NavLink>
+                  ))}
+              </div>
+            ) : null}
           </section>
         ))}
       </nav>
