@@ -1,16 +1,11 @@
 import React from 'react'
-import { NavLink, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useProfile } from '../hooks/useProfile'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
 import Badge from '../components/ui/Badge'
 import Label from '../components/ui/Label'
-
-const profileNavItems = [
-  { to: '/welcome-residuum', icon: '🏠', label: 'Início' },
-  { to: '/mapa', icon: '📍', label: 'Pontos' },
-  { to: '/perfil', icon: '👤', label: 'Perfil' },
-]
+import Navbar from '../components/ui/Navbar'
 
 export default function ProfilePage() {
   const { data: profile, isLoading, isError } = useProfile()
@@ -36,7 +31,7 @@ export default function ProfilePage() {
 
   return (
     <div className="bg-[#F4F7FA] min-h-screen flex justify-center py-8 px-4 font-sans">
-      <div className="w-full max-w-[420px] bg-white rounded-[32px] shadow-2xl overflow-hidden border border-gray-100">
+      <div className="w-full max-w-[420px] bg-white rounded-[32px] shadow-2xl overflow-hidden border border-gray-100 pb-28">
 
         <div className="bg-[#0D2C8B] px-6 pt-8 pb-10 text-white relative">
           <div className="flex justify-between items-start">
@@ -108,22 +103,7 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[420px] bg-white border-t border-gray-200 px-8 py-4 flex justify-between items-center rounded-t-3xl shadow-2xl">
-          {profileNavItems.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              className={({ isActive }) =>
-                `flex flex-col items-center text-xs gap-1 ${
-                  isActive ? 'text-[#0D2C8B] font-bold' : 'text-gray-400'
-                }`
-              }
-            >
-              <span className="text-2xl">{item.icon}</span>
-              {item.label}
-            </NavLink>
-          ))}
-        </div>
+        <Navbar />
 
       </div>
     </div>

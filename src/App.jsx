@@ -1,5 +1,5 @@
 import React from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, NavLink, Route, Routes } from "react-router-dom";
 import MapPage from "./pages/MapPage";
 import ProfilePage from "./pages/ProfilePage";
 import CadastrarResiduoPage from "./pages/CadastrarResiduoPage";
@@ -26,56 +26,145 @@ import Confirmation from "./pages/ConfirmationPage";
 import RegisterPontoColetaPage from "./pages/RegisterPontoColetaPage";
 
 const moradorRoutes = [
-  { path: "/welcome", Component: WelcomePage },
-  { path: "/login", Component: LoginPage },
-  { path: "/cadastro", Component: RegisterPage },
-  { path: "/recuperar-senha", Component: ForgotPasswordPage },
-  { path: "/welcome-residuum", Component: WelcomeResiduum },
-  { path: "/mapa", Component: MapPage },
-  { path: "/meu-estoque", Component: MeuEstoquePage },
-  { path: "/cadastrar-residuo", Component: CadastrarResiduoPage },
-  { path: "/validacao-presenca", Component: ValidacaoPresencaPage },
-  { path: "/escanear-qr", Component: EscanearQrCodePage },
-  { path: "/extrato", Component: ExtratoPage },
-  { path: "/sorteios", Component: SorteiosPage },
-  { path: "/sorteios/:id", Component: SorteioDetalhesPage },
-  { path: "/perfil", Component: ProfilePage },
-  { path: "/dashboard", Component: DashboardScreen },
-  { path: "/schedule", Component: ScheduleScreen },
+  { path: "/welcome", label: "Boas-vindas", Component: WelcomePage },
+  { path: "/login", label: "Login", Component: LoginPage },
+  { path: "/cadastro", label: "Cadastro", Component: RegisterPage },
+  {
+    path: "/recuperar-senha",
+    label: "Recuperar senha",
+    Component: ForgotPasswordPage,
+  },
+  {
+    path: "/welcome-residuum",
+    label: "Welcome Residuum",
+    Component: WelcomeResiduum,
+  },
+  { path: "/mapa", label: "Mapa", Component: MapPage },
+  { path: "/meu-estoque", label: "Meu estoque", Component: MeuEstoquePage },
+  {
+    path: "/cadastrar-residuo",
+    label: "Cadastrar resíduo",
+    Component: CadastrarResiduoPage,
+  },
+  {
+    path: "/validacao-presenca",
+    label: "Validação",
+    Component: ValidacaoPresencaPage,
+  },
+  { path: "/escanear-qr", label: "QR Code", Component: EscanearQrCodePage },
+  { path: "/extrato", label: "Extrato", Component: ExtratoPage },
+  { path: "/sorteios", label: "Sorteios", Component: SorteiosPage },
+  { path: "/sorteios/:id", Component: SorteioDetalhesPage, sidebar: false },
+  { path: "/perfil", label: "Perfil", Component: ProfilePage },
+  { path: "/dashboard", label: "Dashboard", Component: DashboardScreen },
+  { path: "/schedule", label: "Agenda", Component: ScheduleScreen },
 ];
 
 const parceiroRoutes = [
-  { path: "/cadastro-ponto-coleta", Component: RegisterPontoColetaPage },
-  { path: "/empresa", Component: Company },
-  { path: "/confirmacao", Component: Confirmation },
+  {
+    path: "/cadastro-ponto-coleta",
+    label: "Cadastro do ponto",
+    Component: RegisterPontoColetaPage,
+  },
+  { path: "/empresa", label: "Endereço", Component: Company },
+  { path: "/confirmacao", label: "Confirmação", Component: Confirmation },
 ];
 
 const adminRoutes = [
-  { path: "/admin", Component: AdminPage },
-  { path: "/aprovacao", Component: Aprovacao },
-  { path: "/campanha-heineken", Component: CampanhaHeineken },
-  { path: "/usuarios", Component: PageUsers },
-  { path: "/admin-pontos", Component: AdminPoints },
+  { path: "/admin", label: "Painel admin", Component: AdminPage },
+  { path: "/aprovacao", label: "Aprovação", Component: Aprovacao },
+  {
+    path: "/campanha-heineken",
+    label: "Campanha",
+    Component: CampanhaHeineken,
+  },
+  { path: "/usuarios", label: "Usuários", Component: PageUsers },
+  { path: "/admin-pontos", label: "Pontos", Component: AdminPoints },
 ];
+
+const navigationGroups = [
+  { title: "Morador", routes: moradorRoutes },
+  { title: "Parceiro", routes: parceiroRoutes },
+  { title: "Admin", routes: adminRoutes },
+];
+
+function PresentationSidebar() {
+  return (
+    <aside className="fixed inset-y-0 left-0 z-[2000] hidden w-72 flex-col border-r border-slate-200 bg-slate-50 px-5 py-6 shadow-xl lg:flex">
+      <div className="mb-6 flex items-center gap-3 rounded-3xl bg-[var(--color-welcome-blue)] p-4 text-white shadow-lg shadow-blue-950/10">
+        <img
+          src="/logo.jpeg"
+          alt="Residuum"
+          className="h-11 w-11 rounded-2xl object-contain"
+        />
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/70">
+            Residuum
+          </p>
+          <h1 className="text-lg font-black leading-tight">Apresentação</h1>
+        </div>
+      </div>
+
+      <nav className="flex-1 space-y-5 overflow-y-auto pr-1">
+        {navigationGroups.map((group) => (
+          <section
+            key={group.title}
+            className="rounded-3xl border border-slate-200 bg-white p-3 shadow-sm"
+          >
+            <div className="mb-3 flex items-center gap-3 px-1">
+              <h2 className="text-sm font-black uppercase tracking-[0.16em] text-[var(--color-welcome-blue)]">
+                {group.title}
+              </h2>
+              <span className="h-0.5 flex-1 rounded-full bg-[var(--color-welcome-blue)]/35" />
+            </div>
+            <div className="space-y-1.5">
+              {group.routes
+                .filter((route) => route.sidebar !== false)
+                .map((route) => (
+                  <NavLink
+                    key={route.path}
+                    to={route.path}
+                    className={({ isActive }) =>
+                      `block rounded-2xl border px-3 py-2.5 text-sm font-bold transition ${
+                        isActive
+                          ? "border-[var(--color-welcome-blue)] bg-[var(--color-welcome-blue)] text-white shadow-sm"
+                          : "border-transparent text-slate-600 hover:border-slate-200 hover:bg-slate-50 hover:text-[var(--color-welcome-blue)]"
+                      }`
+                    }
+                  >
+                    {route.label}
+                  </NavLink>
+                ))}
+            </div>
+          </section>
+        ))}
+      </nav>
+    </aside>
+  );
+}
 
 export default function App() {
   return (
-    <Routes>
-      {moradorRoutes.map(({ path, Component }) => (
-        <Route key={path} path={path} element={<Component />} />
-      ))}
+    <div className="min-h-screen bg-slate-100 lg:pl-72">
+      <PresentationSidebar />
 
-      {parceiroRoutes.map(({ path, Component }) => (
-        <Route key={path} path={path} element={<Component />} />
-      ))}
+      <Routes>
+        {moradorRoutes.map(({ path, Component }) => (
+          <Route key={path} path={path} element={<Component />} />
+        ))}
 
-      {adminRoutes.map(({ path, Component }) => (
-        <Route key={path} path={path} element={<Component />} />
-      ))}
+        {parceiroRoutes.map(({ path, Component }) => (
+          <Route key={path} path={path} element={<Component />} />
+        ))}
 
-      <Route path="/" element={<Navigate to="/welcome" replace />} />
-      <Route path="/demo" element={<Navigate to="/welcome" replace />} />
-      <Route path="*" element={<Navigate to="/welcome" replace />} />
-    </Routes>
+        {adminRoutes.map(({ path, Component }) => (
+          <Route key={path} path={path} element={<Component />} />
+        ))}
+
+        <Route path="/" element={<Navigate to="/welcome" replace />} />
+        <Route path="/demo" element={<Navigate to="/welcome" replace />} />
+        <Route path="*" element={<Navigate to="/welcome" replace />} />
+      </Routes>
+    </div>
   );
 }

@@ -10,7 +10,14 @@ export default function RegisterForm({
   onContinue,
 }) {
   return (
-    <form className="space-y-4 sm:space-y-5" noValidate>
+    <form
+      onSubmit={(event) => {
+        event.preventDefault();
+        onContinue();
+      }}
+      className="space-y-4 sm:space-y-5"
+      noValidate
+    >
       <FormField
         id="name"
         label="Nome completo"
@@ -55,9 +62,8 @@ export default function RegisterForm({
       />
 
       <Button
-        type="button"
+        type="submit"
         variant="brandPrimary"
-        onClick={onContinue}
         disabled={isSubmitting}
         className="mt-2 h-14 w-full rounded-full text-lg font-semibold disabled:cursor-not-allowed disabled:opacity-80"
       >

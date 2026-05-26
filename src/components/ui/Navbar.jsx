@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Home, MapPin, QrCode, Recycle, Star } from 'lucide-react';
+import { Home, MapPin, QrCode, Recycle, Star, User } from 'lucide-react';
 
 const navItems = [
   { to: '/mapa', label: 'Localizacao', Icon: MapPin },
@@ -8,11 +8,12 @@ const navItems = [
   { to: '/welcome-residuum', label: 'Inicio', Icon: Home },
   { to: '/escanear-qr', label: 'QR Code', Icon: QrCode },
   { to: '/sorteios', label: 'Sorteios', Icon: Star },
+  { to: '/perfil', label: 'Perfil', Icon: User },
 ];
 
 export default function Navbar() {
   return (
-    <nav className="fixed bottom-4 left-1/2 z-[999] grid w-[360px] -translate-x-1/2 grid-cols-5 bg-[#11527a] px-3 py-4 text-white shadow-xl">
+    <nav className="fixed bottom-4 left-1/2 z-[999] grid w-[360px] -translate-x-1/2 grid-cols-6 bg-[#11527a] px-3 py-4 text-white shadow-xl lg:left-[calc(50%+9rem)]">
       {navItems.map(({ to, label, Icon }) => (
         <NavLink
           key={to}
