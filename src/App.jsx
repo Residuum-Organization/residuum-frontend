@@ -78,33 +78,40 @@ export default function App() {
     <>
       <DemoNav />
       <Routes>
-        <Route path="/" element={<Navigate to="/welcome" replace />} />
-        <Route path="/demo" element={<Navigate to="/welcome" replace />} />
+        {/*ROTAS DE MORADOR*/}
         <Route path="/welcome" element={<WelcomePage />} />
-        <Route path="/welcome-residuum" element={<WelcomeResiduum />} />
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/recuperar-senha" element={<ForgotPasswordPage />} />
         <Route path="/cadastro" element={<RegisterPage />} />
-        <Route path="/perfil" element={<ProfilePage />} />
-        <Route path="/cadastrar-residuo" element={<CadastrarResiduoPage />} />
-        <Route path="/meu-estoque" element={<MeuEstoquePage />} />
+        <Route path="/recuperar-senha" element={<ForgotPasswordPage />} />
+        <Route path="/welcome-residuum" element={<WelcomeResiduum />} />
         <Route path="/mapa" element={<MapPage />} />
-        <Route path="/aprovacao" element={<Aprovacao />} />
-        <Route path="/dashboard" element={<DashboardScreen />} />
-        <Route path="/admin" element={<AdminPage />} />
-        <Route path="/schedule" element={<ScheduleScreen />} />
-        <Route path="/escanear-qr" element={<EscanearQrCodePage />} />
+        <Route path="/meu-estoque" element={<MeuEstoquePage />} />
+        <Route path="/cadastrar-residuo" element={<CadastrarResiduoPage />} />
         <Route path="/validacao-presenca" element={<ValidacaoPresencaPage />} />
+        <Route path="/escanear-qr" element={<EscanearQrCodePage />} />
+        <Route path="/extrato" element={<ExtratoPage />} />
         <Route path="/sorteios" element={<SorteiosPage />} />
         <Route path="/sorteios/:id" element={<SorteioDetalhesPage />} />
-        <Route path="/extrato" element={<ExtratoPage />} />
+        <Route path="/perfil" element={<ProfilePage />} />
+
+        <Route
+          path="/cadastro-ponto-coleta"
+          element={<RegisterPontoColetaPage />}
+        />
+        <Route path="/schedule" element={<ScheduleScreen />} />
+        <Route path="/empresa" element={<Company />} />
+
+        {/*ROTAS DE ADMIN*/}
+        <Route path="/admin" element={<AdminPage />} />
+        <Route path="/dashboard" element={<DashboardScreen />} />
+        <Route path="/aprovacao" element={<Aprovacao />} />
         <Route path="/campanha-heineken" element={<CampanhaHeineken />} />
         <Route path="/usuarios" element={<PageUsers />} />
         <Route path="/admin-pontos" element={<AdminPoints />} />
-        <Route path="/cadastro-ponto-coleta" element={<RegisterPontoColetaPage />} />
-        <Route path="/empresa" element={<Company />} />
         <Route path="/confirmacao" element={<Confirmation />} />
         <Route path="*" element={<Navigate to="/welcome" replace />} />
+        <Route path="/" element={<Navigate to="/welcome" replace />} />
+        <Route path="/demo" element={<Navigate to="/welcome" replace />} />
       </Routes>
     </>
   );

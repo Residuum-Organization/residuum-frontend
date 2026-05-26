@@ -1,3 +1,4 @@
+import React from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function Register() {
@@ -6,7 +7,6 @@ export default function Register() {
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
       <div className="w-full max-w-lg bg-white rounded-3xl shadow-2xl p-10">
-
         <div className="flex justify-center -mt-16 -mb-12">
           <img
             src="/logo.jpeg"
@@ -20,7 +20,6 @@ export default function Register() {
         </h1>
 
         <form className="space-y-5">
-
           {[
             ["Nome do Responsável", "text"],
             ["CPF/CNPJ", "text"],
@@ -29,9 +28,7 @@ export default function Register() {
             ["Senha", "password"],
             ["Confirmar Senha", "password"],
           ].map(([label, type]) => (
-
             <div key={label} className="relative">
-
               <input
                 type={type}
                 placeholder=" "
@@ -74,9 +71,7 @@ export default function Register() {
               >
                 {label}
               </label>
-
             </div>
-
           ))}
 
           <div className="pt-4 flex justify-center">
@@ -99,9 +94,7 @@ export default function Register() {
               Confirmar
             </button>
           </div>
-
         </form>
-
       </div>
     </div>
   );
