@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Navbar from "../components/ui/Navbar";
+import BottomNav from "../components/admin/BottomNav";
 
 const users = [
   {
@@ -62,8 +62,7 @@ export default function PageUsers() {
         
   return (
     <>
-      <Navbar />
-      <div className="bg-gray-100 min-h-screen flex flex-col items-center py-6">
+      <div className="bg-gray-100 min-h-screen flex flex-col items-center px-4 py-6 pb-28">
         <div className="w-full max-w-sm bg-white rounded-xl shadow-lg p-6">
           
           {/* Cabeçalho do Card Principal */}
@@ -178,6 +177,7 @@ export default function PageUsers() {
 
         </div>
       </div>
+      <BottomNav />
     </>
   );
 } 

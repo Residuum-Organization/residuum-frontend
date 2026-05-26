@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import ApprovalCard from "../components/coleta-dados/ApprovalCard";
-import BottomNav from "../components/ui/BottomNav";
+import BottomNav from "../components/admin/BottomNav";
 
 const solicitacoes = [
   {

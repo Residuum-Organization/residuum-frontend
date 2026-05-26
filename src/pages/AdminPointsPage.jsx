@@ -1,5 +1,5 @@
 import React from "react";
-import Navbar from "../components/ui/Navbar";
+import BottomNav from "../components/admin/BottomNav";
 import {
   MapPin,
   AlertTriangle,
@@ -53,9 +53,7 @@ const colorMap = {
 export default function AdminPoints() {
   return (
     <>
-      <Navbar />
-
-      <div className="min-h-screen bg-[#ECECEC] flex justify-center px-4 py-6">
+      <div className="min-h-screen bg-[#ECECEC] flex justify-center px-4 py-6 pb-28">
       <div className="w-full max-w-[350px] bg-white rounded-[32px] p-5 shadow-sm">
         <div className="w-full max-w-[350px]">
 
@@ -169,6 +167,7 @@ export default function AdminPoints() {
         </div>
       </div>
       </div>
+      <BottomNav />
     </>
   );
 }

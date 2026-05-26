@@ -27,14 +27,6 @@ import RegisterPontoColetaPage from "./pages/RegisterPontoColetaPage";
 import ComingSoonPage from "./pages/ComingSoonPage";
 
 const moradorRoutes = [
-  { path: "/welcome", label: "Boas-vindas", Component: WelcomePage },
-  { path: "/login", label: "Login", Component: LoginPage },
-  { path: "/cadastro", label: "Cadastro", Component: RegisterPage },
-  {
-    path: "/recuperar-senha",
-    label: "Recuperar senha",
-    Component: ForgotPasswordPage,
-  },
   {
     path: "/welcome-residuum",
     label: "Welcome Residuum",
@@ -58,6 +50,17 @@ const moradorRoutes = [
   { path: "/sorteios", label: "Sorteios", Component: SorteiosPage },
   { path: "/sorteios/:id", Component: SorteioDetalhesPage, sidebar: false },
   { path: "/perfil", label: "Perfil", Component: ProfilePage },
+];
+
+const authRoutes = [
+  { path: "/welcome", label: "Boas-vindas", Component: WelcomePage },
+  { path: "/login", label: "Login", Component: LoginPage },
+  { path: "/cadastro", label: "Cadastro morador", Component: RegisterPage },
+  {
+    path: "/recuperar-senha",
+    label: "Recuperar senha",
+    Component: ForgotPasswordPage,
+  },
 ];
 
 const parceiroRoutes = [
@@ -85,6 +88,7 @@ const adminRoutes = [
 ];
 
 const navigationGroups = [
+  { title: "Autenticação", routes: authRoutes },
   { title: "Morador", routes: moradorRoutes },
   { title: "Parceiro", routes: parceiroRoutes },
   { title: "Admin", routes: adminRoutes },
@@ -171,6 +175,10 @@ export default function App() {
       <PresentationSidebar />
 
       <Routes>
+        {authRoutes.map(({ path, Component }) => (
+          <Route key={path} path={path} element={<Component />} />
+        ))}
+
         {moradorRoutes.map(({ path, Component }) => (
           <Route key={path} path={path} element={<Component />} />
         ))}

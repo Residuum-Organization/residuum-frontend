@@ -5,15 +5,12 @@ import {
   Recycle,
   Gift,
   Star,
-  Home,
-  BriefcaseBusiness,
-  MapPinned,
-  User,
   Leaf,
   Handshake,
   Trophy,
   CircleDollarSign,
 } from "lucide-react";
+import BottomNav from "../components/admin/BottomNav";
 
 export default function CampanhaHeineken() {
   const [tela, setTela] = useState("funciona");
@@ -23,7 +20,7 @@ export default function CampanhaHeineken() {
       <div className="w-full max-w-[430px] min-h-screen bg-[#fbfbff] flex flex-col">
         <Topo />
 
-        <main className="flex-1 w-full px-4 pb-5 sm:px-6">
+        <main className="flex-1 w-full px-4 pb-28 sm:px-6">
           <section className="w-full max-w-[430px] mx-auto border-2 border-[#119cff] rounded-[18px] px-4 pt-5 pb-5 bg-[#fbfbff] shadow-sm sm:px-5">
             <CabecalhoCampanha />
             <Progresso />
@@ -43,7 +40,7 @@ export default function CampanhaHeineken() {
           </section>
         </main>
 
-        <MenuInferior />
+        <BottomNav />
       </div>
     </div>
   );
@@ -249,13 +246,3 @@ function Estatistica({ numero, texto }) {
   );
 }
 
-function MenuInferior() {
-  return (
-    <footer className="h-[64px] bg-[#33658f] flex items-center justify-around text-white mt-auto">
-      <Home size={28} fill="white" />
-      <BriefcaseBusiness size={28} fill="white" />
-      <MapPinned size={28} fill="white" />
-      <User size={28} fill="white" />
-    </footer>
-  );
-}
