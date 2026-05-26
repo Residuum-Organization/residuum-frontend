@@ -1,101 +1,61 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import AuthShell from "../components/auth/AuthShell";
+import FormField from "../components/forms/FormField";
+import Button from "../components/ui/Button";
 
-export default function Register() {
+const responsibleFields = [
+  { id: "responsavel", label: "Nome do Responsável", type: "text" },
+  { id: "documento", label: "CPF/CNPJ", type: "text" },
+  { id: "telefone", label: "Telefone", type: "tel" },
+  { id: "email", label: "E-mail", type: "email" },
+  { id: "senha", label: "Senha", type: "password" },
+  { id: "confirmarSenha", label: "Confirmar Senha", type: "password" },
+];
+
+export default function RegisterPontoColetaPage() {
   const navigate = useNavigate();
 
+  function handleSubmit(event) {
+    event.preventDefault();
+    navigate("/empresa");
+  }
+
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
-      <div className="w-full max-w-lg bg-white rounded-3xl shadow-2xl p-10">
-        <div className="flex justify-center -mt-16 -mb-12">
-          <img
-            src="/logo.jpeg"
-            alt="Logo Residuum"
-            className="w-80 h-80 object-contain"
-          />
-        </div>
-
-        <h1 className="text-4xl font-bold text-blue-900 text-center mb-8">
-          Cadastro do Ponto
-        </h1>
-
-        <form className="space-y-5">
-          {[
-            ["Nome do Responsável", "text"],
-            ["CPF/CNPJ", "text"],
-            ["Telefone", "tel"],
-            ["E-mail", "email"],
-            ["Senha", "password"],
-            ["Confirmar Senha", "password"],
-          ].map(([label, type]) => (
-            <div key={label} className="relative">
-              <input
-                type={type}
-                placeholder=" "
-                className="
-                  peer
-                  w-full
-                  border-2
-                  border-blue-900
-                  rounded-2xl
-                  shadow-md
-                  px-6
-                  pt-7
-                  pb-3
-                  text-lg
-                  focus:outline-none
-                  focus:ring-2
-                  focus:ring-blue-900
-                "
-              />
-
-              <label
-                className="
-                  absolute
-                  left-6
-                  top-5
-                  text-lg
-                  text-blue-900
-                  font-semibold
-                  transition-all
-                  duration-200
-                  bg-white
-                  px-1
-
-                  peer-focus:top-2
-                  peer-focus:text-sm
-
-                  peer-[:not(:placeholder-shown)]:top-2
-                  peer-[:not(:placeholder-shown)]:text-sm
-                "
-              >
-                {label}
-              </label>
-            </div>
-          ))}
-
-          <div className="pt-4 flex justify-center">
-            <button
-              type="button"
-              onClick={() => navigate("/empresa")}
-              className="
-                bg-blue-900
-                text-white
-                px-16
-                py-3
-                rounded-full
-                text-xl
-                font-semibold
-                hover:bg-blue-950
-                transition
-                cursor-pointer
-              "
-            >
-              Confirmar
-            </button>
-          </div>
-        </form>
+    <AuthShell
+      title="Cadastro do Ponto"
+      subtitle="Informe os dados do responsável pelo ponto de coleta."
+      description="Cadastre seu ponto de coleta para receber moradores, organizar descartes e acompanhar solicitações na plataforma Residuum."
+      highlights={[
+        "Identifique o responsável pelo cadastro",
+        "Mantenha contato e acesso protegidos",
+        "Avance para cadastrar o endereço de coleta",
+      ]}
+      footer='"Pontos bem cadastrados ajudam a cidade a reciclar com mais confiança."'
+    >
+      <div className="mb-6 rounded-2xl bg-slate-50 p-4 text-sm font-semibold text-[var(--color-welcome-blue)]">
+        Etapa 1 de 3 · Dados do responsável
       </div>
-    </div>
+
+      <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5" noValidate>
+        {responsibleFields.map((field) => (
+          <FormField
+            key={field.id}
+            id={field.id}
+            label={field.label}
+            type={field.type}
+            placeholder={field.label}
+          />
+        ))}
+
+        <Button
+          type="submit"
+          variant="brandPrimary"
+          className="mt-2 h-14 w-full rounded-full text-lg font-semibold"
+        >
+          Continuar
+        </Button>
+      </form>
+    </AuthShell>
   );
 }

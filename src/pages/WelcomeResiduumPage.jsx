@@ -5,7 +5,7 @@ function WelcomeResiduum() {
   const navigate = useNavigate();
 
   return (
-    <main className="min-h-screen bg-white font-sans">
+    <main className="mx-auto min-h-screen w-full max-w-sm bg-white font-sans">
       <section className="bg-gradient-to-b from-blue-950 to-teal-800 text-white text-center px-6 pt-12 pb-10">
         <div className="text-5xl mb-4">🎉</div>
 
