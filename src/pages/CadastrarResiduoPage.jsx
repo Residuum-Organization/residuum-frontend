@@ -1,19 +1,16 @@
 // src/pages/CadastrarResiduo.jsx
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  MapPin,
-  RefreshCw,
-  Home,
-  Barcode,
-  Star,
   CircleDot,
   BookText,
   Wine,
   FlaskConical,
 } from "lucide-react";
+import Navbar from "../components/ui/Navbar";
 
 const schema = z.object({
   descricao: z.string().min(1, "Descrição é obrigatória"),
@@ -30,6 +27,7 @@ const tiposResiduo = [
 export default function CadastrarResiduo() {
   const [tipoSelecionado, setTipoSelecionado] = useState(null);
   const [quantidade, setQuantidade] = useState(1);
+  const navigate = useNavigate();
 
   const {
     register,
@@ -41,12 +39,13 @@ export default function CadastrarResiduo() {
 
   const onSubmit = (data) => {
     console.log({ ...data, tipo: tipoSelecionado, quantidade });
+    navigate("/meu-estoque");
   };
 
   return (
     <div className="flex flex-col min-h-screen bg-white max-w-sm mx-auto">
       {/* Conteúdo principal */}
-      <div className="flex-1 px-5 pt-8 pb-4 overflow-y-auto">
+      <div className="flex-1 px-5 pt-8 pb-24 overflow-y-auto">
         {/* Header */}
         <h1 className="text-2xl font-bold text-[#1a3a4a]">Cadastrar Residuo</h1>
         <p className="text-gray-400 text-sm mt-1">
@@ -157,24 +156,7 @@ export default function CadastrarResiduo() {
         </form>
       </div>
 
-      {/* Bottom Navigation */}
-      <nav className="bg-[#1e4d6b] flex justify-around items-center py-4 px-6">
-        <button className="text-white">
-          <MapPin size={22} />
-        </button>
-        <button className="text-white">
-          <RefreshCw size={22} />
-        </button>
-        <button className="text-white">
-          <Home size={22} />
-        </button>
-        <button className="text-white">
-          <Barcode size={22} />
-        </button>
-        <button className="text-white">
-          <Star size={22} />
-        </button>
-      </nav>
+      <Navbar />
     </div>
   );
 }

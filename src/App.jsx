@@ -1,5 +1,5 @@
 import React from "react";
-import { Navigate, NavLink, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import MapPage from "./pages/MapPage";
 import ProfilePage from "./pages/ProfilePage";
 import CadastrarResiduoPage from "./pages/CadastrarResiduoPage";
@@ -25,94 +25,57 @@ import Company from "./pages/CompanyPage";
 import Confirmation from "./pages/ConfirmationPage";
 import RegisterPontoColetaPage from "./pages/RegisterPontoColetaPage";
 
-function DemoNav() {
-  const demoNavLinks = [
-    { to: "/welcome", label: "Welcome" },
-    { to: "/welcome-residuum", label: "Welcome-residuum" },
-    { to: "/login", label: "Login" },
-    { to: "/recuperar-senha", label: "Recuperar Senha" },
-    { to: "/cadastro", label: "Cadastro" },
-    { to: "/perfil", label: "Perfil" },
-    { to: "/cadastrar-residuo", label: "Cadastrar" },
-    { to: "/meu-estoque", label: "Estoque" },
-    { to: "/mapa", label: "Mapa" },
-    { to: "/dashboard", label: "Dashboard" },
-    { to: "/schedule", label: "Schedule" },
-    { to: "/escanear-qr", label: "QR Code" },
-    { to: "/validacao-presenca", label: "Presenca" },
-    { to: "/sorteios", label: "Sorteios" },
-    { to: "/extrato", label: "Extrato" },
-    { to: "/aprovacao", label: "Aprovação" },
-    { to: "/admin", label: "Admin" },
-    { to: "/usuarios", label: "Usuários" },
-    { to: "/admin-pontos", label: "Admin Points" },
-    { to: "/cadastro-ponto-coleta", label: "Cadastro Ponto" },
-    { to: "/empresa", label: "Empresa" },
-    { to: "/confirmacao", label: "Confirmacao" },
-  ];
-  return (
-    <nav className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 px-4 py-3 backdrop-blur">
-      <div className="mx-auto flex w-full max-w-6xl flex-wrap gap-2">
-        {demoNavLinks.map((link) => (
-          <NavLink
-            key={link.to}
-            to={link.to}
-            className={({ isActive }) =>
-              `rounded-full px-4 py-2 text-sm font-semibold ${
-                isActive
-                  ? "bg-emerald-600 text-white"
-                  : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-              }`
-            }
-          >
-            {link.label}
-          </NavLink>
-        ))}
-      </div>
-    </nav>
-  );
-}
+const moradorRoutes = [
+  { path: "/welcome", Component: WelcomePage },
+  { path: "/login", Component: LoginPage },
+  { path: "/cadastro", Component: RegisterPage },
+  { path: "/recuperar-senha", Component: ForgotPasswordPage },
+  { path: "/welcome-residuum", Component: WelcomeResiduum },
+  { path: "/mapa", Component: MapPage },
+  { path: "/meu-estoque", Component: MeuEstoquePage },
+  { path: "/cadastrar-residuo", Component: CadastrarResiduoPage },
+  { path: "/validacao-presenca", Component: ValidacaoPresencaPage },
+  { path: "/escanear-qr", Component: EscanearQrCodePage },
+  { path: "/extrato", Component: ExtratoPage },
+  { path: "/sorteios", Component: SorteiosPage },
+  { path: "/sorteios/:id", Component: SorteioDetalhesPage },
+  { path: "/perfil", Component: ProfilePage },
+  { path: "/dashboard", Component: DashboardScreen },
+  { path: "/schedule", Component: ScheduleScreen },
+];
+
+const parceiroRoutes = [
+  { path: "/cadastro-ponto-coleta", Component: RegisterPontoColetaPage },
+  { path: "/empresa", Component: Company },
+  { path: "/confirmacao", Component: Confirmation },
+];
+
+const adminRoutes = [
+  { path: "/admin", Component: AdminPage },
+  { path: "/aprovacao", Component: Aprovacao },
+  { path: "/campanha-heineken", Component: CampanhaHeineken },
+  { path: "/usuarios", Component: PageUsers },
+  { path: "/admin-pontos", Component: AdminPoints },
+];
 
 export default function App() {
   return (
-    <>
-      <DemoNav />
-      <Routes>
-        {/*ROTAS DE MORADOR*/}
-        <Route path="/welcome" element={<WelcomePage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/cadastro" element={<RegisterPage />} />
-        <Route path="/recuperar-senha" element={<ForgotPasswordPage />} />
-        <Route path="/welcome-residuum" element={<WelcomeResiduum />} />
-        <Route path="/mapa" element={<MapPage />} />
-        <Route path="/meu-estoque" element={<MeuEstoquePage />} />
-        <Route path="/cadastrar-residuo" element={<CadastrarResiduoPage />} />
-        <Route path="/validacao-presenca" element={<ValidacaoPresencaPage />} />
-        <Route path="/escanear-qr" element={<EscanearQrCodePage />} />
-        <Route path="/extrato" element={<ExtratoPage />} />
-        <Route path="/sorteios" element={<SorteiosPage />} />
-        <Route path="/sorteios/:id" element={<SorteioDetalhesPage />} />
-        <Route path="/perfil" element={<ProfilePage />} />
+    <Routes>
+      {moradorRoutes.map(({ path, Component }) => (
+        <Route key={path} path={path} element={<Component />} />
+      ))}
 
-        <Route
-          path="/cadastro-ponto-coleta"
-          element={<RegisterPontoColetaPage />}
-        />
-        <Route path="/schedule" element={<ScheduleScreen />} />
-        <Route path="/empresa" element={<Company />} />
+      {parceiroRoutes.map(({ path, Component }) => (
+        <Route key={path} path={path} element={<Component />} />
+      ))}
 
-        {/*ROTAS DE ADMIN*/}
-        <Route path="/admin" element={<AdminPage />} />
-        <Route path="/dashboard" element={<DashboardScreen />} />
-        <Route path="/aprovacao" element={<Aprovacao />} />
-        <Route path="/campanha-heineken" element={<CampanhaHeineken />} />
-        <Route path="/usuarios" element={<PageUsers />} />
-        <Route path="/admin-pontos" element={<AdminPoints />} />
-        <Route path="/confirmacao" element={<Confirmation />} />
-        <Route path="*" element={<Navigate to="/welcome" replace />} />
-        <Route path="/" element={<Navigate to="/welcome" replace />} />
-        <Route path="/demo" element={<Navigate to="/welcome" replace />} />
-      </Routes>
-    </>
+      {adminRoutes.map(({ path, Component }) => (
+        <Route key={path} path={path} element={<Component />} />
+      ))}
+
+      <Route path="/" element={<Navigate to="/welcome" replace />} />
+      <Route path="/demo" element={<Navigate to="/welcome" replace />} />
+      <Route path="*" element={<Navigate to="/welcome" replace />} />
+    </Routes>
   );
 }

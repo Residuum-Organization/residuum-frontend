@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { Loader2 } from "lucide-react";
 import { loginSchema } from "../../schemas/auth";
@@ -14,6 +14,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 export default function LoginForm() {
   const [authError, setAuthError] = React.useState("");
+  const navigate = useNavigate();
 
   const {
     register,
@@ -32,6 +33,7 @@ export default function LoginForm() {
     setAuthError("");
     try {
       await login(data.email, data.password);
+      navigate("/welcome-residuum");
     } catch (e) {
       setAuthError("Credenciais inválidas");
     }
