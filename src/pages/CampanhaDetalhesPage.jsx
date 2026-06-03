@@ -1,49 +1,81 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import CampaignLayout, {
-  LogoResiduum,
   BotaoVoltar,
+  LogoResiduum,
 } from "../components/campanhas/CampaignLayout";
 
 const abas = [
   { id: "funciona", label: "Como funciona" },
-  { id: "sobre", label: "Sobre a Heineken" },
+  { id: "sobre", label: "Sobre a marca" },
   { id: "premios", label: "Prêmios" },
 ];
 
-export default function CampanhaHeinekenPage() {
-  const [abaAtual, setAbaAtual] = useState("funciona");
+export default function CampanhaDetalhesPage() {
   const navigate = useNavigate();
+  const { id } = useParams();
+  const [abaAtual, setAbaAtual] = useState("funciona");
+
+  const campanhasSalvas =
+    JSON.parse(localStorage.getItem("campanhasCriadas")) || [];
+
+  const campanha = campanhasSalvas.find(
+    (item) => String(item.id) === String(id)
+  );
+
+  if (!campanha) {
+    return (
+      <CampaignLayout>
+        <div className="flex min-h-[620px] flex-col items-center justify-center text-center">
+          <h1 className="text-[24px] font-black text-[#0c1187]">
+            Campanha não encontrada
+          </h1>
+
+          <p className="mt-3 text-[13px] font-black leading-5 text-[#062d61]">
+            Essa campanha pode ter sido removida ou não existe mais.
+          </p>
+
+          <button
+            type="button"
+            onClick={() => navigate("/campanhas")}
+            className="mt-6 rounded-full bg-[#3020a0] px-8 py-3 text-[14px] font-black text-white"
+          >
+            Voltar para campanhas
+          </button>
+        </div>
+      </CampaignLayout>
+    );
+  }
 
   return (
     <CampaignLayout>
-      <Topo onVoltar={() => navigate("/campanhas")} />
+      <Topo campanha={campanha} onVoltar={() => navigate("/campanhas")} />
 
       <div className="rounded-[20px] border-2 border-[#5644ce] bg-[#fbfbff] px-3 pb-5 pt-4">
-        <CabecalhoCampanha />
+        <CabecalhoCampanha campanha={campanha} />
 
         <Progresso />
 
         <Abas abaAtual={abaAtual} setAbaAtual={setAbaAtual} />
 
         <div className="pt-5">
-          {abaAtual === "funciona" && <ComoFunciona />}
-          {abaAtual === "sobre" && <SobreHeineken />}
-          {abaAtual === "premios" && <Premios />}
+          {abaAtual === "funciona" && <ComoFunciona campanha={campanha} />}
+          {abaAtual === "sobre" && <SobreMarca campanha={campanha} />}
+          {abaAtual === "premios" && <Premios campanha={campanha} />}
         </div>
       </div>
     </CampaignLayout>
   );
 }
 
-function Topo({ onVoltar }) {
+function Topo({ campanha, onVoltar }) {
   return (
     <header className="mb-4 flex items-start justify-between">
-      <div>
+      <div className="min-w-0 flex-1 pr-4">
         <BotaoVoltar onClick={onVoltar} />
 
-        <h1 className="text-[22px] font-black leading-none text-[#0c1187]">
-          Campanha Heineken
+        <h1 className="text-[22px] font-black leading-6 text-[#0c1187]">
+          {campanha.nome}
         </h1>
       </div>
 
@@ -52,36 +84,40 @@ function Topo({ onVoltar }) {
   );
 }
 
-function CabecalhoCampanha() {
+function CabecalhoCampanha({ campanha }) {
   return (
     <div className="grid grid-cols-[58px_1fr] items-center gap-3">
-      <LogoHeineken />
+      <LogoCampanha empresa={campanha.empresa} />
 
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
           <h2 className="text-[16px] font-black leading-5 text-[#062d61]">
-            Campanha Heineken
+            {campanha.nome}
           </h2>
 
-          <span className="rounded-full border border-[#48d554] bg-[#c7ffc4] px-3 py-1 text-[10px] font-black leading-none text-[#079628]">
-            Ativa
+          <span className="rounded-full border border-orange-300 bg-orange-100 px-3 py-1 text-[10px] font-black leading-none text-orange-600">
+            {campanha.status}
           </span>
         </div>
 
+        <p className="mt-2 text-[11px] font-black text-[#079628]">
+          {campanha.empresa}
+        </p>
+
         <div className="mt-3 space-y-2">
-          <Meta icone="📅" texto="01/04/2026 - 30/04/2026" />
-          <Meta icone="📍" texto="Norte, Sul e Leste" />
+          <Meta icone="📅" texto={campanha.periodo} />
+          <Meta icone="📍" texto={campanha.locais} />
+          <Meta icone="♻️" texto={campanha.residuo} />
         </div>
       </div>
     </div>
   );
 }
 
-function LogoHeineken() {
+function LogoCampanha({ empresa }) {
   return (
-    <div className="relative grid h-[58px] w-[58px] place-items-center rounded-full bg-[#00843d] text-[8px] font-black leading-none text-white">
-      <span className="absolute top-[9px] h-[12px] w-[12px] bg-red-600 [clip-path:polygon(50%_0%,62%_35%,100%_35%,69%_57%,82%_100%,50%_74%,18%_100%,31%_57%,0%_35%,38%_35%)]" />
-      <span className="mt-3">Heineken</span>
+    <div className="grid h-[58px] w-[58px] place-items-center rounded-full bg-[#3020a0] text-[22px] font-black text-white">
+      {empresa ? empresa.charAt(0).toUpperCase() : "C"}
     </div>
   );
 }
@@ -103,11 +139,11 @@ function Progresso() {
       </p>
 
       <div className="h-2 overflow-hidden rounded-full bg-[#d7d7d7]">
-        <div className="h-full w-[67%] rounded-full bg-[#139928]" />
+        <div className="h-full w-[0%] rounded-full bg-[#139928]" />
       </div>
 
       <p className="mt-2 text-right text-[9px] font-black leading-none text-[#062d61]">
-        67% do período concluído
+        0% do período concluído
       </p>
     </div>
   );
@@ -134,7 +170,7 @@ function Abas({ abaAtual, setAbaAtual }) {
   );
 }
 
-function ComoFunciona() {
+function ComoFunciona({ campanha }) {
   return (
     <div>
       <SectionTitle>Como funciona</SectionTitle>
@@ -142,25 +178,25 @@ function ComoFunciona() {
       <Linha
         icone="♻️"
         titulo="Separe seus resíduos"
-        texto="Separe e leve suas garrafas PET até um ponto de coleta participante."
+        texto={`Separe corretamente o material da campanha: ${campanha.residuo}.`}
       />
 
       <Linha
         icone="📍"
-        titulo="Deposite e registre"
-        texto="No ponto de coleta, seus materiais serão pesados e registrados no app."
+        titulo="Leve até um ponto participante"
+        texto={`Entregue seus resíduos nos pontos de coleta participantes da região: ${campanha.locais}.`}
       />
 
       <Linha
         icone="⭐"
-        titulo="Ganhe pontos"
-        texto="Você acumula pontos a cada entrega realizada de acordo com a tabela da campanha."
+        titulo="Registre sua participação"
+        texto="No ponto de coleta, seus materiais serão registrados para contabilizar sua participação na campanha."
       />
 
       <Linha
         icone="🎁"
-        titulo="Concorra a prêmios"
-        texto="No final da campanha, os pontos se transformam em números da sorte para concorrer a prêmios incríveis."
+        titulo="Concorra aos prêmios"
+        texto="Ao participar da campanha, você aumenta suas chances de concorrer aos prêmios definidos pela empresa parceira."
         ultimo
       />
 
@@ -174,75 +210,78 @@ function ComoFunciona() {
   );
 }
 
-function SobreHeineken() {
+function SobreMarca({ campanha }) {
   return (
     <div>
-      <SectionTitle>Sobre a Heineken</SectionTitle>
+      <SectionTitle>Sobre a marca</SectionTitle>
 
       <p className="mb-4 text-[12px] font-extrabold leading-5 text-[#062d61]">
-        Com mais de 150 anos de história, a Heineken acredita que pequenas
-        atitudes podem gerar grandes mudanças.
+        A campanha <strong>{campanha.nome}</strong> foi criada em parceria com a
+        empresa <strong>{campanha.empresa}</strong>, incentivando práticas mais
+        sustentáveis e o descarte correto de resíduos.
       </p>
 
       <Linha
         icone="🌱"
-        titulo="Compromisso com o planeta"
-        texto="Investimos continuamente em iniciativas sustentáveis para reduzir nosso impacto ambiental."
+        titulo="Compromisso ambiental"
+        texto="A empresa parceira apoia ações voltadas à sustentabilidade e à redução de impactos ambientais."
       />
 
       <Linha
-        icone="⭐"
-        titulo="Economia circular"
-        texto="Apoiamos a reciclagem e o descarte correto de materiais, promovendo um ciclo mais responsável."
+        icone="♻️"
+        titulo="Incentivo à reciclagem"
+        texto={`A campanha estimula a coleta e o descarte correto de ${campanha.residuo}.`}
       />
 
       <Linha
         icone="💼"
-        titulo="Parceria que transforma"
-        texto="Essa campanha é mais uma forma de incentivar a mudança real na comunidade."
+        titulo="Parceria com a comunidade"
+        texto="A proposta é aproximar empresas, pontos de coleta e moradores por meio de ações sustentáveis."
         ultimo
       />
 
       <div className="mt-2 rounded-[16px] border border-[#4fc354] bg-[#ddf7df] px-4 py-3">
         <h3 className="mb-3 text-[13px] font-black leading-none text-[#241aa3]">
-          Impacto positivo
+          Informações da campanha
         </h3>
 
         <div className="grid grid-cols-3 gap-3 text-center">
-          <Estatistica numero="35,0t" texto="Resíduos coletados" />
-          <Estatistica numero="2.847" texto="Pessoas engajadas" />
-          <Estatistica numero="18" texto="Pontos de coleta" />
+          <Estatistica numero="0%" texto="Concluído" />
+          <Estatistica numero="Nova" texto="Campanha" />
+          <Estatistica numero="1" texto="Marca parceira" />
         </div>
       </div>
     </div>
   );
 }
 
-function Premios() {
+function Premios({ campanha }) {
+  const premios = separarPremios(campanha.premiacao);
+
   return (
     <div>
       <SectionTitle>Prêmios</SectionTitle>
 
       <p className="mb-4 text-[12px] font-extrabold leading-5 text-[#062d61]">
-        Quanto mais pontos, mais chances de ganhar!
+        Quanto mais você participa, maiores são suas chances de ganhar.
       </p>
 
       <CardPremio
         icone="🏆"
         titulo="1° Prêmio"
-        texto="1 ano de produtos Heineken + kit exclusivo"
+        texto={premios[0] || "Prêmio principal da campanha"}
       />
 
       <CardPremio
         icone="🎁"
         titulo="2° Prêmio"
-        texto="Vale-compras R$1.000,00"
+        texto={premios[1] || "Segundo prêmio a definir"}
       />
 
       <CardPremio
         icone="🎁"
         titulo="3° Prêmio"
-        texto="Vale-compras R$500,00"
+        texto={premios[2] || "Terceiro prêmio a definir"}
       />
 
       <div className="mt-4 grid grid-cols-[28px_1fr] items-start gap-3 rounded-[16px] bg-[#f7f7ff] p-3">
@@ -256,13 +295,25 @@ function Premios() {
           </h3>
 
           <p className="text-[11px] font-extrabold leading-4 text-[#062d61]">
-            Os sorteios serão realizados em 02/05/2026 e os vencedores serão
-            divulgados em nossos canais oficiais.
+            As regras, datas e premiações podem ser ajustadas pela empresa
+            parceira responsável pela campanha.
           </p>
         </div>
       </div>
     </div>
   );
+}
+
+function separarPremios(textoPremiacao) {
+  if (!textoPremiacao) {
+    return [];
+  }
+
+  return textoPremiacao
+    .split(/\n|;|\|/)
+    .map((premio) => premio.trim())
+    .filter(Boolean)
+    .slice(0, 3);
 }
 
 function SectionTitle({ children }) {
