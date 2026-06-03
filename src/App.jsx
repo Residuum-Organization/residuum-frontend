@@ -1,5 +1,6 @@
 import React from "react";
 import { Navigate, NavLink, Route, Routes } from "react-router-dom";
+
 import MapPage from "./pages/MapPage";
 import ProfilePage from "./pages/ProfilePage";
 import CadastrarResiduoPage from "./pages/CadastrarResiduoPage";
@@ -25,6 +26,10 @@ import Company from "./pages/CompanyPage";
 import Confirmation from "./pages/ConfirmationPage";
 import RegisterPontoColetaPage from "./pages/RegisterPontoColetaPage";
 import ComingSoonPage from "./pages/ComingSoonPage";
+
+import CampanhasPage from "./pages/CampanhasPage";
+import NovaCampanhaPage from "./pages/NovaCampanhaPage";
+import CampanhaDetalhesPage from "./pages/CampanhaDetalhesPage";
 
 const moradorRoutes = [
   {
@@ -78,11 +83,31 @@ const parceiroRoutes = [
 const adminRoutes = [
   { path: "/admin", label: "Painel admin", Component: AdminPage },
   { path: "/aprovacao", label: "Aprovação", Component: Aprovacao },
+
+  {
+    path: "/campanhas",
+    label: "Campanhas",
+    Component: CampanhasPage,
+  },
+  {
+    path: "/nova-campanha",
+    label: "Nova Campanha",
+    Component: NovaCampanhaPage,
+    sidebar: false,
+  },
   {
     path: "/campanha-heineken",
-    label: "Campanha",
+    label: "Campanha Heineken",
     Component: CampanhaHeineken,
+    sidebar: false,
   },
+  {
+    path: "/campanhas/:id",
+    label: "Detalhes da Campanha",
+    Component: CampanhaDetalhesPage,
+    sidebar: false,
+  },
+
   { path: "/usuarios", label: "Usuários", Component: PageUsers },
   { path: "/admin-pontos", label: "Pontos", Component: AdminPoints },
 ];
@@ -112,6 +137,7 @@ function PresentationSidebar() {
           alt="Residuum"
           className="h-11 w-11 rounded-2xl object-contain"
         />
+
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/70">
             Residuum
@@ -135,7 +161,9 @@ function PresentationSidebar() {
               <h2 className="text-sm font-black uppercase tracking-[0.16em] text-[var(--color-welcome-blue)]">
                 {group.title}
               </h2>
+
               <span className="h-0.5 flex-1 rounded-full bg-[var(--color-welcome-blue)]/35" />
+
               <span className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-sm font-black text-[var(--color-welcome-blue)]">
                 {collapsedGroups[group.title] ? "+" : "−"}
               </span>
