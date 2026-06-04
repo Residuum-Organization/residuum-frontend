@@ -33,7 +33,7 @@ export default function ProfilePage() {
     <div className="bg-[#F4F7FA] min-h-screen flex justify-center py-8 px-4 font-sans">
       <div className="w-full max-w-[420px] bg-white rounded-[32px] shadow-2xl overflow-hidden border border-gray-100 pb-28">
 
-        <div className="bg-[#1F4E79] px-6 pt-8 pb-10 text-white relative">
+        <div className="bg-[#0D2C8B] px-6 pt-8 pb-10 text-white relative">
           <div className="flex justify-between items-start">
             <div>
               <Label className="text-white opacity-70">Painel do usuário</Label>
@@ -44,7 +44,7 @@ export default function ProfilePage() {
           </div>
 
           <div className="flex items-center gap-5 mt-8">
-            <div className="w-24 h-24 rounded-full bg-white text-[#1F4E79] flex items-center justify-center text-4xl font-bold shadow-lg">{profile.initials}</div>
+            <div className="w-24 h-24 rounded-full bg-white text-[#0D2C8B] flex items-center justify-center text-4xl font-bold shadow-lg">{profile.initials}</div>
             <div className="flex-1">
               <div className="flex justify-between items-center">
                 <Label className="text-white opacity-80">Nível sustentável</Label>
@@ -66,19 +66,19 @@ export default function ProfilePage() {
           <div className="grid grid-cols-2 gap-4">
             <Card>
               <Label>Total reciclado</Label>
-              <h2 className="text-3xl font-bold text-[#1F4E79] mt-2">{profile.stats.totalRecycled}</h2>
+              <h2 className="text-3xl font-bold text-[#0D2C8B] mt-2">{profile.stats.totalRecycled}</h2>
               <p className="text-[#1FA34A] text-sm mt-2">{profile.stats.recycledThisMonth}</p>
             </Card>
             <Card>
               <Label>Pontuação</Label>
-              <h2 className="text-3xl font-bold text-[#1F4E79] mt-2">{profile.stats.score}</h2>
+              <h2 className="text-3xl font-bold text-[#0D2C8B] mt-2">{profile.stats.score}</h2>
               <p className="text-[#1FA34A] text-sm mt-2">{profile.stats.scoreGrowth}</p>
             </Card>
           </div>
         </div>
 
         <div className="px-5 mt-8">
-          <h2 className="text-2xl font-bold text-[#1F4E79] mb-4">Acesso rápido</h2>
+          <h2 className="text-2xl font-bold text-[#0D2C8B] mb-4">Acesso rápido</h2>
           <div className="grid grid-cols-2 gap-4">
             <Button
               type="button"
@@ -97,7 +97,7 @@ export default function ProfilePage() {
               className="p-5 text-left"
             >
               <div className="text-3xl">🎁</div>
-              <h3 className="font-bold text-lg text-[#1F4E79] mt-4">Recompensas</h3>
+              <h3 className="font-bold text-lg text-[#0D2C8B] mt-4">Recompensas</h3>
               <p className="text-sm text-gray-500 mt-1">troque seus pontos</p>
             </Button>
           </div>
