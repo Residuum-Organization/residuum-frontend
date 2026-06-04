@@ -30,12 +30,17 @@ import ComingSoonPage from "./pages/ComingSoonPage";
 import CampanhasPage from "./pages/CampanhasPage";
 import NovaCampanhaPage from "./pages/NovaCampanhaPage";
 import CampanhaDetalhesPage from "./pages/CampanhaDetalhesPage";
-
+import Certificadodecoleta from "./pages/certificadodecoleta"; 
 const moradorRoutes = [
   {
     path: "/welcome-residuum",
     label: "Welcome Residuum",
     Component: WelcomeResiduum,
+  },
+  {
+    path: "/certificado-coleta",
+    label: "Certificado de Coleta",
+    Component: Certificadodecoleta,
   },
   { path: "/inicio", label: "Início", Component: ComingSoonPage },
   { path: "/mapa", label: "Mapa", Component: MapPage },
