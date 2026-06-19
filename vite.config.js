@@ -1,8 +1,12 @@
-import { defineConfig, loadEnv } from 'vite'
+import { defineConfig, loadEnv } from "vite";
 
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), '')
-  const externalHost = env.VITE_EXTERNAL_HOST
+  const env = loadEnv(mode, process.cwd(), "");
+  const rawExternalHost = env.VITE_EXTERNAL_HOST?.trim();
+  const externalHost = rawExternalHost
+    ? rawExternalHost.replace(/^https?:\/\//, "").replace(/\/.*$/, "")
+    : undefined;
+  const hmrProtocol = rawExternalHost?.startsWith("http://") ? "ws" : "wss";
 
   return {
     server: {
@@ -11,9 +15,9 @@ export default defineConfig(({ mode }) => {
       hmr: externalHost
         ? {
             host: externalHost,
-            protocol: 'wss',
+            protocol: hmrProtocol,
           }
         : undefined,
     },
-  }
-})
+  };
+});
