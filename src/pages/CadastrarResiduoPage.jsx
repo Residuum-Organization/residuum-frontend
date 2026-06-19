@@ -1,16 +1,22 @@
-// src/pages/CadastrarResiduo.jsx
 import React, { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  CircleDot,
   BookText,
-  Wine,
+  CircleDot,
   FlaskConical,
+  Loader2,
+  Wine,
 } from "lucide-react";
 import Navbar from "../components/ui/Navbar";
+import { createInventoryItem } from "../services/inventory";
+import { queryKeys } from "../services/queryKeys";
+import { getApiErrorMessage } from "../services/http/getApiErrorMessage";
+
+const POINTS_PER_KG = 10;
 
 const schema = z.object({
   descricao: z.string().min(1, "Descrição é obrigatória"),
@@ -24,10 +30,13 @@ const tiposResiduo = [
   { id: "vidro", label: "Vidro", icon: <Wine size={22} /> },
 ];
 
-export default function CadastrarResiduo() {
+export default function CadastrarResiduoPage() {
   const [tipoSelecionado, setTipoSelecionado] = useState(null);
   const [quantidade, setQuantidade] = useState(1);
+  const [tipoError, setTipoError] = useState("");
+  const [submitError, setSubmitError] = useState("");
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const {
     register,
@@ -37,22 +46,43 @@ export default function CadastrarResiduo() {
     resolver: zodResolver(schema),
   });
 
+  const createMutation = useMutation({
+    mutationFn: createInventoryItem,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.inventory });
+      navigate("/meu-estoque");
+    },
+    onError: (error) => {
+      setSubmitError(
+        getApiErrorMessage(error, "Não foi possível adicionar o resíduo ao estoque.")
+      );
+    },
+  });
+
   const onSubmit = (data) => {
-    console.log({ ...data, tipo: tipoSelecionado, quantidade });
-    navigate("/meu-estoque");
+    if (!tipoSelecionado) {
+      setTipoError("Selecione um tipo de resíduo.");
+      return;
+    }
+
+    setTipoError("");
+    setSubmitError("");
+    createMutation.mutate({
+      tipo_residuo: tipoSelecionado,
+      quantidade: Number(quantidade),
+      descricao: data.descricao,
+      observacao: data.observacao || undefined,
+    });
   };
 
   return (
     <div className="flex flex-col min-h-screen bg-white max-w-sm mx-auto">
-      {/* Conteúdo principal */}
       <div className="flex-1 px-5 pt-8 pb-24 overflow-y-auto">
-        {/* Header */}
         <h1 className="text-2xl font-bold text-[#1a3a4a]">Cadastrar Residuo</h1>
         <p className="text-gray-400 text-sm mt-1">
           Descreva o resíduo que vai descartar
         </p>
 
-        {/* Tipos de Resíduo */}
         <div className="mt-6">
           <h2 className="text-base font-bold text-[#1a3a4a] mb-3">
             Tipos de Residuo
@@ -61,28 +91,31 @@ export default function CadastrarResiduo() {
             {tiposResiduo.map((tipo) => (
               <button
                 key={tipo.id}
+                type="button"
                 onClick={() => setTipoSelecionado(tipo.id)}
-                className={`flex items-center gap-3 px-4 py-4 rounded-2xl font-semibold text-white transition-all
-                  ${
-                    tipoSelecionado === tipo.id
-                      ? "bg-[#1a3a4a] ring-2 ring-[#1a3a4a]"
-                      : "bg-[#1e4d6b]"
-                  }
-                `}
+                className={`flex items-center gap-3 px-4 py-4 rounded-2xl font-semibold text-white transition-all ${
+                  tipoSelecionado === tipo.id
+                    ? "bg-[#1a3a4a] ring-2 ring-[#1a3a4a]"
+                    : "bg-[#1e4d6b]"
+                }`}
               >
                 {tipo.icon}
                 {tipo.label}
               </button>
             ))}
           </div>
+          {tipoError ? (
+            <p className="text-red-500 text-xs mt-2">{tipoError}</p>
+          ) : null}
         </div>
 
-        {/* Formulário */}
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="mt-6 flex flex-col gap-5"
-        >
-          {/* Descrição */}
+        <form onSubmit={handleSubmit(onSubmit)} className="mt-6 flex flex-col gap-5">
+          {submitError ? (
+            <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {submitError}
+            </div>
+          ) : null}
+
           <div>
             <label className="block text-sm font-bold text-[#1a3a4a] mb-2">
               Descrição do Item
@@ -93,13 +126,10 @@ export default function CadastrarResiduo() {
               className="w-full border border-gray-300 rounded-2xl px-4 py-3 text-sm text-gray-400 placeholder-gray-300 outline-none focus:border-[#1e4d6b]"
             />
             {errors.descricao && (
-              <p className="text-red-500 text-xs mt-1">
-                {errors.descricao.message}
-              </p>
+              <p className="text-red-500 text-xs mt-1">{errors.descricao.message}</p>
             )}
           </div>
 
-          {/* Quantidade */}
           <div>
             <label className="block text-sm font-bold text-[#1a3a4a] mb-3">
               Quantidade
@@ -108,16 +138,16 @@ export default function CadastrarResiduo() {
               <button
                 type="button"
                 onClick={() => setQuantidade((q) => Math.max(1, q - 1))}
+                disabled={createMutation.isPending}
                 className="w-12 h-12 rounded-xl border-2 border-[#1e4d6b] text-[#1e4d6b] text-2xl font-bold flex items-center justify-center"
               >
                 −
               </button>
-              <span className="text-2xl font-bold text-[#1a3a4a]">
-                {quantidade}
-              </span>
+              <span className="text-2xl font-bold text-[#1a3a4a]">{quantidade}</span>
               <button
                 type="button"
                 onClick={() => setQuantidade((q) => q + 1)}
+                disabled={createMutation.isPending}
                 className="w-12 h-12 rounded-xl bg-[#1e4d6b] text-white text-2xl font-bold flex items-center justify-center"
               >
                 +
@@ -125,7 +155,6 @@ export default function CadastrarResiduo() {
             </div>
           </div>
 
-          {/* Observação */}
           <div>
             <label className="block text-sm font-bold text-[#1a3a4a] mb-2">
               Observação (Opcional)
@@ -138,20 +167,26 @@ export default function CadastrarResiduo() {
             />
           </div>
 
-          {/* Pontos estimados */}
           <div className="flex items-center justify-between bg-[#e8f5e2] rounded-2xl px-4 py-3">
             <span className="text-sm text-green-700 font-medium">
               Pontos estimados ao entregar
             </span>
-            <span className="text-sm text-green-700 font-bold">+20 pts</span>
+            <span className="text-sm text-green-700 font-bold">
+              +{Math.round(quantidade * POINTS_PER_KG)} pts
+            </span>
           </div>
 
-          {/* Botão */}
           <button
             type="submit"
+            disabled={createMutation.isPending}
             className="w-full bg-[#1e4d6b] text-white font-semibold py-4 rounded-full text-sm"
           >
-            Adicionar ao estoque
+            <span className="inline-flex items-center gap-2">
+              {createMutation.isPending ? (
+                <Loader2 size={18} className="animate-spin" />
+              ) : null}
+              {createMutation.isPending ? "Salvando..." : "Adicionar ao estoque"}
+            </span>
           </button>
         </form>
       </div>
