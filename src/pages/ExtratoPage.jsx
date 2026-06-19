@@ -1,44 +1,141 @@
-import React from 'react';
-import { CheckCircle2, Clock3, Recycle, TrendingUp, Wallet } from 'lucide-react';
-import Navbar from '../components/ui/Navbar';
+import React from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { CheckCircle2, Clock3, Loader2, Recycle, TrendingUp, Wallet, XCircle } from 'lucide-react'
+import Navbar from '../components/ui/Navbar'
+import { getDiscardHistory } from '../services/discards'
+import { getCurrentUser } from '../services/users'
+import { queryKeys } from '../services/queryKeys'
+import { getApiErrorMessage } from '../services/http/getApiErrorMessage'
 
-const historico = [
-  { id: 1, titulo: 'Garrafas PET', quantidade: '3x', pontos: 120, status: 'entregue', data: 'Hoje, 14:35' },
-  { id: 2, titulo: 'Latas de alumínio', quantidade: '1x', pontos: 80, status: 'pendente', data: 'Ontem, 10:15' },
-  { id: 3, titulo: 'Vidros recicláveis', quantidade: '2x', pontos: 150, status: 'entregue', data: '18 Mai, 09:40' },
-  { id: 4, titulo: 'Papelão limpo', quantidade: '4x', pontos: 150, status: 'entregue', data: '15 Mai, 16:20' },
-];
+const POINTS_PER_KG = 10
+
+const STATUS_CONFIG = {
+  pendente: {
+    label: 'PENDENTE',
+    border: 'border-amber-200 bg-amber-50',
+    icon: 'bg-amber-100 text-amber-700',
+    badge: 'bg-amber-100 text-amber-700',
+    Icon: Clock3,
+  },
+  confirmado: {
+    label: 'CONFIRMADO',
+    border: 'border-emerald-100 bg-white',
+    icon: 'bg-emerald-100 text-emerald-700',
+    badge: 'bg-emerald-100 text-emerald-700',
+    Icon: CheckCircle2,
+  },
+  rejeitado: {
+    label: 'REJEITADO',
+    border: 'border-rose-200 bg-rose-50',
+    icon: 'bg-rose-100 text-rose-700',
+    badge: 'bg-rose-100 text-rose-700',
+    Icon: XCircle,
+  },
+  revertido: {
+    label: 'ESTORNADO',
+    border: 'border-slate-200 bg-slate-50',
+    icon: 'bg-slate-200 text-slate-700',
+    badge: 'bg-slate-200 text-slate-700',
+    Icon: XCircle,
+  },
+}
+
+const formatResidueType = (tipo) =>
+  String(tipo || 'resíduo')
+    .replaceAll('_', ' ')
+    .replace(/\b\w/g, (letter) => letter.toUpperCase())
+
+const formatHistoryDate = (value) => {
+  if (!value) {
+    return 'Data indisponível'
+  }
+
+  return new Date(value).toLocaleString('pt-BR', {
+    day: '2-digit',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}
+
+const getDiscardPoints = (item) => {
+  const baseQuantity = Number(
+    item.status === 'confirmado'
+      ? item.quantidade_confirmada ?? item.quantidade ?? 0
+      : item.quantidade ?? 0
+  )
+
+  const points = Math.round(baseQuantity * POINTS_PER_KG)
+
+  return item.status === 'revertido' ? -points : points
+}
 
 function HistoricoCard({ item }) {
-  const pendente = item.status === 'pendente';
+  const config = STATUS_CONFIG[item.status] || STATUS_CONFIG.confirmado
+  const StatusIcon = config.Icon
+  const points = getDiscardPoints(item)
+  const quantityLabel = Number(item.quantidade_confirmada ?? item.quantidade ?? 0).toLocaleString('pt-BR', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  })
+
   return (
-    <article className={`rounded-[24px] border p-4 shadow-sm ${pendente ? 'border-amber-200 bg-amber-50' : 'border-emerald-100 bg-white'}`}>
+    <article className={`rounded-[24px] border p-4 shadow-sm ${config.border}`}>
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${pendente ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'}`}>
+          <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${config.icon}`}>
             <Recycle size={24} />
           </div>
           <div>
-            <h3 className="text-sm font-black text-[#12384C]">{item.titulo}</h3>
-            <p className="mt-1 text-xs font-semibold text-slate-500">{item.quantidade} • {item.data}</p>
+            <h3 className="text-sm font-black text-[#12384C]">
+              {item.inventario_item_descricao || formatResidueType(item.tipo_residuo)}
+            </h3>
+            <p className="mt-1 text-xs font-semibold text-slate-500">
+              {quantityLabel} kg • {formatHistoryDate(item.data_desc)}
+            </p>
+            <p className="mt-1 text-[11px] font-medium text-slate-500">
+              {item.ponto_coleta_nome || 'Ponto não informado'}
+            </p>
           </div>
         </div>
         <div className="text-right">
-          <p className="text-lg font-black text-[#0B6B53]">+{item.pontos}</p>
-          <span className={`mt-1 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-black ${pendente ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'}`}>
-            {pendente ? <Clock3 size={12} /> : <CheckCircle2 size={12} />}
-            {pendente ? 'PENDENTE' : 'ENTREGUE'}
+          <p className="text-lg font-black text-[#0B6B53]">
+            {points >= 0 ? '+' : ''}
+            {points}
+          </p>
+          <span className={`mt-1 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-black ${config.badge}`}>
+            <StatusIcon size={12} />
+            {config.label}
           </span>
         </div>
       </div>
     </article>
-  );
+  )
 }
 
 export default function ExtratoPage() {
-  const total = 500;
-  const pendentes = 80;
-  const entregues = 420;
+  const {
+    data: historico = [],
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: queryKeys.discardHistory,
+    queryFn: getDiscardHistory,
+  })
+
+  const { data: currentUser } = useQuery({
+    queryKey: queryKeys.currentUser,
+    queryFn: getCurrentUser,
+  })
+
+  const total = Number(currentUser?.pontuacao_total || 0)
+  const pendentes = historico
+    .filter((item) => item.status === 'pendente')
+    .reduce((sum, item) => sum + Math.max(getDiscardPoints(item), 0), 0)
+  const confirmados = historico
+    .filter((item) => item.status === 'confirmado')
+    .reduce((sum, item) => sum + Math.max(getDiscardPoints(item), 0), 0)
 
   return (
     <main className="min-h-screen bg-slate-200 px-3 py-4">
@@ -47,7 +144,7 @@ export default function ExtratoPage() {
           <h1 className="text-3xl font-black text-[#12384C]">
             Extrato de <span className="text-[#E5B900]">Pontos</span>
           </h1>
-          <p className="mt-1 text-sm font-semibold text-slate-500">Acompanhe seu saldo e suas entregas.</p>
+          <p className="mt-1 text-sm font-semibold text-slate-500">Acompanhe seu saldo e o status das suas entregas.</p>
 
           <section className="mt-5 rounded-[32px] bg-[#DDF7E9] p-5 shadow-sm">
             <div className="flex items-center justify-between">
@@ -69,26 +166,46 @@ export default function ExtratoPage() {
               </div>
               <div className="rounded-2xl bg-white/80 p-3">
                 <div className="flex items-center gap-2 text-xs font-black text-emerald-700">
-                  <TrendingUp size={15} /> Entregues
+                  <TrendingUp size={15} /> Confirmados
                 </div>
-                <p className="mt-2 text-2xl font-black text-[#12384C]">{entregues}</p>
+                <p className="mt-2 text-2xl font-black text-[#12384C]">{confirmados}</p>
               </div>
             </div>
           </section>
 
           <div className="mb-4 mt-7 flex items-center justify-between">
             <h2 className="text-lg font-black text-[#12384C]">Histórico</h2>
-            <button className="rounded-full bg-white px-3 py-1 text-xs font-black text-[#11527A] shadow-sm">Todos</button>
+            <span className="rounded-full bg-white px-3 py-1 text-xs font-black text-[#11527A] shadow-sm">
+              {historico.length} registros
+            </span>
           </div>
 
-          <div className="space-y-3">
-            {historico.map((item) => (
-              <HistoricoCard key={item.id} item={item} />
-            ))}
-          </div>
+          {isLoading ? (
+            <div className="flex items-center gap-3 rounded-[24px] border border-slate-200 bg-white p-4 text-sm font-semibold text-slate-600 shadow-sm">
+              <Loader2 size={18} className="animate-spin" />
+              Carregando histórico de pontos...
+            </div>
+          ) : isError ? (
+            <div className="rounded-[24px] border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-700 shadow-sm">
+              {getApiErrorMessage(error, 'Não foi possível carregar o extrato de pontos.')}
+            </div>
+          ) : historico.length ? (
+            <div className="space-y-3">
+              {historico.map((item) => (
+                <HistoricoCard key={item.id_descarte} item={item} />
+              ))}
+            </div>
+          ) : (
+            <div className="rounded-[24px] border border-dashed border-slate-200 bg-white p-6 text-center shadow-sm">
+              <p className="text-sm font-semibold text-[#12384C]">Nenhuma entrega registrada ainda.</p>
+              <p className="mt-2 text-xs text-slate-500">
+                Assim que você enviar itens do estoque para um ponto de coleta, eles aparecem aqui.
+              </p>
+            </div>
+          )}
         </div>
         <Navbar />
       </section>
     </main>
-  );
+  )
 }
