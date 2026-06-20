@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CampaignLayout, {
   LogoResiduum,
-} from "../components/campanhas/CampaignLayout";
+} from "../components/Campanhas/CampaignLayout";
 
 const campanhasPadrao = [
   {
