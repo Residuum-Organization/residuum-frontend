@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import CampaignLayout, {
   BotaoVoltar,
   LogoResiduum,
-} from "../components/campanhas/CampaignLayout";
+} from "../components/Campanhas/CampaignLayout";
 
 const estadoInicial = {
   nome: "",
