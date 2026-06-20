@@ -44,19 +44,31 @@ const moradorRoutes = [
   },
   { path: "/inicio", label: "Início", Component: ComingSoonPage },
   { path: "/mapa", label: "Mapa", Component: MapPage },
-  { path: "/meu-estoque", label: "Meu estoque", Component: MeuEstoquePage },
+  {
+    path: "/meu-estoque",
+    label: "Meu estoque",
+    Component: MeuEstoquePage,
+    integratedApi: true,
+  },
   {
     path: "/cadastrar-residuo",
     label: "Cadastrar resíduo",
     Component: CadastrarResiduoPage,
+    integratedApi: true,
   },
   {
     path: "/validacao-presenca",
     label: "Validação",
     Component: ValidacaoPresencaPage,
+    integratedApi: true,
   },
   { path: "/escanear-qr", label: "QR Code", Component: EscanearQrCodePage },
-  { path: "/extrato", label: "Extrato", Component: ExtratoPage },
+  {
+    path: "/extrato",
+    label: "Extrato",
+    Component: ExtratoPage,
+    integratedApi: true,
+  },
   { path: "/sorteios", label: "Sorteios", Component: SorteiosPage },
   { path: "/sorteios/:id", Component: SorteioDetalhesPage, sidebar: false },
   { path: "/perfil", label: "Perfil", Component: ProfilePage },
@@ -64,7 +76,12 @@ const moradorRoutes = [
 
 const authRoutes = [
   { path: "/welcome", label: "Boas-vindas", Component: WelcomePage },
-  { path: "/login", label: "Login", Component: LoginPage },
+  {
+    path: "/login",
+    label: "Login",
+    Component: LoginPage,
+    integratedApi: true,
+  },
   { path: "/cadastro", label: "Cadastro morador", Component: RegisterPage },
   {
     path: "/cadastro-ponto-coleta",
@@ -190,7 +207,14 @@ function PresentationSidebar() {
                         }`
                       }
                     >
-                      {route.label}
+                      <span className="flex items-center justify-between gap-3">
+                        <span>{route.label}</span>
+                        {route.integratedApi ? (
+                          <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-black uppercase tracking-[0.12em] text-emerald-700">
+                            API
+                          </span>
+                        ) : null}
+                      </span>
                     </NavLink>
                   ))}
               </div>
