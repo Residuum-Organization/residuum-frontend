@@ -1,12 +1,14 @@
 // src/pages/EscanearQrCode.jsx
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { CheckCircle } from 'lucide-react'
 import Navbar from '../components/ui/Navbar'
 
 export default function EscanearQrCode() {
   const [lido, setLido] = useState(false)
+  const [searchParams] = useSearchParams()
   const navigate = useNavigate()
+  const itemId = searchParams.get('itemId')
 
   const simularLeitura = () => {
     setLido(true)
@@ -62,7 +64,9 @@ export default function EscanearQrCode() {
 
         {/* Botão confirmar */}
         <button
-          onClick={() => navigate('/validacao-presenca')}
+          onClick={() =>
+            navigate(itemId ? `/validacao-presenca?itemId=${itemId}` : '/validacao-presenca')
+          }
           disabled={!lido}
           className={`w-full mt-6 py-4 rounded-full font-semibold text-sm transition-all ${
             lido

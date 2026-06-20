@@ -5,6 +5,11 @@ export const getProfile = async () => {
   return res.data
 }
 
+export const getCurrentUser = async () => {
+  const res = await api.get('/me')
+  return res.data
+}
+
 export const updateProfile = async (payload) => {
   const res = await api.put('/users/me', payload)
   return res.data

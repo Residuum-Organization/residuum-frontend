@@ -35,7 +35,7 @@ export default function LoginForm() {
       await login(data.email, data.password);
       navigate("/welcome-residuum");
     } catch (e) {
-      setAuthError("Credenciais inválidas");
+      setAuthError(e.message || "Credenciais inválidas");
     }
   };
 
