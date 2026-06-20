@@ -1,5 +1,6 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { CheckCircle2 } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import RegisterForm from "../components/forms/RegisterForm";
@@ -7,10 +8,13 @@ import RegisterConfirmation from "../components/forms/RegisterConfirmation";
 import AuthShell from "../components/auth/AuthShell";
 import { registerSchema } from "../schemas/auth";
 import { applyPhoneMask } from "../utils/inputMasks";
+import { registerUser } from "../services/auth";
 
 export default function RegisterPage() {
+  const navigate = useNavigate();
   const [step, setStep] = React.useState(1);
   const [isFinalizing, setIsFinalizing] = React.useState(false);
+  const [showSuccess, setShowSuccess] = React.useState(false);
 
   const {
     register,
@@ -49,20 +53,55 @@ export default function RegisterPage() {
 
   const onFinalize = async () => {
     setIsFinalizing(true);
-    const payload = getValues();
-    await new Promise((resolve) => setTimeout(resolve, 900));
-    console.log("register-finalize", {
-      name: payload.name,
-      email: payload.email,
-      phone: payload.phone,
-    });
-    setIsFinalizing(false);
+    try {
+      const payload = getValues();
+      await registerUser({
+        name: payload.name,
+        email: payload.email,
+        phone: payload.phone,
+        password: payload.password,
+      });
+      setShowSuccess(true);
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      setIsFinalizing(false);
+    }
   };
 
   const values = getValues();
 
+  React.useEffect(() => {
+    if (showSuccess) {
+      const timer = setTimeout(() => {
+        navigate("/login");
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [showSuccess, navigate]);
+
   return (
-    <AuthShell
+    <>
+      {showSuccess && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--color-welcome-blue)] bg-opacity-90">
+          <div className="mx-4 flex max-w-sm flex-col items-center rounded-3xl bg-white px-8 py-12 text-center shadow-2xl">
+            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-emerald-100">
+              <CheckCircle2 size={48} className="text-emerald-600" />
+            </div>
+            <h2 className="mt-6 text-2xl font-bold text-[var(--color-welcome-blue)]">
+              Cadastro realizado!
+            </h2>
+            <p className="mt-2 text-base text-slate-600">
+              Sua conta foi criada com sucesso. Redirecionando para o login...
+            </p>
+            <div className="mt-8 h-2 w-full animate-pulse rounded-full bg-slate-200">
+              <div className="h-full w-full origin-left animate-[progress_2s_ease-in-out] rounded-full bg-emerald-500" />
+            </div>
+          </div>
+        </div>
+      )}
+
+      <AuthShell
       title="Cadastro"
       subtitle="Preencha seus dados para continuar."
       description="Transforme descarte em impacto positivo. O Residuum conecta você aos pontos de coleta e simplifica a reciclagem no dia a dia."
@@ -119,6 +158,7 @@ export default function RegisterPage() {
           Entrar
         </Link>
       </p>
-    </AuthShell>
+      </AuthShell>
+    </>
   );
 }

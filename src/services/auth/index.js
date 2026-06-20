@@ -33,6 +33,22 @@ export const logout = async () => {
   return null
 }
 
+export const registerUser = async ({ name, email, phone, password }) => {
+  try {
+    const payload = {
+      nome: name,
+      email,
+      telefone: phone.replace(/\D/g, ""),
+      senha: password,
+    }
+
+    const res = await api.post('/usuarios', payload)
+    return res.data
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, 'Erro ao criar cadastro'))
+  }
+}
+
 export const refresh = async () => {
   const accessToken = getAccessToken()
 
