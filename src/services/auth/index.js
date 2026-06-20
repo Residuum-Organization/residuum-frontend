@@ -1,5 +1,6 @@
 import api from '../../api/client'
 import { getAccessToken } from '../../api/token'
+import { getApiErrorMessage } from '../http/getApiErrorMessage'
 
 const getMeWithToken = async (accessToken) => {
   const res = await api.get('/me', {
@@ -12,15 +13,19 @@ const getMeWithToken = async (accessToken) => {
 }
 
 export const login = async (email, password) => {
-  const res = await api.post('/login', { email, senha: password })
-  const accessToken = res.data?.access_token
-  const user = accessToken ? await getMeWithToken(accessToken) : null
+  try {
+    const res = await api.post('/login', { email, senha: password })
+    const accessToken = res.data?.access_token
+    const user = accessToken ? await getMeWithToken(accessToken) : null
 
-  return {
-    accessToken,
-    user,
-    usuarioId: res.data?.usuario_id,
-    tokenType: res.data?.token_type,
+    return {
+      accessToken,
+      user,
+      usuarioId: res.data?.usuario_id,
+      tokenType: res.data?.token_type,
+    }
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, 'Credenciais inválidas'))
   }
 }
 
@@ -35,10 +40,14 @@ export const refresh = async () => {
     throw new Error('Sem sessão ativa')
   }
 
-  const user = await getMeWithToken(accessToken)
+  try {
+    const user = await getMeWithToken(accessToken)
 
-  return {
-    accessToken,
-    user,
+    return {
+      accessToken,
+      user,
+    }
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, 'Não foi possível restaurar a sessão'))
   }
 }
