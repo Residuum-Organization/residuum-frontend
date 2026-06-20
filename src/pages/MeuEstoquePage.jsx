@@ -273,7 +273,7 @@ export default function MeuEstoquePage() {
           <div className="rounded-2xl border border-dashed border-[#c8d2e3] bg-[#f7f9fc] px-5 py-8 text-center">
             <p className="text-[#1a3a4a] font-semibold">Seu estoque está vazio.</p>
             <p className="text-sm text-gray-400 mt-2">
-              Cadastre um resíduo para começar a montar sua próxima entrega.
+              Cadastre um resíduo para começar a organizar sua próxima entrega.
             </p>
           </div>
         )}

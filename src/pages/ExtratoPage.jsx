@@ -197,9 +197,9 @@ export default function ExtratoPage() {
             </div>
           ) : (
             <div className="rounded-[24px] border border-dashed border-slate-200 bg-white p-6 text-center shadow-sm">
-              <p className="text-sm font-semibold text-[#12384C]">Nenhum evento de pontuação registrado ainda.</p>
+              <p className="text-sm font-semibold text-[#12384C]">Seu extrato ainda está vazio.</p>
               <p className="mt-2 text-xs text-slate-500">
-                Entregas confirmadas, pendências e resgates aparecem aqui automaticamente.
+                Suas entregas e resgates vão aparecer aqui assim que houver movimentação.
               </p>
             </div>
           )}

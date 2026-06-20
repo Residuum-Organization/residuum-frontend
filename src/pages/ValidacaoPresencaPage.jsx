@@ -253,7 +253,7 @@ export default function ValidacaoPresencaPage() {
       <div className="flex-1 px-5 pt-8 pb-24 overflow-y-auto">
         <h1 className="text-2xl font-bold text-[#1a3a4a]">Transferir para o ponto</h1>
         <p className="text-gray-400 text-sm mt-1">
-          Selecione o item, valide sua posição e envie a solicitação para a API.
+          Selecione o item, valide sua posição e envie sua solicitação ao ponto de coleta.
         </p>
 
         {feedback ? (
@@ -272,7 +272,7 @@ export default function ValidacaoPresencaPage() {
           <div className="mt-6 rounded-2xl border border-dashed border-[#c8d2e3] bg-[#f7f9fc] px-5 py-8 text-center">
             <p className="text-[#1a3a4a] font-semibold">Você ainda não tem itens disponíveis.</p>
             <p className="text-sm text-gray-400 mt-2 mb-5">
-              Cadastre um resíduo no estoque antes de solicitar a transferência.
+              Cadastre um resíduo no estoque antes de solicitar uma entrega.
             </p>
             <button
               type="button"
@@ -391,7 +391,7 @@ export default function ValidacaoPresencaPage() {
                 </>
               ) : (
                 <p className="text-sm text-gray-500">
-                  Nenhum ponto ativo encontrado para este tipo de resíduo.
+                  Nenhum ponto disponível foi encontrado para este tipo de resíduo no momento.
                 </p>
               )}
             </div>
