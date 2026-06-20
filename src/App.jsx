@@ -30,7 +30,7 @@ import ComingSoonPage from "./pages/ComingSoonPage";
 import CampanhasPage from "./pages/CampanhasPage";
 import NovaCampanhaPage from "./pages/NovaCampanhaPage";
 import CampanhaDetalhesPage from "./pages/CampanhaDetalhesPage";
-import Certificadodecoleta from "./pages/certificadodecoleta"; 
+import Certificadodecoleta from "./pages/Certificadodecoleta";
 const moradorRoutes = [
   {
     path: "/welcome-residuum",

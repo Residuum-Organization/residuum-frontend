@@ -32,8 +32,12 @@ export default function LoginForm() {
   const onSubmit = async (data) => {
     setAuthError("");
     try {
-      await login(data.email, data.password);
-      navigate("/welcome-residuum");
+      const result = await login(data.email, data.password);
+      if (result.user?.role === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/welcome-residuum");
+      }
     } catch (e) {
       setAuthError(e.message || "Credenciais inválidas");
     }

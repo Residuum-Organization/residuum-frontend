@@ -37,6 +37,11 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (email, password) => {
+    // Limpa sessão anterior antes de logar
+    clearAccessToken();
+    setUser(null);
+    setAuthenticated(false);
+
     const res = await authService.login(email, password);
     const { accessToken, user } = res;
     if (accessToken) {
