@@ -1,13 +1,10 @@
 import React from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { CheckCircle2, Clock3, Loader2, Recycle, TrendingUp, Wallet, XCircle } from 'lucide-react'
+import { CheckCircle2, Clock3, Loader2, Recycle, TrendingDown, TrendingUp, Wallet, XCircle } from 'lucide-react'
 import Navbar from '../components/ui/Navbar'
-import { getDiscardHistory } from '../services/discards'
-import { getCurrentUser } from '../services/users'
+import { getPointsStatement } from '../services/points'
 import { queryKeys } from '../services/queryKeys'
 import { getApiErrorMessage } from '../services/http/getApiErrorMessage'
-
-const POINTS_PER_KG = 10
 
 const STATUS_CONFIG = {
   pendente: {
@@ -38,6 +35,13 @@ const STATUS_CONFIG = {
     badge: 'bg-slate-200 text-slate-700',
     Icon: XCircle,
   },
+  resgatado: {
+    label: 'RESGATADO',
+    border: 'border-sky-200 bg-sky-50',
+    icon: 'bg-sky-100 text-sky-700',
+    badge: 'bg-sky-100 text-sky-700',
+    Icon: Wallet,
+  },
 }
 
 const formatResidueType = (tipo) =>
@@ -58,26 +62,18 @@ const formatHistoryDate = (value) => {
   })
 }
 
-const getDiscardPoints = (item) => {
-  const baseQuantity = Number(
-    item.status === 'confirmado'
-      ? item.quantidade_confirmada ?? item.quantidade ?? 0
-      : item.quantidade ?? 0
-  )
-
-  const points = Math.round(baseQuantity * POINTS_PER_KG)
-
-  return item.status === 'revertido' ? -points : points
-}
-
 function HistoricoCard({ item }) {
   const config = STATUS_CONFIG[item.status] || STATUS_CONFIG.confirmado
   const StatusIcon = config.Icon
-  const points = getDiscardPoints(item)
-  const quantityLabel = Number(item.quantidade_confirmada ?? item.quantidade ?? 0).toLocaleString('pt-BR', {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  })
+  const points = Number(item.pontos || 0)
+  const hasQuantity = item.quantidade != null
+  const quantityLabel = hasQuantity
+    ? Number(item.quantidade).toLocaleString('pt-BR', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2,
+      })
+    : null
+  const title = item.inventario_item_descricao || item.descricao || formatResidueType(item.tipo_residuo)
 
   return (
     <article className={`rounded-[24px] border p-4 shadow-sm ${config.border}`}>
@@ -87,14 +83,13 @@ function HistoricoCard({ item }) {
             <Recycle size={24} />
           </div>
           <div>
-            <h3 className="text-sm font-black text-[#12384C]">
-              {item.inventario_item_descricao || formatResidueType(item.tipo_residuo)}
-            </h3>
+            <h3 className="text-sm font-black text-[#12384C]">{title}</h3>
             <p className="mt-1 text-xs font-semibold text-slate-500">
-              {quantityLabel} kg • {formatHistoryDate(item.data_desc)}
+              {hasQuantity ? `${quantityLabel} kg • ` : ''}
+              {formatHistoryDate(item.data_evento)}
             </p>
             <p className="mt-1 text-[11px] font-medium text-slate-500">
-              {item.ponto_coleta_nome || 'Ponto não informado'}
+              {item.ponto_coleta_nome || item.referencia || 'Evento de pontuação'}
             </p>
           </div>
         </div>
@@ -115,27 +110,26 @@ function HistoricoCard({ item }) {
 
 export default function ExtratoPage() {
   const {
-    data: historico = [],
+    data: extrato,
     isLoading,
     isError,
     error,
   } = useQuery({
-    queryKey: queryKeys.discardHistory,
-    queryFn: getDiscardHistory,
+    queryKey: queryKeys.pointsStatement,
+    queryFn: getPointsStatement,
   })
 
-  const { data: currentUser } = useQuery({
-    queryKey: queryKeys.currentUser,
-    queryFn: getCurrentUser,
-  })
-
-  const total = Number(currentUser?.pontuacao_total || 0)
+  const historico = extrato?.itens || []
+  const total = Number(extrato?.pontuacao_total || 0)
   const pendentes = historico
     .filter((item) => item.status === 'pendente')
-    .reduce((sum, item) => sum + Math.max(getDiscardPoints(item), 0), 0)
+    .reduce((sum, item) => sum + Math.max(Number(item.pontos || 0), 0), 0)
   const confirmados = historico
     .filter((item) => item.status === 'confirmado')
-    .reduce((sum, item) => sum + Math.max(getDiscardPoints(item), 0), 0)
+    .reduce((sum, item) => sum + Math.max(Number(item.pontos || 0), 0), 0)
+  const resgatados = historico
+    .filter((item) => item.status === 'resgatado')
+    .reduce((sum, item) => sum + Math.abs(Number(item.pontos || 0)), 0)
 
   return (
     <main className="min-h-screen bg-slate-200 px-3 py-4">
@@ -157,7 +151,7 @@ export default function ExtratoPage() {
               </div>
             </div>
 
-            <div className="mt-6 grid grid-cols-2 gap-3">
+            <div className="mt-6 grid grid-cols-3 gap-3">
               <div className="rounded-2xl bg-white/80 p-3">
                 <div className="flex items-center gap-2 text-xs font-black text-amber-700">
                   <Clock3 size={15} /> Pendentes
@@ -169,6 +163,12 @@ export default function ExtratoPage() {
                   <TrendingUp size={15} /> Confirmados
                 </div>
                 <p className="mt-2 text-2xl font-black text-[#12384C]">{confirmados}</p>
+              </div>
+              <div className="rounded-2xl bg-white/80 p-3">
+                <div className="flex items-center gap-2 text-xs font-black text-sky-700">
+                  <TrendingDown size={15} /> Resgatados
+                </div>
+                <p className="mt-2 text-2xl font-black text-[#12384C]">{resgatados}</p>
               </div>
             </div>
           </section>
@@ -192,14 +192,14 @@ export default function ExtratoPage() {
           ) : historico.length ? (
             <div className="space-y-3">
               {historico.map((item) => (
-                <HistoricoCard key={item.id_descarte} item={item} />
+                <HistoricoCard key={item.id_descarte || item.id_resgate} item={item} />
               ))}
             </div>
           ) : (
             <div className="rounded-[24px] border border-dashed border-slate-200 bg-white p-6 text-center shadow-sm">
-              <p className="text-sm font-semibold text-[#12384C]">Nenhuma entrega registrada ainda.</p>
+              <p className="text-sm font-semibold text-[#12384C]">Nenhum evento de pontuação registrado ainda.</p>
               <p className="mt-2 text-xs text-slate-500">
-                Assim que você enviar itens do estoque para um ponto de coleta, eles aparecem aqui.
+                Entregas confirmadas, pendências e resgates aparecem aqui automaticamente.
               </p>
             </div>
           )}
