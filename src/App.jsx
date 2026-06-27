@@ -69,9 +69,19 @@ const moradorRoutes = [
     Component: ExtratoPage,
     integratedApi: true,
   },
-  { path: "/sorteios", label: "Sorteios", Component: SorteiosPage },
+  {
+    path: "/sorteios",
+    label: "Sorteios",
+    Component: SorteiosPage,
+    integratedApi: true,
+  },
   { path: "/sorteios/:id", Component: SorteioDetalhesPage, sidebar: false },
-  { path: "/perfil", label: "Perfil", Component: ProfilePage },
+  {
+    path: "/perfil",
+    label: "Perfil",
+    Component: ProfilePage,
+    integratedApi: true,
+  },
 ];
 
 const authRoutes = [
@@ -87,9 +97,20 @@ const authRoutes = [
     path: "/cadastro-ponto-coleta",
     label: "Cadastro ponto",
     Component: RegisterPontoColetaPage,
+    integratedApi: true,
   },
-  { path: "/empresa", label: "Endereço ponto", Component: Company },
-  { path: "/confirmacao", label: "Confirmação ponto", Component: Confirmation },
+  {
+    path: "/empresa",
+    label: "Endereço ponto",
+    Component: Company,
+    integratedApi: true,
+  },
+  {
+    path: "/confirmacao",
+    label: "Confirmação ponto",
+    Component: Confirmation,
+    integratedApi: true,
+  },
   {
     path: "/recuperar-senha",
     label: "Recuperar senha",
@@ -98,13 +119,23 @@ const authRoutes = [
 ];
 
 const parceiroRoutes = [
-  { path: "/dashboard", label: "Dashboard", Component: DashboardScreen },
+  {
+    path: "/dashboard",
+    label: "Dashboard",
+    Component: DashboardScreen,
+    integratedApi: true,
+  },
   { path: "/schedule", label: "Agenda", Component: ScheduleScreen },
 ];
 
 const adminRoutes = [
   { path: "/admin", label: "Painel admin", Component: AdminPage },
-  { path: "/aprovacao", label: "Aprovação", Component: Aprovacao },
+  {
+    path: "/aprovacao",
+    label: "Aprovação",
+    Component: Aprovacao,
+    integratedApi: true,
+  },
 
   {
     path: "/campanhas",
