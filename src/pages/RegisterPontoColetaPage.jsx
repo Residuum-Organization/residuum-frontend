@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import AuthShell from "../components/auth/AuthShell";
 import FormField from "../components/forms/FormField";
 import Button from "../components/ui/Button";
+import { saveCollectionPointDraft } from "../services/collectionPointRequests";
 
 const responsibleFields = [
   { id: "responsavel", label: "Nome do Responsável", type: "text" },
@@ -15,9 +16,29 @@ const responsibleFields = [
 
 export default function RegisterPontoColetaPage() {
   const navigate = useNavigate();
+  const [form, setForm] = React.useState({
+    responsavel: "",
+    documento: "",
+    telefone: "",
+    email: "",
+    senha: "",
+    confirmarSenha: "",
+  });
+
+  function handleChange(event) {
+    const { name, value } = event.target;
+    setForm((current) => ({ ...current, [name]: value }));
+  }
 
   function handleSubmit(event) {
     event.preventDefault();
+    saveCollectionPointDraft({
+      responsavel: form.responsavel,
+      documento: form.documento,
+      telefone: form.telefone,
+      email: form.email,
+      senha: form.senha,
+    });
     navigate("/empresa");
   }
 
@@ -42,9 +63,12 @@ export default function RegisterPontoColetaPage() {
           <FormField
             key={field.id}
             id={field.id}
+            name={field.id}
             label={field.label}
             type={field.type}
             placeholder={field.label}
+            value={form[field.id]}
+            onChange={handleChange}
           />
         ))}
 

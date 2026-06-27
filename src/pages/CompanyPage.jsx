@@ -5,6 +5,10 @@ import AuthShell from "../components/auth/AuthShell";
 import FormField from "../components/forms/FormField";
 import Button from "../components/ui/Button";
 import { useCepAddress } from "../hooks/useCepAddress";
+import {
+  getCollectionPointDraft,
+  saveCollectionPointDraft,
+} from "../services/collectionPointRequests";
 
 const addressFields = [
   { id: "rua", label: "Nome da Rua", type: "text" },
@@ -16,12 +20,18 @@ const addressFields = [
 
 export default function Company() {
   const navigate = useNavigate();
+  const draft = React.useMemo(() => getCollectionPointDraft() || {}, []);
   const { address, cepStatus, handleFieldChange, validateCep } = useCepAddress();
 
   function handleSubmit(event) {
     event.preventDefault();
 
     if (!validateCep()) return;
+
+    saveCollectionPointDraft({
+      ...draft,
+      endereco: address,
+    });
 
     navigate("/confirmacao");
   }
