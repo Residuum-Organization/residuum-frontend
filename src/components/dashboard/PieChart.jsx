@@ -2,7 +2,7 @@ import React from "react";
 import { ChevronDown } from "lucide-react";
 import { MATERIAL_DATA } from "../../constants/dashboard";
 
-function PieSlices() {
+function PieSlices({ data }) {
   let cumulative = 0;
   const cx = 80, cy = 80, r = 70;
 
@@ -11,7 +11,7 @@ function PieSlices() {
     return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
   }
 
-  const slices = MATERIAL_DATA.map((d) => {
+  const slices = data.map((d) => {
     const startAngle = cumulative * 3.6;
     const endAngle = (cumulative + d.pct) * 3.6;
     const midAngle = (startAngle + endAngle) / 2;
@@ -48,7 +48,9 @@ function PieSlices() {
   );
 }
 
-export default function PieChart() {
+export default function PieChart({ data = MATERIAL_DATA }) {
+  const materialData = data.length ? data : MATERIAL_DATA;
+
   return (
     <div className="bg-white rounded-2xl p-4 shadow-sm">
       <div className="flex justify-between items-center mb-4">
@@ -62,10 +64,10 @@ export default function PieChart() {
       </div>
 
       <div className="flex items-center gap-6 flex-wrap">
-        <PieSlices />
+        <PieSlices data={materialData} />
 
         <div className="flex-1 space-y-2">
-          {MATERIAL_DATA.map((item) => (
+          {materialData.map((item) => (
             <div key={item.label} className="flex items-center gap-2">
               <span
                 className="w-3 h-3 rounded-full shrink-0"

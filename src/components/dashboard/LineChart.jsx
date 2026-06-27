@@ -2,16 +2,17 @@ import React from "react";
 import { ChevronDown } from "lucide-react";
 import { CHART_DATA } from "../../constants/dashboard";
 
-export default function LineChart() {
+export default function LineChart({ data = CHART_DATA }) {
   const W = 520, H = 200, padL = 40, padR = 16, padT = 10, padB = 40;
   const maxVal = 1500;
   const chartW = W - padL - padR;
   const chartH = H - padT - padB;
+  const chartData = data.length ? data : CHART_DATA;
 
-  const toX = (i) => padL + (i / (CHART_DATA.length - 1)) * chartW;
+  const toX = (i) => padL + (i / Math.max(chartData.length - 1, 1)) * chartW;
   const toY = (v) => padT + chartH - (v / maxVal) * chartH;
 
-  const points = CHART_DATA.map((d, i) => ({ x: toX(i), y: toY(d.val) }));
+  const points = chartData.map((d, i) => ({ x: toX(i), y: toY(d.val) }));
   const polyline = points.map((p) => `${p.x},${p.y}`).join(" ");
   const areaPath =
     `M${points[0].x},${toY(0)} ` +
@@ -71,7 +72,7 @@ export default function LineChart() {
             fill="#22c55e" stroke="#fff" strokeWidth="2"
           />
         ))}
-        {CHART_DATA.map((d, i) => (
+        {chartData.map((d, i) => (
           <text
             key={i} x={toX(i)} y={H - 6}
             textAnchor="middle" fontSize="12" fill="#64748b"
