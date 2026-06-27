@@ -1,8 +1,10 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import { ArrowLeft, CheckCircle2, Gift, Info, Leaf, Medal, Sparkles, Trophy } from 'lucide-react';
 import Navbar from '../components/ui/Navbar';
-import { sorteios } from '../constants/sorteios';
+import { getRaffleDetails } from '../services/rewards';
+import { queryKeys } from '../services/queryKeys';
 
 const tabs = [
   { id: 'funciona', label: 'Como funciona' },
@@ -69,7 +71,21 @@ function Premios({ premios }) {
 export default function SorteioDetalhesPage() {
   const { id } = useParams();
   const [activeTab, setActiveTab] = useState('funciona');
-  const sorteio = useMemo(() => sorteios.find((item) => item.id === id), [id]);
+  const { data: sorteio, isLoading } = useQuery({
+    queryKey: queryKeys.raffleDetails(id),
+    queryFn: () => getRaffleDetails(id),
+    enabled: Boolean(id),
+  });
+
+  if (isLoading) {
+    return (
+      <main className="min-h-screen bg-slate-200 px-3 py-4">
+        <section className="mx-auto flex min-h-[760px] w-full max-w-[390px] items-center justify-center rounded-[28px] bg-[#F7FAF9] shadow-2xl">
+          <p className="text-sm font-semibold text-slate-500">Carregando sorteio...</p>
+        </section>
+      </main>
+    );
+  }
 
   if (!sorteio) return <Navigate to="/sorteios" replace />;
 

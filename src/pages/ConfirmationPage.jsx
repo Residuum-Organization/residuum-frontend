@@ -1,15 +1,85 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { CheckCircle2, Clock3, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { CheckCircle2, X } from "lucide-react";
 import AuthShell from "../components/auth/AuthShell";
 import FormField from "../components/forms/FormField";
 import Button from "../components/ui/Button";
+import {
+  clearCollectionPointDraft,
+  getCollectionPointDraft,
+  getCollectionPointRequestStatus,
+  submitCollectionPointRequest,
+} from "../services/collectionPointRequests";
+import { queryKeys } from "../services/queryKeys";
+import { getApiErrorMessage } from "../services/http/getApiErrorMessage";
 
 const residuos = ["Plastico", "Metal", "Vidro", "Papelao"];
 
+const buildCollectionPointPayload = (draft, selectedWaste, details) => {
+  const digits = String(draft.documento || "").replace(/\D/g, "");
+  const tipoSolicitacao = digits.length > 11 ? "cnpj" : "cpf";
+
+  return {
+    tipo_solicitacao: tipoSolicitacao,
+    responsavel_nome: draft.responsavel,
+    documento: digits,
+    telefone: String(draft.telefone || "").replace(/\D/g, ""),
+    email: draft.email,
+    senha: draft.senha,
+    endereco: draft.endereco,
+    tipos_residuos_aceitos: selectedWaste.map((item) => item.toLowerCase()),
+    capacidade_estimada: details.quantidade,
+    disponibilidade_data: details.data,
+    disponibilidade_horario: details.horario,
+    observacoes: details.observacoes,
+  };
+};
+
+const statusMap = {
+  pendente: {
+    title: "Aguardando aprovação",
+    description: "Seu cadastro foi enviado e está em análise.",
+    badge: "bg-amber-100 text-amber-700",
+    Icon: Clock3,
+  },
+  aprovado: {
+    title: "Ponto aprovado",
+    description: "Seu ponto já pode começar a operar na plataforma.",
+    badge: "bg-emerald-100 text-emerald-700",
+    Icon: CheckCircle2,
+  },
+  rejeitado: {
+    title: "Solicitação rejeitada",
+    description: "Revise as informações e envie uma nova solicitação.",
+    badge: "bg-rose-100 text-rose-700",
+    Icon: X,
+  },
+};
+
 export default function Confirmation() {
   const navigate = useNavigate();
+  const draft = useMemo(() => getCollectionPointDraft() || {}, []);
   const [residuosSelecionados, setResiduosSelecionados] = useState([]);
+  const [details, setDetails] = useState({ quantidade: "", data: "", horario: "", observacoes: "" });
+  const [feedback, setFeedback] = useState("");
+
+  const statusQuery = useQuery({
+    queryKey: queryKeys.collectionPointRequestStatus,
+    queryFn: getCollectionPointRequestStatus,
+  });
+
+  const requestMutation = useMutation({
+    mutationFn: submitCollectionPointRequest,
+    onSuccess: () => {
+      clearCollectionPointDraft();
+      statusQuery.refetch();
+      setFeedback("Solicitação enviada com sucesso.");
+    },
+    onError: (error) => {
+      setFeedback(getApiErrorMessage(error, "Não foi possível enviar a solicitação."));
+    },
+  });
 
   function adicionarResiduo(residuo) {
     if (!residuosSelecionados.includes(residuo)) {
@@ -23,9 +93,55 @@ export default function Confirmation() {
     );
   }
 
+  function handleDetailChange(event) {
+    const { name, value } = event.target;
+    setDetails((current) => ({ ...current, [name]: value }));
+  }
+
   function handleSubmit(event) {
     event.preventDefault();
-    navigate("/welcome");
+
+    const payload = buildCollectionPointPayload(draft, residuosSelecionados, details);
+    requestMutation.mutate(payload);
+  }
+
+  const currentStatus = statusQuery.data?.status;
+  const statusConfig = currentStatus ? statusMap[currentStatus] || statusMap.pendente : null;
+
+  if (statusConfig) {
+    const StatusIcon = statusConfig.Icon;
+
+    return (
+      <AuthShell
+        title="Status da Solicitação"
+        subtitle="Acompanhe a aprovação do seu ponto de coleta."
+        description="Sempre que houver atualização, ela aparecerá aqui."
+        highlights={[
+          "Confira o andamento da análise",
+          "Saiba quando o ponto estiver apto a operar",
+          "Reenvie os dados se for necessário ajustar a solicitação",
+        ]}
+        footer='"Solicitações completas aceleram a entrada do ponto na operação."'
+      >
+        <div className="rounded-3xl bg-white p-6 shadow-sm text-center">
+          <div className={`mx-auto flex h-16 w-16 items-center justify-center rounded-full ${statusConfig.badge}`}>
+            <StatusIcon size={28} />
+          </div>
+          <h2 className="mt-5 text-2xl font-bold text-[var(--color-welcome-blue)]">{statusConfig.title}</h2>
+          <p className="mt-2 text-sm text-slate-500">{statusConfig.description}</p>
+          {feedback ? <p className="mt-4 text-sm font-semibold text-[var(--color-welcome-blue)]">{feedback}</p> : null}
+
+          <Button
+            type="button"
+            variant="brandPrimary"
+            className="mt-6 h-14 w-full rounded-full text-lg font-semibold"
+            onClick={() => navigate('/welcome')}
+          >
+            Voltar ao início
+          </Button>
+        </div>
+      </AuthShell>
+    );
   }
 
   return (
@@ -93,21 +209,29 @@ export default function Confirmation() {
 
         <FormField
           id="quantidade"
+          name="quantidade"
           label="Quantidade"
           placeholder="Ex: 10 kg, 5 sacolas, 2 caixas"
+          value={details.quantidade}
+          onChange={handleDetailChange}
         />
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <FormField id="data" label="Data" type="date" />
-          <FormField id="horario" label="Horario" type="time" />
+          <FormField id="data" name="data" label="Data" type="date" value={details.data} onChange={handleDetailChange} />
+          <FormField id="horario" name="horario" label="Horario" type="time" value={details.horario} onChange={handleDetailChange} />
         </div>
 
         <FormField
           id="observacoes"
+          name="observacoes"
           label="Observações"
           as="textarea"
           placeholder="Digite alguma observação"
+          value={details.observacoes}
+          onChange={handleDetailChange}
         />
+
+        {feedback ? <p className="text-sm font-medium text-[var(--color-welcome-blue)]">{feedback}</p> : null}
 
         <Button
           type="submit"
@@ -115,7 +239,7 @@ export default function Confirmation() {
           className="h-14 w-full rounded-full text-lg font-semibold"
         >
           <span className="inline-flex items-center justify-center gap-2">
-            Finalizar Cadastro
+            {requestMutation.isPending ? "Enviando..." : "Finalizar Cadastro"}
             <CheckCircle2 size={20} />
           </span>
         </Button>
