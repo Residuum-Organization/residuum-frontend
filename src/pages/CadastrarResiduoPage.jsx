@@ -6,9 +6,8 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useZxing } from "react-zxing";
 import {
-  CircleDot,
   BookText,
-  Wine,
+  CircleDot,
   FlaskConical,
   Barcode,
   Camera,
@@ -18,6 +17,11 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import Navbar from "../components/ui/Navbar";
+import { createInventoryItem } from "../services/inventory";
+import { queryKeys } from "../services/queryKeys";
+import { getApiErrorMessage } from "../services/http/getApiErrorMessage";
+
+const POINTS_PER_KG = 10;
 
 const schema = z.object({
   descricao: z.string().min(1, "Descrição é obrigatória"),
@@ -98,6 +102,7 @@ export default function CadastrarResiduo() {
   const [showScanner, setShowScanner] = useState(false);
   const [ultimoCodigo, setUltimoCodigo] = useState(null);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const {
     register,
@@ -253,7 +258,12 @@ export default function CadastrarResiduo() {
             type="submit"
             className="w-full bg-[#1e4d6b] text-white font-semibold py-4 rounded-full text-sm hover:bg-[#1a3a4a] transition-colors"
           >
-            Adicionar ao estoque
+            <span className="inline-flex items-center gap-2">
+              {createMutation.isPending ? (
+                <Loader2 size={18} className="animate-spin" />
+              ) : null}
+              {createMutation.isPending ? "Salvando..." : "Adicionar ao estoque"}
+            </span>
           </button>
         </form>
       </div>

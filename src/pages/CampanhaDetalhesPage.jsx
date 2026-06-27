@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import CampaignLayout, {
   BotaoVoltar,
   LogoResiduum,
-} from "../components/campanhas/CampaignLayout";
+} from "../components/Campanhas/CampaignLayout";
 
 const abas = [
   { id: "funciona", label: "Como funciona" },
