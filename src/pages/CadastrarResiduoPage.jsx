@@ -21,6 +21,7 @@ import Navbar from "../components/ui/Navbar";
 import { createInventoryItem } from "../services/inventory";
 import { queryKeys } from "../services/queryKeys";
 import { getApiErrorMessage } from "../services/http/getApiErrorMessage";
+import { useQueryClient } from "@tanstack/react-query";
 
 const POINTS_PER_KG = 10;
 
@@ -103,7 +104,7 @@ export default function CadastrarResiduo() {
   const [showScanner, setShowScanner] = useState(false);
   const [ultimoCodigo, setUltimoCodigo] = useState(null);
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClientj();
 
   const {
     register,
