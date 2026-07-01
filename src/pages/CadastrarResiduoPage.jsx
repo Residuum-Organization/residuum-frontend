@@ -104,7 +104,7 @@ export default function CadastrarResiduo() {
   const [showScanner, setShowScanner] = useState(false);
   const [ultimoCodigo, setUltimoCodigo] = useState(null);
   const navigate = useNavigate();
-  const queryClient = useQueryClientj();
+  const queryClient = useQueryClient();
 
   const {
     register,
