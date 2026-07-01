@@ -15,6 +15,7 @@ import {
   X,
   ScanLine,
   ArrowLeft,
+  Wine,
 } from "lucide-react";
 import Navbar from "../components/ui/Navbar";
 import { createInventoryItem } from "../services/inventory";
@@ -186,19 +187,30 @@ export default function CadastrarResiduo() {
         )}
 
         {/* Formulário */}
-        <form onSubmit={handleSubmit(onSubmit)} className="mt-6 flex flex-col gap-5">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="mt-6 flex flex-col gap-5"
+        >
           <div>
-            <label className="block text-sm font-bold text-[#1a3a4a] mb-2">Descrição do Item</label>
+            <label className="block text-sm font-bold text-[#1a3a4a] mb-2">
+              Descrição do Item
+            </label>
             <input
               {...register("descricao")}
               placeholder="Ex : Garrafa PET 2L"
               className="w-full border border-gray-300 rounded-2xl px-4 py-3 text-sm text-gray-400 placeholder-gray-300 outline-none focus:border-[#1e4d6b] transition-colors"
             />
-            {errors.descricao && <p className="text-red-500 text-xs mt-1">{errors.descricao.message}</p>}
+            {errors.descricao && (
+              <p className="text-red-500 text-xs mt-1">
+                {errors.descricao.message}
+              </p>
+            )}
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-[#1a3a4a] mb-3">Tipo de Resíduo</label>
+            <label className="block text-sm font-bold text-[#1a3a4a] mb-3">
+              Tipo de Resíduo
+            </label>
             <div className="grid grid-cols-2 gap-3">
               {tiposResiduo.map((tipo) => (
                 <button
@@ -219,7 +231,9 @@ export default function CadastrarResiduo() {
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-[#1a3a4a] mb-3">Quantidade</label>
+            <label className="block text-sm font-bold text-[#1a3a4a] mb-3">
+              Quantidade
+            </label>
             <div className="flex items-center justify-between">
               <button
                 type="button"
@@ -228,7 +242,9 @@ export default function CadastrarResiduo() {
               >
                 −
               </button>
-              <span className="text-2xl font-bold text-[#1a3a4a]">{quantidade}</span>
+              <span className="text-2xl font-bold text-[#1a3a4a]">
+                {quantidade}
+              </span>
               <button
                 type="button"
                 onClick={() => setQuantidade((q) => q + 1)}
@@ -240,7 +256,9 @@ export default function CadastrarResiduo() {
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-[#1a3a4a] mb-2">Observação (Opcional)</label>
+            <label className="block text-sm font-bold text-[#1a3a4a] mb-2">
+              Observação (Opcional)
+            </label>
             <textarea
               {...register("observacao")}
               placeholder="Ex : Embalagem sem rótulo"
@@ -250,7 +268,9 @@ export default function CadastrarResiduo() {
           </div>
 
           <div className="flex items-center justify-between bg-[#e8f5e2] rounded-2xl px-4 py-3">
-            <span className="text-sm text-green-700 font-medium">Pontos estimados ao entregar</span>
+            <span className="text-sm text-green-700 font-medium">
+              Pontos estimados ao entregar
+            </span>
             <span className="text-sm text-green-700 font-bold">+20 pts</span>
           </div>
 
@@ -262,7 +282,9 @@ export default function CadastrarResiduo() {
               {createMutation.isPending ? (
                 <Loader2 size={18} className="animate-spin" />
               ) : null}
-              {createMutation.isPending ? "Salvando..." : "Adicionar ao estoque"}
+              {createMutation.isPending
+                ? "Salvando..."
+                : "Adicionar ao estoque"}
             </span>
           </button>
         </form>
