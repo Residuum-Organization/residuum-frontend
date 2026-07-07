@@ -6,11 +6,14 @@ import {
   BookText,
   CircleDot,
   FlaskConical,
-  Loader2,
   Trash2,
   Wine,
 } from 'lucide-react'
 import Navbar from '../components/ui/Navbar'
+import LoadingState from '../components/ui/LoadingState'
+import ErrorState from '../components/ui/ErrorState'
+import EmptyState from '../components/ui/EmptyState'
+import InlineAlert from '../components/ui/InlineAlert'
 import {
   listInventory,
   removeInventoryItem,
@@ -140,10 +143,7 @@ export default function MeuEstoquePage() {
     return (
       <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col bg-white">
         <div className="flex-1 px-5 pt-8 pb-24 flex items-center justify-center">
-          <div className="flex items-center gap-3 text-[#1a3a4a]">
-            <Loader2 className="animate-spin" size={20} />
-            <span>Carregando estoque...</span>
-          </div>
+          <LoadingState title="Carregando estoque..." className="w-full max-w-sm" />
         </div>
         <Navbar />
       </div>
@@ -155,9 +155,9 @@ export default function MeuEstoquePage() {
       <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col bg-white">
         <div className="flex-1 px-5 pt-8 pb-24">
           <h1 className="text-2xl font-bold text-[#1a3a4a] mb-3">Meu Estoque</h1>
-          <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-4 text-sm text-red-700">
-            {getApiErrorMessage(error, 'Não foi possível carregar o estoque.')}
-          </div>
+          <ErrorState
+            title={getApiErrorMessage(error, 'Não foi possível carregar o estoque.')}
+          />
         </div>
         <Navbar />
       </div>
@@ -176,15 +176,9 @@ export default function MeuEstoquePage() {
         <p className="text-gray-400 text-sm mb-6">Cadastre seus resíduos antes de ir ao ponto</p>
 
         {feedback ? (
-          <div
-            className={`mb-4 rounded-2xl px-4 py-3 text-sm font-medium ${
-              feedback.tone === 'error'
-                ? 'border border-red-200 bg-red-50 text-red-700'
-                : 'border border-emerald-200 bg-emerald-50 text-emerald-700'
-            }`}
-          >
+          <InlineAlert className="mb-4" variant={feedback.tone}>
             {feedback.message}
-          </div>
+          </InlineAlert>
         ) : null}
 
         <h2 className="text-base font-bold text-[#1a3a4a] mb-4">Itens no estoque</h2>
@@ -270,12 +264,10 @@ export default function MeuEstoquePage() {
             })}
           </div>
         ) : (
-          <div className="rounded-2xl border border-dashed border-[#c8d2e3] bg-[#f7f9fc] px-5 py-8 text-center">
-            <p className="text-[#1a3a4a] font-semibold">Seu estoque está vazio.</p>
-            <p className="text-sm text-gray-400 mt-2">
-              Cadastre um resíduo para começar a organizar sua próxima entrega.
-            </p>
-          </div>
+          <EmptyState
+            title="Seu estoque está vazio."
+            description="Cadastre um resíduo para começar a organizar sua próxima entrega."
+          />
         )}
 
         <button

@@ -15,9 +15,10 @@ import {
   X,
   ScanLine,
   Wine,
-  Loader2,
 } from "lucide-react";
 import Navbar from "../components/ui/Navbar";
+import InlineAlert from "../components/ui/InlineAlert";
+import LoadingButton from "../components/ui/LoadingButton";
 import { createInventoryItem } from "../services/inventory";
 import { queryKeys } from "../services/queryKeys";
 import { getApiErrorMessage } from "../services/http/getApiErrorMessage";
@@ -236,15 +237,9 @@ export default function CadastrarResiduo() {
           className="mt-6 flex flex-col gap-5"
         >
           {feedback ? (
-            <div
-              className={`rounded-2xl px-4 py-3 text-sm font-medium ${
-                feedback.tone === "error"
-                  ? "border border-red-200 bg-red-50 text-red-700"
-                  : "border border-emerald-200 bg-emerald-50 text-emerald-700"
-              }`}
-            >
+            <InlineAlert variant={feedback.tone}>
               {feedback.message}
-            </div>
+            </InlineAlert>
           ) : null}
 
           <div>
@@ -330,20 +325,14 @@ export default function CadastrarResiduo() {
             <span className="text-sm text-green-700 font-bold">+20 pts</span>
           </div>
 
-          <button
+          <LoadingButton
             type="submit"
-            disabled={createMutation.isPending}
+            isLoading={createMutation.isPending}
+            loadingText="Salvando..."
             className="w-full bg-[#1e4d6b] text-white font-semibold py-4 rounded-full text-sm hover:bg-[#1a3a4a] transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
           >
-            <span className="inline-flex items-center gap-2">
-              {createMutation.isPending ? (
-                <Loader2 size={18} className="animate-spin" />
-              ) : null}
-              {createMutation.isPending
-                ? "Salvando..."
-                : "Adicionar ao estoque"}
-            </span>
-          </button>
+            Adicionar ao estoque
+          </LoadingButton>
         </form>
       </div>
 
