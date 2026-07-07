@@ -1,5 +1,5 @@
 import React from 'react'
-import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet'
+import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
@@ -42,6 +42,16 @@ const createMarkerIcon = (color) => {
   })
 }
 
+function MapCenterUpdater({ center, zoom }) {
+  const map = useMap()
+
+  React.useEffect(() => {
+    map.setView(center, zoom)
+  }, [center, map, zoom])
+
+  return null
+}
+
 export default function Map({
   center = { lat: -3.119, lng: -60.0217 },
   zoom = 13,
@@ -56,10 +66,7 @@ export default function Map({
       Number.isFinite(Number(marker.longitude))
   )
 
-  const mapCenter =
-    validMarkers.length > 0
-      ? [Number(validMarkers[0].latitude), Number(validMarkers[0].longitude)]
-      : [center.lat, center.lng]
+  const mapCenter = [Number(center.lat), Number(center.lng)]
 
   return (
     <div
@@ -81,6 +88,7 @@ export default function Map({
           minHeight: height,
         }}
       >
+        <MapCenterUpdater center={mapCenter} zoom={zoom} />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
