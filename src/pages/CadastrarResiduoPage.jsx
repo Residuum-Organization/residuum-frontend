@@ -1,32 +1,31 @@
 // src/pages/CadastrarResiduo.jsx
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useZxing } from "react-zxing";
 import {
   BookText,
   CircleDot,
   FlaskConical,
-  Barcode,
   Camera,
   Check,
   X,
   ScanLine,
-  ArrowLeft,
   Wine,
+  Loader2,
 } from "lucide-react";
 import Navbar from "../components/ui/Navbar";
 import { createInventoryItem } from "../services/inventory";
 import { queryKeys } from "../services/queryKeys";
 import { getApiErrorMessage } from "../services/http/getApiErrorMessage";
-import { useQueryClient } from "@tanstack/react-query";
 
 const POINTS_PER_KG = 10;
 
 const schema = z.object({
-  descricao: z.string().min(1, "Descrição é obrigatória"),
+  descricao: z.string().optional(),
   observacao: z.string().optional(),
 });
 
@@ -103,6 +102,7 @@ export default function CadastrarResiduo() {
   const [quantidade, setQuantidade] = useState(1);
   const [showScanner, setShowScanner] = useState(false);
   const [ultimoCodigo, setUltimoCodigo] = useState(null);
+  const [feedback, setFeedback] = useState(null);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -123,14 +123,57 @@ export default function CadastrarResiduo() {
     if (tipoIdentificado) setTipoSelecionado(tipoIdentificado);
   };
 
+  const createMutation = useMutation({
+    mutationFn: createInventoryItem,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: queryKeys.inventory });
+      setFeedback({
+        tone: "success",
+        message: "Resíduo cadastrado com sucesso.",
+      });
+      setTimeout(() => {
+        navigate("/meu-estoque");
+      }, 800);
+    },
+    onError: (mutationError) => {
+      setFeedback({
+        tone: "error",
+        message: getApiErrorMessage(
+          mutationError,
+          "Não foi possível cadastrar o resíduo."
+        ),
+      });
+    },
+  });
+
   const onSubmit = (data) => {
-    console.log({
-      ...data,
-      tipo: tipoSelecionado,
-      quantidade,
-      codigo_barras: ultimoCodigo,
-    });
-    navigate("/meu-estoque");
+    setFeedback(null);
+
+    if (!tipoSelecionado) {
+      setFeedback({ tone: "error", message: "Informe o tipo de resíduo." });
+      return;
+    }
+
+    const quantidadeNumerica = Number(quantidade);
+
+    if (!Number.isFinite(quantidadeNumerica) || quantidadeNumerica <= 0) {
+      setFeedback({ tone: "error", message: "Informe uma quantidade válida." });
+      return;
+    }
+
+    const payload = {
+      tipo_residuo: tipoSelecionado,
+      quantidade: quantidadeNumerica,
+    };
+
+    const descricao = data.descricao?.trim();
+    const observacao = data.observacao?.trim();
+
+    if (descricao) payload.descricao = descricao;
+    if (observacao) payload.observacao = observacao;
+    if (ultimoCodigo) payload.codigo_barras = ultimoCodigo;
+
+    createMutation.mutate(payload);
   };
 
   return (
@@ -192,6 +235,18 @@ export default function CadastrarResiduo() {
           onSubmit={handleSubmit(onSubmit)}
           className="mt-6 flex flex-col gap-5"
         >
+          {feedback ? (
+            <div
+              className={`rounded-2xl px-4 py-3 text-sm font-medium ${
+                feedback.tone === "error"
+                  ? "border border-red-200 bg-red-50 text-red-700"
+                  : "border border-emerald-200 bg-emerald-50 text-emerald-700"
+              }`}
+            >
+              {feedback.message}
+            </div>
+          ) : null}
+
           <div>
             <label className="block text-sm font-bold text-[#1a3a4a] mb-2">
               Descrição do Item
@@ -277,7 +332,8 @@ export default function CadastrarResiduo() {
 
           <button
             type="submit"
-            className="w-full bg-[#1e4d6b] text-white font-semibold py-4 rounded-full text-sm hover:bg-[#1a3a4a] transition-colors"
+            disabled={createMutation.isPending}
+            className="w-full bg-[#1e4d6b] text-white font-semibold py-4 rounded-full text-sm hover:bg-[#1a3a4a] transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
           >
             <span className="inline-flex items-center gap-2">
               {createMutation.isPending ? (

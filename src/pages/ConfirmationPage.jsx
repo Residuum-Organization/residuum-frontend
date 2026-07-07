@@ -6,6 +6,7 @@ import AuthShell from "../components/auth/AuthShell";
 import FormField from "../components/forms/FormField";
 import Button from "../components/ui/Button";
 import {
+  buildCollectionPointPayload,
   clearCollectionPointDraft,
   getCollectionPointDraft,
   getCollectionPointRequestStatus,
@@ -15,26 +16,6 @@ import { queryKeys } from "../services/queryKeys";
 import { getApiErrorMessage } from "../services/http/getApiErrorMessage";
 
 const residuos = ["Plastico", "Metal", "Vidro", "Papelao"];
-
-const buildCollectionPointPayload = (draft, selectedWaste, details) => {
-  const digits = String(draft.documento || "").replace(/\D/g, "");
-  const tipoSolicitacao = digits.length > 11 ? "cnpj" : "cpf";
-
-  return {
-    tipo_solicitacao: tipoSolicitacao,
-    responsavel_nome: draft.responsavel,
-    documento: digits,
-    telefone: String(draft.telefone || "").replace(/\D/g, ""),
-    email: draft.email,
-    senha: draft.senha,
-    endereco: draft.endereco,
-    tipos_residuos_aceitos: selectedWaste.map((item) => item.toLowerCase()),
-    capacidade_estimada: details.quantidade,
-    disponibilidade_data: details.data,
-    disponibilidade_horario: details.horario,
-    observacoes: details.observacoes,
-  };
-};
 
 const statusMap = {
   pendente: {
@@ -100,6 +81,11 @@ export default function Confirmation() {
 
   function handleSubmit(event) {
     event.preventDefault();
+
+    if (residuosSelecionados.length === 0) {
+      setFeedback("Selecione pelo menos um tipo de residuo aceito pelo ponto.");
+      return;
+    }
 
     const payload = buildCollectionPointPayload(draft, residuosSelecionados, details);
     requestMutation.mutate(payload);
