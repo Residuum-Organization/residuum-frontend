@@ -6,30 +6,35 @@ export default function WelcomePage() {
   const navigate = useNavigate();
 
   return (
-    <main className="min-h-screen overflow-y-auto bg-[var(--color-welcome-surface)] px-4 py-4 sm:px-6 sm:py-5">
-      <section className="mx-auto flex min-h-[calc(100vh-2rem)] w-full max-w-md flex-col justify-between rounded-2xl bg-[var(--color-welcome-surface)] px-5 py-5 sm:px-8 sm:py-6">
-        <div className="space-y-4">
-          <h1 className="text-2xl font-extrabold leading-tight text-[var(--color-primary)] sm:text-[1.65rem]">
-            Boas vindas ao Residuum seu sistema inteligente de coleta!
+    <main className="min-h-screen bg-[var(--color-welcome-surface)] px-4 py-5 sm:px-6 sm:py-8 lg:grid lg:place-items-center">
+      <section className="mx-auto flex w-full max-w-5xl flex-col gap-6 rounded-2xl bg-white p-5 shadow-sm shadow-slate-200/70 sm:p-8 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(21rem,0.8fr)] lg:items-center lg:gap-10">
+        <div>
+          <div className="mb-5 inline-flex items-center gap-3 rounded-full bg-[var(--color-primary)]/5 px-4 py-2 text-sm font-bold text-[var(--color-primary)]">
+            <span className="h-2.5 w-2.5 rounded-full bg-[var(--color-accent)]" />
+            Residuum
+          </div>
+
+          <h1 className="text-3xl font-extrabold leading-tight text-[var(--color-primary)] sm:text-4xl lg:text-5xl">
+            Boas vindas ao Residuum
           </h1>
 
-          <p className="text-base font-semibold leading-relaxed text-[var(--color-welcome-muted)] sm:text-lg">
-            Agora e facil visualizar os pontos de coleta em sua região. Juntos,
-            estamos construindo comunidades mais limpas e sustentáveis.
+          <p className="mt-4 text-base font-semibold leading-relaxed text-[var(--color-welcome-muted)] sm:text-lg">
+            Seu sistema inteligente de coleta. Veja pontos de coleta na sua
+            regiao e participe de uma cidade mais limpa e sustentavel.
           </p>
         </div>
 
         <img
           src="/2-people.png"
           alt="Pessoas colaborando com coleta seletiva"
-          className="mx-auto mt-5 w-full max-w-[14rem] object-contain sm:mt-6 sm:max-w-xs md:max-w-[17rem]"
+          className="mx-auto w-full max-w-[13rem] object-contain sm:max-w-xs lg:max-w-sm"
         />
 
-        <div className="mt-6 space-y-3 sm:mt-7 sm:space-y-4">
+        <div className="space-y-3 sm:space-y-4 lg:col-span-2 lg:mx-auto lg:w-full lg:max-w-md">
           <Button
             variant="brandPrimary"
             onClick={() => navigate("/login")}
-            className="h-14 w-full rounded-full text-lg font-semibold sm:h-16 sm:text-xl"
+            className="h-14 w-full rounded-full text-base font-semibold sm:h-16 sm:text-lg"
           >
             Entrar como morador
           </Button>
@@ -45,15 +50,15 @@ export default function WelcomePage() {
           <Button
             variant="brandOutline"
             onClick={() => navigate("/admin")}
-            className="h-14 w-full rounded-full border-2 text-lg font-semibold sm:h-16 sm:text-xl"
+            className="h-14 w-full rounded-full border-2 text-base font-semibold sm:h-16 sm:text-lg"
           >
-            Entrar como funcionário
+            Entrar como funcionario
           </Button>
 
           <Button
             variant="brandOutline"
             onClick={() => navigate("/cadastro-ponto-coleta")}
-            className="h-14 w-full rounded-full border-2 text-lg font-semibold sm:h-16 sm:text-xl"
+            className="h-14 w-full rounded-full border-2 text-base font-semibold sm:h-16 sm:text-lg"
           >
             Entrar como ponto de coleta
           </Button>

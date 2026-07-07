@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import RegisterForm from "../components/forms/RegisterForm";
 import RegisterConfirmation from "../components/forms/RegisterConfirmation";
 import AuthShell from "../components/auth/AuthShell";
+import InlineAlert from "../components/ui/InlineAlert";
 import { registerSchema } from "../schemas/auth";
 import { applyPhoneMask } from "../utils/inputMasks";
 import { registerUser } from "../services/auth";
@@ -15,6 +16,7 @@ export default function RegisterPage() {
   const [step, setStep] = React.useState(1);
   const [isFinalizing, setIsFinalizing] = React.useState(false);
   const [showSuccess, setShowSuccess] = React.useState(false);
+  const [submitError, setSubmitError] = React.useState("");
 
   const {
     register,
@@ -48,11 +50,13 @@ export default function RegisterPage() {
   }, [phoneValue, setValue, step]);
 
   const onContinue = async () => {
+    setSubmitError("");
     await handleSubmit(() => setStep(2))();
   };
 
   const onFinalize = async () => {
     setIsFinalizing(true);
+    setSubmitError("");
     try {
       const payload = getValues();
       await registerUser({
@@ -63,7 +67,7 @@ export default function RegisterPage() {
       });
       setShowSuccess(true);
     } catch (error) {
-      alert(error.message);
+      setSubmitError(error.message || "Nao foi possivel finalizar o cadastro.");
     } finally {
       setIsFinalizing(false);
     }
@@ -83,8 +87,8 @@ export default function RegisterPage() {
   return (
     <>
       {showSuccess && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--color-welcome-blue)] bg-opacity-90">
-          <div className="mx-4 flex max-w-sm flex-col items-center rounded-3xl bg-white px-8 py-12 text-center shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--color-welcome-blue)] bg-opacity-90 px-4">
+          <div className="flex w-full max-w-sm flex-col items-center rounded-2xl bg-white px-6 py-10 text-center shadow-2xl sm:px-8 sm:py-12">
             <div className="flex h-20 w-20 items-center justify-center rounded-full bg-emerald-100">
               <CheckCircle2 size={48} className="text-emerald-600" />
             </div>
@@ -102,62 +106,71 @@ export default function RegisterPage() {
       )}
 
       <AuthShell
-      title="Cadastro"
-      subtitle="Preencha seus dados para continuar."
-      description="Transforme descarte em impacto positivo. O Residuum conecta você aos pontos de coleta e simplifica a reciclagem no dia a dia."
-      highlights={[
-        "Encontre pontos de coleta próximos em segundos",
-        "Registre seus descartes com poucos cliques",
-        "Acompanhe seu impacto ambiental ao longo do tempo",
-      ]}
-      footer='"Pequenas escolhas diárias geram grandes transformações para a cidade e para o planeta."'
-    >
-      <div className="mb-7">
-        <div className="mx-auto flex w-full max-w-[220px] items-center">
-          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 border-[var(--color-welcome-blue)] bg-[var(--color-welcome-blue)] text-white" />
+        title="Cadastro"
+        subtitle="Preencha seus dados para continuar."
+        description="Transforme descarte em impacto positivo. O Residuum conecta voce aos pontos de coleta e simplifica a reciclagem no dia a dia."
+        highlights={[
+          "Encontre pontos de coleta proximos em segundos",
+          "Registre seus descartes com poucos cliques",
+          "Acompanhe seu impacto ambiental ao longo do tempo",
+        ]}
+        footer='"Pequenas escolhas diarias geram grandes transformacoes para a cidade e para o planeta."'
+      >
+        <div className="mb-7">
+          <div className="mx-auto flex w-full max-w-[220px] items-center">
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 border-[var(--color-welcome-blue)] bg-[var(--color-welcome-blue)] text-white" />
 
-          <div className="h-0.5 w-full bg-[var(--color-welcome-blue)]" />
+            <div className="h-0.5 w-full bg-[var(--color-welcome-blue)]" />
 
-          <div
-            className={`h-7 w-7 shrink-0 rounded-full border-2 ${
-              step === 2
-                ? "border-[var(--color-welcome-blue)] bg-[var(--color-welcome-blue)]"
-                : "border-[var(--color-welcome-blue)] bg-white"
-            }`}
+            <div
+              className={`h-7 w-7 shrink-0 rounded-full border-2 ${
+                step === 2
+                  ? "border-[var(--color-welcome-blue)] bg-[var(--color-welcome-blue)]"
+                  : "border-[var(--color-welcome-blue)] bg-white"
+              }`}
+            />
+          </div>
+
+          <div className="mx-auto mt-2 flex w-full max-w-[280px] items-start justify-between text-sm font-semibold text-[var(--color-welcome-blue)]">
+            <p>Dados pessoais</p>
+            <p>Confirmacao</p>
+          </div>
+        </div>
+
+        {step === 1 ? (
+          <RegisterForm
+            register={register}
+            errors={errors}
+            isSubmitting={isSubmitting}
+            onContinue={onContinue}
           />
-        </div>
+        ) : (
+          <div className="space-y-4">
+            {submitError ? (
+              <InlineAlert variant="error" description={submitError} />
+            ) : null}
 
-        <div className="mx-auto mt-2 flex w-full max-w-[280px] items-start justify-between text-sm font-semibold text-[var(--color-welcome-blue)]">
-          <p>Dados pessoais</p>
-          <p>Confirmação</p>
-        </div>
-      </div>
+            <RegisterConfirmation
+              values={values}
+              isFinalizing={isFinalizing}
+              onEdit={() => {
+                setSubmitError("");
+                setStep(1);
+              }}
+              onFinalize={onFinalize}
+            />
+          </div>
+        )}
 
-      {step === 1 ? (
-        <RegisterForm
-          register={register}
-          errors={errors}
-          isSubmitting={isSubmitting}
-          onContinue={onContinue}
-        />
-      ) : (
-        <RegisterConfirmation
-          values={values}
-          isFinalizing={isFinalizing}
-          onEdit={() => setStep(1)}
-          onFinalize={onFinalize}
-        />
-      )}
-
-      <p className="mt-5 text-center text-sm text-[var(--color-welcome-muted)]">
-        Já tem conta?{" "}
-        <Link
-          to="/login"
-          className="font-semibold text-[var(--color-welcome-blue)] underline underline-offset-2"
-        >
-          Entrar
-        </Link>
-      </p>
+        <p className="mt-5 text-center text-sm text-[var(--color-welcome-muted)]">
+          Ja tem conta?{" "}
+          <Link
+            to="/login"
+            className="font-semibold text-[var(--color-welcome-blue)] underline underline-offset-2"
+          >
+            Entrar
+          </Link>
+        </p>
       </AuthShell>
     </>
   );
