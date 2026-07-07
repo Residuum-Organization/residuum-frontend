@@ -47,13 +47,38 @@ const getCurrentPosition = () =>
     )
   })
 
+const QR_TOKEN_QUERY_KEYS = ['qrToken', 'token', 'codigo']
+
+const getQrTokenFromSearchParams = (searchParams) => {
+  for (const key of QR_TOKEN_QUERY_KEYS) {
+    const value = searchParams.get(key)
+
+    if (value?.trim()) {
+      return value.trim()
+    }
+  }
+
+  return ''
+}
+
+const hasQrTokenQueryParam = (searchParams) =>
+  QR_TOKEN_QUERY_KEYS.some((key) => searchParams.has(key))
+
+const getTransferErrorMessage = (error) => {
+  if (error?.isAxiosError && !error.response) {
+    return 'Servidor indispon\u00edvel. Verifique se o backend est\u00e1 ligado e tente novamente.'
+  }
+
+  return getApiErrorMessage(error, 'Token QR Code inv\u00e1lido ou n\u00e3o foi poss\u00edvel enviar o item para o ponto.')
+}
+
 export default function ValidacaoPresencaPage() {
   const [searchParams] = useSearchParams()
   const [selectedItemId, setSelectedItemId] = useState(searchParams.get('itemId') || '')
   const [selectedPointId, setSelectedPointId] = useState('')
   const [quantidade, setQuantidade] = useState('1')
   const [observacao, setObservacao] = useState('')
-  const [qrToken, setQrToken] = useState('')
+  const [qrToken, setQrToken] = useState(() => getQrTokenFromSearchParams(searchParams))
   const [coords, setCoords] = useState(null)
   const [locationError, setLocationError] = useState('')
   const [feedback, setFeedback] = useState(null)
@@ -146,10 +171,18 @@ export default function ValidacaoPresencaPage() {
     onError: (error) => {
       setFeedback({
         tone: 'error',
-        message: getApiErrorMessage(error, 'Não foi possível enviar o item para o ponto.'),
+        message: getTransferErrorMessage(error),
       })
     },
   })
+
+  useEffect(() => {
+    const tokenFromUrl = getQrTokenFromSearchParams(searchParams)
+
+    if (tokenFromUrl) {
+      setQrToken(tokenFromUrl)
+    }
+  }, [searchParams])
 
   const requestLocation = async () => {
     setLocationError('')
@@ -178,6 +211,14 @@ export default function ValidacaoPresencaPage() {
 
     if (!selectedPointId) {
       setFeedback({ tone: 'error', message: 'Selecione um ponto de coleta.' })
+      return
+    }
+
+    if (hasQrTokenQueryParam(searchParams) && !qrToken.trim()) {
+      setFeedback({
+        tone: 'error',
+        message: 'Token QR Code ausente ou vazio. Escaneie novamente ou informe o código manualmente.',
+      })
       return
     }
 
