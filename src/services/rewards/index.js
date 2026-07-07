@@ -145,12 +145,24 @@ const warnFallback = (context, error) => {
   });
 };
 
-const fallbackRaffles = () => sorteios.map(normalizeRaffle);
+const withDataOrigin = (data, origin) => {
+  if (data && (Array.isArray(data) || typeof data === "object")) {
+    Object.defineProperty(data, "__dataOrigin", {
+      value: origin,
+      enumerable: true,
+      configurable: true,
+    });
+  }
+
+  return data;
+};
+
+const fallbackRaffles = () => withDataOrigin(sorteios.map(normalizeRaffle), "fallback");
 
 export const listActiveRaffles = async () => {
   try {
     const res = await api.get("/sorteios");
-    return normalizeRafflesPayload(res.data);
+    return withDataOrigin(normalizeRafflesPayload(res.data), "api");
   } catch (error) {
     if (shouldUseFallback(error)) {
       warnFallback("sorteios", error);
@@ -166,13 +178,20 @@ export const listActiveRaffles = async () => {
 export const getRaffleDetails = async (raffleId) => {
   try {
     const res = await api.get(`/sorteios/${raffleId}`);
-    return normalizeRaffle(getDetailPayload(res.data, ["sorteio", "raffle"]));
+    return withDataOrigin(
+      normalizeRaffle(getDetailPayload(res.data, ["sorteio", "raffle"])),
+      "api",
+    );
   } catch (error) {
     if (shouldUseFallback(error)) {
       warnFallback("detalhes do sorteio", error);
+      const fallbackRaffle = fallbackRaffles()
+        .find((raffle) => String(raffle.id) === String(raffleId));
+
       return (
-        fallbackRaffles()
-          .find((raffle) => raffle.id === raffleId) || null
+        fallbackRaffle
+          ? withDataOrigin(fallbackRaffle, "fallback")
+          : null
       );
     }
 
@@ -188,11 +207,11 @@ export const getRaffleDetails = async (raffleId) => {
 export const listVouchers = async () => {
   try {
     const res = await api.get("/vouchers");
-    return normalizeVouchersPayload(res.data);
+    return withDataOrigin(normalizeVouchersPayload(res.data), "api");
   } catch (error) {
     if (shouldUseFallback(error)) {
       warnFallback("vouchers", error);
-      return vouchers.map(normalizeVoucher);
+      return withDataOrigin(vouchers.map(normalizeVoucher), "fallback");
     }
 
     throw new Error(

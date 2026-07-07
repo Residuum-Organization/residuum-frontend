@@ -7,6 +7,8 @@ import { listActiveRaffles, listVouchers, redeemVoucher } from '../services/rewa
 import { queryKeys } from '../services/queryKeys'
 import { getApiErrorMessage } from '../services/http/getApiErrorMessage'
 
+const isFallbackOrMockData = (data) => ['fallback', 'mock'].includes(data?.__dataOrigin)
+
 function SorteioCard({ sorteio }) {
   const encerrado = sorteio.status === 'encerrado'
 
@@ -51,14 +53,20 @@ function SorteioCard({ sorteio }) {
         </Link>
         <button
           type="button"
-          disabled={encerrado}
+          disabled
+          title={encerrado ? 'Sorteio encerrado.' : 'Participacao em sorteios ainda nao disponivel.'}
           className={`flex-1 rounded-full px-4 py-3 text-xs font-black text-white ${
-            encerrado ? 'bg-slate-300' : 'bg-[#11527A] hover:bg-[#0E4669]'
+            encerrado ? 'bg-slate-300' : 'bg-slate-300'
           }`}
         >
-          {encerrado ? 'ENCERRADO' : 'PARTICIPAR'}
+          {encerrado ? 'ENCERRADO' : 'EM BREVE'}
         </button>
       </div>
+      {!encerrado ? (
+        <p className="mt-2 text-[11px] font-semibold text-slate-500">
+          Participacao em sorteios ainda nao disponivel.
+        </p>
+      ) : null}
     </article>
   )
 }
@@ -122,6 +130,8 @@ export default function SorteiosPage() {
     },
   })
 
+  const showingFallbackData = isFallbackOrMockData(raffles) || isFallbackOrMockData(rewardVouchers)
+
   return (
     <main className="min-h-screen bg-slate-200 px-3 py-4">
       <section className="mx-auto flex min-h-[760px] w-full max-w-[390px] flex-col overflow-hidden rounded-[28px] bg-[#F7FAF9] shadow-2xl">
@@ -135,6 +145,11 @@ export default function SorteiosPage() {
           </div>
 
           {feedback ? <p className="mb-4 text-sm font-semibold text-[#11527A]">{feedback}</p> : null}
+          {showingFallbackData ? (
+            <div className="mb-4 rounded-[22px] border border-amber-200 bg-amber-50 px-4 py-3 text-xs font-bold leading-relaxed text-amber-800">
+              Dados demonstrativos. Nao foi possivel carregar sorteios reais do servidor.
+            </div>
+          ) : null}
 
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-lg font-black text-[#12384C]">Sorteios ativos</h2>

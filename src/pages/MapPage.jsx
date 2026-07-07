@@ -52,6 +52,10 @@ export default function MapPage() {
               </div>
             </div>
           </div>
+
+          <div className="mt-3 rounded-[22px] border border-amber-200 bg-amber-50 px-4 py-3 text-xs font-bold leading-relaxed text-amber-800">
+            Mapa em modo demonstrativo. Os pontos exibidos podem nao representar dados reais do servidor.
+          </div>
         </header>
 
         <section className="flex-1 space-y-4 overflow-y-auto px-4 py-4 pb-24">
