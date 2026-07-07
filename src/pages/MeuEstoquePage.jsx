@@ -138,7 +138,7 @@ export default function MeuEstoquePage() {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col min-h-screen bg-white max-w-sm mx-auto">
+      <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col bg-white">
         <div className="flex-1 px-5 pt-8 pb-24 flex items-center justify-center">
           <div className="flex items-center gap-3 text-[#1a3a4a]">
             <Loader2 className="animate-spin" size={20} />
@@ -152,7 +152,7 @@ export default function MeuEstoquePage() {
 
   if (isError) {
     return (
-      <div className="flex flex-col min-h-screen bg-white max-w-sm mx-auto">
+      <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col bg-white">
         <div className="flex-1 px-5 pt-8 pb-24">
           <h1 className="text-2xl font-bold text-[#1a3a4a] mb-3">Meu Estoque</h1>
           <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-4 text-sm text-red-700">
@@ -165,8 +165,8 @@ export default function MeuEstoquePage() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-white max-w-sm mx-auto">
-      <div className="flex-1 px-5 pt-8 pb-24 overflow-y-auto">
+    <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col bg-white">
+      <div className="flex-1 overflow-y-auto px-5 pb-24 pt-8 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between mb-1">
           <h1 className="text-2xl font-bold text-[#1a3a4a]">Meu Estoque</h1>
           <span className="bg-[#1e4d6b] text-white text-sm font-semibold px-4 py-2 rounded-full">

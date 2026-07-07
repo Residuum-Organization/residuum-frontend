@@ -20,9 +20,9 @@ export default function DashboardScreen() {
   const hasOperationalData = Boolean(data?.hasOperationalData);
 
   return (
-    <main className="min-h-screen bg-slate-200 px-3 py-4">
-      <section className="mx-auto flex min-h-[760px] w-full max-w-[390px] flex-col overflow-hidden rounded-[28px] bg-[#f7faf9] shadow-2xl">
-        <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
+    <main className="min-h-screen bg-[var(--color-surface)] px-3 py-4 sm:px-5 lg:px-8">
+      <section className="mx-auto flex min-h-screen w-full max-w-6xl flex-col rounded-2xl bg-[var(--color-surface-soft)] shadow-sm sm:min-h-[760px] lg:min-h-[calc(100vh-2rem)]">
+        <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4 sm:px-6">
           {isLoading ? (
             <div className="rounded-2xl bg-white p-4 text-sm font-semibold text-slate-500 shadow-sm">
               Carregando painel do ponto...

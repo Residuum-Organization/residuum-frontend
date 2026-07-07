@@ -7,9 +7,9 @@ export default function AdminShell({
   contentClassName = "px-5 py-5",
 }) {
   return (
-    <main className="min-h-screen bg-slate-200 px-3 py-4">
+    <main className="min-h-screen bg-[var(--color-surface)] px-3 py-4 sm:px-5 lg:px-8">
       <section
-        className={`mx-auto flex min-h-[760px] w-full max-w-[390px] flex-col overflow-hidden rounded-[28px] shadow-2xl ${shellClassName}`}
+        className={`mx-auto flex min-h-screen w-full max-w-6xl flex-col rounded-2xl shadow-sm sm:min-h-[760px] lg:min-h-[calc(100vh-2rem)] ${shellClassName}`}
       >
         <div className={`flex-1 overflow-y-auto ${contentClassName}`}>
           {children}

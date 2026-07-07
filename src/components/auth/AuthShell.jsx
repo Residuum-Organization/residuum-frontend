@@ -17,7 +17,7 @@ export default function AuthShell({
 }) {
   return (
     <main className="min-h-screen bg-[var(--color-welcome-surface)] px-4 py-6 sm:px-6 sm:py-8 lg:grid lg:place-items-center">
-      <Card className="mx-auto w-full max-w-sm border-0 p-6 shadow-xl sm:p-8">
+      <Card className="mx-auto w-full max-w-md border-0 p-6 shadow-sm sm:p-8">
         <div>
           <section>
             <div className="mb-6 text-center">
@@ -26,17 +26,17 @@ export default function AuthShell({
                 alt="Logo Residuum"
                 className="mx-auto h-14 w-14 object-contain"
               />
-              <h1 className="mt-2 text-3xl font-bold text-[var(--color-welcome-blue)]">
+              <h1 className="mt-2 text-3xl font-bold text-[var(--color-primary)]">
                 Residuum
               </h1>
             </div>
 
-            <div className="mb-6 rounded-2xl bg-[var(--color-welcome-blue)]/5 p-4 text-sm font-semibold leading-relaxed text-[var(--color-welcome-muted)]">
+            <div className="mb-6 rounded-2xl bg-[var(--color-primary)]/5 p-4 text-sm font-semibold leading-relaxed text-[var(--color-text-muted)]">
               {description}
             </div>
 
             <div className="mb-6">
-              <h1 className="text-3xl font-bold text-[var(--color-welcome-blue)]">
+              <h1 className="text-3xl font-bold text-[var(--color-primary)]">
                 {title}
               </h1>
               {subtitle ? (

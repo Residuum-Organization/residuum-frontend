@@ -12,14 +12,14 @@ const adminNavItems = [
 
 export default function BottomNav() {
   return (
-    <nav className="grid w-full grid-cols-5 bg-[#1F4E79] px-3 py-4 text-white shadow-xl">
+    <nav className="grid w-full grid-cols-5 bg-[var(--color-primary)] px-3 py-3 text-white shadow-lg shadow-slate-900/10">
       {adminNavItems.map(({ to, label, Icon }) => (
         <NavLink
           key={to}
           to={to}
           aria-label={label}
           className={({ isActive }) =>
-            `flex items-center justify-center rounded-2xl py-1 transition ${
+            `flex min-h-11 items-center justify-center rounded-xl transition focus-visible:ring-2 focus-visible:ring-white/70 ${
               isActive ? "bg-white/20 text-white" : "text-white/75 hover:text-white"
             }`
           }

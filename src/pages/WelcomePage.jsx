@@ -6,10 +6,10 @@ export default function WelcomePage() {
   const navigate = useNavigate();
 
   return (
-    <main className="h-dvh overflow-hidden bg-[var(--color-welcome-surface)] px-4 py-4 sm:px-6 sm:py-5">
-      <section className="mx-auto flex h-full w-full max-w-sm flex-col justify-between rounded-3xl bg-[var(--color-welcome-surface)] px-5 py-5 sm:px-8 sm:py-6">
+    <main className="min-h-screen overflow-y-auto bg-[var(--color-welcome-surface)] px-4 py-4 sm:px-6 sm:py-5">
+      <section className="mx-auto flex min-h-[calc(100vh-2rem)] w-full max-w-md flex-col justify-between rounded-2xl bg-[var(--color-welcome-surface)] px-5 py-5 sm:px-8 sm:py-6">
         <div className="space-y-4">
-          <h1 className="text-2xl font-extrabold leading-tight text-[var(--color-welcome-blue)] sm:text-[1.65rem]">
+          <h1 className="text-2xl font-extrabold leading-tight text-[var(--color-primary)] sm:text-[1.65rem]">
             Boas vindas ao Residuum seu sistema inteligente de coleta!
           </h1>
 

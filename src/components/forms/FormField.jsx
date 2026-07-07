@@ -16,10 +16,10 @@ const FormField = React.forwardRef(function FormField(
   ref
 ) {
   const invalid = Boolean(error);
-  const fieldClasses = `w-full rounded-2xl border bg-white px-4 py-3 text-base text-slate-800 outline-none transition focus:ring-2 focus:ring-[var(--color-welcome-blue)]/20 ${
+  const fieldClasses = `min-h-12 w-full rounded-2xl border bg-white px-4 py-3 text-base text-[var(--color-text)] outline-none transition placeholder:text-slate-400 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500 focus:ring-2 focus:ring-[var(--color-primary)]/20 ${
     invalid
-      ? "border-red-400 focus:border-red-500"
-      : "border-slate-200 focus:border-[var(--color-welcome-blue)]"
+      ? "border-[var(--color-error)] focus:border-[var(--color-error)]"
+      : "border-[var(--color-border)] focus:border-[var(--color-primary)]"
   }`;
 
   return (
@@ -27,7 +27,7 @@ const FormField = React.forwardRef(function FormField(
       <Label
         as="label"
         htmlFor={id}
-        className="mb-1.5 block text-sm font-semibold text-[var(--color-welcome-blue)]"
+        className="mb-1.5 block text-sm font-semibold text-[var(--color-primary)]"
       >
         {label}
       </Label>
@@ -45,7 +45,11 @@ const FormField = React.forwardRef(function FormField(
         <Input ref={ref} id={id} type={type} invalid={invalid} {...props} />
       )}
 
-      {error ? <p className="mt-1.5 text-xs text-red-600">{error}</p> : null}
+      {error ? (
+        <p className="mt-1.5 text-sm font-medium text-[var(--color-error)]">
+          {error}
+        </p>
+      ) : null}
     </div>
   );
 });

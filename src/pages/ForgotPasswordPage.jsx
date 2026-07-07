@@ -29,8 +29,8 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <main className="h-dvh overflow-hidden bg-[var(--color-welcome-surface)] px-4 py-6 sm:px-6 sm:py-8">
-      <Card className="mx-auto flex h-full w-full max-w-sm flex-col border-0 p-6 shadow-xl sm:p-8">
+    <main className="min-h-screen overflow-y-auto bg-[var(--color-welcome-surface)] px-4 py-6 sm:px-6 sm:py-8">
+      <Card className="mx-auto flex min-h-[calc(100vh-3rem)] w-full max-w-md flex-col border-0 p-6 shadow-sm sm:p-8">
         <div>
           <img
             src="/logo.jpeg"
@@ -43,7 +43,7 @@ export default function ForgotPasswordPage() {
               <Lock size={22} />
             </div>
 
-            <h1 className="mt-5 text-3xl font-bold leading-tight text-[var(--color-welcome-blue)] sm:mt-6 sm:text-4xl">
+            <h1 className="mt-5 text-3xl font-bold leading-tight text-[var(--color-primary)] sm:mt-6 sm:text-4xl">
               Esqueceu sua senha?
             </h1>
             <p className="mx-auto mt-3 max-w-sm text-base leading-relaxed text-[var(--color-welcome-muted)]">

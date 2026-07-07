@@ -7,7 +7,7 @@ export default function Label({
   ...props
 }) {
   return (
-    <Component className={`text-sm text-gray-500 ${className}`} {...props}>
+    <Component className={`text-sm font-semibold text-[var(--color-text-muted)] ${className}`} {...props}>
       {children}
     </Component>
   );

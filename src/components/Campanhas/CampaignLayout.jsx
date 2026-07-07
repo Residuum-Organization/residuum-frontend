@@ -9,8 +9,8 @@ import {
 
 export default function CampaignLayout({ children }) {
   return (
-    <main className="min-h-screen bg-slate-200 px-3 py-4">
-      <section className="mx-auto flex min-h-[760px] w-full max-w-[390px] flex-col overflow-hidden rounded-[28px] bg-[#fbfbff] shadow-2xl">
+    <main className="min-h-screen bg-[var(--color-surface)] px-3 py-4 sm:px-5 lg:px-8">
+      <section className="mx-auto flex min-h-screen w-full max-w-6xl flex-col rounded-2xl bg-[#fbfbff] shadow-sm sm:min-h-[760px] lg:min-h-[calc(100vh-2rem)]">
         <div className="flex-1 overflow-y-auto px-5 pb-6 pt-6">
           {children}
         </div>
@@ -47,7 +47,7 @@ export function BotaoVoltar({ onClick }) {
 
 export function MenuInferior() {
   return (
-    <footer className="grid h-[68px] w-full grid-cols-5 place-items-center rounded-b-[28px] bg-[#255b86] px-4 text-white">
+    <footer className="grid min-h-[68px] w-full grid-cols-5 place-items-center rounded-b-2xl bg-[var(--color-primary)] px-3 text-white sm:px-4">
       <button
         type="button"
         className="grid h-11 w-11 place-items-center text-white/90 transition active:scale-95"

@@ -100,8 +100,8 @@ export default function ProfilePage() {
   const pendingDiscards = Number(profile?.resumo?.total_descartes_pendentes || 0)
 
   return (
-    <div className="bg-[#F4F7FA] min-h-screen flex justify-center py-8 px-4 font-sans">
-      <div className="w-full max-w-[420px] bg-white rounded-[32px] shadow-2xl overflow-hidden border border-gray-100 pb-28">
+    <div className="flex min-h-screen justify-center bg-[var(--color-surface)] px-4 py-6 font-sans sm:px-5 lg:px-8">
+      <div className="w-full max-w-6xl overflow-hidden rounded-2xl border border-[var(--color-border)] bg-white pb-28 shadow-sm">
         <div className="bg-[#1F4E79] px-6 pt-8 pb-10 text-white relative">
           <div className="flex justify-between items-start">
             <div>
@@ -197,7 +197,7 @@ function Field({ label, value, onChange }) {
       <input
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-800 outline-none"
+        className="min-h-12 w-full rounded-2xl border border-[var(--color-border)] bg-white px-4 py-3 text-base text-[var(--color-text)] outline-none transition focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20"
       />
     </div>
   )

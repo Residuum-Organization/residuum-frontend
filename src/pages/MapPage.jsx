@@ -21,8 +21,8 @@ export default function MapPage() {
   const selected = selectedPoint || filteredPoints[0]
 
   return (
-    <main className="min-h-screen bg-slate-200 px-3 py-4">
-      <section className="mx-auto flex min-h-[760px] w-full max-w-[390px] flex-col overflow-hidden rounded-[28px] bg-[#f7faf9] shadow-2xl">
+    <main className="min-h-screen bg-[var(--color-surface)] px-3 py-4 sm:px-5 lg:px-8">
+      <section className="mx-auto flex min-h-screen w-full max-w-6xl flex-col rounded-2xl bg-[var(--color-surface-soft)] shadow-sm sm:min-h-[760px] lg:min-h-[calc(100vh-2rem)]">
         <header className="relative bg-white px-5 pb-4 pt-5">
           <div className="flex items-start justify-between">
             <div>
@@ -58,7 +58,7 @@ export default function MapPage() {
           </div>
         </header>
 
-        <section className="flex-1 space-y-4 overflow-y-auto px-4 py-4 pb-24">
+        <section className="flex-1 space-y-4 overflow-y-auto px-4 py-4 pb-24 sm:px-5 lg:px-6">
           <div className="rounded-3xl bg-white p-3 shadow-sm">
             <label className="mb-2 block text-xs font-bold text-[#1F4E79]">
               Filtrar por tipo de resíduo
