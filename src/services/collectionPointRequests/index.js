@@ -3,6 +3,7 @@ import { getApiErrorMessage } from "../http/getApiErrorMessage";
 
 const DRAFT_STORAGE_KEY = "residuum:collection-point-draft";
 const STATUS_STORAGE_KEY = "residuum:collection-point-request-status";
+const LOCAL_FALLBACK_SOURCE = "local_fallback";
 
 const normalizeStatus = (status) => {
   const normalized = String(status || "").toLowerCase();
@@ -70,6 +71,10 @@ export const normalizeCollectionPointRequest = (request) => {
   return {
     ...request,
     status: normalizeStatus(request.status || request.situacao),
+    isLocalFallback:
+      request.isLocalFallback === true ||
+      request.origem === LOCAL_FALLBACK_SOURCE ||
+      String(request.id_solicitacao || request.id || "").startsWith("local-"),
   };
 };
 
@@ -176,33 +181,62 @@ export const clearCollectionPointDraft = () => {
 export const getStoredCollectionPointRequestStatus = () =>
   readStorage(STATUS_STORAGE_KEY);
 
-export const submitCollectionPointRequest = async (payload) => {
-  try {
-    const res = await api.post("/solicitacoes-pontos-coleta", payload);
-    const normalized = normalizeCollectionPointRequestResponse(res.data);
-    writeStorage(STATUS_STORAGE_KEY, normalized || res.data);
-    return normalized || res.data;
-  } catch (error) {
-    if (!error?.response || error?.response?.status === 404) {
-      const fallback = {
-        id_solicitacao: `local-${Date.now()}`,
-        status: "pendente",
-        mensagem: "Aguardando aprovação",
-        created_at: new Date().toISOString(),
-        ...payload,
-      };
+export const saveLocalCollectionPointRequestFallback = (payload, message) => {
+  const fallback = {
+    id_solicitacao: `local-${Date.now()}`,
+    status: "rascunho_local",
+    isLocalFallback: true,
+    origem: LOCAL_FALLBACK_SOURCE,
+    mensagem:
+      message ||
+      "Solicitacao salva localmente. Tente enviar novamente quando o servidor estiver disponivel.",
+    created_at: new Date().toISOString(),
+    payload,
+  };
 
-      writeStorage(STATUS_STORAGE_KEY, fallback);
-      return fallback;
-    }
+  writeStorage(STATUS_STORAGE_KEY, fallback);
+  return fallback;
+};
 
-    throw new Error(
-      getApiErrorMessage(
-        error,
-        "Não foi possível enviar a solicitação do ponto.",
-      ),
-    );
+export const getCollectionPointRequestErrorMessage = (error) => {
+  const status = error?.response?.status;
+
+  if (status === 401 || status === 403) {
+    return "Nao foi possivel enviar sua solicitacao. Faca login novamente ou verifique sua permissao.";
   }
+
+  if (status === 422) {
+    return "Nao foi possivel enviar sua solicitacao. Confira os dados obrigatorios e tente novamente.";
+  }
+
+  if (!error?.response) {
+    return "Servidor indisponivel no momento. Seus dados foram preservados localmente para nova tentativa.";
+  }
+
+  if (status === 404) {
+    return "O endpoint de solicitacao de ponto nao foi encontrado. Seus dados foram preservados localmente para nova tentativa.";
+  }
+
+  if (status >= 500) {
+    return "O servidor encontrou um erro ao processar a solicitacao. Seus dados foram preservados localmente para nova tentativa.";
+  }
+
+  return getApiErrorMessage(
+    error,
+    "Nao foi possivel enviar sua solicitacao ao servidor. Seus dados foram preservados localmente para nova tentativa.",
+  );
+};
+
+export const submitCollectionPointRequest = async (payload) => {
+  const res = await api.post("/solicitacoes-pontos-coleta", payload);
+
+  if (![200, 201].includes(res.status)) {
+    throw new Error("A solicitacao nao foi confirmada pelo servidor.");
+  }
+
+  const normalized = normalizeCollectionPointRequestResponse(res.data);
+  writeStorage(STATUS_STORAGE_KEY, normalized || res.data);
+  return normalized || res.data;
 };
 
 export const getCollectionPointRequestStatus = async () => {
@@ -211,20 +245,22 @@ export const getCollectionPointRequestStatus = async () => {
     const normalized = normalizeCollectionPointRequestResponse(res.data);
 
     if (!normalized) {
-      return getStoredCollectionPointRequestStatus();
+      const stored = getStoredCollectionPointRequestStatus();
+      return stored?.isLocalFallback ? stored : null;
     }
 
     writeStorage(STATUS_STORAGE_KEY, normalized);
     return normalized;
   } catch (error) {
     if (!error?.response || error?.response?.status === 404) {
-      return getStoredCollectionPointRequestStatus();
+      const stored = getStoredCollectionPointRequestStatus();
+      return stored?.isLocalFallback ? stored : null;
     }
 
     throw new Error(
       getApiErrorMessage(
         error,
-        "Não foi possível consultar o status da solicitação.",
+        "Nao foi possivel consultar o status da solicitacao.",
       ),
     );
   }
