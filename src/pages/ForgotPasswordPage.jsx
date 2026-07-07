@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -10,19 +10,22 @@ import Button from "../components/ui/Button";
 import { forgotPasswordSchema } from "../schemas/auth";
 
 export default function ForgotPasswordPage() {
+  const [unavailableMessage, setUnavailableMessage] = useState("");
+
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm({
     resolver: zodResolver(forgotPasswordSchema),
     mode: "onSubmit",
     reValidateMode: "onChange",
   });
 
-  const onSubmit = async (data) => {
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    console.log("forgot-password", data);
+  const onSubmit = () => {
+    setUnavailableMessage(
+      "A recuperacao de senha ainda nao esta disponivel. Entre em contato com o suporte ou tente novamente mais tarde."
+    );
   };
 
   return (
@@ -44,7 +47,8 @@ export default function ForgotPasswordPage() {
               Esqueceu sua senha?
             </h1>
             <p className="mx-auto mt-3 max-w-sm text-base leading-relaxed text-[var(--color-welcome-muted)]">
-              Digite seu e-mail para receber um link de redefinição de senha
+              Informe seu e-mail para verificar a disponibilidade da recuperacao
+              de senha
             </p>
           </div>
 
@@ -74,17 +78,21 @@ export default function ForgotPasswordPage() {
                   {errors.email.message}
                 </p>
               )}
+              {unavailableMessage && !errors.email && (
+                <p className="mt-2 text-sm leading-relaxed text-amber-700">
+                  {unavailableMessage}
+                </p>
+              )}
             </div>
 
             <div className="flex justify-center">
               <Button
                 type="submit"
                 variant="brandPrimary"
-                disabled={isSubmitting}
-                className="h-12 w-full max-w-[13rem] rounded-full text-lg font-semibold disabled:cursor-not-allowed disabled:opacity-80 sm:h-14 sm:max-w-[14rem] sm:text-xl"
+                className="h-12 w-full max-w-[13rem] rounded-full text-lg font-semibold sm:h-14 sm:max-w-[14rem] sm:text-xl"
               >
                 <span className="inline-flex items-center gap-2">
-                  {isSubmitting ? "Enviando..." : "Enviar link"}{" "}
+                  Verificar
                   <ArrowRight size={18} />
                 </span>
               </Button>
