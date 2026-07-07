@@ -9,8 +9,8 @@ const formatKg = (value) =>
 
 export const getCollectionPointDashboard = async () => {
   const [points, pendingDiscards] = await Promise.all([
-    listCollectionPoints({ incluir_inativos: true }).catch(() => []),
-    getPendingDiscards().catch(() => []),
+    listCollectionPoints({ incluir_inativos: true }),
+    getPendingDiscards(),
   ]);
 
   const totalCollected = points.reduce(
@@ -74,6 +74,7 @@ export const getCollectionPointDashboard = async () => {
     chartData: CHART_DATA,
     materialData: MATERIAL_DATA,
     points,
+    hasOperationalData: points.length > 0 || pendingDiscards.length > 0,
     primaryPoint,
   };
 };
