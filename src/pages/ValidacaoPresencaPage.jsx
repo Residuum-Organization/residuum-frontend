@@ -3,6 +3,13 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Loader2, MapPin, QrCode, Send } from 'lucide-react'
 import Navbar from '../components/ui/Navbar'
+import PageContainer from '../components/layout/PageContainer'
+import PageHeader from '../components/ui/PageHeader'
+import InlineAlert from '../components/ui/InlineAlert'
+import LoadingState from '../components/ui/LoadingState'
+import ErrorState from '../components/ui/ErrorState'
+import EmptyState from '../components/ui/EmptyState'
+import LoadingButton from '../components/ui/LoadingButton'
 import { listInventory, transferInventoryItem } from '../services/inventory'
 import { listCollectionPoints } from '../services/collectionPoints'
 import { queryKeys } from '../services/queryKeys'
@@ -11,13 +18,12 @@ import { getApiErrorMessage } from '../services/http/getApiErrorMessage'
 const POINTS_PER_KG = 10
 
 const formatResidueType = (tipo) =>
-  String(tipo || 'resíduo')
+  String(tipo || 'residuo')
     .replaceAll('_', ' ')
     .replace(/\b\w/g, (letter) => letter.toUpperCase())
 
 const formatQuantity = (value) => {
   const quantity = Number(value || 0)
-
   return quantity.toLocaleString('pt-BR', {
     minimumFractionDigits: Number.isInteger(quantity) ? 0 : 1,
     maximumFractionDigits: 2,
@@ -27,7 +33,7 @@ const formatQuantity = (value) => {
 const getCurrentPosition = () =>
   new Promise((resolve, reject) => {
     if (!navigator.geolocation) {
-      reject(new Error('Geolocalização não suportada neste dispositivo.'))
+      reject(new Error('Geolocalizacao nao suportada neste dispositivo.'))
       return
     }
 
@@ -38,7 +44,7 @@ const getCurrentPosition = () =>
           lng: position.coords.longitude,
         })
       },
-      () => reject(new Error('Não foi possível obter sua localização atual.')),
+      () => reject(new Error('Nao foi possivel obter sua localizacao atual.')),
       {
         enableHighAccuracy: true,
         timeout: 10000,
@@ -52,12 +58,8 @@ const QR_TOKEN_QUERY_KEYS = ['qrToken', 'token', 'codigo']
 const getQrTokenFromSearchParams = (searchParams) => {
   for (const key of QR_TOKEN_QUERY_KEYS) {
     const value = searchParams.get(key)
-
-    if (value?.trim()) {
-      return value.trim()
-    }
+    if (value?.trim()) return value.trim()
   }
-
   return ''
 }
 
@@ -66,10 +68,10 @@ const hasQrTokenQueryParam = (searchParams) =>
 
 const getTransferErrorMessage = (error) => {
   if (error?.isAxiosError && !error.response) {
-    return 'Servidor indispon\u00edvel. Verifique se o backend est\u00e1 ligado e tente novamente.'
+    return 'Servidor indisponivel. Verifique se o backend esta ligado e tente novamente.'
   }
 
-  return getApiErrorMessage(error, 'Token QR Code inv\u00e1lido ou n\u00e3o foi poss\u00edvel enviar o item para o ponto.')
+  return getApiErrorMessage(error, 'Token QR Code invalido ou nao foi possivel enviar o item para o ponto.')
 }
 
 export default function ValidacaoPresencaPage() {
@@ -102,34 +104,21 @@ export default function ValidacaoPresencaPage() {
   })
 
   useEffect(() => {
-    if (!inventory.length) {
-      return
-    }
-
+    if (!inventory.length) return
     const hasSelectedItem = inventory.some((item) => String(item.id) === String(selectedItemId))
-
-    if (!hasSelectedItem) {
-      setSelectedItemId(String(inventory[0].id))
-    }
+    if (!hasSelectedItem) setSelectedItemId(String(inventory[0].id))
   }, [inventory, selectedItemId])
 
   const selectedItem = inventory.find((item) => String(item.id) === String(selectedItemId))
 
   useEffect(() => {
-    if (!selectedItem) {
-      return
-    }
-
+    if (!selectedItem) return
     const availableQuantity = Number(selectedItem.quantidade_disponivel ?? selectedItem.quantidade ?? 1)
     setQuantidade(String(availableQuantity))
   }, [selectedItemId, selectedItem])
 
   const pointFilters = {}
-
-  if (selectedItem?.tipo_residuo) {
-    pointFilters.tipo_residuo = selectedItem.tipo_residuo
-  }
-
+  if (selectedItem?.tipo_residuo) pointFilters.tipo_residuo = selectedItem.tipo_residuo
   if (coords) {
     pointFilters.lat = coords.lat
     pointFilters.long = coords.lng
@@ -153,10 +142,7 @@ export default function ValidacaoPresencaPage() {
     }
 
     const hasSelectedPoint = points.some((point) => String(point.id) === String(selectedPointId))
-
-    if (!hasSelectedPoint) {
-      setSelectedPointId(String(points[0].id))
-    }
+    if (!hasSelectedPoint) setSelectedPointId(String(points[0].id))
   }, [points, selectedPointId])
 
   const selectedPoint = points.find((point) => String(point.id) === String(selectedPointId))
@@ -169,19 +155,13 @@ export default function ValidacaoPresencaPage() {
       navigate('/extrato')
     },
     onError: (error) => {
-      setFeedback({
-        tone: 'error',
-        message: getTransferErrorMessage(error),
-      })
+      setFeedback({ tone: 'error', message: getTransferErrorMessage(error) })
     },
   })
 
   useEffect(() => {
     const tokenFromUrl = getQrTokenFromSearchParams(searchParams)
-
-    if (tokenFromUrl) {
-      setQrToken(tokenFromUrl)
-    }
+    if (tokenFromUrl) setQrToken(tokenFromUrl)
   }, [searchParams])
 
   const requestLocation = async () => {
@@ -193,7 +173,7 @@ export default function ValidacaoPresencaPage() {
       setCoords(nextCoords)
       return nextCoords
     } catch (error) {
-      const message = getApiErrorMessage(error, 'Não foi possível validar sua localização.')
+      const message = getApiErrorMessage(error, 'Nao foi possivel validar sua localizacao.')
       setLocationError(message)
       throw error
     } finally {
@@ -217,7 +197,7 @@ export default function ValidacaoPresencaPage() {
     if (hasQrTokenQueryParam(searchParams) && !qrToken.trim()) {
       setFeedback({
         tone: 'error',
-        message: 'Token QR Code ausente ou vazio. Escaneie novamente ou informe o código manualmente.',
+        message: 'Token QR Code ausente ou vazio. Escaneie novamente ou informe o codigo manualmente.',
       })
       return
     }
@@ -226,20 +206,19 @@ export default function ValidacaoPresencaPage() {
     const availableQuantity = Number(selectedItem.quantidade_disponivel ?? selectedItem.quantidade ?? 0)
 
     if (!quantityNumber || quantityNumber <= 0) {
-      setFeedback({ tone: 'error', message: 'Informe uma quantidade válida para a transferência.' })
+      setFeedback({ tone: 'error', message: 'Informe uma quantidade valida para a transferencia.' })
       return
     }
 
     if (quantityNumber > availableQuantity) {
       setFeedback({
         tone: 'error',
-        message: `A quantidade disponível para este item é ${formatQuantity(availableQuantity)} kg.`,
+        message: `A quantidade disponivel para este item e ${formatQuantity(availableQuantity)} kg.`,
       })
       return
     }
 
     let currentCoords = coords
-
     if (!qrToken.trim()) {
       try {
         currentCoords = currentCoords || (await requestLocation())
@@ -263,79 +242,59 @@ export default function ValidacaoPresencaPage() {
 
   if (inventoryLoading) {
     return (
-      <div className="flex flex-col min-h-screen bg-white max-w-sm mx-auto">
-        <div className="flex-1 px-5 pt-8 pb-24 flex items-center justify-center">
-          <div className="flex items-center gap-3 text-[#1a3a4a]">
-            <Loader2 className="animate-spin" size={20} />
-            <span>Carregando itens para transferência...</span>
-          </div>
-        </div>
+      <PageContainer innerClassName="pb-24">
+        <LoadingState title="Carregando itens para transferencia..." className="mx-auto mt-10 max-w-md" />
         <Navbar />
-      </div>
+      </PageContainer>
     )
   }
 
   if (inventoryError) {
     return (
-      <div className="flex flex-col min-h-screen bg-white max-w-sm mx-auto">
-        <div className="flex-1 px-5 pt-8 pb-24">
-          <h1 className="text-2xl font-bold text-[#1a3a4a] mb-3">Transferir para o ponto</h1>
-          <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-4 text-sm text-red-700">
-            {getApiErrorMessage(inventoryQueryError, 'Não foi possível carregar o estoque disponível.')}
-          </div>
+      <PageContainer innerClassName="pb-24">
+        <div className="space-y-5">
+          <PageHeader title="Transferir para o ponto" description="Escolha o residuo, valide sua presenca e confirme." />
+          <ErrorState title={getApiErrorMessage(inventoryQueryError, 'Nao foi possivel carregar o estoque disponivel.')} />
         </div>
         <Navbar />
-      </div>
+      </PageContainer>
     )
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-white max-w-sm mx-auto">
-      <div className="flex-1 px-5 pt-8 pb-24 overflow-y-auto">
-        <h1 className="text-2xl font-bold text-[#1a3a4a]">Transferir para o ponto</h1>
-        <p className="text-gray-400 text-sm mt-1">
-          Selecione o item, valide sua posição e envie sua solicitação ao ponto de coleta.
-        </p>
+    <PageContainer innerClassName="pb-28">
+      <div className="space-y-5">
+        <PageHeader
+          title="Transferir para o ponto"
+          description="Escolha o residuo, escolha o ponto, valide sua presenca e confirme a transferencia."
+        />
 
-        {feedback ? (
-          <div
-            className={`mt-5 rounded-2xl px-4 py-3 text-sm font-medium ${
-              feedback.tone === 'error'
-                ? 'border border-red-200 bg-red-50 text-red-700'
-                : 'border border-emerald-200 bg-emerald-50 text-emerald-700'
-            }`}
-          >
-            {feedback.message}
-          </div>
-        ) : null}
+        <InlineAlert variant="info">
+          A entrega so pode ser confirmada com localizacao ou QR Code. Os pontos entram apenas depois da confirmacao da cooperativa.
+        </InlineAlert>
+
+        {feedback ? <InlineAlert variant={feedback.tone}>{feedback.message}</InlineAlert> : null}
 
         {!inventory.length ? (
-          <div className="mt-6 rounded-2xl border border-dashed border-[#c8d2e3] bg-[#f7f9fc] px-5 py-8 text-center">
-            <p className="text-[#1a3a4a] font-semibold">Você ainda não tem itens disponíveis.</p>
-            <p className="text-sm text-gray-400 mt-2 mb-5">
-              Cadastre um resíduo no estoque antes de solicitar uma entrega.
-            </p>
-            <button
-              type="button"
-              onClick={() => navigate('/cadastrar-residuo')}
-              className="w-full rounded-full bg-[#1e4d6b] py-4 text-sm font-semibold text-white"
-            >
-              Cadastrar resíduo
-            </button>
-          </div>
+          <EmptyState
+            title="Voce ainda nao tem itens disponiveis."
+            description="Cadastre um residuo no estoque antes de solicitar uma entrega."
+            actionLabel="Cadastrar residuo"
+            onAction={() => navigate('/cadastrar-residuo')}
+          />
         ) : (
-          <>
-            <div className="mt-6 rounded-2xl border border-[#dde1ef] bg-[#f0f2f8] px-5 py-5">
-              <label className="block text-sm font-bold text-[#1a3a4a] mb-2">Item do estoque</label>
+          <div className="grid gap-5 lg:grid-cols-2">
+            <Panel title="1. Residuo">
+              <label className="mb-2 block text-sm font-bold text-[#1a3a4a]">Item do estoque</label>
               <select
                 value={selectedItemId}
                 onChange={(event) => setSelectedItemId(event.target.value)}
-                className="w-full rounded-2xl border border-[#c8d2e3] bg-white px-4 py-3 text-sm text-[#1a3a4a] outline-none"
+                className="min-h-12 w-full rounded-2xl border border-[#c8d2e3] bg-white px-4 py-3 text-base text-[#1a3a4a] outline-none"
               >
                 {inventory.map((item) => (
                   <option key={item.id} value={item.id}>
                     {(item.descricao || formatResidueType(item.tipo_residuo)) +
-                      ` • ${formatQuantity(item.quantidade_disponivel ?? item.quantidade)} kg`}
+                      ` | ${formatQuantity(item.quantidade_disponivel ?? item.quantidade)} kg`}
                   </option>
                 ))}
               </select>
@@ -345,84 +304,76 @@ export default function ValidacaoPresencaPage() {
                   <p className="text-sm font-bold text-[#1a3a4a]">
                     {selectedItem.descricao || formatResidueType(selectedItem.tipo_residuo)}
                   </p>
-                  <p className="mt-1 text-sm text-gray-500">
-                    Tipo: {formatResidueType(selectedItem.tipo_residuo)}
-                  </p>
+                  <p className="mt-1 text-sm text-gray-500">Tipo: {formatResidueType(selectedItem.tipo_residuo)}</p>
                   <p className="mt-2 text-xs font-medium text-gray-500">
-                    Disponível: {formatQuantity(selectedItem.quantidade_disponivel ?? selectedItem.quantidade)} kg
+                    Disponivel: {formatQuantity(selectedItem.quantidade_disponivel ?? selectedItem.quantidade)} kg
                   </p>
                 </div>
               ) : null}
-            </div>
+            </Panel>
 
-            <div className="mt-4 rounded-2xl border border-[#dde1ef] bg-[#f0f2f8] px-5 py-5">
+            <Panel title="2. Validar presenca">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <p className="text-[#1a3a4a] font-bold text-base">Sua localização</p>
-                  <p className="text-sm text-gray-500 mt-1">
+                  <p className="text-base font-bold text-[#1a3a4a]">Sua localizacao</p>
+                  <p className="mt-1 text-sm text-gray-500">
                     {coords
                       ? `${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)}`
-                      : 'Use sua localização atual para validar a transferência.'}
+                      : 'Use sua localizacao atual ou informe o QR Code do ponto.'}
                   </p>
                 </div>
-                <div className="rounded-2xl bg-white p-3 text-[#e53935]">
+                <div className="rounded-2xl bg-white p-3 text-[#C53030]">
                   <MapPin size={28} />
                 </div>
               </div>
 
-              {locationError ? (
-                <p className="mt-3 text-xs font-medium text-red-600">{locationError}</p>
-              ) : null}
+              {locationError ? <p className="mt-3 text-xs font-medium text-red-600">{locationError}</p> : null}
 
               <button
                 type="button"
                 onClick={requestLocation}
                 disabled={isLocating}
-                className="mt-4 w-full rounded-full border-2 border-[#1e4d6b] bg-white py-3 text-sm font-semibold text-[#1e4d6b] disabled:opacity-60"
+                className="mt-4 w-full rounded-2xl border-2 border-[#1F4E79] bg-white py-3 text-sm font-semibold text-[#1F4E79] disabled:opacity-60"
               >
                 <span className="inline-flex items-center gap-2">
                   {isLocating ? <Loader2 size={18} className="animate-spin" /> : <MapPin size={18} />}
-                  {coords ? 'Atualizar localização' : 'Capturar localização'}
+                  {coords ? 'Atualizar localizacao' : 'Capturar localizacao'}
                 </span>
               </button>
-            </div>
+            </Panel>
 
-            <div className="mt-4 rounded-2xl border border-[#dde1ef] bg-[#f0f2f8] px-5 py-5">
-              <label className="block text-sm font-bold text-[#1a3a4a] mb-2">Ponto de coleta</label>
+            <Panel title="3. Ponto de coleta">
               {pointsLoading ? (
                 <div className="flex items-center gap-2 text-sm text-[#1a3a4a]">
                   <Loader2 className="animate-spin" size={16} />
-                  Buscando pontos compatíveis...
+                  Buscando pontos compativeis...
                 </div>
               ) : pointsError ? (
-                <p className="text-sm text-red-600">
-                  {getApiErrorMessage(pointsQueryError, 'Não foi possível carregar os pontos.')}
-                </p>
+                <InlineAlert variant="error">
+                  {getApiErrorMessage(pointsQueryError, 'Nao foi possivel carregar os pontos.')}
+                </InlineAlert>
               ) : points.length ? (
                 <>
                   <select
                     value={selectedPointId}
                     onChange={(event) => setSelectedPointId(event.target.value)}
-                    className="w-full rounded-2xl border border-[#c8d2e3] bg-white px-4 py-3 text-sm text-[#1a3a4a] outline-none"
+                    className="min-h-12 w-full rounded-2xl border border-[#c8d2e3] bg-white px-4 py-3 text-base text-[#1a3a4a] outline-none"
                   >
                     {points.map((point) => (
                       <option key={point.id} value={point.id}>
                         {point.nome}
-                        {point.distancia_km != null ? ` • ${point.distancia_km.toFixed(1)} km` : ''}
+                        {point.distancia_km != null ? ` | ${point.distancia_km.toFixed(1)} km` : ''}
                       </option>
                     ))}
                   </select>
 
                   {selectedPoint ? (
                     <div className="mt-4 rounded-2xl bg-white px-4 py-4">
-                      <p className="text-[#1a3a4a] font-bold text-base">{selectedPoint.nome}</p>
-                      <p className="text-sm text-gray-500 mt-1">{selectedPoint.endereco || 'Endereço não informado'}</p>
+                      <p className="text-base font-bold text-[#1a3a4a]">{selectedPoint.nome}</p>
+                      <p className="mt-1 text-sm text-gray-500">{selectedPoint.endereco || 'Endereco nao informado'}</p>
                       <div className="mt-3 flex flex-wrap gap-2">
                         {(selectedPoint.tipos_residuos_aceitos || []).map((material) => (
-                          <span
-                            key={material}
-                            className="rounded-full border border-[#1a3a4a] px-3 py-1 text-xs font-medium text-[#1a3a4a]"
-                          >
+                          <span key={material} className="rounded-full border border-[#1a3a4a] px-3 py-1 text-xs font-medium text-[#1a3a4a]">
                             {formatResidueType(material)}
                           </span>
                         ))}
@@ -431,76 +382,64 @@ export default function ValidacaoPresencaPage() {
                   ) : null}
                 </>
               ) : (
-                <p className="text-sm text-gray-500">
-                  Nenhum ponto disponível foi encontrado para este tipo de resíduo no momento.
-                </p>
+                <p className="text-sm text-gray-500">Nenhum ponto disponivel foi encontrado para este tipo de residuo no momento.</p>
               )}
-            </div>
+            </Panel>
 
-            <div className="mt-4 rounded-2xl border border-[#dde1ef] bg-[#f0f2f8] px-5 py-5">
-              <label className="block text-sm font-bold text-[#1a3a4a] mb-2">Quantidade a transferir (kg)</label>
+            <Panel title="4. Confirmar transferencia">
+              <label className="mb-2 block text-sm font-bold text-[#1a3a4a]">Quantidade a transferir (kg)</label>
               <input
                 type="number"
                 min="0.1"
                 step="0.1"
                 value={quantidade}
                 onChange={(event) => setQuantidade(event.target.value)}
-                className="w-full rounded-2xl border border-[#c8d2e3] bg-white px-4 py-3 text-sm text-[#1a3a4a] outline-none"
+                className="min-h-12 w-full rounded-2xl border border-[#c8d2e3] bg-white px-4 py-3 text-base text-[#1a3a4a] outline-none"
               />
 
-              <label className="block text-sm font-bold text-[#1a3a4a] mt-4 mb-2">Observação (opcional)</label>
+              <label className="mb-2 mt-4 block text-sm font-bold text-[#1a3a4a]">Observacao (opcional)</label>
               <textarea
                 rows={3}
                 value={observacao}
                 onChange={(event) => setObservacao(event.target.value)}
                 placeholder="Ex.: entrega parcial do item"
-                className="w-full rounded-2xl border border-[#c8d2e3] bg-white px-4 py-3 text-sm text-[#1a3a4a] outline-none resize-none"
+                className="w-full resize-none rounded-2xl border border-[#c8d2e3] bg-white px-4 py-3 text-base text-[#1a3a4a] outline-none"
               />
 
-              <label className="block text-sm font-bold text-[#1a3a4a] mt-4 mb-2">
-                Token QR Code (opcional)
-              </label>
+              <label className="mb-2 mt-4 block text-sm font-bold text-[#1a3a4a]">Token QR Code (opcional)</label>
               <input
                 type="text"
                 value={qrToken}
                 onChange={(event) => setQrToken(event.target.value)}
-                placeholder="Cole o token gerado no ponto"
-                className="w-full rounded-2xl border border-[#c8d2e3] bg-white px-4 py-3 text-sm text-[#1a3a4a] outline-none"
+                placeholder="Cole o codigo do QR Code"
+                className="min-h-12 w-full rounded-2xl border border-[#c8d2e3] bg-white px-4 py-3 text-base text-[#1a3a4a] outline-none"
               />
 
               <div className="mt-4 flex items-center justify-between rounded-2xl bg-[#e8f5e2] px-4 py-3">
-                <span className="text-sm text-green-700 font-medium">Pontos estimados ao confirmar</span>
-                <span className="text-sm text-green-700 font-bold">
+                <span className="text-sm font-medium text-green-700">Pontos estimados apos confirmacao</span>
+                <span className="text-sm font-bold text-green-700">
                   +{Math.round(Number(quantidade || 0) * POINTS_PER_KG)} pts
                 </span>
               </div>
-            </div>
+            </Panel>
 
-            <div className="mt-6 flex flex-col gap-3">
-              <button
+            <div className="flex flex-col gap-3 lg:col-span-2">
+              <LoadingButton
                 type="button"
                 onClick={handleTransfer}
                 disabled={transferMutation.isPending || !selectedItem || !selectedPointId}
-                className="w-full rounded-full bg-[#1e4d6b] py-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-70"
+                isLoading={transferMutation.isPending}
+                loadingText="Enviando..."
+                className="w-full py-4"
               >
-                <span className="inline-flex items-center gap-2">
-                  {transferMutation.isPending ? (
-                    <Loader2 size={18} className="animate-spin" />
-                  ) : (
-                    <Send size={18} />
-                  )}
-                  {transferMutation.isPending ? 'Enviando...' : 'Enviar para o ponto de coleta'}
-                </span>
-              </button>
+                <Send size={18} />
+                Enviar para o ponto de coleta
+              </LoadingButton>
 
               <button
                 type="button"
-                onClick={() =>
-                  navigate(
-                    selectedItemId ? `/escanear-qr?itemId=${selectedItemId}` : '/escanear-qr'
-                  )
-                }
-                className="w-full rounded-full border-2 border-[#1e4d6b] bg-white py-4 text-sm font-semibold text-[#1e4d6b]"
+                onClick={() => navigate(selectedItemId ? `/escanear-qr?itemId=${selectedItemId}` : '/escanear-qr')}
+                className="w-full rounded-2xl border-2 border-[#1F4E79] bg-white py-4 text-sm font-semibold text-[#1F4E79]"
               >
                 <span className="inline-flex items-center gap-2">
                   <QrCode size={18} />
@@ -508,11 +447,19 @@ export default function ValidacaoPresencaPage() {
                 </span>
               </button>
             </div>
-          </>
+          </div>
         )}
       </div>
-
       <Navbar />
-    </div>
+    </PageContainer>
+  )
+}
+
+function Panel({ title, children }) {
+  return (
+    <section className="rounded-2xl border border-[#dde1ef] bg-[#f7f9fc] px-5 py-5 shadow-sm">
+      <h2 className="mb-4 text-base font-bold text-[#1F4E79]">{title}</h2>
+      {children}
+    </section>
   )
 }

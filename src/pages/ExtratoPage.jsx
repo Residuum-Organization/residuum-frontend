@@ -1,7 +1,13 @@
 import React from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { CheckCircle2, Clock3, Loader2, Recycle, TrendingDown, TrendingUp, Wallet, XCircle } from 'lucide-react'
+import { CheckCircle2, Clock3, Recycle, TrendingDown, TrendingUp, Wallet, XCircle } from 'lucide-react'
 import Navbar from '../components/ui/Navbar'
+import PageContainer from '../components/layout/PageContainer'
+import PageHeader from '../components/ui/PageHeader'
+import InlineAlert from '../components/ui/InlineAlert'
+import LoadingState from '../components/ui/LoadingState'
+import ErrorState from '../components/ui/ErrorState'
+import EmptyState from '../components/ui/EmptyState'
 import { getPointsStatement } from '../services/points'
 import { queryKeys } from '../services/queryKeys'
 import { getApiErrorMessage } from '../services/http/getApiErrorMessage'
@@ -45,15 +51,12 @@ const STATUS_CONFIG = {
 }
 
 const formatResidueType = (tipo) =>
-  String(tipo || 'resíduo')
+  String(tipo || 'residuo')
     .replaceAll('_', ' ')
     .replace(/\b\w/g, (letter) => letter.toUpperCase())
 
 const formatHistoryDate = (value) => {
-  if (!value) {
-    return 'Data indisponível'
-  }
-
+  if (!value) return 'Data indisponivel'
   return new Date(value).toLocaleString('pt-BR', {
     day: '2-digit',
     month: 'short',
@@ -76,29 +79,29 @@ function HistoricoCard({ item }) {
   const title = item.inventario_item_descricao || item.descricao || formatResidueType(item.tipo_residuo)
 
   return (
-    <article className={`rounded-[24px] border p-4 shadow-sm ${config.border}`}>
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${config.icon}`}>
+    <article className={`rounded-2xl border p-4 shadow-sm ${config.border}`}>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex min-w-0 items-start gap-3">
+          <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${config.icon}`}>
             <Recycle size={24} />
           </div>
-          <div>
-            <h3 className="text-sm font-black text-[#12384C]">{title}</h3>
+          <div className="min-w-0">
+            <h3 className="break-words text-sm font-black text-[#12384C]">{title}</h3>
             <p className="mt-1 text-xs font-semibold text-slate-500">
-              {hasQuantity ? `${quantityLabel} kg • ` : ''}
+              {hasQuantity ? `${quantityLabel} kg | ` : ''}
               {formatHistoryDate(item.data_evento)}
             </p>
-            <p className="mt-1 text-[11px] font-medium text-slate-500">
-              {item.ponto_coleta_nome || item.referencia || 'Evento de pontuação'}
+            <p className="mt-1 text-xs font-medium text-slate-500">
+              {item.ponto_coleta_nome || item.referencia || 'Evento de pontuacao'}
             </p>
           </div>
         </div>
-        <div className="text-right">
+        <div className="flex items-center justify-between gap-3 sm:flex-col sm:items-end">
           <p className="text-lg font-black text-[#0B6B53]">
             {points >= 0 ? '+' : ''}
             {points}
           </p>
-          <span className={`mt-1 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-black ${config.badge}`}>
+          <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-black ${config.badge}`}>
             <StatusIcon size={12} />
             {config.label}
           </span>
@@ -109,12 +112,7 @@ function HistoricoCard({ item }) {
 }
 
 export default function ExtratoPage() {
-  const {
-    data: extrato,
-    isLoading,
-    isError,
-    error,
-  } = useQuery({
+  const { data: extrato, isLoading, isError, error } = useQuery({
     queryKey: queryKeys.pointsStatement,
     queryFn: getPointsStatement,
   })
@@ -132,80 +130,74 @@ export default function ExtratoPage() {
     .reduce((sum, item) => sum + Math.abs(Number(item.pontos || 0)), 0)
 
   return (
-    <main className="min-h-screen bg-slate-200 px-3 py-4">
-      <section className="mx-auto flex min-h-[760px] w-full max-w-[390px] flex-col overflow-hidden rounded-[28px] bg-[#F7FAF9] shadow-2xl">
-        <div className="flex-1 overflow-y-auto px-4 py-5 pb-28">
-          <h1 className="text-3xl font-black text-[#12384C]">
-            Extrato de <span className="text-[#E5B900]">Pontos</span>
-          </h1>
-          <p className="mt-1 text-sm font-semibold text-slate-500">Acompanhe seu saldo e o status das suas entregas.</p>
+    <PageContainer className="bg-[var(--color-surface)]" innerClassName="pb-28">
+      <div className="space-y-6">
+        <PageHeader
+          title="Extrato de Pontos"
+          description="Acompanhe seu saldo e o status das entregas confirmadas ou pendentes."
+        />
 
-          <section className="mt-5 rounded-[32px] bg-[#DDF7E9] p-5 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-black uppercase tracking-[0.18em] text-[#0B6B53]/80">Total disponível</p>
-                <h2 className="mt-2 text-6xl font-black leading-none text-[#0B6B53]">{total}</h2>
-              </div>
-              <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-white/80 text-[#0B6B53] shadow-sm">
-                <Wallet size={32} />
-              </div>
+        <section className="rounded-2xl bg-[#DDF7E9] p-5 shadow-sm sm:p-6">
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-xs font-black uppercase text-[#0B6B53]/80">Total disponivel</p>
+              <h2 className="mt-2 text-5xl font-black leading-none text-[#0B6B53] sm:text-6xl">{total}</h2>
             </div>
-
-            <div className="mt-6 grid grid-cols-3 gap-3">
-              <div className="rounded-2xl bg-white/80 p-3">
-                <div className="flex items-center gap-2 text-xs font-black text-amber-700">
-                  <Clock3 size={15} /> Pendentes
-                </div>
-                <p className="mt-2 text-2xl font-black text-[#12384C]">{pendentes}</p>
-              </div>
-              <div className="rounded-2xl bg-white/80 p-3">
-                <div className="flex items-center gap-2 text-xs font-black text-emerald-700">
-                  <TrendingUp size={15} /> Confirmados
-                </div>
-                <p className="mt-2 text-2xl font-black text-[#12384C]">{confirmados}</p>
-              </div>
-              <div className="rounded-2xl bg-white/80 p-3">
-                <div className="flex items-center gap-2 text-xs font-black text-sky-700">
-                  <TrendingDown size={15} /> Resgatados
-                </div>
-                <p className="mt-2 text-2xl font-black text-[#12384C]">{resgatados}</p>
-              </div>
+            <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-white/80 text-[#0B6B53] shadow-sm">
+              <Wallet size={32} />
             </div>
-          </section>
+          </div>
 
-          <div className="mb-4 mt-7 flex items-center justify-between">
-            <h2 className="text-lg font-black text-[#12384C]">Histórico</h2>
-            <span className="rounded-full bg-white px-3 py-1 text-xs font-black text-[#11527A] shadow-sm">
+          <div className="mt-6 grid gap-3 sm:grid-cols-3">
+            <SummaryCard icon={<Clock3 size={16} />} label="Pendentes" value={pendentes} className="text-amber-700" />
+            <SummaryCard icon={<TrendingUp size={16} />} label="Confirmados" value={confirmados} className="text-emerald-700" />
+            <SummaryCard icon={<TrendingDown size={16} />} label="Resgatados" value={resgatados} className="text-sky-700" />
+          </div>
+        </section>
+
+        <InlineAlert variant="info">
+          Pontos pendentes ainda dependem da confirmacao e pesagem real pela cooperativa.
+        </InlineAlert>
+
+        <section className="space-y-4">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <h2 className="text-lg font-black text-[#12384C]">Historico</h2>
+            <span className="w-fit rounded-full bg-white px-3 py-1 text-xs font-black text-[#11527A] shadow-sm">
               {historico.length} registros
             </span>
           </div>
 
           {isLoading ? (
-            <div className="flex items-center gap-3 rounded-[24px] border border-slate-200 bg-white p-4 text-sm font-semibold text-slate-600 shadow-sm">
-              <Loader2 size={18} className="animate-spin" />
-              Carregando histórico de pontos...
-            </div>
+            <LoadingState title="Carregando historico de pontos..." />
           ) : isError ? (
-            <div className="rounded-[24px] border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-700 shadow-sm">
-              {getApiErrorMessage(error, 'Não foi possível carregar o extrato de pontos.')}
-            </div>
+            <ErrorState title={getApiErrorMessage(error, 'Nao foi possivel carregar o extrato de pontos.')} />
           ) : historico.length ? (
-            <div className="space-y-3">
+            <div className="grid gap-3 lg:grid-cols-2">
               {historico.map((item) => (
                 <HistoricoCard key={item.id_descarte || item.id_resgate} item={item} />
               ))}
             </div>
           ) : (
-            <div className="rounded-[24px] border border-dashed border-slate-200 bg-white p-6 text-center shadow-sm">
-              <p className="text-sm font-semibold text-[#12384C]">Seu extrato ainda está vazio.</p>
-              <p className="mt-2 text-xs text-slate-500">
-                Suas entregas e resgates vão aparecer aqui assim que houver movimentação.
-              </p>
-            </div>
+            <EmptyState
+              title="Seu extrato ainda esta vazio."
+              description="Suas entregas e resgates vao aparecer aqui assim que houver movimentacao."
+            />
           )}
-        </div>
-        <Navbar />
-      </section>
-    </main>
+        </section>
+      </div>
+      <Navbar />
+    </PageContainer>
+  )
+}
+
+function SummaryCard({ icon, label, value, className = '' }) {
+  return (
+    <div className="rounded-2xl bg-white/80 p-3">
+      <div className={`flex items-center gap-2 text-xs font-black ${className}`}>
+        {icon}
+        {label}
+      </div>
+      <p className="mt-2 text-2xl font-black text-[#12384C]">{value}</p>
+    </div>
   )
 }

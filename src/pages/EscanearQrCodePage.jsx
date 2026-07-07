@@ -1,12 +1,18 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Html5Qrcode } from 'html5-qrcode'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import { Camera, QrCode } from 'lucide-react'
+import PageContainer from '../components/layout/PageContainer'
+import PageHeader from '../components/ui/PageHeader'
+import SectionCard from '../components/ui/SectionCard'
+import InlineAlert from '../components/ui/InlineAlert'
+import Button from '../components/ui/Button'
+import Navbar from '../components/ui/Navbar'
 
 export default function EscanearQrCodePage() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const scannerRef = useRef(null)
-
   const [manualCode, setManualCode] = useState('')
   const [error, setError] = useState('')
   const [isScanning, setIsScanning] = useState(false)
@@ -23,31 +29,25 @@ export default function EscanearQrCodePage() {
         await scannerRef.current.clear()
       }
     } catch (err) {
-      console.warn('Scanner já estava parado:', err)
+      console.warn('Scanner ja estava parado:', err)
     }
 
     const params = new URLSearchParams()
-
     if (itemId) params.set('itemId', itemId)
     if (pointId) params.set('pointId', pointId)
     params.set('qrToken', qrToken)
-
     navigate(`/validacao-presenca?${params.toString()}`)
   }
 
   const startScanner = async () => {
     try {
       setError('')
-
       const scanner = new Html5Qrcode('qr-reader')
       scannerRef.current = scanner
 
       await scanner.start(
         { facingMode: 'environment' },
-        {
-          fps: 10,
-          qrbox: { width: 250, height: 250 },
-        },
+        { fps: 10, qrbox: { width: 250, height: 250 } },
         (decodedText) => {
           goToValidation(decodedText)
         },
@@ -57,9 +57,7 @@ export default function EscanearQrCodePage() {
       setIsScanning(true)
     } catch (err) {
       console.error(err)
-      setError(
-        'Não foi possível abrir a câmera. Use o código manual ou teste em um celular com permissão de câmera.'
-      )
+      setError('Nao foi possivel abrir a camera. Use o codigo manual ou teste em um celular com permissao de camera.')
       setIsScanning(false)
     }
   }
@@ -81,61 +79,57 @@ export default function EscanearQrCodePage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 px-4 py-6">
-      <section className="mx-auto max-w-md rounded-3xl bg-white p-5 shadow-sm">
-        <h1 className="text-xl font-bold text-slate-900">
-          Escanear QR Code
-        </h1>
-
-        <p className="mt-2 text-sm text-slate-600">
-          Aponte a câmera para o QR Code do ponto de coleta ou digite o código manualmente.
-        </p>
-
-        <button
-          type="button"
-          onClick={startScanner}
-          className="mt-5 w-full rounded-xl bg-emerald-600 px-4 py-3 text-sm font-bold text-white hover:bg-emerald-700"
-        >
-          Abrir câmera
-        </button>
-
-        <div
-          id="qr-reader"
-          className="mt-5 overflow-hidden rounded-2xl border border-slate-200"
+    <PageContainer innerClassName="pb-28">
+      <div className="space-y-6">
+        <PageHeader
+          title="Escanear QR Code"
+          description="Aponte a camera para o QR Code do ponto ou digite o codigo manualmente."
         />
 
-        {isScanning ? (
-          <p className="mt-3 text-sm text-emerald-600">
-            Câmera ativa. Aguardando leitura do QR Code...
-          </p>
-        ) : null}
+        <div className="grid gap-6 lg:grid-cols-[minmax(280px,0.9fr)_minmax(0,1.1fr)] lg:items-start">
+          <SectionCard title="Leitura pela camera" description="Use em um celular e permita acesso a camera quando o navegador pedir.">
+            <Button type="button" onClick={startScanner} className="w-full py-4">
+              <Camera className="mr-2 h-5 w-5" aria-hidden="true" />
+              Abrir camera
+            </Button>
 
-        {error ? (
-          <p className="mt-3 text-sm font-medium text-red-600">
-            {error}
-          </p>
-        ) : null}
+            <div id="qr-reader" className="mt-5 min-h-[260px] overflow-hidden rounded-2xl border border-slate-200 bg-slate-50" />
 
-        <form onSubmit={handleManualSubmit} className="mt-6 space-y-3">
-          <label className="block text-sm font-semibold text-slate-700">
-            Código manual
-          </label>
+            {isScanning ? (
+              <InlineAlert variant="success" className="mt-4">
+                Camera ativa. Mantenha o QR Code dentro do quadro.
+              </InlineAlert>
+            ) : null}
 
-          <input
-            value={manualCode}
-            onChange={(event) => setManualCode(event.target.value)}
-            placeholder="Digite ou cole o token do QR Code"
-            className="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none focus:border-emerald-500"
-          />
+            {error ? (
+              <InlineAlert variant="error" className="mt-4">
+                {error}
+              </InlineAlert>
+            ) : null}
+          </SectionCard>
 
-          <button
-            type="submit"
-            className="w-full rounded-xl bg-slate-900 px-4 py-3 text-sm font-bold text-white hover:bg-slate-800"
-          >
-            Confirmar código
-          </button>
-        </form>
-      </section>
-    </main>
+          <SectionCard title="Codigo manual" description="Se a camera nao abrir, digite ou cole o codigo do QR Code.">
+            <form onSubmit={handleManualSubmit} className="space-y-4">
+              <label className="block text-sm font-semibold text-[#1F4E79]">Codigo do QR Code</label>
+              <input
+                value={manualCode}
+                onChange={(event) => setManualCode(event.target.value)}
+                placeholder="Digite ou cole o token"
+                className="min-h-12 w-full rounded-2xl border border-slate-300 px-4 py-3 text-base outline-none focus:border-[#1F4E79]"
+              />
+              <Button type="submit" className="w-full py-4" disabled={!manualCode.trim()}>
+                <QrCode className="mr-2 h-5 w-5" aria-hidden="true" />
+                Confirmar codigo
+              </Button>
+            </form>
+
+            <InlineAlert variant="info" className="mt-5">
+              Depois da leitura, voce voltara para a tela de validacao para revisar e confirmar a transferencia.
+            </InlineAlert>
+          </SectionCard>
+        </div>
+      </div>
+      <Navbar />
+    </PageContainer>
   )
 }
