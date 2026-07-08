@@ -1,5 +1,5 @@
 import React from "react";
-import { Navigate, NavLink, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 
 import MapPage from "./pages/MapPage";
 import ProfilePage from "./pages/ProfilePage";
@@ -165,103 +165,9 @@ const adminRoutes = [
   { path: "/admin-pontos", label: "Pontos", Component: AdminPoints },
 ];
 
-const navigationGroups = [
-  { title: "Autenticação", routes: authRoutes },
-  { title: "Morador", routes: moradorRoutes },
-  { title: "Parceiro", routes: parceiroRoutes },
-  { title: "Admin", routes: adminRoutes },
-];
-
-function PresentationSidebar() {
-  const [collapsedGroups, setCollapsedGroups] = React.useState({});
-
-  function toggleGroup(title) {
-    setCollapsedGroups((current) => ({
-      ...current,
-      [title]: !current[title],
-    }));
-  }
-
-  return (
-    <aside className="fixed inset-y-0 left-0 z-[2000] hidden w-72 flex-col border-r border-slate-200 bg-slate-50 px-5 py-6 shadow-xl lg:flex">
-      <div className="mb-6 flex items-center gap-3 rounded-3xl bg-[var(--color-welcome-blue)] p-4 text-white shadow-lg shadow-blue-950/10">
-        <img
-          src="/logo.jpeg"
-          alt="Residuum"
-          className="h-11 w-11 rounded-2xl object-contain"
-        />
-
-        <div>
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/70">
-            Residuum
-          </p>
-          <h1 className="text-lg font-black leading-tight">Apresentação</h1>
-        </div>
-      </div>
-
-      <nav className="flex-1 space-y-5 overflow-y-auto pr-1">
-        {navigationGroups.map((group) => (
-          <section
-            key={group.title}
-            className="rounded-3xl border border-slate-200 bg-white p-3 shadow-sm"
-          >
-            <button
-              type="button"
-              onClick={() => toggleGroup(group.title)}
-              className="mb-3 flex w-full items-center gap-3 px-1 text-left"
-              aria-expanded={!collapsedGroups[group.title]}
-            >
-              <h2 className="text-sm font-black uppercase tracking-[0.16em] text-[var(--color-welcome-blue)]">
-                {group.title}
-              </h2>
-
-              <span className="h-0.5 flex-1 rounded-full bg-[var(--color-welcome-blue)]/35" />
-
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-sm font-black text-[var(--color-welcome-blue)]">
-                {collapsedGroups[group.title] ? "+" : "−"}
-              </span>
-            </button>
-
-            {!collapsedGroups[group.title] ? (
-              <div className="space-y-1.5">
-                {group.routes
-                  .filter((route) => route.sidebar !== false)
-                  .map((route) => (
-                    <NavLink
-                      key={route.path}
-                      to={route.path}
-                      className={({ isActive }) =>
-                        `block rounded-2xl border px-3 py-2.5 text-sm font-bold transition ${
-                          isActive
-                            ? "border-[var(--color-welcome-blue)] bg-[var(--color-welcome-blue)] text-white shadow-sm"
-                            : "border-transparent text-slate-600 hover:border-slate-200 hover:bg-slate-50 hover:text-[var(--color-welcome-blue)]"
-                        }`
-                      }
-                    >
-                      <span className="flex items-center justify-between gap-3">
-                        <span>{route.label}</span>
-                        {route.integratedApi ? (
-                          <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-black uppercase tracking-[0.12em] text-emerald-700">
-                            API
-                          </span>
-                        ) : null}
-                      </span>
-                    </NavLink>
-                  ))}
-              </div>
-            ) : null}
-          </section>
-        ))}
-      </nav>
-    </aside>
-  );
-}
-
 export default function App() {
   return (
-    <div className="min-h-screen bg-slate-100 lg:pl-72">
-      <PresentationSidebar />
-
+    <div className="min-h-screen bg-slate-100">
       <Routes>
         {authRoutes.map(({ path, Component }) => (
           <Route key={path} path={path} element={<Component />} />

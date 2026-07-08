@@ -1,7 +1,13 @@
 import React, { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { CheckCircle2, ClipboardCheck } from "lucide-react";
 import ApprovalCard from "../components/coleta-dados/ApprovalCard";
 import AdminShell from "../components/admin/AdminShell";
+import PageHeader from "../components/ui/PageHeader";
+import InlineAlert from "../components/ui/InlineAlert";
+import LoadingState from "../components/ui/LoadingState";
+import ErrorState from "../components/ui/ErrorState";
+import EmptyState from "../components/ui/EmptyState";
 import {
   confirmPendingDiscard,
   getPendingDiscards,
@@ -25,7 +31,7 @@ const formatDate = (value) =>
     : "-";
 
 export default function Aprovacao() {
-  const [feedback, setFeedback] = useState("");
+  const [feedback, setFeedback] = useState(null);
   const queryClient = useQueryClient();
 
   const {
@@ -33,6 +39,8 @@ export default function Aprovacao() {
     isLoading,
     isError,
     error,
+    refetch,
+    isFetching,
   } = useQuery({
     queryKey: queryKeys.pendingDiscards,
     queryFn: getPendingDiscards,
@@ -57,20 +65,32 @@ export default function Aprovacao() {
         observacoes: item.observacao || item.inventario_item_descricao || "Sem observações",
         data: formatDate(item.data_desc),
       })),
-    [pendingDiscards]
+    [pendingDiscards],
   );
 
   const confirmMutation = useMutation({
     mutationFn: ({ discardId, quantity }) =>
       confirmPendingDiscard(discardId, { quantidade_confirmada: quantity }),
+    onMutate: () => {
+      setFeedback(null);
+    },
     onSuccess: () => {
-      setFeedback("Descarte confirmado com sucesso.");
+      setFeedback({
+        variant: "success",
+        title: "Descarte confirmado com sucesso.",
+        description: "A fila será atualizada com os dados retornados pela API.",
+      });
       queryClient.invalidateQueries({ queryKey: queryKeys.pendingDiscards });
     },
     onError: (mutationError) => {
-      setFeedback(
-        getApiErrorMessage(mutationError, "Não foi possível confirmar este descarte.")
-      );
+      setFeedback({
+        variant: "error",
+        title: "Não foi possível confirmar este descarte.",
+        description: getApiErrorMessage(
+          mutationError,
+          "Não foi possível confirmar este descarte.",
+        ),
+      });
     },
   });
 
@@ -79,77 +99,116 @@ export default function Aprovacao() {
       rejectPendingDiscard(discardId, {
         motivo: "Solicitação rejeitada pela operação.",
       }),
+    onMutate: () => {
+      setFeedback(null);
+    },
     onSuccess: () => {
-      setFeedback("Solicitação removida da fila de pendências.");
+      setFeedback({
+        variant: "success",
+        title: "Solicitação removida da fila de pendências.",
+        description: "A rejeição foi concluída pela resposta real da API.",
+      });
       queryClient.invalidateQueries({ queryKey: queryKeys.pendingDiscards });
     },
     onError: (mutationError) => {
-      setFeedback(
-        getApiErrorMessage(mutationError, "Não foi possível rejeitar este descarte.")
-      );
+      setFeedback({
+        variant: "error",
+        title: "Não foi possível rejeitar este descarte.",
+        description: getApiErrorMessage(
+          mutationError,
+          "Não foi possível rejeitar este descarte.",
+        ),
+      });
     },
   });
 
+  const activeConfirmId = confirmMutation.variables?.discardId;
+  const activeRejectId = rejectMutation.variables;
+  const hasPendingAction = confirmMutation.isLoading || rejectMutation.isLoading;
+
   return (
-    <AdminShell contentClassName="px-5 pt-5">
-      <header className="mb-6 flex items-start justify-between gap-4">
-        <div>
-          <p className="text-sm font-semibold text-[#1F4E79]">
-            Painel Operacional
-          </p>
-          <h1 className="mt-1 text-3xl font-bold leading-tight text-gray-800">
-            Descartes em
-            <br />
-            confirmação
-          </h1>
-        </div>
-
-        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white shadow-sm">
-          <img
-            src="https://tse3.mm.bing.net/th/id/OIP.lMsrniFpgibNNL_T3pNjqwHaHZ?r=0&rs=1&pid=ImgDetMain&o=7&rm=3"
-            alt="Logo Residuum"
-            className="w-10 object-contain"
-          />
-        </div>
-      </header>
-
-      <p className="mb-6 flex items-center gap-2 font-medium text-yellow-500">
-        <span className="inline-block h-3 w-3 rounded-full bg-yellow-500"></span>
-        {cards.length} descartes pendentes
-      </p>
-
-      {feedback ? <p className="mb-4 text-sm font-medium text-[#1F4E79]">{feedback}</p> : null}
-
-      {isLoading && (
-        <p className="mt-10 text-center text-gray-500">Carregando pendências...</p>
-      )}
-
-      {isError && (
-        <p className="mt-10 text-center text-red-500">
-          {getApiErrorMessage(error, "Não foi possível carregar os descartes pendentes.")}
-        </p>
-      )}
-
-      {!isLoading && !isError && cards.length === 0 && (
-        <p className="mt-10 text-center text-gray-500">
-          Nenhum descarte pendente no momento.
-        </p>
-      )}
-
-      {cards.map((item) => (
-        <ApprovalCard
-          key={item.id}
-          item={item}
-          onAprovar={() => {
-            const discard = pendingDiscards.find((entry) => entry.id_descarte === item.id);
-            confirmMutation.mutate({
-              discardId: item.id,
-              quantity: Number(discard?.quantidade || 0),
-            });
-          }}
-          onRejeitar={() => rejectMutation.mutate(item.id)}
+    <AdminShell contentClassName="px-4 py-5 sm:px-6">
+      <div className="space-y-5 pb-4">
+        <PageHeader
+          eyebrow="Painel operacional"
+          title="Descartes em confirmação"
+          description="Revise as solicitações pendentes antes de aprovar ou rejeitar."
+          action={
+            <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-bold text-amber-800">
+              {cards.length} pendente(s)
+            </div>
+          }
         />
-      ))}
+
+        {feedback ? (
+          <InlineAlert
+            variant={feedback.variant}
+            title={feedback.title}
+            description={feedback.description}
+          />
+        ) : null}
+
+        {isLoading ? (
+          <LoadingState title="Carregando pendências..." size="md" />
+        ) : null}
+
+        {isError ? (
+          <ErrorState
+            title="Não foi possível carregar os descartes pendentes."
+            description={getApiErrorMessage(
+              error,
+              "Não foi possível carregar os descartes pendentes.",
+            )}
+            actionLabel={isFetching ? "Tentando novamente..." : "Tentar novamente"}
+            onAction={() => refetch()}
+            actionDisabled={isFetching}
+          />
+        ) : null}
+
+        {!isLoading && !isError && cards.length === 0 ? (
+          <EmptyState
+            title="Nenhum descarte pendente no momento."
+            description="Quando houver solicitações aguardando conferência, elas aparecerão nesta fila."
+            icon={ClipboardCheck}
+          />
+        ) : null}
+
+        {!isLoading && !isError && cards.length > 0 ? (
+          <section className="grid gap-4 xl:grid-cols-2">
+            {cards.map((item) => {
+              const discard = pendingDiscards.find(
+                (entry) => entry.id_descarte === item.id,
+              );
+
+              return (
+                <ApprovalCard
+                  key={item.id}
+                  item={item}
+                  isApproving={confirmMutation.isLoading && activeConfirmId === item.id}
+                  isRejecting={rejectMutation.isLoading && activeRejectId === item.id}
+                  disabled={hasPendingAction}
+                  onAprovar={() => {
+                    confirmMutation.mutate({
+                      discardId: item.id,
+                      quantity: Number(discard?.quantidade || 0),
+                    });
+                  }}
+                  onRejeitar={() => rejectMutation.mutate(item.id)}
+                />
+              );
+            })}
+          </section>
+        ) : null}
+
+        {!isLoading && !isError && cards.length > 0 ? (
+          <InlineAlert variant="info">
+            <span className="inline-flex items-center gap-2">
+              <CheckCircle2 className="h-4 w-4 shrink-0" aria-hidden="true" />
+              Aprovação e rejeição usam as mutations existentes. O feedback de sucesso só aparece depois da resposta da API.
+            </span>
+          </InlineAlert>
+        ) : null}
+      </div>
     </AdminShell>
   );
 }

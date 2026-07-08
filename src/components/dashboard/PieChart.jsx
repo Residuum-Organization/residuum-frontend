@@ -1,10 +1,11 @@
 import React from "react";
 import { ChevronDown } from "lucide-react";
-import { MATERIAL_DATA } from "../../constants/dashboard";
 
 function PieSlices({ data }) {
   let cumulative = 0;
-  const cx = 80, cy = 80, r = 70;
+  const cx = 80;
+  const cy = 80;
+  const r = 70;
 
   function polarToCartesian(angle) {
     const rad = ((angle - 90) * Math.PI) / 180;
@@ -30,16 +31,27 @@ function PieSlices({ data }) {
   });
 
   return (
-    <svg width="160" height="160" viewBox="0 0 160 160" className="shrink-0">
+    <svg
+      width="160"
+      height="160"
+      viewBox="0 0 160 160"
+      className="shrink-0"
+      role="img"
+      aria-label="Distribuição por tipo de material"
+    >
       {slices.map((s, i) => (
         <path key={i} d={s.path} fill={s.color} stroke="#fff" strokeWidth="2" />
       ))}
       {slices.map((s, i) => (
         <text
           key={i}
-          x={s.mid.x} y={s.mid.y}
-          textAnchor="middle" dominantBaseline="middle"
-          fill="#fff" fontSize="11" fontWeight="700"
+          x={s.mid.x}
+          y={s.mid.y}
+          textAnchor="middle"
+          dominantBaseline="middle"
+          fill="#fff"
+          fontSize="11"
+          fontWeight="700"
         >
           {s.pct}%
         </text>
@@ -48,34 +60,55 @@ function PieSlices({ data }) {
   );
 }
 
-export default function PieChart({ data = MATERIAL_DATA }) {
-  const materialData = data.length ? data : MATERIAL_DATA;
+export default function PieChart({ data = [], embedded = false }) {
+  const materialData = data;
+
+  if (!materialData.length) {
+    return (
+      <div
+        className={
+          embedded
+            ? "rounded-2xl border border-dashed border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-8 text-center text-sm font-semibold text-[var(--color-text-muted)]"
+            : "rounded-2xl bg-white p-4 text-center text-sm font-semibold text-[var(--color-text-muted)] shadow-sm"
+        }
+      >
+        Sem distribuição por material disponível.
+      </div>
+    );
+  }
 
   return (
-    <div className="bg-white rounded-2xl p-4 shadow-sm">
-      <div className="flex justify-between items-center mb-4">
+    <div className={embedded ? "min-w-0" : "rounded-2xl bg-white p-4 shadow-sm"}>
+      <div className="mb-4 flex items-center justify-between gap-3">
         <span className="text-sm font-extrabold text-slate-800">
           Estatística por tipo de material
         </span>
-        <button className="flex items-center gap-1 text-xs font-semibold text-slate-500">
+        <button
+          type="button"
+          className="flex shrink-0 items-center gap-1 text-xs font-semibold text-slate-500"
+        >
           Este mês
-          <ChevronDown size={14} />
+          <ChevronDown size={14} aria-hidden="true" />
         </button>
       </div>
 
-      <div className="flex items-center gap-6 flex-wrap">
+      <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-center">
         <PieSlices data={materialData} />
 
-        <div className="flex-1 space-y-2">
+        <div className="w-full min-w-0 flex-1 space-y-2">
           {materialData.map((item) => (
-            <div key={item.label} className="flex items-center gap-2">
+            <div key={item.label} className="grid grid-cols-[auto_minmax(0,1fr)_auto_auto] items-center gap-2">
               <span
-                className="w-3 h-3 rounded-full shrink-0"
+                className="h-3 w-3 shrink-0 rounded-full"
                 style={{ background: item.color }}
               />
-              <span className="flex-1 text-sm text-slate-700">{item.label}</span>
-              <span className="text-sm text-slate-400 w-14">{item.kg}</span>
-              <span className="text-sm text-slate-400 w-9 text-right">{item.pct}%</span>
+              <span className="min-w-0 truncate text-sm text-slate-700">
+                {item.label}
+              </span>
+              <span className="text-sm text-slate-500">{item.kg}</span>
+              <span className="w-10 text-right text-sm text-slate-500">
+                {item.pct}%
+              </span>
             </div>
           ))}
         </div>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { isValidElement } from "react";
 import { Inbox } from "lucide-react";
 import Button from "./Button";
 
@@ -10,8 +10,16 @@ export default function EmptyState({
   icon: Icon = Inbox,
   className = "",
 }) {
-  const iconNode =
-    typeof Icon === "function" ? <Icon className="h-6 w-6" /> : Icon;
+  const canRenderIcon =
+    typeof Icon === "function" ||
+    typeof Icon === "string" ||
+    (typeof Icon === "object" && Icon !== null && "$$typeof" in Icon);
+
+  const iconNode = isValidElement(Icon) ? (
+    Icon
+  ) : canRenderIcon ? (
+    <Icon className="h-6 w-6" aria-hidden="true" />
+  ) : null;
 
   return (
     <div

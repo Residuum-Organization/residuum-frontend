@@ -12,19 +12,21 @@ export default function StatCard({ title, value, trend, iconBg, iconColor, icon,
   const Icon = ICON_MAP[icon];
 
   return (
-    <div className="bg-white rounded-2xl p-4 flex-1 shadow-sm">
-      <div className="flex items-center gap-3 mb-2">
-        <div className={`w-12 h-12 rounded-full ${iconBg} flex items-center justify-center shrink-0`}>
+    <div className="min-w-0 rounded-2xl border border-[var(--color-border)] bg-white p-4 shadow-sm shadow-slate-200/70">
+      <div className="mb-3 flex items-center gap-3">
+        <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${iconBg}`}>
           {Icon && <Icon size={24} className={iconColor} />}
         </div>
-        <span className="text-xs font-bold text-slate-700 leading-tight">{title}</span>
+        <span className="min-w-0 text-sm font-bold leading-tight text-slate-700">
+          {title}
+        </span>
       </div>
 
-      <div className={`text-2xl font-black ${valueClass ?? "text-slate-800"}`}>
+      <div className={`break-words text-2xl font-black ${valueClass ?? "text-slate-800"}`}>
         {value}
       </div>
 
-      <div className="text-xs font-bold text-green-500 mt-1">{trend}</div>
+      <div className="mt-1 text-xs font-bold text-green-600">{trend}</div>
     </div>
   );
 }

@@ -15,7 +15,7 @@ export default function Navbar() {
   return (
     <nav
       aria-label="Navegacao principal do morador"
-      className="fixed inset-x-2 bottom-2 z-[999] mx-auto grid max-w-[30rem] grid-cols-6 gap-1 rounded-2xl bg-[var(--color-primary)] px-2 py-2 text-white shadow-lg shadow-slate-900/20 sm:inset-x-4 sm:bottom-4 sm:px-3 lg:left-[calc(50%+9rem)] lg:right-auto lg:w-[min(30rem,calc(100vw-20rem))] lg:-translate-x-1/2"
+      className="fixed inset-x-2 bottom-2 z-[999] mx-auto grid max-w-[30rem] grid-cols-6 gap-1 rounded-2xl bg-[var(--color-primary)] px-2 py-2 text-white shadow-lg shadow-slate-900/20 sm:inset-x-4 sm:bottom-4 sm:px-3"
     >
       {navItems.map(({ to, label, Icon }) => (
         <NavLink
