@@ -129,7 +129,7 @@ export default function ProfilePage() {
         <RoleEnvironmentBanner variant="morador" />
 
         <PageHeader
-          eyebrow="Painel do usuario"
+          eyebrow="Painel do morador / gerador"
           title={profile?.nome || form.nome || 'Meu perfil'}
           description={`Acompanhando desde ${formatDate(memberSince)}`}
           action={

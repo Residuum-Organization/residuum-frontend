@@ -24,11 +24,14 @@ import LoadingState from "../components/ui/LoadingState";
 import PageHeader from "../components/ui/PageHeader";
 import SectionCard from "../components/ui/SectionCard";
 import { deleteUser, listUsers, updateUser, updateUserRole } from "../services/admin";
+import { getRoleLabel } from "../utils/roles";
 
 const roles = [
   { value: "", label: "Todos" },
-  { value: "usuario", label: "Usuarios" },
-  { value: "admin", label: "Admins" },
+  { value: "usuario", label: "Morador / Gerador" },
+  { value: "cooperativa", label: "Cooperativa / Empresa de coleta" },
+  { value: "parceiro", label: "Empresa de coleta (role legado)" },
+  { value: "admin", label: "Administrador" },
 ];
 
 export default function PageUsers() {
@@ -165,7 +168,7 @@ export default function PageUsers() {
       <PageHeader
         eyebrow="Administracao"
         title="Usuarios"
-        description="Consulte, filtre e gerencie perfis cadastrados."
+        description="Consulte e filtre perfis cadastrados com nomenclatura alinhada ao MVP atual."
       />
 
       <SectionCard
@@ -218,6 +221,13 @@ export default function PageUsers() {
           </div>
         </div>
       </SectionCard>
+
+      <InlineAlert
+        className="mt-4"
+        variant="info"
+        title="Edicao de perfil limitada"
+        description="A acao rapida desta tela preserva o fluxo existente e alterna apenas Administrador e Morador / Gerador. Cooperativa, empresa de coleta em role legado e novos perfis do MVP ficam documentados como pendencia."
+      />
 
       {successMessage ? (
         <InlineAlert
@@ -352,7 +362,7 @@ function UserCard({ user, initials, loading, onEdit, onToggleRole, onDelete }) {
               {user.nome}
             </h3>
             <Badge variant={isAdmin ? "primary" : "neutral"}>
-              {isAdmin ? "Admin" : "Usuario"}
+              {getRoleLabel(user.role)}
             </Badge>
           </div>
           <p className="mt-1 break-words text-sm font-medium text-[var(--color-text-muted)]">
@@ -392,7 +402,7 @@ function UserCard({ user, initials, loading, onEdit, onToggleRole, onDelete }) {
           ) : (
             <Shield className="h-4 w-4" aria-hidden="true" />
           )}
-          {isAdmin ? "Rebaixar" : "Tornar admin"}
+          {isAdmin ? "Rebaixar para morador" : "Tornar Administrador"}
         </button>
 
         <button

@@ -91,7 +91,7 @@ export default function NovaCampanhaPage() {
           <PageHeader
             eyebrow="Cadastro local"
             title="Nova Campanha"
-            description="Preencha os dados da empresa parceira, periodo, publico e premiacao."
+            description="Preencha os dados da empresa apoiadora, periodo, publico e premiacao. O painel proprio da apoiadora ainda nao existe."
             action={<LogoResiduum />}
           />
         </div>
@@ -99,7 +99,7 @@ export default function NovaCampanhaPage() {
         <InlineAlert
           variant="warning"
           title="Fluxo demonstrativo"
-          description="A campanha criada sera salva no navegador via localStorage. Nenhum endpoint ou payload de API foi alterado."
+          description="A campanha criada sera salva no navegador via localStorage. Nenhum endpoint, payload de API ou role de empresa apoiadora foi alterado."
         />
 
         {erro ? <InlineAlert variant="error" description={erro} /> : null}
@@ -128,7 +128,7 @@ export default function NovaCampanhaPage() {
 
               <FormField
                 id="empresa"
-                label="Empresa parceira"
+                label="Empresa apoiadora"
                 name="empresa"
                 value={formulario.empresa}
                 onChange={atualizarCampo}

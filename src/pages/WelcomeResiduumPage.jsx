@@ -62,7 +62,7 @@ export default function WelcomeResiduum() {
                 <Recycle className="h-8 w-8" aria-hidden="true" />
               </div>
               <PageHeader
-                eyebrow="Area do morador"
+                eyebrow="Area do morador / gerador"
                 title="Bem-vindo ao Residuum"
                 description="Organize seus residuos, encontre pontos de coleta e acompanhe seu extrato com um fluxo simples e seguro."
                 className="[&_h1]:text-white [&_p]:text-white/80"

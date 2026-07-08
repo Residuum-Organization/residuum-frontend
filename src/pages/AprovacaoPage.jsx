@@ -137,14 +137,20 @@ export default function Aprovacao() {
     >
       <div className="space-y-5 pb-4">
         <PageHeader
-          eyebrow="Painel operacional"
+          eyebrow="Area operacional compartilhada"
           title="Descartes em confirmação"
-          description="Revise as solicitações pendentes antes de aprovar ou rejeitar."
+          description="Cooperativa ou empresa de coleta realiza a analise e validacao operacional; o administrador pode acompanhar por auditoria."
           action={
             <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-bold text-amber-800">
               {cards.length} pendente(s)
             </div>
           }
+        />
+
+        <InlineAlert
+          variant="info"
+          title="Fluxo compartilhado"
+          description="Esta area mantem o fluxo existente: cooperativa valida operacoes de descarte e admin acompanha sem alterar endpoint, payload ou regra de aprovacao."
         />
 
         {feedback ? (

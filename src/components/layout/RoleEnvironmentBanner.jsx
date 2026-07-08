@@ -8,12 +8,12 @@ import { getRoleHome, getRoleLabel } from "../../utils/roles";
 const environmentCopy = {
   admin: {
     title: "Ambiente administrativo",
-    description: "Voce esta gerenciando usuarios, pontos e campanhas.",
+    description: "Gerencie usuarios, pontos, campanhas e regras da plataforma.",
     actions: [{ label: "Painel admin", to: "/admin", Icon: ShieldCheck }],
   },
   operacional: {
-    title: "Ambiente operacional",
-    description: "Voce esta acompanhando pontos, agenda e coletas.",
+    title: "Ambiente operacional de coleta",
+    description: "Acompanhe pontos, agenda, coletas e confirmacoes operacionais.",
     actions: [
       { label: "Dashboard", to: "/dashboard", Icon: LayoutDashboard },
       { label: "Agenda", to: "/schedule", Icon: CalendarDays },
@@ -21,7 +21,7 @@ const environmentCopy = {
   },
   morador: {
     title: "Ambiente do morador",
-    description: "Voce esta no fluxo de descarte, estoque e recompensas.",
+    description: "Cadastre residuos, valide entregas e acompanhe seu extrato.",
     actions: [{ label: "Inicio", to: "/welcome-residuum", Icon: Home }],
   },
 };

@@ -32,7 +32,7 @@ export default function DashboardScreen() {
         <OperationalHeader />
 
         <PageHeader
-          eyebrow="Parceiro / Cooperativa"
+          eyebrow="Cooperativa / Empresa de coleta"
           title="Dashboard operacional"
           description="Acompanhe pontos vinculados, descartes pendentes e volume operacional disponível pela API."
           action={

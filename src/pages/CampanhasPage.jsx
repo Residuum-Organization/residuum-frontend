@@ -105,16 +105,16 @@ export default function CampanhasPage() {
     <CampaignLayout>
       <div className="space-y-5">
         <PageHeader
-          eyebrow="Modulo demonstrativo"
+          eyebrow="Modulo administrativo demonstrativo"
           title="Campanhas"
-          description="Gerencie promocoes, marcas parceiras e a comunicacao de campanhas."
+          description="Gestao administrativa de campanhas e empresas apoiadoras. A area propria da empresa apoiadora ainda nao esta implementada."
           action={<LogoResiduum />}
         />
 
         <InlineAlert
           variant="info"
-          title="Dados locais"
-          description="Esta tela combina campanhas demonstrativas com campanhas criadas no navegador. Nenhum endpoint novo foi acionado nesta fase."
+          title="Campanhas e empresas apoiadoras"
+          description="Este modulo representa a gestao administrativa de campanhas e empresas apoiadoras. A area propria da empresa apoiadora ainda nao esta implementada; os dados seguem demonstrativos ou locais."
         />
 
         {mensagem ? (
@@ -129,7 +129,7 @@ export default function CampanhasPage() {
 
         <SectionCard
           title="Campanhas cadastradas"
-          description="Acompanhe status, periodo, abrangencia e progresso operacional."
+          description="Acompanhe status, periodo, abrangencia e progresso administrativo das campanhas."
           action={
             <Button
               type="button"
@@ -352,7 +352,7 @@ function NovaCampanhaSugerida({ onClick }) {
   return (
     <SectionCard
       title="Nova campanha"
-      description="Cadastre uma acao de patrocinio sem alterar integracoes ou endpoints."
+      description="Cadastre uma acao de empresa apoiadora sem alterar integracoes ou endpoints."
       className="h-full"
     >
       <button
@@ -370,7 +370,7 @@ function NovaCampanhaSugerida({ onClick }) {
           </h3>
 
           <p className="mt-1 text-sm font-medium text-[var(--color-text-muted)]">
-            Organize empresa parceira, periodo, residuos e premiacao.
+            Organize empresa apoiadora, periodo, residuos e premiacao.
           </p>
         </div>
 

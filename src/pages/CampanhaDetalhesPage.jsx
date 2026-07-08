@@ -62,7 +62,7 @@ export default function CampanhaDetalhesPage() {
           <PageHeader
             eyebrow="Detalhes da campanha"
             title={campanha.nome}
-            description="Visao operacional da campanha personalizada salva localmente."
+            description="Visao administrativa da campanha personalizada salva localmente."
             action={<LogoResiduum />}
           />
         </div>
@@ -70,7 +70,7 @@ export default function CampanhaDetalhesPage() {
         <InlineAlert
           variant="info"
           title="Dados locais"
-          description="Esta campanha foi carregada do localStorage. As acoes desta tela preservam o fluxo demonstrativo existente."
+          description="Esta campanha foi carregada do localStorage. A empresa apoiadora ainda nao possui painel proprio nesta fase."
         />
 
         <SectionCard>
@@ -244,7 +244,7 @@ function ComoFunciona({ campanha }) {
         <Linha
           icon={Gift}
           titulo="Concorra aos premios"
-          texto="Ao participar da campanha, voce aumenta suas chances de concorrer aos premios definidos pela empresa parceira."
+          texto="Ao participar da campanha, voce aumenta suas chances de concorrer aos premios definidos pela empresa apoiadora."
         />
       </div>
     </div>
@@ -258,7 +258,7 @@ function SobreMarca({ campanha }) {
 
       <p className="mb-4 text-sm font-medium leading-6 text-[var(--color-text-muted)]">
         A campanha <strong>{campanha.nome}</strong> foi criada em parceria com a
-        empresa <strong>{campanha.empresa}</strong>, incentivando praticas mais
+        empresa apoiadora <strong>{campanha.empresa}</strong>, incentivando praticas mais
         sustentaveis e o descarte correto de residuos.
       </p>
 
@@ -266,7 +266,7 @@ function SobreMarca({ campanha }) {
         <Linha
           icon={Sparkles}
           titulo="Compromisso ambiental"
-          texto="A empresa parceira apoia acoes voltadas a sustentabilidade e reducao de impactos ambientais."
+          texto="A empresa apoiadora financia ou apoia acoes voltadas a sustentabilidade e reducao de impactos ambientais."
         />
 
         <Linha
@@ -317,7 +317,7 @@ function Premios({ campanha }) {
         variant="warning"
         className="mt-4"
         title="Importante"
-        description="As regras, datas e premiacoes podem ser ajustadas pela empresa parceira responsavel pela campanha."
+        description="As regras, datas e premiacoes podem ser ajustadas pelo administrador enquanto a empresa apoiadora nao possui painel proprio."
       />
     </div>
   );

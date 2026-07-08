@@ -17,7 +17,7 @@ export default function ScheduleScreen() {
         <OperationalHeader />
 
         <PageHeader
-          eyebrow="Parceiro / Cooperativa"
+          eyebrow="Cooperativa / Empresa de coleta"
           title="Agenda de coletas"
           description="Organize horários, disponibilidade dos pontos e leitura operacional da agenda."
           action={

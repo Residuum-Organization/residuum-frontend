@@ -13,6 +13,8 @@ export default function AcessoNegadoPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const allowedRoles = location.state?.allowedRoles || [];
+  const currentRoleLabel = getRoleLabel(user?.role);
+  const requiredRoleLabel = [...new Set(allowedRoles.map(getRoleLabel))].join(" ou ");
 
   const handleLogout = async () => {
     await logout();
@@ -29,15 +31,17 @@ export default function AcessoNegadoPage() {
 
           <div>
             <p className="text-base font-semibold text-[var(--color-text)]">
-              Seu perfil nao tem permissao para acessar esta area.
+              {requiredRoleLabel
+                ? `Voce esta logado como ${currentRoleLabel}, mas esta area e restrita a: ${requiredRoleLabel}.`
+                : "Seu perfil nao tem permissao para acessar esta area."}
             </p>
             {allowedRoles.length ? (
               <p className="mt-2 text-sm font-medium text-[var(--color-text-muted)]">
-                Ambiente necessario: {allowedRoles.map(getRoleLabel).join(", ")}.
+                Perfil necessario: {requiredRoleLabel}.
               </p>
             ) : null}
             <p className="mt-2 text-sm font-medium text-[var(--color-text-muted)]">
-              Perfil atual: {getRoleLabel(user?.role)}.
+              Perfil atual: {currentRoleLabel}.
             </p>
           </div>
 

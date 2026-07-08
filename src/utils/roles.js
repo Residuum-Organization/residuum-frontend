@@ -24,10 +24,12 @@ export const getRoleLabel = (role) => {
   const normalizedRole = normalizeRole(role);
 
   if (normalizedRole === "admin") return "Administrador";
-  if (normalizedRole === "cooperativa") return "Cooperativa";
-  if (normalizedRole === "parceiro") return "Parceiro";
-  if (normalizedRole === "morador") return "Morador";
-  if (normalizedRole === "usuario") return "Morador";
+  if (normalizedRole === "cooperativa" || normalizedRole === "parceiro") {
+    return "Cooperativa / Empresa de coleta";
+  }
+  if (normalizedRole === "morador" || normalizedRole === "usuario") {
+    return "Morador / Gerador";
+  }
 
   return "Perfil nao identificado";
 };
@@ -36,13 +38,13 @@ export const getRoleDescription = (role) => {
   const normalizedRole = normalizeRole(role);
 
   if (normalizedRole === "admin") {
-    return "Voce esta gerenciando usuarios, pontos e campanhas.";
+    return "Gerencie usuarios, pontos, campanhas e regras da plataforma.";
   }
   if (normalizedRole === "cooperativa" || normalizedRole === "parceiro") {
-    return "Voce esta acompanhando pontos, agenda e coletas.";
+    return "Acompanhe pontos, agenda, coletas e confirmacoes operacionais.";
   }
   if (normalizedRole === "usuario" || normalizedRole === "morador") {
-    return "Voce esta no fluxo de descarte, estoque e recompensas.";
+    return "Cadastre residuos, valide entregas e acompanhe seu extrato.";
   }
 
   return "Seu perfil sera direcionado para o inicio do morador ate ser revisado.";
