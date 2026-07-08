@@ -1,40 +1,42 @@
 import React from "react";
+import { Clock3 } from "lucide-react";
 import { TIME_SLOTS } from "../../constants/schedule";
+import SectionCard from "../ui/SectionCard";
 
 export default function TimeSlots() {
   return (
-    <div className="bg-white rounded-2xl p-4 shadow-sm">
-      <div className="flex justify-between items-center mb-4">
-        <span className="text-base font-extrabold text-[#1e3a5f]">
-          Horários de Coleta
+    <SectionCard
+      title="Horários de coleta"
+      description="Janelas operacionais exibidas para planejamento."
+      action={
+        <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-700">
+          Demo
         </span>
-        <button className="text-sm font-bold text-green-500">Ver Agenda</button>
-      </div>
-
+      }
+    >
       <div className="divide-y divide-slate-100">
         {TIME_SLOTS.map((slot) => (
-          <div key={slot.id} className="flex items-center gap-4 py-3">
-            <div className="w-11 h-11 rounded-xl bg-slate-50 flex items-center justify-center text-2xl shrink-0">
-              {slot.emoji}
+          <div
+            key={slot.id}
+            className="grid grid-cols-[auto_minmax(0,1fr)] gap-3 py-3 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center"
+          >
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-slate-50 text-[var(--color-primary)]">
+              <Clock3 className="h-5 w-5" aria-hidden="true" />
             </div>
 
-            <div className="flex-1">
-              <div className="font-bold text-sm text-[#1e3a5f]">{slot.label}</div>
-              <div className="text-xs text-slate-500">{slot.time}</div>
+            <div className="min-w-0">
+              <div className="font-bold text-[#1e3a5f]">{slot.label}</div>
+              <div className="text-sm font-medium text-slate-500">{slot.time}</div>
             </div>
 
             <span
-              className={`text-xs font-bold px-3 py-1 rounded-full ${slot.statusBg} ${slot.statusText}`}
+              className={`col-start-2 w-fit rounded-full px-3 py-1 text-xs font-bold sm:col-start-auto ${slot.statusBg} ${slot.statusText}`}
             >
               {slot.status}
             </span>
           </div>
         ))}
       </div>
-
-      <button className="mt-4 w-full bg-green-500 hover:bg-green-600 text-white rounded-full py-3.5 text-sm font-extrabold tracking-wide transition-colors">
-        Agendar Coleta
-      </button>
-    </div>
+    </SectionCard>
   );
 }

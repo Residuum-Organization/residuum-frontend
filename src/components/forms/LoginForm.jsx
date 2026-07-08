@@ -1,13 +1,14 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { Loader2 } from "lucide-react";
 import { loginSchema } from "../../schemas/auth";
 import { useAuth } from "../../contexts/AuthContext";
+import { getRoleHome } from "../../utils/roles";
 import Label from "../ui/Label";
 import Input from "../ui/Input";
 import InputPassword from "../ui/InputPassword";
-import Button from "../ui/Button";
+import InlineAlert from "../ui/InlineAlert";
+import LoadingButton from "../ui/LoadingButton";
 import GoogleIcon from "../../../assets/icons/GoogleIcon";
 import FacebookIcon from "../../../assets/icons/FacebookIcon";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -28,18 +29,13 @@ export default function LoginForm() {
 
   const { login } = useAuth();
 
-  //somente state, futuramente colocar com react query para gerenciar estado de autenticação globalmente
   const onSubmit = async (data) => {
     setAuthError("");
     try {
       const result = await login(data.email, data.password);
-      if (result.user?.role === "admin") {
-        navigate("/admin");
-      } else {
-        navigate("/welcome-residuum");
-      }
+      navigate(getRoleHome(result.user?.role), { replace: true });
     } catch (e) {
-      setAuthError(e.message || "Credenciais inválidas");
+      setAuthError(e.message || "Credenciais invalidas");
     }
   };
 
@@ -66,7 +62,9 @@ export default function LoginForm() {
           {...register("email")}
         />
         {errors.email && (
-          <p className="mt-1.5 text-xs text-red-600">{errors.email.message}</p>
+          <p className="mt-1.5 text-sm font-medium text-red-600">
+            {errors.email.message}
+          </p>
         )}
       </div>
 
@@ -86,37 +84,31 @@ export default function LoginForm() {
           {...register("password")}
         />
         {errors.password && (
-          <p className="mt-1.5 text-xs text-red-600">
+          <p className="mt-1.5 text-sm font-medium text-red-600">
             {errors.password.message}
           </p>
         )}
         <div className="mt-2 flex justify-end">
           <Link
             to="/recuperar-senha"
-            className="text-sm text-[var(--color-welcome-muted)] hover:opacity-80"
+            className="text-sm font-semibold text-[var(--color-welcome-muted)] underline-offset-2 hover:underline"
           >
             Esqueceu a senha?
           </Link>
         </div>
       </div>
 
-      <Button
+      <LoadingButton
         type="submit"
         variant="brandPrimary"
-        disabled={isSubmitting}
-        className="h-14 w-full rounded-full text-lg font-semibold disabled:cursor-not-allowed disabled:opacity-80"
+        isLoading={isSubmitting}
+        loadingText="Entrando..."
+        className="h-14 w-full rounded-full text-lg font-semibold"
       >
-        <span className="inline-flex items-center gap-2">
-          {isSubmitting && <Loader2 size={18} className="animate-spin" />}
-          {isSubmitting ? "Entrando..." : "Entrar"}
-        </span>
-      </Button>
+        Entrar
+      </LoadingButton>
 
-      {authError && (
-        <p className="text-center text-sm font-medium text-red-600">
-          {authError}
-        </p>
-      )}
+      {authError ? <InlineAlert variant="error" description={authError} /> : null}
 
       <div className="flex w-full items-center gap-2.5 text-[var(--color-welcome-muted)] sm:gap-3">
         <hr className="m-0 h-px basis-0 grow border-0 bg-current" />
@@ -129,22 +121,29 @@ export default function LoginForm() {
       <div className="flex items-center justify-center gap-4 pt-1">
         <button
           type="button"
-          className="rounded-full p-1 transition hover:scale-105"
-          aria-label="Entrar com Google"
+          disabled
+          className="rounded-full p-1 opacity-45 grayscale"
+          aria-label="Login com Google indisponivel"
+          title="Login com Google indisponivel"
         >
           <GoogleIcon />
         </button>
         <button
           type="button"
-          className="rounded-full p-1 transition hover:scale-105"
-          aria-label="Entrar com Facebook"
+          disabled
+          className="rounded-full p-1 opacity-45 grayscale"
+          aria-label="Login com Facebook indisponivel"
+          title="Login com Facebook indisponivel"
         >
           <FacebookIcon />
         </button>
       </div>
+      <p className="-mt-2 text-center text-xs font-medium text-[var(--color-welcome-muted)]">
+        Login social indisponivel no momento.
+      </p>
 
       <p className="pt-1 text-center text-sm text-[var(--color-welcome-muted)]">
-        Não tem conta?{" "}
+        Nao tem conta?{" "}
         <Link
           to="/cadastro"
           className="font-semibold text-[var(--color-welcome-blue)] underline underline-offset-2"

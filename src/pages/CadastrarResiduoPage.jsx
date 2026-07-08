@@ -1,297 +1,292 @@
-// src/pages/CadastrarResiduo.jsx
-import React, { useState, useRef, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useZxing } from "react-zxing";
-import {
-  BookText,
-  CircleDot,
-  FlaskConical,
-  Barcode,
-  Camera,
-  Check,
-  X,
-  ScanLine,
-  ArrowLeft,
-  Wine,
-} from "lucide-react";
-import Navbar from "../components/ui/Navbar";
-import { createInventoryItem } from "../services/inventory";
-import { queryKeys } from "../services/queryKeys";
-import { getApiErrorMessage } from "../services/http/getApiErrorMessage";
-import { useQueryClient } from "@tanstack/react-query";
-
-const POINTS_PER_KG = 10;
+import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useZxing } from 'react-zxing'
+import { BookText, Camera, Check, CircleDot, FlaskConical, ScanLine, Wine, X } from 'lucide-react'
+import Navbar from '../components/ui/Navbar'
+import PageContainer from '../components/layout/PageContainer'
+import PageHeader from '../components/ui/PageHeader'
+import SectionCard from '../components/ui/SectionCard'
+import InlineAlert from '../components/ui/InlineAlert'
+import LoadingButton from '../components/ui/LoadingButton'
+import { createInventoryItem } from '../services/inventory'
+import { queryKeys } from '../services/queryKeys'
+import { getApiErrorMessage } from '../services/http/getApiErrorMessage'
 
 const schema = z.object({
-  descricao: z.string().min(1, "Descrição é obrigatória"),
+  descricao: z.string().optional(),
   observacao: z.string().optional(),
-});
+})
 
 const tiposResiduo = [
-  { id: "plastico", label: "Plastico", icon: <FlaskConical size={22} /> },
-  { id: "metal", label: "Metal", icon: <CircleDot size={22} /> },
-  { id: "papel", label: "Papel", icon: <BookText size={22} /> },
-  { id: "vidro", label: "Vidro", icon: <Wine size={22} /> },
-];
+  { id: 'plastico', label: 'Plastico', icon: <FlaskConical size={22} /> },
+  { id: 'metal', label: 'Metal', icon: <CircleDot size={22} /> },
+  { id: 'papel', label: 'Papel', icon: <BookText size={22} /> },
+  { id: 'vidro', label: 'Vidro', icon: <Wine size={22} /> },
+]
 
 function identificarTipoResiduo(barcode) {
-  const prefix = barcode.substring(0, 3);
-  if (["789", "790"].includes(prefix)) return "plastico";
-  if (barcode.startsWith("5449")) return "metal";
-  if (barcode.startsWith("978")) return "papel";
-  return null;
+  const prefix = barcode.substring(0, 3)
+  if (['789', '790'].includes(prefix)) return 'plastico'
+  if (barcode.startsWith('5449')) return 'metal'
+  if (barcode.startsWith('978')) return 'papel'
+  return null
 }
 
-// Scanner que aparece **dentro da página** substituindo o botão
 function ScannerCamera({ onScan, onClose }) {
-  const [scanned, setScanned] = useState(false);
-  const [error, setError] = useState(null);
+  const [scanned, setScanned] = useState(false)
+  const [error, setError] = useState(null)
 
   const { ref } = useZxing({
     onDecodeResult(result) {
       if (!scanned) {
-        setScanned(true);
-        onScan(result.getText());
+        setScanned(true)
+        onScan(result.getText())
       }
     },
     onError(err) {
-      console.error("Erro no scanner:", err);
-      setError("Não foi possível acessar a câmera. Verifique as permissões.");
+      console.error('Erro no scanner:', err)
+      setError('Nao foi possivel acessar a camera. Verifique as permissoes.')
     },
     paused: scanned,
     timeBetweenDecodingAttempts: 300,
-  });
+  })
 
   return (
-    <div className="mt-6 w-full aspect-[4/3] bg-black rounded-3xl overflow-hidden relative">
+    <div className="mt-4 aspect-[4/3] w-full overflow-hidden rounded-2xl bg-black">
       {error ? (
-        <div className="w-full h-full flex items-center justify-center text-white text-sm px-4 text-center">
+        <div className="flex h-full w-full items-center justify-center px-4 text-center text-sm text-white">
           {error}
         </div>
       ) : (
-        <div className="w-full h-full relative">
-          <video ref={ref} className="w-full h-full object-cover" />
-          {/* Botão fechar no topo */}
+        <div className="relative h-full w-full">
+          <video ref={ref} className="h-full w-full object-cover" />
           <button
+            type="button"
             onClick={onClose}
-            className="absolute top-3 right-3 bg-black/50 rounded-full p-2 text-white/80 hover:text-white z-10"
+            className="absolute right-3 top-3 z-10 rounded-full bg-black/50 p-2 text-white/80 hover:text-white"
+            aria-label="Fechar camera"
           >
             <X size={18} />
           </button>
-          {/* Moldura central */}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="w-48 h-48 border-2 border-white/30 rounded-2xl" />
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+            <div className="h-48 w-48 rounded-2xl border-2 border-white/35" />
           </div>
-          {/* Instrução inferior */}
-          <div className="absolute bottom-4 left-0 right-0 flex justify-center pointer-events-none">
-            <div className="flex items-center gap-2 text-white/60 text-xs bg-black/50 px-3 py-1.5 rounded-full">
+          <div className="pointer-events-none absolute bottom-4 left-0 right-0 flex justify-center">
+            <div className="flex items-center gap-2 rounded-full bg-black/50 px-3 py-1.5 text-xs text-white/80">
               <ScanLine size={14} />
-              <span>Aponte para o código</span>
+              <span>Aponte para o codigo</span>
             </div>
           </div>
         </div>
       )}
     </div>
-  );
+  )
 }
 
 export default function CadastrarResiduo() {
-  const [tipoSelecionado, setTipoSelecionado] = useState(null);
-  const [quantidade, setQuantidade] = useState(1);
-  const [showScanner, setShowScanner] = useState(false);
-  const [ultimoCodigo, setUltimoCodigo] = useState(null);
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
+  const [tipoSelecionado, setTipoSelecionado] = useState(null)
+  const [quantidade, setQuantidade] = useState(1)
+  const [showScanner, setShowScanner] = useState(false)
+  const [ultimoCodigo, setUltimoCodigo] = useState(null)
+  const [feedback, setFeedback] = useState(null)
+  const navigate = useNavigate()
+  const queryClient = useQueryClient()
 
   const {
     register,
     setValue,
     handleSubmit,
     formState: { errors },
-  } = useForm({
-    resolver: zodResolver(schema),
-  });
+  } = useForm({ resolver: zodResolver(schema) })
 
   const handleScan = (barcode) => {
-    setUltimoCodigo(barcode);
-    setShowScanner(false);
-    setValue("descricao", `Código: ${barcode}`);
-    const tipoIdentificado = identificarTipoResiduo(barcode);
-    if (tipoIdentificado) setTipoSelecionado(tipoIdentificado);
-  };
+    setUltimoCodigo(barcode)
+    setShowScanner(false)
+    setValue('descricao', `Codigo: ${barcode}`)
+    const tipoIdentificado = identificarTipoResiduo(barcode)
+    if (tipoIdentificado) setTipoSelecionado(tipoIdentificado)
+  }
+
+  const createMutation = useMutation({
+    mutationFn: createInventoryItem,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: queryKeys.inventory })
+      setFeedback({ tone: 'success', message: 'Residuo cadastrado com sucesso.' })
+      setTimeout(() => {
+        navigate('/meu-estoque')
+      }, 800)
+    },
+    onError: (mutationError) => {
+      setFeedback({
+        tone: 'error',
+        message: getApiErrorMessage(mutationError, 'Nao foi possivel cadastrar o residuo.'),
+      })
+    },
+  })
 
   const onSubmit = (data) => {
-    console.log({
-      ...data,
-      tipo: tipoSelecionado,
-      quantidade,
-      codigo_barras: ultimoCodigo,
-    });
-    navigate("/meu-estoque");
-  };
+    setFeedback(null)
+
+    if (!tipoSelecionado) {
+      setFeedback({ tone: 'error', message: 'Informe o tipo de residuo.' })
+      return
+    }
+
+    const quantidadeNumerica = Number(quantidade)
+    if (!Number.isFinite(quantidadeNumerica) || quantidadeNumerica <= 0) {
+      setFeedback({ tone: 'error', message: 'Informe uma quantidade valida.' })
+      return
+    }
+
+    const payload = {
+      tipo_residuo: tipoSelecionado,
+      quantidade: quantidadeNumerica,
+    }
+
+    const descricao = data.descricao?.trim()
+    const observacao = data.observacao?.trim()
+    if (descricao) payload.descricao = descricao
+    if (observacao) payload.observacao = observacao
+    if (ultimoCodigo) payload.codigo_barras = ultimoCodigo
+
+    createMutation.mutate(payload)
+  }
 
   return (
-    <div className="flex flex-col min-h-screen bg-white max-w-sm mx-auto relative">
-      <div className="flex-1 px-5 pt-8 pb-24 overflow-y-auto">
-        <h1 className="text-2xl font-bold text-[#1a3a4a]">Cadastrar Resíduo</h1>
-        <p className="text-gray-400 text-sm mt-1">
-          Escaneie ou preencha os dados do resíduo
-        </p>
+    <PageContainer innerClassName="pb-28">
+      <div className="space-y-6">
+        <PageHeader
+          title="Cadastrar Residuo"
+          description="Escaneie o codigo ou preencha os dados do residuo."
+        />
 
-        {/* Botão / Câmera - um substitui o outro */}
-        {showScanner ? (
-          <ScannerCamera
-            onScan={handleScan}
-            onClose={() => setShowScanner(false)}
-          />
-        ) : (
-          <button
-            type="button"
-            onClick={() => setShowScanner(true)}
-            className="mt-6 w-full aspect-[4/3] bg-gradient-to-br from-[#1a3a4a] to-[#1e4d6b] rounded-3xl flex flex-col items-center justify-center gap-4 shadow-xl hover:opacity-90 transition-all relative overflow-hidden"
-          >
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-48 h-48 rounded-full border-2 border-white/10 animate-pulse" />
-            </div>
-            <div className="bg-white/20 rounded-full p-5 relative z-10">
-              <Camera size={40} className="text-white" />
-            </div>
-            <div className="text-center relative z-10">
-              <span className="block text-white text-lg font-bold">
-                Escanear Código
-              </span>
-              <span className="block text-white/60 text-sm mt-1">
-                Toque para ativar a câmera
-              </span>
-            </div>
-          </button>
-        )}
-
-        {/* Último código escaneado */}
-        {ultimoCodigo && (
-          <div className="mt-4 bg-green-50 border border-green-200 rounded-2xl px-4 py-3 flex items-center gap-3">
-            <Check size={20} className="text-green-600 shrink-0" />
-            <div className="text-sm text-green-800">
-              <span className="font-medium">Código lido:</span> {ultimoCodigo}
-            </div>
-            <button
-              type="button"
-              onClick={() => setShowScanner(true)}
-              className="ml-auto text-xs bg-green-600 text-white px-3 py-1.5 rounded-full font-medium hover:bg-green-700"
-            >
-              Re-escanear
-            </button>
-          </div>
-        )}
-
-        {/* Formulário */}
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="mt-6 flex flex-col gap-5"
-        >
-          <div>
-            <label className="block text-sm font-bold text-[#1a3a4a] mb-2">
-              Descrição do Item
-            </label>
-            <input
-              {...register("descricao")}
-              placeholder="Ex : Garrafa PET 2L"
-              className="w-full border border-gray-300 rounded-2xl px-4 py-3 text-sm text-gray-400 placeholder-gray-300 outline-none focus:border-[#1e4d6b] transition-colors"
-            />
-            {errors.descricao && (
-              <p className="text-red-500 text-xs mt-1">
-                {errors.descricao.message}
-              </p>
+        <div className="grid gap-6 lg:grid-cols-[minmax(280px,0.9fr)_minmax(0,1.1fr)] lg:items-start">
+          <SectionCard title="Codigo do produto" description="Use a camera se houver codigo de barras.">
+            {showScanner ? (
+              <ScannerCamera onScan={handleScan} onClose={() => setShowScanner(false)} />
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowScanner(true)}
+                className="relative mt-4 flex aspect-[4/3] w-full flex-col items-center justify-center gap-4 overflow-hidden rounded-2xl bg-[#1F4E79] shadow-sm transition hover:bg-[#173B5C]"
+              >
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="h-48 w-48 rounded-full border-2 border-white/10" />
+                </div>
+                <div className="relative z-10 rounded-full bg-white/20 p-5">
+                  <Camera size={40} className="text-white" />
+                </div>
+                <div className="relative z-10 text-center">
+                  <span className="block text-lg font-bold text-white">Escanear codigo</span>
+                  <span className="mt-1 block text-sm text-white/75">Toque para ativar a camera</span>
+                </div>
+              </button>
             )}
-          </div>
 
-          <div>
-            <label className="block text-sm font-bold text-[#1a3a4a] mb-3">
-              Tipo de Resíduo
-            </label>
-            <div className="grid grid-cols-2 gap-3">
-              {tiposResiduo.map((tipo) => (
+            {ultimoCodigo ? (
+              <div className="mt-4 flex flex-col gap-3 rounded-2xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800 sm:flex-row sm:items-center">
+                <Check size={20} className="shrink-0 text-green-600" />
+                <div className="min-w-0 flex-1 break-words">
+                  <span className="font-medium">Codigo lido:</span> {ultimoCodigo}
+                </div>
                 <button
-                  key={tipo.id}
                   type="button"
-                  onClick={() => setTipoSelecionado(tipo.id)}
-                  className={`flex items-center gap-3 px-4 py-4 rounded-2xl font-semibold text-white transition-all ${
-                    tipoSelecionado === tipo.id
-                      ? "bg-[#1a3a4a] ring-2 ring-[#1a3a4a] ring-offset-2"
-                      : "bg-[#1e4d6b] hover:bg-[#1a3a4a]"
-                  }`}
+                  onClick={() => setShowScanner(true)}
+                  className="min-h-10 rounded-full bg-green-700 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-800"
                 >
-                  {tipo.icon}
-                  {tipo.label}
+                  Re-escanear
                 </button>
-              ))}
-            </div>
-          </div>
+              </div>
+            ) : null}
+          </SectionCard>
 
-          <div>
-            <label className="block text-sm font-bold text-[#1a3a4a] mb-3">
-              Quantidade
-            </label>
-            <div className="flex items-center justify-between">
-              <button
-                type="button"
-                onClick={() => setQuantidade((q) => Math.max(1, q - 1))}
-                className="w-12 h-12 rounded-xl border-2 border-[#1e4d6b] text-[#1e4d6b] text-2xl font-bold flex items-center justify-center hover:bg-gray-50 transition-colors"
+          <SectionCard title="Dados do residuo" description="Escolha o tipo e informe a quantidade em kg.">
+            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
+              {feedback ? <InlineAlert variant={feedback.tone}>{feedback.message}</InlineAlert> : null}
+
+              <div>
+                <label className="mb-2 block text-sm font-bold text-[#1a3a4a]">Descricao do item</label>
+                <input
+                  {...register('descricao')}
+                  placeholder="Ex: Garrafa PET 2L"
+                  className="min-h-12 w-full rounded-2xl border border-gray-300 px-4 py-3 text-base text-gray-700 outline-none transition-colors placeholder:text-gray-400 focus:border-[#1F4E79]"
+                />
+                {errors.descricao ? <p className="mt-1 text-xs text-red-600">{errors.descricao.message}</p> : null}
+              </div>
+
+              <div>
+                <label className="mb-3 block text-sm font-bold text-[#1a3a4a]">Tipo de residuo</label>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-2">
+                  {tiposResiduo.map((tipo) => (
+                    <button
+                      key={tipo.id}
+                      type="button"
+                      onClick={() => setTipoSelecionado(tipo.id)}
+                      className={`flex min-h-14 items-center gap-3 rounded-2xl px-4 py-4 font-semibold text-white transition-all ${
+                        tipoSelecionado === tipo.id
+                          ? 'bg-[#173B5C] ring-2 ring-[#1F4E79] ring-offset-2'
+                          : 'bg-[#1F4E79] hover:bg-[#173B5C]'
+                      }`}
+                    >
+                      {tipo.icon}
+                      {tipo.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="mb-3 block text-sm font-bold text-[#1a3a4a]">Quantidade</label>
+                <div className="flex items-center justify-between rounded-2xl bg-[var(--color-surface)] p-3">
+                  <button
+                    type="button"
+                    onClick={() => setQuantidade((q) => Math.max(1, q - 1))}
+                    className="flex h-12 w-12 items-center justify-center rounded-xl border-2 border-[#1F4E79] text-2xl font-bold text-[#1F4E79] transition-colors hover:bg-white"
+                  >
+                    -
+                  </button>
+                  <span className="text-2xl font-bold text-[#1a3a4a]">{quantidade}</span>
+                  <button
+                    type="button"
+                    onClick={() => setQuantidade((q) => q + 1)}
+                    className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#1F4E79] text-2xl font-bold text-white transition-colors hover:bg-[#173B5C]"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-bold text-[#1a3a4a]">Observacao (opcional)</label>
+                <textarea
+                  {...register('observacao')}
+                  placeholder="Ex: Embalagem sem rotulo"
+                  rows={3}
+                  className="w-full resize-none rounded-2xl border border-gray-300 px-4 py-3 text-base text-gray-700 outline-none transition-colors placeholder:text-gray-400 focus:border-[#1F4E79]"
+                />
+              </div>
+
+              <InlineAlert variant="info">
+                A pontuacao so entra depois da confirmacao e pesagem pela cooperativa.
+              </InlineAlert>
+
+              <LoadingButton
+                type="submit"
+                isLoading={createMutation.isPending}
+                loadingText="Salvando..."
+                className="w-full py-4"
               >
-                −
-              </button>
-              <span className="text-2xl font-bold text-[#1a3a4a]">
-                {quantidade}
-              </span>
-              <button
-                type="button"
-                onClick={() => setQuantidade((q) => q + 1)}
-                className="w-12 h-12 rounded-xl bg-[#1e4d6b] text-white text-2xl font-bold flex items-center justify-center hover:bg-[#1a3a4a] transition-colors"
-              >
-                +
-              </button>
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-bold text-[#1a3a4a] mb-2">
-              Observação (Opcional)
-            </label>
-            <textarea
-              {...register("observacao")}
-              placeholder="Ex : Embalagem sem rótulo"
-              rows={3}
-              className="w-full border border-gray-300 rounded-2xl px-4 py-3 text-sm text-gray-400 placeholder-gray-300 outline-none focus:border-[#1e4d6b] resize-none transition-colors"
-            />
-          </div>
-
-          <div className="flex items-center justify-between bg-[#e8f5e2] rounded-2xl px-4 py-3">
-            <span className="text-sm text-green-700 font-medium">
-              Pontos estimados ao entregar
-            </span>
-            <span className="text-sm text-green-700 font-bold">+20 pts</span>
-          </div>
-
-          <button
-            type="submit"
-            className="w-full bg-[#1e4d6b] text-white font-semibold py-4 rounded-full text-sm hover:bg-[#1a3a4a] transition-colors"
-          >
-            <span className="inline-flex items-center gap-2">
-              {createMutation.isPending ? (
-                <Loader2 size={18} className="animate-spin" />
-              ) : null}
-              {createMutation.isPending
-                ? "Salvando..."
-                : "Adicionar ao estoque"}
-            </span>
-          </button>
-        </form>
+                Adicionar ao estoque
+              </LoadingButton>
+            </form>
+          </SectionCard>
+        </div>
       </div>
-
       <Navbar />
-    </div>
-  );
+    </PageContainer>
+  )
 }

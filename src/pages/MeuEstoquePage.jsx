@@ -1,21 +1,16 @@
 import React, { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
-import {
-  ArrowRight,
-  BookText,
-  CircleDot,
-  FlaskConical,
-  Loader2,
-  Trash2,
-  Wine,
-} from 'lucide-react'
+import { ArrowRight, BookText, CircleDot, FlaskConical, Trash2, Wine } from 'lucide-react'
 import Navbar from '../components/ui/Navbar'
-import {
-  listInventory,
-  removeInventoryItem,
-  updateInventoryItem,
-} from '../services/inventory'
+import Button from '../components/ui/Button'
+import PageContainer from '../components/layout/PageContainer'
+import PageHeader from '../components/ui/PageHeader'
+import LoadingState from '../components/ui/LoadingState'
+import ErrorState from '../components/ui/ErrorState'
+import EmptyState from '../components/ui/EmptyState'
+import InlineAlert from '../components/ui/InlineAlert'
+import { listInventory, removeInventoryItem, updateInventoryItem } from '../services/inventory'
 import { queryKeys } from '../services/queryKeys'
 import { getApiErrorMessage } from '../services/http/getApiErrorMessage'
 
@@ -23,30 +18,19 @@ const POINTS_PER_KG = 10
 
 const getItemIcon = (tipo) => {
   const normalizedType = String(tipo || '').toLowerCase()
-
-  if (normalizedType === 'metal' || normalizedType === 'aluminio') {
-    return CircleDot
-  }
-
-  if (normalizedType === 'papel' || normalizedType === 'papelao') {
-    return BookText
-  }
-
-  if (normalizedType === 'plastico') {
-    return FlaskConical
-  }
-
+  if (normalizedType === 'metal' || normalizedType === 'aluminio') return CircleDot
+  if (normalizedType === 'papel' || normalizedType === 'papelao') return BookText
+  if (normalizedType === 'plastico') return FlaskConical
   return Wine
 }
 
 const formatResidueType = (tipo) =>
-  String(tipo || 'resíduo')
+  String(tipo || 'residuo')
     .replaceAll('_', ' ')
     .replace(/\b\w/g, (letter) => letter.toUpperCase())
 
 const formatQuantity = (value) => {
   const quantity = Number(value || 0)
-
   return quantity.toLocaleString('pt-BR', {
     minimumFractionDigits: Number.isInteger(quantity) ? 0 : 1,
     maximumFractionDigits: 2,
@@ -60,12 +44,7 @@ export default function MeuEstoquePage() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
 
-  const {
-    data: itens = [],
-    isLoading,
-    isError,
-    error,
-  } = useQuery({
+  const { data: itens = [], isLoading, isError, error } = useQuery({
     queryKey: queryKeys.inventory,
     queryFn: () => listInventory(),
     select: (items) =>
@@ -85,7 +64,7 @@ export default function MeuEstoquePage() {
     onError: (mutationError) => {
       setFeedback({
         tone: 'error',
-        message: getApiErrorMessage(mutationError, 'Não foi possível atualizar o item.'),
+        message: getApiErrorMessage(mutationError, 'Nao foi possivel atualizar o item.'),
       })
     },
   })
@@ -99,7 +78,7 @@ export default function MeuEstoquePage() {
     onError: (mutationError) => {
       setFeedback({
         tone: 'error',
-        message: getApiErrorMessage(mutationError, 'Não foi possível remover o item.'),
+        message: getApiErrorMessage(mutationError, 'Nao foi possivel remover o item.'),
       })
     },
   })
@@ -119,10 +98,7 @@ export default function MeuEstoquePage() {
     const currentQuantity = Number(item.quantidade || 0)
     const minimumAllowed = Math.max(reservedQuantity, 1)
     const nextQuantity = Math.max(minimumAllowed, currentQuantity - 1)
-
-    if (nextQuantity === currentQuantity) {
-      return
-    }
+    if (nextQuantity === currentQuantity) return
 
     setFeedback(null)
     updateMutation.mutate({
@@ -138,156 +114,131 @@ export default function MeuEstoquePage() {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col min-h-screen bg-white max-w-sm mx-auto">
-        <div className="flex-1 px-5 pt-8 pb-24 flex items-center justify-center">
-          <div className="flex items-center gap-3 text-[#1a3a4a]">
-            <Loader2 className="animate-spin" size={20} />
-            <span>Carregando estoque...</span>
-          </div>
-        </div>
+      <PageContainer innerClassName="pb-24">
+        <LoadingState title="Carregando estoque..." className="mx-auto mt-10 w-full max-w-md" />
         <Navbar />
-      </div>
+      </PageContainer>
     )
   }
 
   if (isError) {
     return (
-      <div className="flex flex-col min-h-screen bg-white max-w-sm mx-auto">
-        <div className="flex-1 px-5 pt-8 pb-24">
-          <h1 className="text-2xl font-bold text-[#1a3a4a] mb-3">Meu Estoque</h1>
-          <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-4 text-sm text-red-700">
-            {getApiErrorMessage(error, 'Não foi possível carregar o estoque.')}
-          </div>
+      <PageContainer innerClassName="pb-24">
+        <div className="space-y-5">
+          <PageHeader title="Meu Estoque" description="Acompanhe os residuos cadastrados para entrega." />
+          <ErrorState title={getApiErrorMessage(error, 'Nao foi possivel carregar o estoque.')} />
         </div>
         <Navbar />
-      </div>
+      </PageContainer>
     )
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-white max-w-sm mx-auto">
-      <div className="flex-1 px-5 pt-8 pb-24 overflow-y-auto">
-        <div className="flex items-center justify-between mb-1">
-          <h1 className="text-2xl font-bold text-[#1a3a4a]">Meu Estoque</h1>
-          <span className="bg-[#1e4d6b] text-white text-sm font-semibold px-4 py-2 rounded-full">
-            {itens.length} itens
-          </span>
+    <PageContainer innerClassName="pb-28">
+      <div className="space-y-5">
+        <PageHeader
+          title="Meu Estoque"
+          description="Cadastre seus residuos antes de ir ao ponto de coleta."
+          action={
+            <span className="rounded-full bg-[#1F4E79] px-4 py-2 text-sm font-semibold text-white">
+              {itens.length} itens
+            </span>
+          }
+        />
+
+        {feedback ? <InlineAlert variant={feedback.tone}>{feedback.message}</InlineAlert> : null}
+
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <h2 className="text-base font-bold text-[#1a3a4a]">Itens no estoque</h2>
+          <Button type="button" onClick={() => navigate('/cadastrar-residuo')} className="w-full sm:w-auto">
+            Adicionar residuo
+          </Button>
         </div>
-        <p className="text-gray-400 text-sm mb-6">Cadastre seus resíduos antes de ir ao ponto</p>
-
-        {feedback ? (
-          <div
-            className={`mb-4 rounded-2xl px-4 py-3 text-sm font-medium ${
-              feedback.tone === 'error'
-                ? 'border border-red-200 bg-red-50 text-red-700'
-                : 'border border-emerald-200 bg-emerald-50 text-emerald-700'
-            }`}
-          >
-            {feedback.message}
-          </div>
-        ) : null}
-
-        <h2 className="text-base font-bold text-[#1a3a4a] mb-4">Itens no estoque</h2>
 
         {itens.length ? (
-          <div className="flex flex-col gap-4">
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {itens.map((item) => {
               const ItemIcon = getItemIcon(item.tipo_residuo)
               const quantityAvailable = Number(item.quantidade_disponivel ?? item.quantidade ?? 0)
 
               return (
-                <div
-                  key={item.id}
-                  className="bg-[#f0f2f8] rounded-2xl px-4 py-4 border border-[#dde1ef]"
-                >
-                  <div className="flex items-start gap-3 mb-4">
-                    <div className="bg-[#1e4d6b] rounded-xl p-2 flex items-center justify-center">
-                      <ItemIcon size={24} color="white" />
+                <article key={item.id} className="rounded-2xl border border-[#dde1ef] bg-[#f7f9fc] p-4 shadow-sm">
+                  <div className="mb-4 flex items-start gap-3">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#1F4E79] text-white">
+                      <ItemIcon size={24} />
                     </div>
                     <div className="min-w-0">
-                      <p className="font-bold text-[#1a3a4a] text-base leading-tight">
+                      <p className="break-words text-base font-bold leading-tight text-[#1a3a4a]">
                         {item.descricao || formatResidueType(item.tipo_residuo)}
                       </p>
-                      <p className="text-gray-400 text-sm">
-                        Tipo: {formatResidueType(item.tipo_residuo)}
-                      </p>
-                      <p className="text-gray-400 text-xs mt-1">
-                        Disponível: {formatQuantity(quantityAvailable)} kg
+                      <p className="mt-1 text-sm text-gray-500">Tipo: {formatResidueType(item.tipo_residuo)}</p>
+                      <p className="mt-1 text-xs font-medium text-gray-500">
+                        Disponivel: {formatQuantity(quantityAvailable)} kg
                         {Number(item.quantidade_reservada || 0) > 0
-                          ? ` • Reservado: ${formatQuantity(item.quantidade_reservada)} kg`
+                          ? ` | Reservado: ${formatQuantity(item.quantidade_reservada)} kg`
                           : ''}
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-3">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between md:flex-col md:items-stretch xl:flex-row xl:items-end">
+                    <div className="flex items-center justify-between gap-3 sm:justify-start md:justify-between xl:justify-start">
                       <button
                         type="button"
                         onClick={() => decrementar(item)}
                         disabled={isSubmitting}
-                        className="w-10 h-10 rounded-xl border-2 border-[#1e4d6b] text-[#1e4d6b] text-xl font-bold flex items-center justify-center disabled:opacity-60"
+                        className="flex h-11 w-11 items-center justify-center rounded-xl border-2 border-[#1F4E79] text-xl font-bold text-[#1F4E79] disabled:opacity-60"
                       >
-                        −
+                        -
                       </button>
-                      <span className="text-lg font-bold text-[#1a3a4a] min-w-12 text-center">
+                      <span className="min-w-12 text-center text-lg font-bold text-[#1a3a4a]">
                         {formatQuantity(item.quantidade)}
                       </span>
                       <button
                         type="button"
                         onClick={() => incrementar(item)}
                         disabled={isSubmitting}
-                        className="w-10 h-10 rounded-xl bg-[#1e4d6b] text-white text-xl font-bold flex items-center justify-center disabled:opacity-60"
+                        className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#1F4E79] text-xl font-bold text-white disabled:opacity-60"
                       >
                         +
                       </button>
                     </div>
 
-                    <div className="flex flex-col items-end gap-2">
+                    <div className="flex items-center justify-between gap-3 sm:flex-col sm:items-end md:flex-row xl:flex-col">
                       <button
                         type="button"
+                        aria-label="Remover item"
                         onClick={() => remover(item.id)}
                         disabled={isSubmitting}
-                        className="text-[#1e4d6b] disabled:opacity-60"
+                        className="flex h-11 w-11 items-center justify-center rounded-xl text-[#1F4E79] disabled:opacity-60"
                       >
                         <Trash2 size={20} />
                       </button>
-                      <span className="text-green-600 font-bold text-sm">
-                        +{getEstimatedPoints(quantityAvailable)} pts
-                      </span>
+                      <span className="text-sm font-bold text-green-700">+{getEstimatedPoints(quantityAvailable)} pts</span>
                       <button
                         type="button"
                         onClick={() => navigate(`/validacao-presenca?itemId=${item.id}`)}
-                        className="inline-flex items-center gap-1 rounded-full bg-[#1e4d6b] px-3 py-2 text-xs font-semibold text-white"
+                        className="inline-flex min-h-11 items-center justify-center gap-1 rounded-2xl bg-[#1F4E79] px-4 py-2 text-sm font-semibold text-white"
                       >
                         Transferir
                         <ArrowRight size={14} />
                       </button>
                     </div>
                   </div>
-                </div>
+                </article>
               )
             })}
           </div>
         ) : (
-          <div className="rounded-2xl border border-dashed border-[#c8d2e3] bg-[#f7f9fc] px-5 py-8 text-center">
-            <p className="text-[#1a3a4a] font-semibold">Seu estoque está vazio.</p>
-            <p className="text-sm text-gray-400 mt-2">
-              Cadastre um resíduo para começar a organizar sua próxima entrega.
-            </p>
-          </div>
+          <EmptyState
+            title="Seu estoque esta vazio."
+            description="Cadastre um residuo para comecar a organizar sua proxima entrega."
+            actionLabel="Cadastrar residuo"
+            onAction={() => navigate('/cadastrar-residuo')}
+          />
         )}
-
-        <button
-          type="button"
-          onClick={() => navigate('/cadastrar-residuo')}
-          className="w-full bg-[#1e4d6b] text-white font-semibold py-4 rounded-full text-sm mt-6"
-        >
-          Adicionar Resíduo
-        </button>
       </div>
-
       <Navbar />
-    </div>
+    </PageContainer>
   )
 }

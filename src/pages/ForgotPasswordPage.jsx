@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -7,27 +7,31 @@ import Card from "../components/ui/Card";
 import Label from "../components/ui/Label";
 import Input from "../components/ui/Input";
 import Button from "../components/ui/Button";
+import InlineAlert from "../components/ui/InlineAlert";
 import { forgotPasswordSchema } from "../schemas/auth";
 
 export default function ForgotPasswordPage() {
+  const [unavailableMessage, setUnavailableMessage] = useState("");
+
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm({
     resolver: zodResolver(forgotPasswordSchema),
     mode: "onSubmit",
     reValidateMode: "onChange",
   });
 
-  const onSubmit = async (data) => {
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    console.log("forgot-password", data);
+  const onSubmit = () => {
+    setUnavailableMessage(
+      "A recuperacao de senha ainda nao esta disponivel. Entre em contato com o suporte ou tente novamente mais tarde."
+    );
   };
 
   return (
-    <main className="h-dvh overflow-hidden bg-[var(--color-welcome-surface)] px-4 py-6 sm:px-6 sm:py-8">
-      <Card className="mx-auto flex h-full w-full max-w-sm flex-col border-0 p-6 shadow-xl sm:p-8">
+    <main className="min-h-screen bg-[var(--color-welcome-surface)] px-4 py-5 sm:px-6 sm:py-8 lg:grid lg:place-items-center">
+      <Card className="mx-auto flex w-full max-w-md flex-col border-0 p-5 shadow-sm sm:p-8">
         <div>
           <img
             src="/logo.jpeg"
@@ -40,11 +44,12 @@ export default function ForgotPasswordPage() {
               <Lock size={22} />
             </div>
 
-            <h1 className="mt-5 text-3xl font-bold leading-tight text-[var(--color-welcome-blue)] sm:mt-6 sm:text-4xl">
+            <h1 className="mt-5 text-2xl font-bold leading-tight text-[var(--color-primary)] sm:mt-6 sm:text-3xl">
               Esqueceu sua senha?
             </h1>
             <p className="mx-auto mt-3 max-w-sm text-base leading-relaxed text-[var(--color-welcome-muted)]">
-              Digite seu e-mail para receber um link de redefinição de senha
+              Informe seu e-mail para verificar a disponibilidade da recuperacao
+              de senha.
             </p>
           </div>
 
@@ -59,7 +64,7 @@ export default function ForgotPasswordPage() {
                 htmlFor="email"
                 className="mb-1.5 block text-sm font-semibold text-slate-600"
               >
-                E-mail Cadastrado
+                E-mail cadastrado
               </Label>
               <Input
                 id="email"
@@ -70,9 +75,16 @@ export default function ForgotPasswordPage() {
                 {...register("email")}
               />
               {errors.email && (
-                <p className="mt-1.5 text-xs text-red-600">
+                <p className="mt-1.5 text-sm font-medium text-red-600">
                   {errors.email.message}
                 </p>
+              )}
+              {unavailableMessage && !errors.email && (
+                <InlineAlert
+                  variant="warning"
+                  description={unavailableMessage}
+                  className="mt-3"
+                />
               )}
             </div>
 
@@ -80,11 +92,10 @@ export default function ForgotPasswordPage() {
               <Button
                 type="submit"
                 variant="brandPrimary"
-                disabled={isSubmitting}
-                className="h-12 w-full max-w-[13rem] rounded-full text-lg font-semibold disabled:cursor-not-allowed disabled:opacity-80 sm:h-14 sm:max-w-[14rem] sm:text-xl"
+                className="h-12 w-full max-w-[13rem] rounded-full text-lg font-semibold sm:h-14 sm:max-w-[14rem] sm:text-xl"
               >
                 <span className="inline-flex items-center gap-2">
-                  {isSubmitting ? "Enviando..." : "Enviar link"}{" "}
+                  Verificar
                   <ArrowRight size={18} />
                 </span>
               </Button>
@@ -94,7 +105,7 @@ export default function ForgotPasswordPage() {
 
         <Link
           to="/login"
-          className="mt-auto inline-flex items-center justify-center gap-2 pb-4 text-center text-lg font-semibold text-[var(--color-welcome-blue)] sm:text-xl"
+          className="mt-8 inline-flex min-h-11 items-center justify-center gap-2 text-center text-base font-semibold text-[var(--color-welcome-blue)] sm:text-lg"
         >
           <ArrowLeft size={18} /> Voltar para login
         </Link>

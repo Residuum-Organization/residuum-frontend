@@ -4,11 +4,66 @@
 
 :root{
   --color-primary: #1F4E79;
+  --color-primary-dark: #173B5C;
   --color-accent: #2EA44F;
-  --color-welcome-blue: #110A88;
-  --color-welcome-muted: #645353;
-  --color-welcome-surface: #E9E9E9;
+  --color-success: #2EA44F;
+  --color-warning: #B7791F;
+  --color-error: #C53030;
+  --color-background: #FFFFFF;
+  --color-surface: #F6F8FA;
+  --color-surface-soft: #F7FAF9;
+  --color-border: #DDE5EE;
+  --color-text: #111827;
+  --color-text-muted: #5F6B7A;
+  --color-welcome-blue: var(--color-primary);
+  --color-welcome-muted: var(--color-text-muted);
+  --color-welcome-surface: var(--color-surface);
 }
 
-html,body,#root{height:100%;}
-body{background:white;color:#111;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial}
+html,body,#root{min-height:100%;}
+html{background:var(--color-background);}
+body{min-width:320px;background:var(--color-background);color:var(--color-text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  :focus-visible {
+    outline: 3px solid color-mix(in srgb, var(--color-primary) 35%, transparent);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  .residuum-page {
+    width: 100%;
+    min-height: 100vh;
+    background: var(--color-background);
+    padding: 1rem;
+  }
+
+  .residuum-page-inner {
+    width: 100%;
+    max-width: 72rem;
+    margin-inline: auto;
+  }
+
+  .residuum-app-shell {
+    width: 100%;
+    min-height: 100vh;
+    background: var(--color-surface-soft);
+  }
+
+  @media (min-width: 640px) {
+    .residuum-page {
+      padding: 1.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .residuum-page {
+      padding: 2rem;
+    }
+  }
+}

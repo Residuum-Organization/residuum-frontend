@@ -12,6 +12,8 @@ const tabs = [
   { id: 'premios', label: 'Prêmios' },
 ];
 
+const isFallbackOrMockData = (data) => ['fallback', 'mock'].includes(data?.__dataOrigin);
+
 function TabButton({ active, children, onClick }) {
   return (
     <button
@@ -89,6 +91,8 @@ export default function SorteioDetalhesPage() {
 
   if (!sorteio) return <Navigate to="/sorteios" replace />;
 
+  const showingFallbackData = isFallbackOrMockData(sorteio);
+
   return (
     <main className="min-h-screen bg-slate-200 px-3 py-4">
       <section className="mx-auto flex min-h-[760px] w-full max-w-[390px] flex-col overflow-hidden rounded-[28px] bg-[#F7FAF9] shadow-2xl">
@@ -101,6 +105,12 @@ export default function SorteioDetalhesPage() {
               {sorteio.status === 'ativo' ? 'ATIVO' : 'ENCERRADO'}
             </span>
           </div>
+
+          {showingFallbackData ? (
+            <div className="mt-4 rounded-[22px] border border-amber-200 bg-amber-50 px-4 py-3 text-xs font-bold leading-relaxed text-amber-800">
+              Este sorteio esta sendo exibido com dados demonstrativos.
+            </div>
+          ) : null}
 
           <section className="mt-4 overflow-hidden rounded-[32px] text-white shadow-lg" style={{ backgroundColor: sorteio.cor }}>
             <div className="p-5">
@@ -181,11 +191,16 @@ export default function SorteioDetalhesPage() {
                 <Premios premios={sorteio.premios} />
                 <button
                   type="button"
-                  disabled={sorteio.status === 'encerrado'}
-                  className={`mt-5 w-full rounded-full py-4 text-sm font-black text-white ${sorteio.status === 'encerrado' ? 'bg-slate-300' : 'bg-[#11527A]'}`}
+                  disabled
+                  className="mt-5 w-full rounded-full bg-slate-300 py-4 text-sm font-black text-white"
                 >
-                  {sorteio.status === 'encerrado' ? 'CAMPANHA ENCERRADA' : 'PARTICIPAR DO SORTEIO'}
+                  {sorteio.status === 'encerrado' ? 'CAMPANHA ENCERRADA' : 'PARTICIPACAO INDISPONIVEL'}
                 </button>
+                {sorteio.status !== 'encerrado' ? (
+                  <p className="mt-2 text-center text-xs font-semibold text-slate-500">
+                    Participacao em sorteios ainda nao disponivel.
+                  </p>
+                ) : null}
               </>
             ) : null}
           </div>

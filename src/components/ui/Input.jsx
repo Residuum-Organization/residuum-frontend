@@ -7,10 +7,10 @@ const Input = React.forwardRef(function Input(
   return (
     <input
       ref={ref}
-      className={`w-full rounded-2xl border bg-white px-4 py-3 text-base text-slate-800 outline-none transition focus:ring-2 focus:ring-[var(--color-welcome-blue)]/20 ${
+      className={`min-h-12 w-full rounded-2xl border bg-white px-4 py-3 text-base text-[var(--color-text)] outline-none transition placeholder:text-slate-400 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500 focus:ring-2 focus:ring-[var(--color-primary)]/20 ${
         invalid
-          ? "border-red-400 focus:border-red-500"
-          : "border-slate-200 focus:border-[var(--color-welcome-blue)]"
+          ? "border-[var(--color-error)] focus:border-[var(--color-error)]"
+          : "border-[var(--color-border)] focus:border-[var(--color-primary)]"
       } ${className}`}
       {...props}
     />

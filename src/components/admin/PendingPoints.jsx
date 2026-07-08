@@ -1,46 +1,49 @@
 import React from "react";
 
-import SectionTitle from "./SectionTitle";
-import StatusBadge from "./StatusBadge";
+import Badge from "../ui/Badge";
+import SectionCard from "../ui/SectionCard";
+
+const points = [
+  {
+    name: "Eco Ponto Centro",
+    materials: "Plastico, metal e papel",
+    status: "Pendente",
+    variant: "warning",
+  },
+  {
+    name: "Coleta Norte",
+    materials: "Vidro e aluminio",
+    status: "Revisar",
+    variant: "success",
+  },
+];
 
 export default function PendingPoints() {
   return (
-    <section className="mt-5">
-      <SectionTitle title="Pontos pendentes" buttonText="Ver todos" />
-
-      <div className="overflow-hidden rounded-2xl border border-[#DDE5EE] bg-white shadow-sm">
-        <div className="flex items-center justify-between border-b border-[#EEF2F6] px-4 py-4">
-          <div>
-            <h3 className="text-[17px] font-bold text-[#1F4E79]">
-              Eco Ponto Centro
-            </h3>
-            <p className="mt-1 text-xs text-gray-500">
-              Plástico • Metal • Papel
-            </p>
+    <SectionCard
+      className="mt-6"
+      title="Pontos pendentes"
+      description="Amostra visual para acompanhamento da fila de analise."
+      action={<Badge variant="warning">Demonstrativo</Badge>}
+    >
+      <div className="divide-y divide-[var(--color-border)] overflow-hidden rounded-2xl border border-[var(--color-border)]">
+        {points.map((point) => (
+          <div
+            key={point.name}
+            className="flex flex-col gap-3 bg-white px-4 py-4 sm:flex-row sm:items-center sm:justify-between"
+          >
+            <div className="min-w-0">
+              <h3 className="truncate text-base font-extrabold text-[var(--color-primary)]">
+                {point.name}
+              </h3>
+              <p className="mt-1 text-sm font-medium text-[var(--color-text-muted)]">
+                {point.materials}
+              </p>
+            </div>
+            <Badge variant={point.variant}>{point.status}</Badge>
           </div>
-
-          <StatusBadge
-            text="Pendente"
-            bgColor="bg-[#FFF4D8]"
-            textColor="text-[#A36A00]"
-          />
-        </div>
-
-        <div className="flex items-center justify-between px-4 py-4">
-          <div>
-            <h3 className="text-[17px] font-bold text-[#1F4E79]">
-              Coleta Norte
-            </h3>
-            <p className="mt-1 text-xs text-gray-500">Vidro • Alumínio</p>
-          </div>
-
-          <StatusBadge
-            text="Revisar"
-            bgColor="bg-[#EAF7EE]"
-            textColor="text-[#2FA84F]"
-          />
-        </div>
+        ))}
       </div>
-    </section>
+    </SectionCard>
   );
 }
