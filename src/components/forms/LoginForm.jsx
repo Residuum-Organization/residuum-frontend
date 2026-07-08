@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { loginSchema } from "../../schemas/auth";
 import { useAuth } from "../../contexts/AuthContext";
+import { getRoleHome } from "../../utils/roles";
 import Label from "../ui/Label";
 import Input from "../ui/Input";
 import InputPassword from "../ui/InputPassword";
@@ -32,11 +33,7 @@ export default function LoginForm() {
     setAuthError("");
     try {
       const result = await login(data.email, data.password);
-      if (result.user?.role === "admin") {
-        navigate("/admin");
-      } else {
-        navigate("/welcome-residuum");
-      }
+      navigate(getRoleHome(result.user?.role), { replace: true });
     } catch (e) {
       setAuthError(e.message || "Credenciais invalidas");
     }

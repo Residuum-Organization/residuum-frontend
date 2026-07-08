@@ -13,7 +13,7 @@ const adminNavItems = [
   { to: "/aprovacao", label: "Aprovacao", Icon: CheckCircle2 },
   { to: "/admin-pontos", label: "Pontos", Icon: MapPin },
   { to: "/usuarios", label: "Usuarios", Icon: Users },
-  { to: "/campanha-heineken", label: "Campanha", Icon: Megaphone },
+  { to: "/campanhas", label: "Campanhas", Icon: Megaphone },
 ];
 
 export default function BottomNav() {

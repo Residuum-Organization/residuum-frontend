@@ -12,6 +12,7 @@ import PageContainer from "../components/layout/PageContainer";
 import PageHeader from "../components/ui/PageHeader";
 import SectionCard from "../components/ui/SectionCard";
 import Button from "../components/ui/Button";
+import RoleEnvironmentBanner from "../components/layout/RoleEnvironmentBanner";
 
 const actions = [
   {
@@ -52,6 +53,8 @@ export default function WelcomeResiduum() {
   return (
     <PageContainer className="bg-[var(--color-surface)] font-sans" innerClassName="pb-8">
       <div className="space-y-6">
+        <RoleEnvironmentBanner variant="morador" />
+
         <section className="rounded-2xl bg-[#1F4E79] p-5 text-white shadow-sm sm:p-7 lg:p-8">
           <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-center">
             <div>

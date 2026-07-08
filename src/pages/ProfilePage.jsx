@@ -1,8 +1,9 @@
 import React from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
-import { Recycle, Gift } from 'lucide-react'
+import { LogOut, Recycle, Gift } from 'lucide-react'
 import { useProfile } from '../hooks/useProfile'
+import { useAuth } from '../contexts/AuthContext'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
 import Badge from '../components/ui/Badge'
@@ -12,6 +13,7 @@ import PageContainer from '../components/layout/PageContainer'
 import PageHeader from '../components/ui/PageHeader'
 import SectionCard from '../components/ui/SectionCard'
 import InlineAlert from '../components/ui/InlineAlert'
+import RoleEnvironmentBanner from '../components/layout/RoleEnvironmentBanner'
 import LoadingButton from '../components/ui/LoadingButton'
 import LoadingState from '../components/ui/LoadingState'
 import ErrorState from '../components/ui/ErrorState'
@@ -56,6 +58,7 @@ export default function ProfilePage() {
   const [form, setForm] = React.useState({ nome: '', email: '', telefone: '' })
   const [feedback, setFeedback] = React.useState(null)
   const navigate = useNavigate()
+  const { logout } = useAuth()
   const queryClient = useQueryClient()
 
   React.useEffect(() => {
@@ -84,6 +87,11 @@ export default function ProfilePage() {
       })
     },
   })
+
+  const handleLogout = async () => {
+    await logout()
+    navigate('/login', { replace: true })
+  }
 
   if (isLoading) {
     return (
@@ -118,14 +126,25 @@ export default function ProfilePage() {
   return (
     <PageContainer className="bg-[var(--color-surface)] font-sans" innerClassName="pb-28">
       <div className="space-y-6">
+        <RoleEnvironmentBanner variant="morador" />
+
         <PageHeader
           eyebrow="Painel do usuario"
           title={profile?.nome || form.nome || 'Meu perfil'}
           description={`Acompanhando desde ${formatDate(memberSince)}`}
           action={
-            <Button type="button" variant="secondary" onClick={() => navigate('/meu-estoque')}>
-              Ver estoque
-            </Button>
+            <div className="grid gap-2 sm:flex">
+              <Button type="button" variant="secondary" onClick={() => navigate('/inicio')}>
+                Inicio
+              </Button>
+              <Button type="button" variant="secondary" onClick={() => navigate('/meu-estoque')}>
+                Ver estoque
+              </Button>
+              <Button type="button" variant="danger" onClick={handleLogout} className="gap-2">
+                <LogOut className="h-4 w-4" aria-hidden="true" />
+                Sair
+              </Button>
+            </div>
           }
         />
 

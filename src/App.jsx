@@ -1,6 +1,8 @@
 import React from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 
+import ProtectedRoute from "./components/auth/ProtectedRoute";
+import RoleRoute from "./components/auth/RoleRoute";
 import MapPage from "./pages/MapPage";
 import ProfilePage from "./pages/ProfilePage";
 import CadastrarResiduoPage from "./pages/CadastrarResiduoPage";
@@ -26,6 +28,7 @@ import Company from "./pages/CompanyPage";
 import Confirmation from "./pages/ConfirmationPage";
 import RegisterPontoColetaPage from "./pages/RegisterPontoColetaPage";
 import ComingSoonPage from "./pages/ComingSoonPage";
+import AcessoNegadoPage from "./pages/AcessoNegadoPage";
 
 import CampanhasPage from "./pages/CampanhasPage";
 import NovaCampanhaPage from "./pages/NovaCampanhaPage";
@@ -128,15 +131,15 @@ const parceiroRoutes = [
   { path: "/schedule", label: "Agenda", Component: ScheduleScreen },
 ];
 
+const aprovacaoRoute = {
+  path: "/aprovacao",
+  label: "Aprovacao",
+  Component: Aprovacao,
+  integratedApi: true,
+};
+
 const adminRoutes = [
   { path: "/admin", label: "Painel admin", Component: AdminPage },
-  {
-    path: "/aprovacao",
-    label: "Aprovação",
-    Component: Aprovacao,
-    integratedApi: true,
-  },
-
   {
     path: "/campanhas",
     label: "Campanhas",
@@ -166,6 +169,18 @@ const adminRoutes = [
 ];
 
 export default function App() {
+  const renderRoleRoute = (path, Component, allowedRoles) => (
+    <Route
+      key={path}
+      path={path}
+      element={
+        <RoleRoute allowedRoles={allowedRoles}>
+          <Component />
+        </RoleRoute>
+      }
+    />
+  );
+
   return (
     <div className="min-h-screen bg-slate-100">
       <Routes>
@@ -174,16 +189,31 @@ export default function App() {
         ))}
 
         {moradorRoutes.map(({ path, Component }) => (
-          <Route key={path} path={path} element={<Component />} />
+          renderRoleRoute(path, Component, ["usuario", "morador"])
         ))}
 
         {parceiroRoutes.map(({ path, Component }) => (
-          <Route key={path} path={path} element={<Component />} />
+          renderRoleRoute(path, Component, ["cooperativa", "parceiro"])
         ))}
 
+        {renderRoleRoute(aprovacaoRoute.path, aprovacaoRoute.Component, [
+          "cooperativa",
+          "parceiro",
+          "admin",
+        ])}
+
         {adminRoutes.map(({ path, Component }) => (
-          <Route key={path} path={path} element={<Component />} />
+          renderRoleRoute(path, Component, ["admin"])
         ))}
+
+        <Route
+          path="/acesso-negado"
+          element={
+            <ProtectedRoute>
+              <AcessoNegadoPage />
+            </ProtectedRoute>
+          }
+        />
 
         <Route path="/" element={<Navigate to="/welcome" replace />} />
         <Route path="/demo" element={<Navigate to="/welcome" replace />} />

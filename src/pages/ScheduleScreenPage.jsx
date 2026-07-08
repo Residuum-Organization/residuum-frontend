@@ -3,6 +3,7 @@ import { CalendarClock, Truck } from "lucide-react";
 import TimeSlots from "../components/coleta-dados/TimeSlots";
 import CollectionPoints from "../components/coleta-dados/CollectionPoints";
 import SystemStatus from "../components/coleta-dados/SystemStatus";
+import OperationalHeader from "../components/coleta-dados/OperationalHeader";
 import PageContainer from "../components/layout/PageContainer";
 import PageHeader from "../components/ui/PageHeader";
 import InlineAlert from "../components/ui/InlineAlert";
@@ -13,6 +14,8 @@ export default function ScheduleScreen() {
   return (
     <PageContainer className="bg-[var(--color-surface)]">
       <div className="space-y-5 rounded-2xl bg-[var(--color-surface-soft)] p-4 shadow-sm sm:p-6 lg:min-h-[calc(100vh-4rem)]">
+        <OperationalHeader />
+
         <PageHeader
           eyebrow="Parceiro / Cooperativa"
           title="Agenda de coletas"

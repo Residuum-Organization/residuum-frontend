@@ -15,6 +15,7 @@ import {
 } from "../services/discards";
 import { queryKeys } from "../services/queryKeys";
 import { getApiErrorMessage } from "../services/http/getApiErrorMessage";
+import { useAuth } from "../contexts/AuthContext";
 
 const formatResidueType = (type) =>
   String(type || "resíduo")
@@ -33,6 +34,8 @@ const formatDate = (value) =>
 export default function Aprovacao() {
   const [feedback, setFeedback] = useState(null);
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
 
   const {
     data: pendingDiscards = [],
@@ -127,7 +130,11 @@ export default function Aprovacao() {
   const hasPendingAction = confirmMutation.isLoading || rejectMutation.isLoading;
 
   return (
-    <AdminShell contentClassName="px-4 py-5 sm:px-6">
+    <AdminShell
+      environmentVariant={isAdmin ? "admin" : "operacional"}
+      showBottomNav={isAdmin}
+      contentClassName="px-4 py-5 sm:px-6"
+    >
       <div className="space-y-5 pb-4">
         <PageHeader
           eyebrow="Painel operacional"

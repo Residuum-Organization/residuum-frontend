@@ -4,6 +4,7 @@ import { BarChart3, RefreshCw } from "lucide-react";
 import StatCard from "../components/dashboard/StatCard";
 import LineChart from "../components/dashboard/LineChart";
 import PieChart from "../components/dashboard/PieChart";
+import OperationalHeader from "../components/coleta-dados/OperationalHeader";
 import PageContainer from "../components/layout/PageContainer";
 import PageHeader from "../components/ui/PageHeader";
 import SectionCard from "../components/ui/SectionCard";
@@ -28,6 +29,8 @@ export default function DashboardScreen() {
   return (
     <PageContainer className="bg-[var(--color-surface)]">
       <div className="space-y-5 rounded-2xl bg-[var(--color-surface-soft)] p-4 shadow-sm sm:p-6 lg:min-h-[calc(100vh-4rem)]">
+        <OperationalHeader />
+
         <PageHeader
           eyebrow="Parceiro / Cooperativa"
           title="Dashboard operacional"
