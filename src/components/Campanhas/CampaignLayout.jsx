@@ -1,33 +1,37 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import {
+  ArrowLeft,
   CircleCheck,
   LayoutGrid,
   MapPin,
   Megaphone,
   UsersRound,
 } from "lucide-react";
+import PageContainer from "../layout/PageContainer";
 
 export default function CampaignLayout({ children }) {
   return (
-    <main className="min-h-screen bg-[var(--color-surface)] px-3 py-4 sm:px-5 lg:px-8">
-      <section className="mx-auto flex min-h-screen w-full max-w-6xl flex-col rounded-2xl bg-[#fbfbff] shadow-sm sm:min-h-[760px] lg:min-h-[calc(100vh-2rem)]">
-        <div className="flex-1 overflow-y-auto px-5 pb-6 pt-6">
-          {children}
-        </div>
+    <PageContainer
+      className="bg-[var(--color-surface-soft)]"
+      innerClassName="flex min-h-[calc(100vh-2rem)] flex-col overflow-hidden rounded-2xl border border-[var(--color-border)] bg-white shadow-sm"
+    >
+      <div className="flex-1 overflow-y-auto px-4 py-5 sm:px-6 lg:px-8">
+        {children}
+      </div>
 
-        <MenuInferior />
-      </section>
-    </main>
+      <MenuInferior />
+    </PageContainer>
   );
 }
 
 export function LogoResiduum() {
   return (
-    <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-white shadow-md shadow-slate-300/70">
+    <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-[var(--color-border)] bg-white shadow-sm sm:h-14 sm:w-14">
       <img
         src="/logo.jpeg"
         alt="Residuum"
-        className="h-10 w-10 object-contain"
+        className="h-9 w-9 object-contain sm:h-10 sm:w-10"
       />
     </div>
   );
@@ -38,55 +42,37 @@ export function BotaoVoltar({ onClick }) {
     <button
       type="button"
       onClick={onClick}
-      className="mb-4 text-[13px] font-black text-[#241aa3] transition hover:text-[#3020a0]"
+      className="mb-4 inline-flex min-h-10 items-center gap-2 rounded-2xl border border-[var(--color-border)] bg-white px-3 text-sm font-bold text-[var(--color-primary)] transition hover:border-[var(--color-primary)]/40 hover:bg-[var(--color-surface)] focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/30 focus-visible:ring-offset-2"
     >
-      ← Voltar
+      <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+      Voltar
     </button>
   );
 }
 
 export function MenuInferior() {
+  const itens = [
+    { to: "/admin", label: "Admin", Icon: LayoutGrid },
+    { to: "/campanhas", label: "Campanhas", Icon: CircleCheck, active: true },
+    { to: "/mapa", label: "Mapa", Icon: MapPin },
+    { to: "/usuarios", label: "Usuarios", Icon: UsersRound },
+    { to: "/aprovacao", label: "Avisos", Icon: Megaphone },
+  ];
+
   return (
-    <footer className="grid min-h-[68px] w-full grid-cols-5 place-items-center rounded-b-2xl bg-[var(--color-primary)] px-3 text-white sm:px-4">
-      <button
-        type="button"
-        className="grid h-11 w-11 place-items-center text-white/90 transition active:scale-95"
-        aria-label="Menu"
-      >
-        <LayoutGrid size={26} strokeWidth={2.4} />
-      </button>
-
-      <button
-        type="button"
-        className="grid h-10 w-[74px] place-items-center rounded-full bg-white/20 text-white transition active:scale-95"
-        aria-label="Campanhas"
-      >
-        <CircleCheck size={27} strokeWidth={2.5} />
-      </button>
-
-      <button
-        type="button"
-        className="grid h-11 w-11 place-items-center text-white/90 transition active:scale-95"
-        aria-label="Mapa"
-      >
-        <MapPin size={27} strokeWidth={2.4} />
-      </button>
-
-      <button
-        type="button"
-        className="grid h-11 w-11 place-items-center text-white/90 transition active:scale-95"
-        aria-label="Usuários"
-      >
-        <UsersRound size={28} strokeWidth={2.4} />
-      </button>
-
-      <button
-        type="button"
-        className="grid h-11 w-11 place-items-center text-white/90 transition active:scale-95"
-        aria-label="Avisos"
-      >
-        <Megaphone size={27} strokeWidth={2.4} />
-      </button>
+    <footer className="grid min-h-[72px] w-full grid-cols-5 place-items-center border-t border-[var(--color-border)] bg-[var(--color-primary)] px-2 text-white sm:px-4">
+      {itens.map(({ to, label, Icon, active }) => (
+        <Link
+          key={to}
+          to={to}
+          className={`grid min-h-12 min-w-12 place-items-center rounded-2xl px-2 text-white transition active:scale-95 focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-primary)] ${
+            active ? "bg-white/20" : "hover:bg-white/10"
+          }`}
+          aria-label={label}
+        >
+          <Icon size={24} strokeWidth={2.4} aria-hidden="true" />
+        </Link>
+      ))}
     </footer>
   );
 }

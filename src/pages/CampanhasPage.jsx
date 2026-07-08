@@ -1,8 +1,24 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  CalendarDays,
+  ChevronRight,
+  Gift,
+  MapPin,
+  Megaphone,
+  Plus,
+  Recycle,
+  Trash2,
+} from "lucide-react";
 import CampaignLayout, {
   LogoResiduum,
 } from "../components/Campanhas/CampaignLayout";
+import Badge from "../components/ui/Badge";
+import Button from "../components/ui/Button";
+import EmptyState from "../components/ui/EmptyState";
+import InlineAlert from "../components/ui/InlineAlert";
+import PageHeader from "../components/ui/PageHeader";
+import SectionCard from "../components/ui/SectionCard";
 
 const campanhasPadrao = [
   {
@@ -39,7 +55,14 @@ export default function CampanhasPage() {
     setCampanhasCriadas(campanhasSalvas);
   }, []);
 
-  const todasCampanhas = [...campanhasPadrao, ...campanhasCriadas];
+  const todasCampanhas = useMemo(
+    () => [...campanhasPadrao, ...campanhasCriadas],
+    [campanhasCriadas]
+  );
+
+  const campanhasAtivas = todasCampanhas.filter(
+    (campanha) => campanha.status === "Ativa"
+  ).length;
 
   function abrirCampanha(campanha) {
     if (campanha.tipo === "heineken") {
@@ -52,7 +75,7 @@ export default function CampanhasPage() {
       return;
     }
 
-    setMensagem("A tela de detalhes dessa campanha ainda não foi criada.");
+    setMensagem("A tela de detalhes dessa campanha ainda nao foi criada.");
 
     setTimeout(() => {
       setMensagem("");
@@ -80,248 +103,279 @@ export default function CampanhasPage() {
 
   return (
     <CampaignLayout>
-      <Topo />
-
-      {mensagem && (
-        <div className="mb-5 rounded-2xl border border-indigo-200 bg-indigo-50 px-4 py-3 text-[12px] font-black text-[#3020a0]">
-          {mensagem}
-        </div>
-      )}
-
       <div className="space-y-5">
-        {todasCampanhas.map((campanha) => (
-          <CardCampanha
-            key={campanha.id}
-            campanha={campanha}
-            onClick={() => abrirCampanha(campanha)}
-            onDelete={
-              campanha.tipo === "personalizada"
-                ? () => excluirCampanha(campanha.id)
-                : null
-            }
-          />
-        ))}
+        <PageHeader
+          eyebrow="Modulo demonstrativo"
+          title="Campanhas"
+          description="Gerencie promocoes, marcas parceiras e a comunicacao de campanhas."
+          action={<LogoResiduum />}
+        />
+
+        <InlineAlert
+          variant="info"
+          title="Dados locais"
+          description="Esta tela combina campanhas demonstrativas com campanhas criadas no navegador. Nenhum endpoint novo foi acionado nesta fase."
+        />
+
+        {mensagem ? (
+          <InlineAlert variant="success" description={mensagem} />
+        ) : null}
+
+        <ResumoCampanhas
+          total={todasCampanhas.length}
+          ativas={campanhasAtivas}
+          locais={campanhasCriadas.length}
+        />
+
+        <SectionCard
+          title="Campanhas cadastradas"
+          description="Acompanhe status, periodo, abrangencia e progresso operacional."
+          action={
+            <Button
+              type="button"
+              onClick={() => navigate("/nova-campanha")}
+              className="w-full sm:w-auto"
+            >
+              <Plus className="mr-2 h-4 w-4" aria-hidden="true" />
+              Nova campanha
+            </Button>
+          }
+        >
+          {todasCampanhas.length ? (
+            <div className="grid gap-4 lg:grid-cols-2">
+              {todasCampanhas.map((campanha) => (
+                <CardCampanha
+                  key={campanha.id}
+                  campanha={campanha}
+                  onClick={() => abrirCampanha(campanha)}
+                  onDelete={
+                    campanha.tipo === "personalizada"
+                      ? () => excluirCampanha(campanha.id)
+                      : null
+                  }
+                />
+              ))}
+            </div>
+          ) : (
+            <EmptyState
+              title="Nenhuma campanha encontrada"
+              description="Crie uma campanha para organizar acoes de engajamento e premiacao."
+              actionLabel="Criar campanha"
+              onAction={() => navigate("/nova-campanha")}
+            />
+          )}
+        </SectionCard>
+
+        <div className="grid gap-4 lg:grid-cols-[1fr_1.2fr]">
+          <CampanhasEncerradas />
+          <NovaCampanhaSugerida onClick={() => navigate("/nova-campanha")} />
+        </div>
       </div>
-
-      <CampanhasEncerradas />
-
-      <NovaCampanhaSugerida onClick={() => navigate("/nova-campanha")} />
     </CampaignLayout>
   );
 }
 
-function Topo() {
+function ResumoCampanhas({ total, ativas, locais }) {
+  const cards = [
+    { label: "Total", value: total },
+    { label: "Ativas", value: ativas },
+    { label: "Criadas neste navegador", value: locais },
+  ];
+
   return (
-    <header className="mb-7 flex items-start justify-between">
-      <div>
-        <h1 className="text-[30px] font-black leading-none text-[#0c1187]">
-          Campanhas
-        </h1>
-
-        <p className="mt-2 text-[14px] font-black leading-4 text-[#0c1187]">
-          Gerencie promoções e engajamento
-        </p>
-      </div>
-
-      <LogoResiduum />
-    </header>
+    <div className="grid gap-3 sm:grid-cols-3">
+      {cards.map((item) => (
+        <div
+          key={item.label}
+          className="rounded-2xl border border-[var(--color-border)] bg-white p-4 shadow-sm"
+        >
+          <span className="text-xs font-bold uppercase text-[var(--color-text-muted)]">
+            {item.label}
+          </span>
+          <strong className="mt-2 block text-2xl font-extrabold text-[var(--color-primary)]">
+            {item.value}
+          </strong>
+        </div>
+      ))}
+    </div>
   );
 }
 
 function CardCampanha({ campanha, onClick, onDelete }) {
   const temProgresso = campanha.progresso > 0;
+  const isLocal = campanha.tipo === "personalizada";
 
   return (
-    <div className="relative">
+    <article className="relative rounded-2xl border border-[var(--color-border)] bg-white p-4 shadow-sm transition hover:border-[var(--color-primary)]/40">
       <button
         type="button"
         onClick={onClick}
-        className="w-full rounded-[24px] border-2 border-[#5644ce] bg-[#f3f2fb] px-4 py-4 text-left transition active:scale-[0.99]"
+        className="w-full text-left focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/30 focus-visible:ring-offset-2"
       >
-        <div className="grid grid-cols-[58px_1fr] gap-3">
+        <div className="grid grid-cols-[52px_1fr] gap-3 sm:grid-cols-[60px_1fr]">
           <LogoCampanha tipo={campanha.tipo} empresa={campanha.empresa} />
 
-          <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-2 pr-8">
-              <h2 className="text-[18px] font-black leading-5 text-[#062d61]">
+          <div className="min-w-0 pr-9">
+            <div className="flex flex-wrap items-center gap-2">
+              <h2 className="text-lg font-extrabold leading-6 text-[var(--color-primary)]">
                 {campanha.nome}
               </h2>
 
               <StatusBadge status={campanha.status} />
+              {isLocal ? <Badge variant="primary">Local</Badge> : null}
             </div>
 
-            <p className="mt-2 text-[11px] font-black text-[#079628]">
+            <p className="mt-1 text-sm font-bold text-[var(--color-accent)]">
               {campanha.empresa}
             </p>
 
-            <div className="mt-3 space-y-2">
-              <InfoLinha icone="📅" texto={campanha.periodo} />
-              <InfoLinha icone="📍" texto={campanha.locais} />
+            <div className="mt-3 grid gap-2 text-sm font-medium text-[var(--color-text-muted)]">
+              <InfoLinha icon={CalendarDays} texto={campanha.periodo} />
+              <InfoLinha icon={MapPin} texto={campanha.locais} />
 
-              {campanha.residuo && (
-                <InfoLinha icone="♻️" texto={campanha.residuo} />
-              )}
+              {campanha.residuo ? (
+                <InfoLinha icon={Recycle} texto={campanha.residuo} />
+              ) : null}
             </div>
           </div>
         </div>
 
-        {temProgresso && <BarraProgresso progresso={campanha.progresso} />}
+        {temProgresso ? <BarraProgresso progresso={campanha.progresso} /> : null}
+
+        <span className="mt-4 inline-flex items-center text-sm font-bold text-[var(--color-primary)]">
+          Ver detalhes
+          <ChevronRight className="ml-1 h-4 w-4" aria-hidden="true" />
+        </span>
       </button>
 
-      {onDelete && (
+      {onDelete ? (
         <button
           type="button"
           onClick={(event) => {
             event.stopPropagation();
             onDelete();
           }}
-          className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full bg-red-100 text-[14px] font-black text-red-600"
+          className="absolute right-3 top-3 grid h-10 w-10 place-items-center rounded-2xl border border-red-200 bg-red-50 text-red-700 transition hover:bg-red-100 focus-visible:ring-2 focus-visible:ring-red-200 focus-visible:ring-offset-2"
           title="Excluir campanha"
+          aria-label="Excluir campanha"
         >
-          ×
+          <Trash2 className="h-4 w-4" aria-hidden="true" />
         </button>
-      )}
-    </div>
+      ) : null}
+    </article>
   );
 }
 
 function LogoCampanha({ tipo, empresa }) {
+  const label = empresa ? empresa.charAt(0).toUpperCase() : "N";
+
   if (tipo === "heineken") {
     return (
-      <div className="relative grid h-[58px] w-[58px] place-items-center rounded-full bg-[#00843d] text-[8px] font-black leading-none text-white">
-        <span className="absolute top-[9px] h-[12px] w-[12px] bg-red-600 [clip-path:polygon(50%_0%,62%_35%,100%_35%,69%_57%,82%_100%,50%_74%,18%_100%,31%_57%,0%_35%,38%_35%)]" />
-        <span className="mt-3">Heineken</span>
+      <div className="grid h-[52px] w-[52px] place-items-center rounded-2xl bg-[#00843d] text-xs font-extrabold text-white sm:h-[60px] sm:w-[60px]">
+        H
       </div>
     );
   }
 
   if (tipo === "coca") {
     return (
-      <div className="grid h-[58px] w-[58px] place-items-center rounded-full bg-red-600 text-[20px] font-black text-white">
+      <div className="grid h-[52px] w-[52px] place-items-center rounded-2xl bg-red-600 text-xl font-extrabold text-white sm:h-[60px] sm:w-[60px]">
         C
       </div>
     );
   }
 
   return (
-    <div className="grid h-[58px] w-[58px] place-items-center rounded-full bg-[#3020a0] text-[20px] font-black text-white">
-      {empresa ? empresa.charAt(0).toUpperCase() : "N"}
+    <div className="grid h-[52px] w-[52px] place-items-center rounded-2xl bg-[var(--color-primary)] text-xl font-extrabold text-white sm:h-[60px] sm:w-[60px]">
+      {label}
     </div>
   );
 }
 
 function StatusBadge({ status }) {
-  const styles =
-    status === "Ativa"
-      ? "border-[#48d554] bg-[#c7ffc4] text-[#079628]"
-      : "border-orange-300 bg-orange-100 text-orange-600";
+  if (status === "Ativa") {
+    return <Badge variant="success">Ativa</Badge>;
+  }
 
-  return (
-    <span
-      className={`rounded-full border px-3 py-1 text-[10px] font-black leading-none ${styles}`}
-    >
-      {status}
-    </span>
-  );
+  return <Badge variant="warning">{status}</Badge>;
 }
 
-function InfoLinha({ icone, texto }) {
+function InfoLinha({ icon: Icon, texto }) {
   return (
-    <div className="flex items-center gap-2 text-[12px] font-black leading-none text-[#062d61]">
-      <span>{icone}</span>
-      <span>{texto}</span>
+    <div className="flex min-w-0 items-center gap-2">
+      <Icon className="h-4 w-4 shrink-0 text-[var(--color-primary)]" />
+      <span className="min-w-0 break-words">{texto}</span>
     </div>
   );
 }
 
 function BarraProgresso({ progresso }) {
   return (
-    <div className="mt-4 rounded-full border border-[#6456dd] bg-white px-3 py-3">
-      <p className="mb-2 text-[11px] font-black leading-none text-[#062d61]">
-        Progresso da campanha
-      </p>
+    <div className="mt-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-3">
+      <div className="mb-2 flex items-center justify-between gap-3">
+        <p className="text-xs font-bold text-[var(--color-primary)]">
+          Progresso da campanha
+        </p>
+        <p className="text-xs font-bold text-[var(--color-text-muted)]">
+          {progresso}%
+        </p>
+      </div>
 
-      <div className="h-2 overflow-hidden rounded-full bg-[#d7d7d7]">
+      <div className="h-2 overflow-hidden rounded-full bg-slate-200">
         <div
-          className="h-full rounded-full bg-[#139928]"
+          className="h-full rounded-full bg-[var(--color-accent)]"
           style={{ width: `${progresso}%` }}
         />
       </div>
-
-      <p className="mt-2 text-right text-[9px] font-black leading-none text-[#062d61]">
-        {progresso}% do período concluído
-      </p>
     </div>
   );
 }
 
 function CampanhasEncerradas() {
   return (
-    <div className="mt-6 rounded-[24px] border-2 border-[#5644ce] bg-[#fbfbff] px-4 py-4">
-      <div className="flex items-center gap-4">
-        <div className="grid h-12 w-12 place-items-center rounded-full bg-[#efedff] text-[24px]">
-          🎁
-        </div>
-
-        <div>
-          <h3 className="text-[15px] font-black leading-4 text-black">
-            Nenhuma campanha encerrada
-          </h3>
-
-          <p className="mt-1 text-[12px] font-black leading-4 text-[#062d61]">
-            Campanhas finalizadas aparecerão aqui
-          </p>
-        </div>
-      </div>
-    </div>
+    <SectionCard
+      title="Campanhas encerradas"
+      description="Historico de acoes finalizadas."
+      className="h-full"
+    >
+      <EmptyState
+        icon={Gift}
+        title="Nenhuma campanha encerrada"
+        description="Campanhas finalizadas aparecerao aqui quando existirem dados no fluxo."
+        className="py-6"
+      />
+    </SectionCard>
   );
 }
 
 function NovaCampanhaSugerida({ onClick }) {
   return (
-    <section className="mt-8 border-t border-slate-300 pt-6">
-      <h2 className="text-[23px] font-black leading-none text-[#062d61]">
-        Nova Campanha sugerida
-      </h2>
-
-      <p className="mt-3 text-[13px] font-black leading-5 text-[#062d61]">
-        Crie uma nova campanha de patrocínio em poucos passos
-      </p>
-
+    <SectionCard
+      title="Nova campanha"
+      description="Cadastre uma acao de patrocinio sem alterar integracoes ou endpoints."
+      className="h-full"
+    >
       <button
         type="button"
         onClick={onClick}
-        className="mt-5 flex w-full items-center gap-4 rounded-[24px] border-2 border-[#5644ce] bg-[#f3f2fb] px-4 py-5 text-left transition active:scale-[0.99]"
+        className="flex w-full flex-col gap-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-4 text-left transition hover:border-[var(--color-primary)]/40 sm:flex-row sm:items-center"
       >
-        <IconeNovaCampanha />
+        <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-[var(--color-primary)] text-white">
+          <Megaphone className="h-7 w-7" aria-hidden="true" />
+        </div>
 
-        <div className="flex-1">
-          <h3 className="text-[17px] font-black leading-5 text-[#062d61]">
-            Crie uma nova campanha
+        <div className="min-w-0 flex-1">
+          <h3 className="text-base font-extrabold text-[var(--color-primary)]">
+            Criar campanha personalizada
           </h3>
 
-          <p className="mt-2 text-[12px] font-black leading-4 text-[#062d61]">
-            Preencha as informações da empresa parceira, período, tipos de
-            resíduos e premiação
+          <p className="mt-1 text-sm font-medium text-[var(--color-text-muted)]">
+            Organize empresa parceira, periodo, residuos e premiacao.
           </p>
         </div>
 
-        <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#3020a0] text-xl font-black text-white">
-          →
-        </div>
+        <ChevronRight className="h-5 w-5 shrink-0 text-[var(--color-primary)]" />
       </button>
-    </section>
-  );
-}
-
-function IconeNovaCampanha() {
-  return (
-    <div className="relative h-[78px] w-[66px] shrink-0">
-      <div className="absolute left-0 top-2 h-[60px] w-[42px] rounded-xl border-2 border-[#00843d]" />
-      <div className="absolute left-4 top-0 h-[66px] w-[42px] rounded-xl border-2 border-[#00843d] bg-[#f3f2fb]" />
-      <div className="absolute bottom-1 right-0 grid h-7 w-7 place-items-center rounded-full bg-[#00843d] text-lg font-black text-white">
-        +
-      </div>
-    </div>
+    </SectionCard>
   );
 }

@@ -1,9 +1,16 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { CalendarDays, Gift, MapPin, Recycle, Users } from "lucide-react";
 import CampaignLayout, {
   BotaoVoltar,
   LogoResiduum,
 } from "../components/Campanhas/CampaignLayout";
+import FormField from "../components/forms/FormField";
+import Button from "../components/ui/Button";
+import InlineAlert from "../components/ui/InlineAlert";
+import LoadingButton from "../components/ui/LoadingButton";
+import PageHeader from "../components/ui/PageHeader";
+import SectionCard from "../components/ui/SectionCard";
 
 const estadoInicial = {
   nome: "",
@@ -78,128 +85,204 @@ export default function NovaCampanhaPage() {
 
   return (
     <CampaignLayout>
-      <Topo onVoltar={() => navigate("/campanhas")} />
-
-      {erro && (
-        <div className="mb-5 rounded-2xl border border-red-300 bg-red-50 px-4 py-3 text-[12px] font-black text-red-700">
-          {erro}
+      <div className="space-y-5">
+        <div>
+          <BotaoVoltar onClick={() => navigate("/campanhas")} />
+          <PageHeader
+            eyebrow="Cadastro local"
+            title="Nova Campanha"
+            description="Preencha os dados da empresa parceira, periodo, publico e premiacao."
+            action={<LogoResiduum />}
+          />
         </div>
-      )}
 
-      {sucesso && (
-        <div className="mb-5 rounded-2xl border border-green-300 bg-green-50 px-4 py-3 text-[12px] font-black text-green-700">
-          Campanha cadastrada com sucesso! Redirecionando...
-        </div>
-      )}
+        <InlineAlert
+          variant="warning"
+          title="Fluxo demonstrativo"
+          description="A campanha criada sera salva no navegador via localStorage. Nenhum endpoint ou payload de API foi alterado."
+        />
 
-      <form
-        onSubmit={salvarCampanha}
-        className="rounded-[24px] border-2 border-[#5644ce] bg-[#f3f2fb] px-4 py-5"
-      >
-        <div className="space-y-4">
-          <Campo
-            label="Nome da campanha"
-            name="nome"
-            value={formulario.nome}
-            onChange={atualizarCampo}
-            placeholder="Ex: Campanha Heineken"
+        {erro ? <InlineAlert variant="error" description={erro} /> : null}
+
+        {sucesso ? (
+          <InlineAlert
+            variant="success"
+            description="Campanha cadastrada com sucesso. Redirecionando..."
           />
+        ) : null}
 
-          <Campo
-            label="Empresa parceira"
-            name="empresa"
-            value={formulario.empresa}
-            onChange={atualizarCampo}
-            placeholder="Ex: Heineken"
-          />
+        <form onSubmit={salvarCampanha} className="space-y-5">
+          <SectionCard
+            title="Dados basicos"
+            description="Identifique a campanha e a marca responsavel."
+          >
+            <div className="grid gap-4 md:grid-cols-2">
+              <FormField
+                id="nome"
+                label="Nome da campanha"
+                name="nome"
+                value={formulario.nome}
+                onChange={atualizarCampo}
+                placeholder="Ex: Campanha Heineken"
+              />
 
-          <Campo
-            label="Período da campanha"
-            name="periodo"
-            value={formulario.periodo}
-            onChange={atualizarCampo}
-            placeholder="Ex: 01/04/2026 - 30/04/2026"
-          />
+              <FormField
+                id="empresa"
+                label="Empresa parceira"
+                name="empresa"
+                value={formulario.empresa}
+                onChange={atualizarCampo}
+                placeholder="Ex: Heineken"
+              />
+            </div>
+          </SectionCard>
 
-          <Campo
-            label="Regiões participantes"
-            name="locais"
-            value={formulario.locais}
-            onChange={atualizarCampo}
-            placeholder="Ex: Norte, Sul e Leste"
-          />
+          <div className="grid gap-5 lg:grid-cols-2">
+            <SectionCard
+              title="Periodo"
+              description="Informe a janela operacional da campanha."
+            >
+              <CampoComIcone icon={CalendarDays}>
+                <FormField
+                  id="periodo"
+                  label="Periodo da campanha"
+                  name="periodo"
+                  value={formulario.periodo}
+                  onChange={atualizarCampo}
+                  placeholder="Ex: 01/04/2026 - 30/04/2026"
+                />
+              </CampoComIcone>
+            </SectionCard>
 
-          <Campo
-            label="Tipo de resíduo"
-            name="residuo"
-            value={formulario.residuo}
-            onChange={atualizarCampo}
-            placeholder="Ex: Garrafas PET"
-          />
+            <SectionCard
+              title="Publico e condicoes"
+              description="Defina regioes e material aceito."
+            >
+              <div className="grid gap-4">
+                <CampoComIcone icon={MapPin}>
+                  <FormField
+                    id="locais"
+                    label="Regioes participantes"
+                    name="locais"
+                    value={formulario.locais}
+                    onChange={atualizarCampo}
+                    placeholder="Ex: Norte, Sul e Leste"
+                  />
+                </CampoComIcone>
 
-          <div>
-            <label className="mb-2 block text-[12px] font-black text-[#062d61]">
-              Premiação
-            </label>
-
-            <textarea
-              name="premiacao"
-              value={formulario.premiacao}
-              onChange={atualizarCampo}
-              placeholder="Descreva os prêmios da campanha"
-              className="h-28 w-full resize-none rounded-2xl border-2 border-[#5644ce] bg-white px-4 py-3 text-[13px] font-bold text-[#062d61] outline-none placeholder:text-slate-400"
-            />
+                <CampoComIcone icon={Recycle}>
+                  <FormField
+                    id="residuo"
+                    label="Tipo de residuo"
+                    name="residuo"
+                    value={formulario.residuo}
+                    onChange={atualizarCampo}
+                    placeholder="Ex: Garrafas PET"
+                  />
+                </CampoComIcone>
+              </div>
+            </SectionCard>
           </div>
-        </div>
 
-        <button
-          type="submit"
-          disabled={sucesso}
-          className="mt-6 w-full rounded-full bg-[#3020a0] py-4 text-[15px] font-black text-white transition active:scale-[0.98] disabled:opacity-60"
-        >
-          {sucesso ? "Salvando..." : "Salvar campanha"}
-        </button>
-      </form>
+          <SectionCard
+            title="Recompensa e premiacao"
+            description="Descreva os premios ou beneficios previstos."
+          >
+            <CampoComIcone icon={Gift}>
+              <FormField
+                id="premiacao"
+                as="textarea"
+                label="Premiacao"
+                name="premiacao"
+                value={formulario.premiacao}
+                onChange={atualizarCampo}
+                placeholder="Descreva os premios da campanha"
+              />
+            </CampoComIcone>
+          </SectionCard>
+
+          <SectionCard
+            title="Pontos de coleta participantes"
+            description="Esta versao ainda usa a descricao de regioes participantes informada acima."
+          >
+            <div className="flex items-start gap-3 rounded-2xl border border-dashed border-[var(--color-border)] bg-[var(--color-surface)] p-4">
+              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-white text-[var(--color-primary)] shadow-sm">
+                <Users className="h-5 w-5" aria-hidden="true" />
+              </div>
+              <p className="text-sm font-medium leading-6 text-[var(--color-text-muted)]">
+                Nenhum seletor de pontos foi adicionado nesta fase para preservar
+                o fluxo atual. Use o campo de regioes participantes para orientar
+                a campanha.
+              </p>
+            </div>
+          </SectionCard>
+
+          <SectionCard
+            title="Revisao"
+            description="Confira os principais dados antes de salvar."
+          >
+            <ResumoFormulario formulario={formulario} />
+          </SectionCard>
+
+          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => navigate("/campanhas")}
+              disabled={sucesso}
+            >
+              Cancelar
+            </Button>
+            <LoadingButton
+              type="submit"
+              isLoading={sucesso}
+              loadingText="Salvando..."
+              disabled={sucesso}
+            >
+              Salvar campanha
+            </LoadingButton>
+          </div>
+        </form>
+      </div>
     </CampaignLayout>
   );
 }
 
-function Topo({ onVoltar }) {
+function CampoComIcone({ icon: Icon, children }) {
   return (
-    <header className="mb-6 flex items-start justify-between">
-      <div>
-        <BotaoVoltar onClick={onVoltar} />
-
-        <h1 className="text-[28px] font-black leading-none text-[#0c1187]">
-          Nova Campanha
-        </h1>
-
-        <p className="mt-3 text-[13px] font-black leading-5 text-[#062d61]">
-          Preencha as informações da empresa parceira, período, tipos de
-          resíduos e premiação.
-        </p>
+    <div className="grid gap-3 sm:grid-cols-[44px_1fr]">
+      <div className="hidden h-11 w-11 place-items-center rounded-2xl bg-[var(--color-surface)] text-[var(--color-primary)] sm:grid">
+        <Icon className="h-5 w-5" aria-hidden="true" />
       </div>
-
-      <LogoResiduum />
-    </header>
+      <div className="min-w-0">{children}</div>
+    </div>
   );
 }
 
-function Campo({ label, name, value, onChange, placeholder }) {
-  return (
-    <div>
-      <label className="mb-2 block text-[12px] font-black text-[#062d61]">
-        {label}
-      </label>
+function ResumoFormulario({ formulario }) {
+  const itens = [
+    ["Campanha", formulario.nome || "Nao informado"],
+    ["Empresa", formulario.empresa || "Nao informado"],
+    ["Periodo", formulario.periodo || "Nao informado"],
+    ["Regioes", formulario.locais || "Nao informado"],
+    ["Residuo", formulario.residuo || "Nao informado"],
+  ];
 
-      <input
-        type="text"
-        name={name}
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder}
-        className="w-full rounded-2xl border-2 border-[#5644ce] bg-white px-4 py-3 text-[13px] font-bold text-[#062d61] outline-none placeholder:text-slate-400"
-      />
-    </div>
+  return (
+    <dl className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      {itens.map(([label, value]) => (
+        <div
+          key={label}
+          className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-3"
+        >
+          <dt className="text-xs font-bold uppercase text-[var(--color-text-muted)]">
+            {label}
+          </dt>
+          <dd className="mt-1 break-words text-sm font-semibold text-[var(--color-primary)]">
+            {value}
+          </dd>
+        </div>
+      ))}
+    </dl>
   );
 }
