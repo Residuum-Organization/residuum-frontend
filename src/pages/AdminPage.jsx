@@ -9,7 +9,7 @@ import AdminShell from "../components/admin/AdminShell";
 
 export default function AdminPage() {
   return (
-    <AdminShell contentClassName="px-5 pt-5">
+    <AdminShell>
       <AdminHeader />
       <AdminStats />
       <QuickActions />

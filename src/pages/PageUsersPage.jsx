@@ -1,7 +1,35 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { Search, X, Check, ChevronLeft, ChevronRight, Shield, ShieldOff, Trash2, Pencil, Loader2 } from "lucide-react";
+import React, { useCallback, useEffect, useState } from "react";
+import {
+  CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
+  Loader2,
+  Pencil,
+  Search,
+  Shield,
+  ShieldOff,
+  Trash2,
+  UserRound,
+  X,
+} from "lucide-react";
+
 import AdminShell from "../components/admin/AdminShell";
-import { listUsers, updateUserRole, deleteUser, updateUser } from "../services/admin";
+import Badge from "../components/ui/Badge";
+import Button from "../components/ui/Button";
+import EmptyState from "../components/ui/EmptyState";
+import ErrorState from "../components/ui/ErrorState";
+import InlineAlert from "../components/ui/InlineAlert";
+import LoadingButton from "../components/ui/LoadingButton";
+import LoadingState from "../components/ui/LoadingState";
+import PageHeader from "../components/ui/PageHeader";
+import SectionCard from "../components/ui/SectionCard";
+import { deleteUser, listUsers, updateUser, updateUserRole } from "../services/admin";
+
+const roles = [
+  { value: "", label: "Todos" },
+  { value: "usuario", label: "Usuarios" },
+  { value: "admin", label: "Admins" },
+];
 
 export default function PageUsers() {
   const [users, setUsers] = useState([]);
@@ -13,16 +41,17 @@ export default function PageUsers() {
   const [filterRole, setFilterRole] = useState("");
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(null);
+  const [loadError, setLoadError] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
-  // Modal de edição
   const [editModal, setEditModal] = useState(null);
   const [editForm, setEditForm] = useState({ nome: "", email: "", telefone: "" });
-
-  // Modal de confirmação de exclusão
   const [deleteConfirm, setDeleteConfirm] = useState(null);
 
   const loadUsers = useCallback(async () => {
     setLoading(true);
+    setLoadError("");
     try {
       const data = await listUsers({
         page,
@@ -34,8 +63,9 @@ export default function PageUsers() {
       setUsers(data.itens || []);
       setTotal(data.total || 0);
     } catch (error) {
-      alert(error.message);
+      setLoadError(error.message);
       setUsers([]);
+      setTotal(0);
     } finally {
       setLoading(false);
     }
@@ -47,16 +77,31 @@ export default function PageUsers() {
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
+  const clearFeedback = () => {
+    setErrorMessage("");
+    setSuccessMessage("");
+  };
+
   const handleRoleToggle = async (user) => {
     const newRole = user.role === "admin" ? "usuario" : "admin";
-    if (!confirm(`Tem certeza que deseja ${newRole === "admin" ? "promover" : "rebaixar"} "${user.nome}"?`)) return;
+    if (
+      !confirm(
+        `Tem certeza que deseja ${
+          newRole === "admin" ? "promover" : "rebaixar"
+        } "${user.nome}"?`
+      )
+    ) {
+      return;
+    }
 
+    clearFeedback();
     setActionLoading(user.id);
     try {
       await updateUserRole(user.id, newRole);
       await loadUsers();
+      setSuccessMessage("Permissao atualizada com sucesso.");
     } catch (error) {
-      alert(error.message);
+      setErrorMessage(error.message);
     } finally {
       setActionLoading(null);
     }
@@ -64,318 +109,441 @@ export default function PageUsers() {
 
   const handleDelete = async (user) => {
     setDeleteConfirm(null);
+    clearFeedback();
     setActionLoading(user.id);
     try {
       await deleteUser(user.id);
-      await loadUsers();
-      if (users.length === 1 && page > 1) setPage(page - 1);
+      if (users.length === 1 && page > 1) {
+        setPage(page - 1);
+      } else {
+        await loadUsers();
+      }
+      setSuccessMessage("Usuario removido com sucesso.");
     } catch (error) {
-      alert(error.message);
+      setErrorMessage(error.message);
     } finally {
       setActionLoading(null);
     }
   };
 
   const openEditModal = (user) => {
-    setEditForm({ nome: user.nome, email: user.email, telefone: user.telefone || "" });
+    clearFeedback();
+    setEditForm({
+      nome: user.nome,
+      email: user.email,
+      telefone: user.telefone || "",
+    });
     setEditModal(user);
   };
 
   const handleEditSave = async () => {
     if (!editModal) return;
+    clearFeedback();
     setActionLoading(editModal.id);
     try {
       await updateUser(editModal.id, editForm);
       setEditModal(null);
       await loadUsers();
+      setSuccessMessage("Usuario atualizado com sucesso.");
     } catch (error) {
-      alert(error.message);
+      setErrorMessage(error.message);
     } finally {
       setActionLoading(null);
     }
   };
 
-  const getInitials = (name) => {
-    return name
+  const getInitials = (name = "") =>
+    name
       .split(" ")
-      .map((w) => w[0])
+      .map((word) => word[0])
       .join("")
       .toUpperCase()
       .slice(0, 2) || "??";
-  };
 
   return (
-    <AdminShell contentClassName="px-5 py-5">
-      <div className="rounded-[28px] bg-white p-6 shadow-lg">
-        {/* Cabeçalho */}
-        <div className="mb-4 flex items-center">
-          <div className="mr-3 rounded-lg bg-blue-100 p-2">
-            <svg width="28" height="28" fill="none" viewBox="0 0 24 24">
-              <path
-                fill="#2B4B6F"
-                d="M6 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H6Zm0 2h12v16H6V4Zm2 2v2h8V6H8Zm0 4v2h8v-2H8Zm0 4v2h5v-2H8Z"
-              />
-            </svg>
-          </div>
+    <AdminShell>
+      <PageHeader
+        eyebrow="Administracao"
+        title="Usuarios"
+        description="Consulte, filtre e gerencie perfis cadastrados."
+      />
+
+      <SectionCard
+        className="mt-5"
+        title="Busca e filtros"
+        description={`${total} usuario(s) encontrados conforme os filtros atuais.`}
+      >
+        <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] lg:items-end">
+          <SearchField
+            label="Nome"
+            placeholder="Buscar por nome..."
+            value={searchNome}
+            onChange={(value) => {
+              setSearchNome(value);
+              setPage(1);
+            }}
+          />
+          <SearchField
+            label="E-mail"
+            placeholder="Buscar por e-mail..."
+            value={searchEmail}
+            onChange={(value) => {
+              setSearchEmail(value);
+              setPage(1);
+            }}
+          />
           <div>
-            <div className="text-xl font-semibold text-gray-800">Usuários</div>
-            <div className="text-xs text-gray-500">{total} cadastrados</div>
+            <p className="mb-2 text-xs font-extrabold uppercase text-[var(--color-text-muted)]">
+              Perfil
+            </p>
+            <div className="flex gap-2 overflow-x-auto pb-1">
+              {roles.map((role) => (
+                <button
+                  key={role.value}
+                  type="button"
+                  className={`min-h-11 shrink-0 rounded-full border px-4 text-sm font-bold transition focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/30 ${
+                    filterRole === role.value
+                      ? "border-[var(--color-primary)] bg-[var(--color-primary)] text-white"
+                      : "border-[var(--color-border)] bg-white text-[var(--color-text-muted)] hover:border-[var(--color-primary)]/40"
+                  }`}
+                  onClick={() => {
+                    setFilterRole(role.value);
+                    setPage(1);
+                  }}
+                >
+                  {role.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
+      </SectionCard>
 
-        {/* Busca */}
-        <div className="mb-3 flex flex-col gap-2 sm:flex-row">
-          <div className="relative flex-1">
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input
-              className="w-full rounded-lg border border-gray-200 py-2 pl-9 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
-              placeholder="Buscar por nome..."
-              value={searchNome}
-              onChange={(e) => { setSearchNome(e.target.value); setPage(1); }}
-            />
-          </div>
-          <div className="relative flex-1">
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input
-              className="w-full rounded-lg border border-gray-200 py-2 pl-9 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
-              placeholder="Buscar por e-mail..."
-              value={searchEmail}
-              onChange={(e) => { setSearchEmail(e.target.value); setPage(1); }}
-            />
-          </div>
-        </div>
+      {successMessage ? (
+        <InlineAlert
+          className="mt-4"
+          variant="success"
+          title="Acao concluida"
+          description={successMessage}
+        />
+      ) : null}
 
-        {/* Filtros de role */}
-        <div className="mb-4 flex gap-2">
-          {["", "usuario", "admin"].map((role) => (
-            <button
-              key={role}
-              className={`rounded-full px-3 py-1 text-xs font-medium transition ${
-                filterRole === role
-                  ? role === "admin"
-                    ? "bg-purple-100 text-purple-700"
-                    : "bg-blue-100 text-blue-700"
-                  : "bg-gray-100 text-gray-500 hover:bg-blue-50"
-              }`}
-              onClick={() => { setFilterRole(role); setPage(1); }}
-            >
-              {role === "" ? "Todos" : role === "admin" ? "Admins" : "Usuários"}
-            </button>
-          ))}
-        </div>
+      {errorMessage ? (
+        <InlineAlert
+          className="mt-4"
+          variant="error"
+          title="Acao nao concluida"
+          description={errorMessage}
+        />
+      ) : null}
 
-        {/* Lista de usuários */}
+      <SectionCard className="mt-5" title="Lista de usuarios">
         {loading ? (
-          <div className="flex items-center justify-center py-16">
-            <Loader2 size={32} className="animate-spin text-[var(--color-welcome-blue)]" />
-          </div>
+          <LoadingState
+            title="Carregando usuarios..."
+            description="Consultando a API administrativa."
+            size="lg"
+          />
+        ) : loadError ? (
+          <ErrorState
+            title="Nao foi possivel carregar usuarios."
+            description={loadError}
+            actionLabel="Tentar novamente"
+            onAction={loadUsers}
+          />
         ) : users.length === 0 ? (
-          <div className="py-16 text-center text-sm text-gray-500">
-            Nenhum usuário encontrado.
-          </div>
+          <EmptyState
+            title="Nenhum usuario encontrado."
+            description="Revise a busca ou altere o filtro de perfil."
+            icon={UserRound}
+          />
         ) : (
-          <div className="space-y-3">
-            {users.map((user) => (
-              <div
-                key={user.id}
-                className="flex flex-col gap-3 rounded-xl bg-white p-4 shadow-md"
-              >
-                <div className="flex items-start gap-4">
-                  <div
-                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-lg font-bold text-white shadow-sm"
-                    style={{
-                      backgroundColor: user.role === "admin" ? "#7C3AED" : "#2B4B6F",
-                    }}
-                  >
-                    {getInitials(user.nome)}
-                  </div>
+          <>
+            <div className="grid gap-3 xl:grid-cols-2">
+              {users.map((user) => (
+                <UserCard
+                  key={user.id}
+                  user={user}
+                  initials={getInitials(user.nome)}
+                  loading={actionLoading === user.id}
+                  onEdit={() => openEditModal(user)}
+                  onToggleRole={() => handleRoleToggle(user)}
+                  onDelete={() => setDeleteConfirm(user)}
+                />
+              ))}
+            </div>
 
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="truncate text-base font-semibold text-gray-800">
-                            {user.nome}
-                          </span>
-                          {user.role === "admin" && (
-                            <span className="shrink-0 rounded-full bg-purple-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-purple-700">
-                              Admin
-                            </span>
-                          )}
-                        </div>
-                        <div className="text-xs text-gray-500">{user.email}</div>
-                        <div className="mt-1 text-xs text-gray-400">
-                          {user.telefone || "Sem telefone"}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Ações */}
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      <button
-                        onClick={() => openEditModal(user)}
-                        disabled={actionLoading === user.id}
-                        className="inline-flex items-center gap-1.5 rounded-lg border border-blue-200 px-3 py-1.5 text-xs font-semibold text-blue-700 transition hover:bg-blue-50 disabled:opacity-50"
-                      >
-                        <Pencil size={14} /> Editar
-                      </button>
-
-                      <button
-                        onClick={() => handleRoleToggle(user)}
-                        disabled={actionLoading === user.id}
-                        className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition disabled:opacity-50 ${
-                          user.role === "admin"
-                            ? "border-orange-200 text-orange-700 hover:bg-orange-50"
-                            : "border-purple-200 text-purple-700 hover:bg-purple-50"
-                        }`}
-                      >
-                        {actionLoading === user.id ? (
-                          <Loader2 size={14} className="animate-spin" />
-                        ) : user.role === "admin" ? (
-                          <ShieldOff size={14} />
-                        ) : (
-                          <Shield size={14} />
-                        )}
-                        {user.role === "admin" ? "Rebaixar" : "Tornar admin"}
-                      </button>
-
-                      <button
-                        onClick={() => setDeleteConfirm(user)}
-                        disabled={actionLoading === user.id}
-                        className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-50 disabled:opacity-50"
-                      >
-                        {actionLoading === user.id ? (
-                          <Loader2 size={14} className="animate-spin" />
-                        ) : (
-                          <Trash2 size={14} />
-                        )}
-                        Remover
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+            {totalPages > 1 ? (
+              <Pagination
+                page={page}
+                totalPages={totalPages}
+                onPrevious={() => setPage((current) => Math.max(1, current - 1))}
+                onNext={() =>
+                  setPage((current) => Math.min(totalPages, current + 1))
+                }
+              />
+            ) : null}
+          </>
         )}
+      </SectionCard>
 
-        {/* Paginação */}
-        {totalPages > 1 && (
-          <div className="mt-6 flex items-center justify-center gap-4">
-            <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page <= 1}
-              className="inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm font-semibold text-gray-600 transition hover:bg-gray-100 disabled:opacity-40"
-            >
-              <ChevronLeft size={16} /> Anterior
-            </button>
-            <span className="text-sm font-semibold text-gray-600">
-              {page} de {totalPages}
-            </span>
-            <button
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={page >= totalPages}
-              className="inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm font-semibold text-gray-600 transition hover:bg-gray-100 disabled:opacity-40"
-            >
-              Próximo <ChevronRight size={16} />
-            </button>
+      {editModal ? (
+        <EditDialog
+          form={editForm}
+          setForm={setEditForm}
+          loading={actionLoading === editModal.id}
+          onClose={() => setEditModal(null)}
+          onSave={handleEditSave}
+        />
+      ) : null}
+
+      {deleteConfirm ? (
+        <DeleteDialog
+          user={deleteConfirm}
+          loading={actionLoading === deleteConfirm.id}
+          onClose={() => setDeleteConfirm(null)}
+          onConfirm={() => handleDelete(deleteConfirm)}
+        />
+      ) : null}
+    </AdminShell>
+  );
+}
+
+function SearchField({ label, placeholder, value, onChange }) {
+  return (
+    <label className="block">
+      <span className="mb-2 block text-xs font-extrabold uppercase text-[var(--color-text-muted)]">
+        {label}
+      </span>
+      <span className="relative block">
+        <Search
+          className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-text-muted)]"
+          aria-hidden="true"
+        />
+        <input
+          className="min-h-11 w-full rounded-2xl border border-[var(--color-border)] bg-white py-2 pl-10 pr-3 text-sm font-semibold text-[var(--color-text)] transition focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20"
+          placeholder={placeholder}
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+        />
+      </span>
+    </label>
+  );
+}
+
+function UserCard({ user, initials, loading, onEdit, onToggleRole, onDelete }) {
+  const isAdmin = user.role === "admin";
+
+  return (
+    <article className="rounded-2xl border border-[var(--color-border)] bg-white p-4 shadow-sm">
+      <div className="flex gap-3">
+        <div
+          className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-base font-extrabold text-white ${
+            isAdmin ? "bg-violet-700" : "bg-[var(--color-primary)]"
+          }`}
+          aria-hidden="true"
+        >
+          {initials}
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <h3 className="min-w-0 truncate text-base font-extrabold text-[var(--color-text)]">
+              {user.nome}
+            </h3>
+            <Badge variant={isAdmin ? "primary" : "neutral"}>
+              {isAdmin ? "Admin" : "Usuario"}
+            </Badge>
           </div>
-        )}
+          <p className="mt-1 break-words text-sm font-medium text-[var(--color-text-muted)]">
+            {user.email}
+          </p>
+          <p className="mt-1 text-sm font-medium text-[var(--color-text-muted)]">
+            {user.telefone || "Sem telefone"}
+          </p>
+        </div>
       </div>
 
-      {/* Modal de Edição */}
-      {editModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-          <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl">
-            <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-lg font-bold text-[var(--color-welcome-blue)]">
-                Editar usuário
-              </h3>
-              <button onClick={() => setEditModal(null)} className="rounded-full p-1 hover:bg-gray-100">
-                <X size={20} />
-              </button>
-            </div>
+      <div className="mt-4 grid gap-2 sm:grid-cols-3">
+        <button
+          type="button"
+          onClick={onEdit}
+          disabled={loading}
+          className="inline-flex min-h-10 items-center justify-center gap-2 rounded-2xl border border-blue-200 px-3 text-sm font-bold text-[var(--color-primary)] transition hover:bg-blue-50 disabled:opacity-50"
+        >
+          <Pencil className="h-4 w-4" aria-hidden="true" />
+          Editar
+        </button>
 
-            <div className="space-y-4">
-              <div>
-                <label className="mb-1 block text-xs font-bold uppercase tracking-wide text-gray-500">
-                  Nome
-                </label>
-                <input
-                  className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
-                  value={editForm.nome}
-                  onChange={(e) => setEditForm({ ...editForm, nome: e.target.value })}
-                />
-              </div>
-              <div>
-                <label className="mb-1 block text-xs font-bold uppercase tracking-wide text-gray-500">
-                  E-mail
-                </label>
-                <input
-                  className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
-                  value={editForm.email}
-                  onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
-                />
-              </div>
-              <div>
-                <label className="mb-1 block text-xs font-bold uppercase tracking-wide text-gray-500">
-                  Telefone
-                </label>
-                <input
-                  className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
-                  value={editForm.telefone}
-                  onChange={(e) => setEditForm({ ...editForm, telefone: e.target.value })}
-                />
-              </div>
-            </div>
+        <button
+          type="button"
+          onClick={onToggleRole}
+          disabled={loading}
+          className={`inline-flex min-h-10 items-center justify-center gap-2 rounded-2xl border px-3 text-sm font-bold transition disabled:opacity-50 ${
+            isAdmin
+              ? "border-amber-200 text-amber-700 hover:bg-amber-50"
+              : "border-violet-200 text-violet-700 hover:bg-violet-50"
+          }`}
+        >
+          {loading ? (
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+          ) : isAdmin ? (
+            <ShieldOff className="h-4 w-4" aria-hidden="true" />
+          ) : (
+            <Shield className="h-4 w-4" aria-hidden="true" />
+          )}
+          {isAdmin ? "Rebaixar" : "Tornar admin"}
+        </button>
 
-            <div className="mt-6 flex gap-3">
-              <button
-                onClick={() => setEditModal(null)}
-                className="flex-1 rounded-full border border-gray-200 py-3 text-sm font-semibold text-gray-600 transition hover:bg-gray-50"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleEditSave}
-                disabled={actionLoading === editModal.id}
-                className="flex-1 rounded-full bg-[var(--color-welcome-blue)] py-3 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-60"
-              >
-                {actionLoading === editModal.id ? "Salvando..." : "Salvar"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+        <button
+          type="button"
+          onClick={onDelete}
+          disabled={loading}
+          className="inline-flex min-h-10 items-center justify-center gap-2 rounded-2xl border border-red-200 px-3 text-sm font-bold text-[var(--color-error)] transition hover:bg-red-50 disabled:opacity-50"
+        >
+          {loading ? (
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+          ) : (
+            <Trash2 className="h-4 w-4" aria-hidden="true" />
+          )}
+          Remover
+        </button>
+      </div>
+    </article>
+  );
+}
 
-      {/* Modal de confirmação de exclusão */}
-      {deleteConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-          <div className="w-full max-w-sm rounded-3xl bg-white p-6 text-center shadow-2xl">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
-              <Trash2 size={32} className="text-red-600" />
-            </div>
-            <h3 className="mt-4 text-lg font-bold text-gray-800">Remover usuário</h3>
-            <p className="mt-2 text-sm text-gray-500">
-              Tem certeza que deseja remover <strong>{deleteConfirm.nome}</strong>? Esta ação não pode ser desfeita.
+function Pagination({ page, totalPages, onPrevious, onNext }) {
+  return (
+    <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-center">
+      <Button
+        type="button"
+        variant="secondary"
+        onClick={onPrevious}
+        disabled={page <= 1}
+        className="gap-2"
+      >
+        <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+        Anterior
+      </Button>
+      <span className="text-center text-sm font-extrabold text-[var(--color-text-muted)]">
+        Pagina {page} de {totalPages}
+      </span>
+      <Button
+        type="button"
+        variant="secondary"
+        onClick={onNext}
+        disabled={page >= totalPages}
+        className="gap-2"
+      >
+        Proximo
+        <ChevronRight className="h-4 w-4" aria-hidden="true" />
+      </Button>
+    </div>
+  );
+}
+
+function EditDialog({ form, setForm, loading, onClose, onSave }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/55 px-4 py-6">
+      <div className="max-h-full w-full max-w-md overflow-y-auto rounded-2xl bg-white p-5 shadow-2xl">
+        <div className="mb-5 flex items-start justify-between gap-3">
+          <div>
+            <h3 className="text-lg font-extrabold text-[var(--color-primary)]">
+              Editar usuario
+            </h3>
+            <p className="mt-1 text-sm font-medium text-[var(--color-text-muted)]">
+              Atualize apenas os dados exibidos nesta tela.
             </p>
-            <div className="mt-6 flex gap-3">
-              <button
-                onClick={() => setDeleteConfirm(null)}
-                className="flex-1 rounded-full border border-gray-200 py-3 text-sm font-semibold text-gray-600 transition hover:bg-gray-50"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={() => handleDelete(deleteConfirm)}
-                className="flex-1 rounded-full bg-red-600 py-3 text-sm font-semibold text-white transition hover:bg-red-700"
-              >
-                Remover
-              </button>
-            </div>
           </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-2xl p-2 text-[var(--color-text-muted)] transition hover:bg-[var(--color-surface)]"
+            aria-label="Fechar edicao"
+          >
+            <X className="h-5 w-5" aria-hidden="true" />
+          </button>
         </div>
-      )}
-    </AdminShell>
+
+        <div className="space-y-4">
+          <DialogInput
+            label="Nome"
+            value={form.nome}
+            onChange={(value) => setForm({ ...form, nome: value })}
+          />
+          <DialogInput
+            label="E-mail"
+            value={form.email}
+            onChange={(value) => setForm({ ...form, email: value })}
+          />
+          <DialogInput
+            label="Telefone"
+            value={form.telefone}
+            onChange={(value) => setForm({ ...form, telefone: value })}
+          />
+        </div>
+
+        <div className="mt-6 grid gap-3 sm:grid-cols-2">
+          <Button type="button" variant="secondary" onClick={onClose}>
+            Cancelar
+          </Button>
+          <LoadingButton type="button" onClick={onSave} isLoading={loading}>
+            Salvar
+          </LoadingButton>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DialogInput({ label, value, onChange }) {
+  return (
+    <label className="block">
+      <span className="mb-1 block text-xs font-extrabold uppercase text-[var(--color-text-muted)]">
+        {label}
+      </span>
+      <input
+        className="min-h-11 w-full rounded-2xl border border-[var(--color-border)] px-4 py-2 text-sm font-semibold focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20"
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+      />
+    </label>
+  );
+}
+
+function DeleteDialog({ user, loading, onClose, onConfirm }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/55 px-4 py-6">
+      <div className="w-full max-w-sm rounded-2xl bg-white p-5 text-center shadow-2xl">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-red-50 text-[var(--color-error)]">
+          <Trash2 className="h-7 w-7" aria-hidden="true" />
+        </div>
+        <h3 className="mt-4 text-lg font-extrabold text-[var(--color-text)]">
+          Remover usuario
+        </h3>
+        <p className="mt-2 text-sm font-medium text-[var(--color-text-muted)]">
+          Tem certeza que deseja remover <strong>{user.nome}</strong>? Esta acao
+          nao pode ser desfeita.
+        </p>
+        <InlineAlert className="mt-4 text-left" variant="error">
+          A exclusao so sera confirmada apos resposta real da API.
+        </InlineAlert>
+        <div className="mt-6 grid gap-3 sm:grid-cols-2">
+          <Button type="button" variant="secondary" onClick={onClose}>
+            Cancelar
+          </Button>
+          <LoadingButton
+            type="button"
+            onClick={onConfirm}
+            isLoading={loading}
+            className="bg-[var(--color-error)] hover:bg-red-800"
+          >
+            <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+            Remover
+          </LoadingButton>
+        </div>
+      </div>
+    </div>
   );
 }

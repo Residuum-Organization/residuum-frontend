@@ -1,29 +1,59 @@
 import React from "react";
+import { MapPin, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+
+import SectionCard from "../ui/SectionCard";
+
+const actions = [
+  {
+    title: "Gestao de pontos",
+    description: "Acompanhar pontos e status de operacao.",
+    to: "/admin-pontos",
+    Icon: MapPin,
+    variant: "primary",
+  },
+  {
+    title: "Usuarios",
+    description: "Gerenciar perfis e permissoes.",
+    to: "/usuarios",
+    Icon: Users,
+    variant: "secondary",
+  },
+];
 
 export default function QuickActions() {
   const navigate = useNavigate();
+
   return (
-    <section className="mt-5">
-      <h2 className="mb-3 text-lg font-bold text-[#1F4E79]">Ações rápidas</h2>
-      <div className="grid grid-cols-2 gap-3">
-        <button
-          className="rounded-2xl bg-[#1F4E79] p-4 text-left text-white shadow-md"
-          onClick={() => navigate("/admin-pontos")}
-        >
-          <p className="text-2xl">✅</p>
-          <h3 className="mt-3 text-[15px] font-bold">Gestão de pontos</h3>
-          <p className="mt-1 text-xs opacity-80">painel de coleta</p>
-        </button>
-        <button
-          className="rounded-2xl border border-[#DDE5EE] bg-white p-4 text-left text-[#1F4E79] shadow-sm"
-          onClick={() => navigate("/usuarios")}
-        >
-          <p className="text-2xl">👥</p>
-          <h3 className="mt-3 text-[15px] font-bold">Usuários</h3>
-          <p className="mt-1 text-xs text-gray-500">gerenciar perfis</p>
-        </button>
+    <SectionCard
+      className="mt-6"
+      title="Acoes rapidas"
+      description="Atalhos para rotinas administrativas recorrentes."
+    >
+      <div className="grid gap-3 sm:grid-cols-2">
+        {actions.map(({ title, description, to, Icon, variant }) => (
+          <button
+            key={to}
+            type="button"
+            className={`min-h-28 rounded-2xl border p-4 text-left transition focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/30 ${
+              variant === "primary"
+                ? "border-[var(--color-primary)] bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-dark)]"
+                : "border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-primary)] hover:border-[var(--color-primary)]/40"
+            }`}
+            onClick={() => navigate(to)}
+          >
+            <Icon className="h-6 w-6" aria-hidden="true" />
+            <h3 className="mt-4 text-base font-extrabold">{title}</h3>
+            <p
+              className={`mt-1 text-sm font-medium ${
+                variant === "primary" ? "text-white/80" : "text-[var(--color-text-muted)]"
+              }`}
+            >
+              {description}
+            </p>
+          </button>
+        ))}
       </div>
-    </section>
+    </SectionCard>
   );
 }
