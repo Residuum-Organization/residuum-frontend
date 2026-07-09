@@ -13,7 +13,7 @@ import SectionCard from "../components/ui/SectionCard";
 import LoadingState from "../components/ui/LoadingState";
 import ErrorState from "../components/ui/ErrorState";
 import { getAdminPoints } from "../services/admin";
-import { getAllCollectionPoints } from "../services/collectionPoints/api";
+import { listCollectionPoints } from "../services/collectionPoints";
 
 export default function AdminPoints() {
   const navigate = useNavigate();
@@ -26,7 +26,7 @@ export default function AdminPoints() {
 
   const { data: pointsData, isLoading: pointsLoading, isError: pointsError, refetch: refetchPoints } = useQuery({
     queryKey: ["adminPointsDetails"],
-    queryFn: getAllCollectionPoints,
+    queryFn: listCollectionPoints,
   });
 
   const points = useMemo(() => {
