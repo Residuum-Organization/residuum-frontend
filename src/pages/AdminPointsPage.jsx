@@ -60,7 +60,7 @@ export default function AdminPoints() {
   const filteredPoints = useMemo(() => {
     if (filter === "all") return points;
     return points.filter((point) => point.status === filter);
-  }, [filter]);
+  }, [filter, points]);
 
   const activeCount = points.filter((point) => point.status === "Ativo").length;
   const criticalCount = points.filter((point) => point.status === "Critico").length;
