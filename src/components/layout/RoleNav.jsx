@@ -9,7 +9,7 @@ export default function RoleNav({ variant = "morador", mode = "desktop", classNa
     return (
       <nav
         aria-label={`Navegação ${variant}`}
-        className={`fixed inset-x-0 bottom-0 z-50 grid border-t border-[var(--color-border)] bg-white px-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 shadow-lg shadow-slate-900/10 lg:inset-x-6 lg:bottom-6 lg:mx-auto lg:max-w-5xl lg:rounded-2xl lg:border ${
+        className={`fixed inset-x-0 bottom-0 z-[1200] grid border-t border-[var(--color-border)] bg-white px-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 shadow-lg shadow-slate-900/10 lg:inset-x-6 lg:bottom-6 lg:mx-auto lg:max-w-5xl lg:rounded-2xl lg:border ${
           items.length === 3 ? "grid-cols-3" : "grid-cols-5"
         } ${className}`}
       >
