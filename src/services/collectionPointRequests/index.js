@@ -141,11 +141,11 @@ export const buildCollectionPointPayload = (draft = {}, selectedWaste = [], deta
     email: draft.email || "",
     nome_ponto: draft.nome_ponto || details.nome_ponto || responsavelNome || "Ponto de coleta",
     endereco: formatAddress(draft.endereco),
-    latitude: draft.latitude ?? details.latitude ?? null,
-    longitude: draft.longitude ?? details.longitude ?? null,
+    latitude: Number(draft.latitude ?? details.latitude ?? 0),
+    longitude: Number(draft.longitude ?? details.longitude ?? 0),
     horario_funcionamento: details.horario_funcionamento || details.horario || "",
     tipos_residuos_aceitos: tiposResiduosAceitos,
-    capacidade_maxima: capacidadeMaxima,
+    capacidade_maxima: parseFloat(String(capacidadeMaxima).replace(/[^\d.,]/g, "").replace(",", ".")) || null,
     observacoes: details.observacoes || "",
   };
 };

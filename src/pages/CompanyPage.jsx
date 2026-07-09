@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
+import { AlertCircle, CheckCircle2, Loader2, ArrowLeft } from "lucide-react";
 import AuthShell from "../components/auth/AuthShell";
 import FormField from "../components/forms/FormField";
 import Button from "../components/ui/Button";
@@ -52,6 +52,15 @@ export default function Company() {
       ]}
       footer='"Um endereco claro reduz atrito e aumenta a adesao a coleta seletiva."'
     >
+      <div className="mb-6">
+        <button 
+          type="button" 
+          onClick={() => navigate(-1)} 
+          className="inline-flex items-center text-sm font-semibold text-[var(--color-welcome-blue)] transition-opacity hover:opacity-80"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
+        </button>
+      </div>
       <div className="space-y-5">
         <InlineAlert
           variant="info"

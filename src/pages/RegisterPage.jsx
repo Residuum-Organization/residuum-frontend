@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, ArrowLeft } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import RegisterForm from "../components/forms/RegisterForm";
@@ -116,6 +116,16 @@ export default function RegisterPage() {
         ]}
         footer='"Pequenas escolhas diárias geram grandes transformações para a cidade e para o planeta."'
       >
+        <div className="mb-6">
+          <button 
+            type="button" 
+            onClick={() => navigate(-1)} 
+            className="inline-flex items-center text-sm font-semibold text-[var(--color-welcome-blue)] transition-opacity hover:opacity-80"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
+          </button>
+        </div>
+
         <div className="mb-7">
           <div className="mx-auto flex w-full max-w-[220px] items-center">
             <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 border-[var(--color-welcome-blue)] bg-[var(--color-welcome-blue)] text-white" />

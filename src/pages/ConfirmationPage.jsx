@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { CheckCircle2, Clock3, X } from "lucide-react";
+import { CheckCircle2, Clock3, X, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AuthShell from "../components/auth/AuthShell";
 import FormField from "../components/forms/FormField";
@@ -18,6 +18,8 @@ import {
 } from "../services/collectionPointRequests";
 import { getApiErrorMessage } from "../services/http/getApiErrorMessage";
 import { queryKeys } from "../services/queryKeys";
+import { registerUser } from "../services/auth";
+import { useAuth } from "../contexts/AuthContext";
 
 const residuos = ["Plastico", "Metal", "Vidro", "Papelao"];
 
@@ -76,14 +78,31 @@ export default function Confirmation() {
   const [details, setDetails] = useState({ quantidade: "", data: "", horario: "", observacoes: "" });
   const [feedback, setFeedback] = useState("");
   const [localFallback, setLocalFallback] = useState(null);
+  const { login, isAuthenticated } = useAuth();
 
   const statusQuery = useQuery({
     queryKey: queryKeys.collectionPointRequestStatus,
     queryFn: getCollectionPointRequestStatus,
+    enabled: isAuthenticated,
   });
 
   const requestMutation = useMutation({
-    mutationFn: submitCollectionPointRequest,
+    mutationFn: async (payload) => {
+      try {
+        await registerUser({
+          name: draft.responsavel || "Responsável do Ponto",
+          email: draft.email,
+          phone: draft.telefone || "",
+          password: draft.senha,
+        });
+      } catch (err) {
+        // Se o usuário já existir ou falhar, ignoramos para tentar apenas logar
+      }
+      
+      await login(draft.email, draft.senha);
+      
+      return submitCollectionPointRequest(payload);
+    },
     onSuccess: () => {
       clearCollectionPointDraft();
       setLocalFallback(null);
@@ -124,16 +143,24 @@ export default function Confirmation() {
       return;
     }
 
-    const payload = buildCollectionPointPayload(draft, residuosSelecionados, details);
-    const validationMessage = validatePayload(payload);
+    try {
+      const payload = buildCollectionPointPayload(draft, residuosSelecionados, details);
+      const validationMessage = validatePayload(payload);
 
-    if (validationMessage) {
-      setFeedback(validationMessage);
-      return;
+      if (validationMessage) {
+        setFeedback(validationMessage);
+        return;
+      }
+
+      setFeedback("");
+      requestMutation.mutate(payload);
+    } catch (error) {
+      if (error.issues && error.issues.length > 0) {
+        setFeedback(error.issues[0].message);
+      } else {
+        setFeedback(error.message || "Verifique os dados informados (CPF/CNPJ inválido).");
+      }
     }
-
-    setFeedback("");
-    requestMutation.mutate(payload);
   }
 
   const visibleStatus = requestMutation.data || statusQuery.data;
@@ -204,6 +231,15 @@ export default function Confirmation() {
       ]}
       footer='"A confirmacao completa envia o pedido para análise, sem ativacao automatica."'
     >
+      <div className="mb-6">
+        <button 
+          type="button" 
+          onClick={() => navigate(-1)} 
+          className="inline-flex items-center text-sm font-semibold text-[var(--color-welcome-blue)] transition-opacity hover:opacity-80"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
+        </button>
+      </div>
       <div className="space-y-5">
         <InlineAlert
           variant="info"
