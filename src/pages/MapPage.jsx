@@ -1,23 +1,61 @@
 import React, { useMemo, useState } from "react";
-import { MapPin, Navigation } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
+import { MapPin, Navigation, ArrowLeft } from "lucide-react";
 import Map from "../components/maps/Map";
 import RoleShell from "../components/layout/RoleShell";
 import PageHeader from "../components/ui/PageHeader";
 import SectionCard from "../components/ui/SectionCard";
 import InlineAlert from "../components/ui/InlineAlert";
 import EmptyState from "../components/ui/EmptyState";
+import LoadingState from "../components/ui/LoadingState";
+import ErrorState from "../components/ui/ErrorState";
 import Button from "../components/ui/Button";
-import { collectionPoints, wasteTypes } from "../mocks/collectionPoints";
+import { listCollectionPoints } from "../services/collectionPoints";
 
 const initialCenter = { lat: -3.119, lng: -60.0217 };
+const wasteTypesOptions = [
+  "Todos",
+  "plastico",
+  "papel",
+  "aluminio",
+  "vidro",
+  "eletronicos",
+  "oleo",
+  "baterias",
+];
 
 export default function MapPage() {
+  const navigate = useNavigate();
   const [selectedWasteType, setSelectedWasteType] = useState("Todos");
   const [selectedPoint, setSelectedPoint] = useState(null);
 
+  const { data: apiPoints = [], isLoading, isError } = useQuery({
+    queryKey: ['collectionPoints'],
+    queryFn: () => listCollectionPoints()
+  });
+
+  const formattedPoints = useMemo(() => {
+    return apiPoints.map(p => ({
+      id: p.id,
+      name: p.nome,
+      address: p.endereco,
+      latitude: p.latitude,
+      longitude: p.longitude,
+      status: p.status === 'ativo' ? 'ativo' : 'inativo',
+      statusLabel: p.status === 'ativo' ? 'Ativo' : 'Inativo',
+      openingHours: p.horario_funcionamento || 'Não informado',
+      distanceKm: p.distancia_km || 0,
+      currentVolumeKg: p.total_inventario || 0,
+      capacityKg: p.capacidade_maxima || 0,
+      fillPercentage: p.percentual_ocupacao || 0,
+      wasteTypes: p.tipos_residuos_aceitos || [],
+    }));
+  }, [apiPoints]);
+
   const activePoints = useMemo(() => {
-    return collectionPoints.filter((point) => point.status === "ativo");
-  }, []);
+    return formattedPoints.filter((point) => point.status === "ativo");
+  }, [formattedPoints]);
 
   const filteredPoints = useMemo(() => {
     if (selectedWasteType === "Todos") return activePoints;
@@ -37,16 +75,20 @@ export default function MapPage() {
           title="Pontos de coleta"
           description="Escolha um ponto ativo e confira os materiais aceitos antes de sair."
           action={
-            <span className="inline-flex min-h-10 items-center rounded-full bg-[#1F4E79] px-4 text-sm font-bold text-white">
-              {filteredPoints.length} ativos
-            </span>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button type="button" variant="secondary" onClick={() => navigate(-1)}>
+                <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
+              </Button>
+              <span className="inline-flex min-h-10 items-center rounded-full bg-[#1F4E79] px-4 text-sm font-bold text-white">
+                {filteredPoints.length} ativos
+              </span>
+            </div>
           }
         />
 
-        <InlineAlert variant="warning" title="Mapa demonstrativo">
-          Os pontos exibidos podem não representar dados reais do servidor.
-          Use esta tela apenas como referência visual nesta fase.
-        </InlineAlert>
+        {isError && (
+          <ErrorState title="Erro ao carregar os pontos de coleta da API." />
+        )}
 
         <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_380px] xl:items-start">
           <div className="space-y-4">
@@ -68,23 +110,27 @@ export default function MapPage() {
                 className="min-h-12 w-full rounded-2xl border border-[var(--color-border)] bg-white px-4 py-3 text-base font-semibold text-[var(--color-text)] outline-none transition focus:border-[#1F4E79] focus:ring-2 focus:ring-[#1F4E79]/20"
               >
                 <option value="Todos">Todos os resíduos</option>
-                {wasteTypes.map((type) => (
+                {wasteTypesOptions.map((type) => (
                   <option key={type} value={type}>
-                    {type}
+                    {type === "Todos" ? type : type.charAt(0).toUpperCase() + type.slice(1)}
                   </option>
                 ))}
               </select>
             </SectionCard>
 
             <section className="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-white p-2 shadow-sm">
-              <Map
-                center={mapCenter}
-                zoom={selected ? 15 : 13}
-                markers={filteredPoints}
-                selectedMarkerId={selected?.id}
-                onMarkerClick={setSelectedPoint}
-                height="clamp(300px, 46vh, 500px)"
-              />
+              {isLoading ? (
+                <LoadingState title="Carregando mapa e pontos de coleta..." />
+              ) : (
+                <Map
+                  center={mapCenter}
+                  zoom={selected ? 15 : 13}
+                  markers={filteredPoints}
+                  selectedMarkerId={selected?.id}
+                  onMarkerClick={setSelectedPoint}
+                  height="clamp(300px, 46vh, 500px)"
+                />
+              )}
             </section>
           </div>
 

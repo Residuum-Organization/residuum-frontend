@@ -15,6 +15,7 @@ import WelcomePage from "./pages/WelcomePage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import UserPointsManagementPage from "./pages/UserPointsManagementPage";
 import SorteiosPage from "./pages/SorteiosPage";
 import SorteioDetalhesPage from "./pages/SorteioDetalhesPage";
 import ExtratoPage from "./pages/ExtratoPage";
@@ -129,6 +130,7 @@ const parceiroRoutes = [
     integratedApi: true,
   },
   { path: "/schedule", label: "Agenda", Component: ScheduleScreen },
+  { path: "/pontuacao-usuarios", label: "Pontuação", Component: UserPointsManagementPage, integratedApi: true },
 ];
 
 const aprovacaoRoute = {

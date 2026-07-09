@@ -1,12 +1,14 @@
 import React from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { CheckCircle2, Clock3, Recycle, TrendingDown, TrendingUp, Wallet, XCircle } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { ArrowLeft, CheckCircle2, Clock3, Recycle, TrendingDown, TrendingUp, Wallet, XCircle } from 'lucide-react'
 import RoleShell from '../components/layout/RoleShell'
 import PageHeader from '../components/ui/PageHeader'
 import InlineAlert from '../components/ui/InlineAlert'
 import LoadingState from '../components/ui/LoadingState'
 import ErrorState from '../components/ui/ErrorState'
 import EmptyState from '../components/ui/EmptyState'
+import Button from '../components/ui/Button'
 import { getPointsStatement } from '../services/points'
 import { queryKeys } from '../services/queryKeys'
 import { getApiErrorMessage } from '../services/http/getApiErrorMessage'
@@ -111,6 +113,7 @@ function HistoricoCard({ item }) {
 }
 
 export default function ExtratoPage() {
+  const navigate = useNavigate()
   const { data: extrato, isLoading, isError, error } = useQuery({
     queryKey: queryKeys.pointsStatement,
     queryFn: getPointsStatement,
@@ -134,6 +137,11 @@ export default function ExtratoPage() {
         <PageHeader
           title="Extrato de Pontos"
           description="Acompanhe seu saldo e o status das entregas confirmadas ou pendentes."
+          action={
+            <Button type="button" variant="secondary" onClick={() => navigate(-1)} className="w-full sm:w-auto">
+              <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
+            </Button>
+          }
         />
 
         <section className="rounded-2xl bg-[#DDF7E9] p-5 shadow-sm sm:p-6">

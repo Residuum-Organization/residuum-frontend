@@ -23,6 +23,7 @@ export const roleNavigation = {
     { to: "/dashboard", label: "Painel", Icon: LayoutDashboard },
     { to: "/schedule", label: "Agenda", Icon: CalendarDays },
     { to: "/aprovacao", label: "Aprovação", Icon: CheckCircle2 },
+    { to: "/pontuacao-usuarios", label: "Pontuação", Icon: Users },
   ],
   admin: [
     { to: "/admin", label: "Painel", Icon: LayoutDashboard },

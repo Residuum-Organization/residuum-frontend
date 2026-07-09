@@ -1,7 +1,8 @@
 import React from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
-import { CalendarDays, Gift, Ticket, Trophy, Users } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { CalendarDays, Gift, Ticket, Trophy, Users, ArrowLeft } from 'lucide-react'
 import RoleShell from '../components/layout/RoleShell'
 import PageHeader from '../components/ui/PageHeader'
 import SectionCard from '../components/ui/SectionCard'
@@ -91,6 +92,7 @@ function VoucherCard({ voucher, onRedeem, disabled }) {
 }
 
 export default function SorteiosPage() {
+  const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [feedback, setFeedback] = React.useState('')
 
@@ -137,9 +139,14 @@ export default function SorteiosPage() {
           title="Sorteios e vouchers"
           description="Troque seus pontos por chances, acompanhe campanhas e resgate benefícios disponíveis."
           action={
-            <span className="inline-flex min-h-10 items-center rounded-full bg-[#1F4E79] px-4 text-sm font-bold text-white">
-              {activeRafflesCount} ativos
-            </span>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button type="button" variant="secondary" onClick={() => navigate(-1)}>
+                <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
+              </Button>
+              <span className="inline-flex min-h-10 items-center rounded-full bg-[#1F4E79] px-4 text-sm font-bold text-white">
+                {activeRafflesCount} ativos
+              </span>
+            </div>
           }
         />
 

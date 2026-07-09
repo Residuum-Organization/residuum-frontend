@@ -4,14 +4,13 @@ import { roleNavigation } from "../../constants/roleNavigation";
 
 export default function RoleNav({ variant = "morador", mode = "desktop", className = "" }) {
   const items = roleNavigation[variant] || roleNavigation.morador;
+  const mobileGridClass = items.length === 3 ? 'grid-cols-3' : items.length === 4 ? 'grid-cols-4' : 'grid-cols-5'
 
   if (mode === "mobile") {
     return (
       <nav
         aria-label={`Navegação ${variant}`}
-        className={`fixed inset-x-0 bottom-0 z-[1200] grid border-t border-[var(--color-border)] bg-white px-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 shadow-lg shadow-slate-900/10 lg:inset-x-6 lg:bottom-6 lg:mx-auto lg:max-w-5xl lg:rounded-2xl lg:border ${
-          items.length === 3 ? "grid-cols-3" : "grid-cols-5"
-        } ${className}`}
+        className={`fixed inset-x-0 bottom-0 z-[1200] grid border-t border-[var(--color-border)] bg-white px-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 shadow-lg shadow-slate-900/10 lg:inset-x-6 lg:bottom-6 lg:mx-auto lg:max-w-5xl lg:rounded-2xl lg:border ${mobileGridClass} ${className}`}
       >
         {items.map(({ to, label, Icon }) => (
           <NavLink
