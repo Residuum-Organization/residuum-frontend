@@ -3,8 +3,7 @@ import { CalendarClock, Truck } from "lucide-react";
 import TimeSlots from "../components/coleta-dados/TimeSlots";
 import CollectionPoints from "../components/coleta-dados/CollectionPoints";
 import SystemStatus from "../components/coleta-dados/SystemStatus";
-import OperationalHeader from "../components/coleta-dados/OperationalHeader";
-import PageContainer from "../components/layout/PageContainer";
+import RoleShell from "../components/layout/RoleShell";
 import PageHeader from "../components/ui/PageHeader";
 import InlineAlert from "../components/ui/InlineAlert";
 import Button from "../components/ui/Button";
@@ -12,10 +11,8 @@ import { COLLECTION_POINTS, TIME_SLOTS } from "../constants/schedule";
 
 export default function ScheduleScreen() {
   return (
-    <PageContainer className="bg-[var(--color-surface)]">
+    <RoleShell variant="operacional" shellClassName="bg-[var(--color-surface)]">
       <div className="space-y-5 rounded-2xl bg-[var(--color-surface-soft)] p-4 shadow-sm sm:p-6 lg:min-h-[calc(100vh-4rem)]">
-        <OperationalHeader />
-
         <PageHeader
           eyebrow="Cooperativa / Empresa de coleta"
           title="Agenda de coletas"
@@ -91,6 +88,6 @@ export default function ScheduleScreen() {
           </div>
         </section>
       </div>
-    </PageContainer>
+    </RoleShell>
   );
 }

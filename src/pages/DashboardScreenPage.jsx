@@ -4,8 +4,7 @@ import { BarChart3, RefreshCw } from "lucide-react";
 import StatCard from "../components/dashboard/StatCard";
 import LineChart from "../components/dashboard/LineChart";
 import PieChart from "../components/dashboard/PieChart";
-import OperationalHeader from "../components/coleta-dados/OperationalHeader";
-import PageContainer from "../components/layout/PageContainer";
+import RoleShell from "../components/layout/RoleShell";
 import PageHeader from "../components/ui/PageHeader";
 import SectionCard from "../components/ui/SectionCard";
 import InlineAlert from "../components/ui/InlineAlert";
@@ -27,10 +26,8 @@ export default function DashboardScreen() {
   const hasOperationalData = Boolean(data?.hasOperationalData);
 
   return (
-    <PageContainer className="bg-[var(--color-surface)]">
+    <RoleShell variant="operacional" shellClassName="bg-[var(--color-surface)]">
       <div className="space-y-5 rounded-2xl bg-[var(--color-surface-soft)] p-4 shadow-sm sm:p-6 lg:min-h-[calc(100vh-4rem)]">
-        <OperationalHeader />
-
         <PageHeader
           eyebrow="Cooperativa / Empresa de coleta"
           title="Dashboard operacional"
@@ -108,6 +105,6 @@ export default function DashboardScreen() {
           </>
         ) : null}
       </div>
-    </PageContainer>
+    </RoleShell>
   );
 }

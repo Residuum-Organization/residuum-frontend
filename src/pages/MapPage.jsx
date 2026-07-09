@@ -1,8 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { MapPin, Navigation } from "lucide-react";
 import Map from "../components/maps/Map";
-import Navbar from "../components/ui/Navbar";
-import PageContainer from "../components/layout/PageContainer";
+import RoleShell from "../components/layout/RoleShell";
 import PageHeader from "../components/ui/PageHeader";
 import SectionCard from "../components/ui/SectionCard";
 import InlineAlert from "../components/ui/InlineAlert";
@@ -31,7 +30,7 @@ export default function MapPage() {
     : initialCenter;
 
   return (
-    <PageContainer className="bg-[var(--color-surface)] font-sans" innerClassName="pb-28">
+    <RoleShell variant="morador" shellClassName="bg-[var(--color-surface)]" contentClassName="px-4 py-4 pb-28 sm:px-6 sm:py-6 lg:px-8 lg:pb-8">
       <div className="space-y-5">
         <PageHeader
           eyebrow="Mapa"
@@ -119,8 +118,7 @@ export default function MapPage() {
           </aside>
         </div>
       </div>
-      <Navbar />
-    </PageContainer>
+    </RoleShell>
   );
 }
 
