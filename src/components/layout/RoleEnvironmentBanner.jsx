@@ -22,7 +22,7 @@ const environmentCopy = {
   morador: {
     title: "Ambiente do morador",
     description: "Cadastre residuos, valide entregas e acompanhe seu extrato.",
-    actions: [{ label: "Inicio", to: "/welcome-residuum", Icon: Home }],
+    actions: [{ label: "Inicio", to: "/inicio", Icon: Home }],
   },
 };
 

@@ -78,7 +78,7 @@ export default function RegisterPage() {
   React.useEffect(() => {
     if (showSuccess) {
       const timer = setTimeout(() => {
-        navigate("/login");
+        navigate("/boas-vindas");
       }, 2000);
       return () => clearTimeout(timer);
     }

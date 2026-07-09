@@ -14,10 +14,10 @@ export const getRoleHome = (role) => {
     return "/dashboard";
   }
   if (normalizedRole === "usuario" || normalizedRole === "morador") {
-    return "/welcome-residuum";
+    return "/inicio";
   }
 
-  return "/welcome-residuum";
+  return "/inicio";
 };
 
 export const getRoleLabel = (role) => {
