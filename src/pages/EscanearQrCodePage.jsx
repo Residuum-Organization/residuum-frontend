@@ -36,7 +36,7 @@ export default function EscanearQrCodePage() {
     if (itemId) params.set('itemId', itemId)
     if (pointId) params.set('pointId', pointId)
     params.set('qrToken', qrToken)
-    navigate(`/validação-presenca?${params.toString()}`)
+    navigate(`/validacao-presenca?${params.toString()}`)
   }
 
   const startScanner = async () => {

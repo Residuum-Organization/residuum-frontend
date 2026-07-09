@@ -70,7 +70,7 @@ export default function UserPointsManagementPage() {
               <Button type="button" variant="secondary" onClick={() => navigate(-1)}>
                 <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
               </Button>
-              <Button type="button" variant="secondary" onClick={() => navigate('/aprovação')} className="w-full sm:w-auto">
+              <Button type="button" variant="secondary" onClick={() => navigate('/aprovacao')} className="w-full sm:w-auto">
                 Abrir aprovações
               </Button>
             </div>
