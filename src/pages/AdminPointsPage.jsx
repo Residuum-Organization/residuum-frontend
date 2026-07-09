@@ -1,7 +1,9 @@
 import React, { useMemo, useState } from "react";
-import { AlertTriangle, Eye, MapPin, SlidersHorizontal } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { AlertTriangle, Eye, MapPin, SlidersHorizontal, ArrowLeft } from "lucide-react";
 
 import AdminShell from "../components/admin/AdminShell";
+import Button from "../components/ui/Button";
 import Badge from "../components/ui/Badge";
 import EmptyState from "../components/ui/EmptyState";
 import InlineAlert from "../components/ui/InlineAlert";
@@ -53,6 +55,7 @@ const barClassByTone = {
 };
 
 export default function AdminPoints() {
+  const navigate = useNavigate();
   const [filter, setFilter] = useState("all");
 
   const filteredPoints = useMemo(() => {
@@ -73,6 +76,11 @@ export default function AdminPoints() {
         eyebrow="Painel geral"
         title="Pontos de coleta"
         description="Acompanhamento visual dos pontos cadastrados nesta amostra administrativa."
+        action={
+          <Button type="button" variant="secondary" onClick={() => navigate(-1)}>
+            <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
+          </Button>
+        }
       />
 
       <InlineAlert

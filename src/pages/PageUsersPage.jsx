@@ -1,5 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
+  ArrowLeft,
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
@@ -35,6 +37,7 @@ const roles = [
 ];
 
 export default function PageUsers() {
+  const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -169,6 +172,11 @@ export default function PageUsers() {
         eyebrow="Administracao"
         title="Usuarios"
         description="Consulte e filtre perfis cadastrados com nomenclatura alinhada ao MVP atual."
+        action={
+          <Button type="button" variant="secondary" onClick={() => navigate(-1)}>
+            <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
+          </Button>
+        }
       />
 
       <SectionCard

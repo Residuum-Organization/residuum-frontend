@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, Coins, Users } from "lucide-react";
+import { ArrowRight, Coins, Users, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import RoleShell from "../components/layout/RoleShell";
 import PageHeader from "../components/ui/PageHeader";
@@ -66,9 +66,14 @@ export default function UserPointsManagementPage() {
           title="Gestão operacional de pontuação"
           description="Acompanhe usuários com descartes pendentes e a projeção de pontos antes da confirmação final."
           action={
-            <Button type="button" variant="secondary" onClick={() => navigate('/aprovacao')} className="w-full sm:w-auto">
-              Abrir aprovações
-            </Button>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button type="button" variant="secondary" onClick={() => navigate(-1)}>
+                <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
+              </Button>
+              <Button type="button" variant="secondary" onClick={() => navigate('/aprovacao')} className="w-full sm:w-auto">
+                Abrir aprovações
+              </Button>
+            </div>
           }
         />
 

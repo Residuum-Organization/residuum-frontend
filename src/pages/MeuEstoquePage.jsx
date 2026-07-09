@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
-import { ArrowRight, BookText, CircleDot, FlaskConical, Trash2, Wine } from 'lucide-react'
+import { ArrowRight, BookText, CircleDot, FlaskConical, Trash2, Wine, ArrowLeft } from 'lucide-react'
 import Button from '../components/ui/Button'
 import RoleShell from '../components/layout/RoleShell'
 import PageHeader from '../components/ui/PageHeader'
@@ -138,9 +138,17 @@ export default function MeuEstoquePage() {
           title="Meu Estoque"
           description="Cadastre seus resíduos antes de ir ao ponto de coleta."
           action={
-            <span className="rounded-full bg-[#1F4E79] px-4 py-2 text-sm font-semibold text-white">
-              {itens.length} itens
-            </span>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button type="button" variant="secondary" onClick={() => navigate(-1)}>
+                <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
+              </Button>
+              <Button type="button" onClick={() => navigate('/cadastrar-residuo')}>
+                Adicionar resíduo
+              </Button>
+              <span className="inline-flex min-h-10 items-center rounded-full bg-[#1F4E79] px-4 text-sm font-bold text-white">
+                {itens.length} itens
+              </span>
+            </div>
           }
         />
 
@@ -150,12 +158,7 @@ export default function MeuEstoquePage() {
           title="Itens no estoque"
           description="Gerencie a quantidade disponível e siga para a validação presencial quando estiver pronto."
         >
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="text-base font-bold text-[#1a3a4a]">Itens no estoque</h2>
-            <Button type="button" onClick={() => navigate('/cadastrar-residuo')} className="w-full sm:w-auto">
-              Adicionar resíduo
-            </Button>
-          </div>
+        >
 
         {itens.length ? (
           <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">

@@ -1,6 +1,7 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { BarChart3, RefreshCw } from "lucide-react";
+import { BarChart3, RefreshCw, ArrowLeft } from "lucide-react";
 import StatCard from "../components/dashboard/StatCard";
 import LineChart from "../components/dashboard/LineChart";
 import PieChart from "../components/dashboard/PieChart";
@@ -16,6 +17,7 @@ import { getCollectionPointDashboard } from "../services/collectionPointDashboar
 import { queryKeys } from "../services/queryKeys";
 
 export default function DashboardScreen() {
+  const navigate = useNavigate();
   const { data, isLoading, isError, refetch, isFetching } = useQuery({
     queryKey: queryKeys.collectionPointDashboard,
     queryFn: getCollectionPointDashboard,
@@ -33,19 +35,24 @@ export default function DashboardScreen() {
           title="Dashboard operacional"
           description="Acompanhe pontos vinculados, descartes pendentes e volume operacional disponível pela API."
           action={
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => refetch()}
-              disabled={isFetching}
-              className="w-full gap-2 sm:w-auto"
-            >
-              <RefreshCw
-                className={`h-4 w-4 ${isFetching ? "animate-spin" : ""}`}
-                aria-hidden="true"
-              />
-              Atualizar
-            </Button>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button type="button" variant="secondary" onClick={() => navigate(-1)}>
+                <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => refetch()}
+                disabled={isFetching}
+                className="w-full gap-2 sm:w-auto"
+              >
+                <RefreshCw
+                  className={`h-4 w-4 ${isFetching ? "animate-spin" : ""}`}
+                  aria-hidden="true"
+                />
+                Atualizar
+              </Button>
+            </div>
           }
         />
 

@@ -1,7 +1,9 @@
 import React, { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CheckCircle2, ClipboardCheck } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { CheckCircle2, ClipboardCheck, ArrowLeft } from "lucide-react";
 import ApprovalCard from "../components/coleta-dados/ApprovalCard";
+import Button from "../components/ui/Button";
 import AdminShell from "../components/admin/AdminShell";
 import PageHeader from "../components/ui/PageHeader";
 import InlineAlert from "../components/ui/InlineAlert";
@@ -34,6 +36,7 @@ const formatDate = (value) =>
 export default function Aprovacao() {
   const [feedback, setFeedback] = useState(null);
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const isAdmin = user?.role === "admin";
 
@@ -141,8 +144,13 @@ export default function Aprovacao() {
           title="Descartes em confirmação"
           description="Cooperativa ou empresa de coleta realiza a analise e validacao operacional; o administrador pode acompanhar por auditoria."
           action={
-            <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-bold text-amber-800">
-              {cards.length} pendente(s)
+            <div className="flex flex-wrap items-center gap-2">
+              <Button type="button" variant="secondary" onClick={() => navigate(-1)}>
+                <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
+              </Button>
+              <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-bold text-amber-800">
+                {cards.length} pendente(s)
+              </div>
             </div>
           }
         />

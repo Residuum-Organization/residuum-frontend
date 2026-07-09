@@ -9,6 +9,7 @@ import {
   Plus,
   Recycle,
   Trash2,
+  ArrowLeft,
 } from "lucide-react";
 import CampaignLayout, {
   LogoResiduum,
@@ -108,7 +109,14 @@ export default function CampanhasPage() {
           eyebrow="Modulo administrativo demonstrativo"
           title="Campanhas"
           description="Gestao administrativa de campanhas e empresas apoiadoras. A area propria da empresa apoiadora ainda nao esta implementada."
-          action={<LogoResiduum />}
+          action={
+            <div className="flex flex-wrap items-center gap-2">
+              <Button type="button" variant="secondary" onClick={() => navigate(-1)}>
+                <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
+              </Button>
+              <LogoResiduum />
+            </div>
+          }
         />
 
         <InlineAlert
