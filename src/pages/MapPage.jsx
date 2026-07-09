@@ -30,7 +30,7 @@ export default function MapPage() {
     : initialCenter;
 
   return (
-    <RoleShell variant="morador" shellClassName="bg-[var(--color-surface)]" contentClassName="px-4 py-4 pb-28 sm:px-6 sm:py-6 lg:px-8 lg:pb-8">
+    <RoleShell variant="morador" shellClassName="bg-[var(--color-surface)]" contentClassName="px-4 py-4 pb-36 sm:px-6 sm:py-6 lg:px-8 lg:pb-56">
       <div className="space-y-5">
         <PageHeader
           eyebrow="Mapa"
@@ -83,7 +83,7 @@ export default function MapPage() {
                 markers={filteredPoints}
                 selectedMarkerId={selected?.id}
                 onMarkerClick={setSelectedPoint}
-                height="clamp(360px, 58vh, 620px)"
+                height="clamp(300px, 46vh, 500px)"
               />
             </section>
           </div>

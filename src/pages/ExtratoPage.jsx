@@ -1,8 +1,7 @@
 import React from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { CheckCircle2, Clock3, Recycle, TrendingDown, TrendingUp, Wallet, XCircle } from 'lucide-react'
-import Navbar from '../components/ui/Navbar'
-import PageContainer from '../components/layout/PageContainer'
+import RoleShell from '../components/layout/RoleShell'
 import PageHeader from '../components/ui/PageHeader'
 import InlineAlert from '../components/ui/InlineAlert'
 import LoadingState from '../components/ui/LoadingState'
@@ -51,12 +50,12 @@ const STATUS_CONFIG = {
 }
 
 const formatResidueType = (tipo) =>
-  String(tipo || 'residuo')
+  String(tipo || 'resíduo')
     .replaceAll('_', ' ')
     .replace(/\b\w/g, (letter) => letter.toUpperCase())
 
 const formatHistoryDate = (value) => {
-  if (!value) return 'Data indisponivel'
+  if (!value) return 'Data indisponível'
   return new Date(value).toLocaleString('pt-BR', {
     day: '2-digit',
     month: 'short',
@@ -130,7 +129,7 @@ export default function ExtratoPage() {
     .reduce((sum, item) => sum + Math.abs(Number(item.pontos || 0)), 0)
 
   return (
-    <PageContainer className="bg-[var(--color-surface)]" innerClassName="pb-28">
+    <RoleShell variant="morador" shellClassName="bg-[var(--color-surface)]" contentClassName="px-4 py-4 pb-28 sm:px-6 sm:py-6 lg:px-8 lg:pb-28">
       <div className="space-y-6">
         <PageHeader
           title="Extrato de Pontos"
@@ -140,7 +139,7 @@ export default function ExtratoPage() {
         <section className="rounded-2xl bg-[#DDF7E9] p-5 shadow-sm sm:p-6">
           <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-xs font-black uppercase text-[#0B6B53]/80">Total disponivel</p>
+              <p className="text-xs font-black uppercase text-[#0B6B53]/80">Total disponível</p>
               <h2 className="mt-2 text-5xl font-black leading-none text-[#0B6B53] sm:text-6xl">{total}</h2>
             </div>
             <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-white/80 text-[#0B6B53] shadow-sm">
@@ -156,7 +155,7 @@ export default function ExtratoPage() {
         </section>
 
         <InlineAlert variant="info">
-          Pontos pendentes ainda dependem da confirmacao e pesagem real pela cooperativa.
+          Pontos pendentes ainda dependem da confirmação e pesagem real pela cooperativa.
         </InlineAlert>
 
         <section className="space-y-4">
@@ -168,9 +167,9 @@ export default function ExtratoPage() {
           </div>
 
           {isLoading ? (
-            <LoadingState title="Carregando historico de pontos..." />
+            <LoadingState title="Carregando histórico de pontos..." />
           ) : isError ? (
-            <ErrorState title={getApiErrorMessage(error, 'Nao foi possivel carregar o extrato de pontos.')} />
+            <ErrorState title={getApiErrorMessage(error, 'Não foi possível carregar o extrato de pontos.')} />
           ) : historico.length ? (
             <div className="grid gap-3 lg:grid-cols-2">
               {historico.map((item) => (
@@ -179,14 +178,13 @@ export default function ExtratoPage() {
             </div>
           ) : (
             <EmptyState
-              title="Seu extrato ainda esta vazio."
-              description="Suas entregas e resgates vao aparecer aqui assim que houver movimentacao."
+              title="Seu extrato ainda está vazio."
+              description="Suas entregas e resgates vão aparecer aqui assim que houver movimentação."
             />
           )}
         </section>
       </div>
-      <Navbar />
-    </PageContainer>
+    </RoleShell>
   )
 }
 

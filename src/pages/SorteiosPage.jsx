@@ -2,7 +2,14 @@ import React from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { CalendarDays, Gift, Ticket, Trophy, Users } from 'lucide-react'
-import Navbar from '../components/ui/Navbar'
+import RoleShell from '../components/layout/RoleShell'
+import PageHeader from '../components/ui/PageHeader'
+import SectionCard from '../components/ui/SectionCard'
+import InlineAlert from '../components/ui/InlineAlert'
+import LoadingState from '../components/ui/LoadingState'
+import ErrorState from '../components/ui/ErrorState'
+import EmptyState from '../components/ui/EmptyState'
+import Button from '../components/ui/Button'
 import { listActiveRaffles, listVouchers, redeemVoucher } from '../services/rewards'
 import { queryKeys } from '../services/queryKeys'
 import { getApiErrorMessage } from '../services/http/getApiErrorMessage'
@@ -13,83 +20,72 @@ function SorteioCard({ sorteio }) {
   const encerrado = sorteio.status === 'encerrado'
 
   return (
-    <article className="rounded-[26px] border border-slate-100 bg-white p-4 shadow-sm">
+    <article className="rounded-2xl border border-[var(--color-border)] bg-white p-4 shadow-sm">
       <div className="flex items-start gap-3">
-        <div
-          className="flex h-16 w-16 shrink-0 items-center justify-center rounded-3xl text-white shadow-sm"
-          style={{ backgroundColor: sorteio.cor }}
-        >
-          <Trophy size={30} />
+        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-white shadow-sm" style={{ backgroundColor: sorteio.cor }}>
+          <Trophy size={26} />
         </div>
 
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <h3 className="truncate text-base font-black text-[#12384C]">{sorteio.titulo}</h3>
+          <div className="flex flex-wrap items-center gap-2">
+            <h3 className="truncate text-base font-extrabold text-[var(--color-primary)]">{sorteio.titulo}</h3>
             {encerrado ? (
-              <span className="rounded-full bg-slate-100 px-2 py-1 text-[10px] font-black text-slate-500">
-                ENCERRADO
-              </span>
+              <span className="rounded-full bg-slate-100 px-2 py-1 text-[10px] font-black text-slate-500">ENCERRADO</span>
             ) : null}
           </div>
-          <p className="mt-1 text-xs font-semibold text-slate-500">{sorteio.patrocinador}</p>
+          <p className="mt-1 text-sm font-semibold text-[var(--color-text-muted)]">{sorteio.patrocinador}</p>
 
-          <div className="mt-3 grid grid-cols-2 gap-2 text-[11px] font-bold text-slate-500">
+          <div className="mt-3 grid gap-2 text-xs font-semibold text-[var(--color-text-muted)] sm:grid-cols-2">
             <span className="flex items-center gap-1.5"><Gift size={14} /> {sorteio.pontosNecessarios} pts</span>
             <span className="flex items-center gap-1.5"><Users size={14} /> {sorteio.participantes}</span>
-            <span className="col-span-2 flex items-center gap-1.5"><CalendarDays size={14} /> até {sorteio.dataFim}</span>
-            <span className="col-span-2 flex items-center gap-1.5 text-[#11527A]">
+            <span className="flex items-center gap-1.5 sm:col-span-2"><CalendarDays size={14} /> até {sorteio.dataFim}</span>
+            <span className="flex items-center gap-1.5 font-bold text-[var(--color-primary)] sm:col-span-2">
               <Ticket size={14} /> {sorteio.participacaoUsuario || 0} participação(ões)
             </span>
           </div>
         </div>
       </div>
 
-      <div className="mt-4 flex gap-2">
+      <div className="mt-4 flex flex-col gap-2 sm:flex-row">
         <Link
           to={`/sorteios/${sorteio.id}`}
-          className="flex-1 rounded-full border-2 border-[#11527A] px-4 py-3 text-center text-xs font-black text-[#11527A]"
+          className="flex-1 rounded-full border border-[var(--color-primary)] px-4 py-3 text-center text-sm font-bold text-[var(--color-primary)]"
         >
-          DETALHES
+          Ver detalhes
         </Link>
         <button
           type="button"
           disabled
-          title={encerrado ? 'Sorteio encerrado.' : 'Participacao em sorteios ainda nao disponivel.'}
-          className={`flex-1 rounded-full px-4 py-3 text-xs font-black text-white ${
-            encerrado ? 'bg-slate-300' : 'bg-slate-300'
-          }`}
+          title={encerrado ? 'Sorteio encerrado.' : 'Participação em sorteios ainda não disponível.'}
+          className="flex-1 rounded-full bg-slate-300 px-4 py-3 text-sm font-bold text-white"
         >
-          {encerrado ? 'ENCERRADO' : 'EM BREVE'}
+          {encerrado ? 'Encerrado' : 'Em breve'}
         </button>
       </div>
-      {!encerrado ? (
-        <p className="mt-2 text-[11px] font-semibold text-slate-500">
-          Participacao em sorteios ainda nao disponivel.
-        </p>
-      ) : null}
     </article>
   )
 }
 
-function VoucherCard({ voucher, onRedeem }) {
+function VoucherCard({ voucher, onRedeem, disabled }) {
   return (
-    <article className="flex items-center justify-between rounded-[24px] border border-emerald-100 bg-[#ECFFF4] p-4 shadow-sm">
+    <article className="flex flex-col gap-3 rounded-2xl border border-emerald-100 bg-[#ECFFF4] p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
       <div className="flex items-center gap-3">
         <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-[#0B6B53]">
-          <Ticket size={24} />
+          <Ticket size={22} />
         </div>
         <div>
-          <h3 className="text-sm font-black text-[#12384C]">{voucher.titulo}</h3>
-          <p className="mt-1 text-[11px] font-semibold text-slate-500">{voucher.validade}</p>
+          <h3 className="text-sm font-extrabold text-[var(--color-primary)]">{voucher.titulo}</h3>
+          <p className="mt-1 text-xs font-semibold text-[var(--color-text-muted)]">{voucher.validade}</p>
         </div>
       </div>
-      <button
+      <Button
         type="button"
         onClick={onRedeem}
-        className="rounded-full bg-[#0B6B53] px-4 py-2 text-[11px] font-black text-white"
+        disabled={disabled}
+        className="w-full bg-[#0B6B53] px-4 py-3 text-sm font-bold sm:w-auto"
       >
         Resgatar · {voucher.pontos} pts
-      </button>
+      </Button>
     </article>
   )
 }
@@ -131,70 +127,78 @@ export default function SorteiosPage() {
   })
 
   const showingFallbackData = isFallbackOrMockData(raffles) || isFallbackOrMockData(rewardVouchers)
+  const activeRafflesCount = raffles.filter((item) => item.status === 'ativo').length
 
   return (
-    <main className="min-h-screen bg-slate-200 px-3 py-4">
-      <section className="mx-auto flex min-h-[760px] w-full max-w-[390px] flex-col overflow-hidden rounded-[28px] bg-[#F7FAF9] shadow-2xl">
-        <div className="flex-1 overflow-y-auto px-4 py-5 pb-28">
-          <div className="mb-5 rounded-[28px] bg-[#11527A] p-5 text-white shadow-lg">
-            <p className="text-xs font-black uppercase tracking-[0.24em] text-white/70">Residuum</p>
-            <h1 className="mt-2 text-3xl font-black leading-tight">Sorteios</h1>
-            <p className="mt-2 text-sm font-semibold text-white/80">
-              Troque seus pontos por chances e acompanhe campanhas disponíveis.
-            </p>
-          </div>
-
-          {feedback ? <p className="mb-4 text-sm font-semibold text-[#11527A]">{feedback}</p> : null}
-          {showingFallbackData ? (
-            <div className="mb-4 rounded-[22px] border border-amber-200 bg-amber-50 px-4 py-3 text-xs font-bold leading-relaxed text-amber-800">
-              Dados demonstrativos. Nao foi possivel carregar sorteios reais do servidor.
-            </div>
-          ) : null}
-
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-lg font-black text-[#12384C]">Sorteios ativos</h2>
-            <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-black text-emerald-700">
-              {raffles.filter((item) => item.status === 'ativo').length} ativos
+    <RoleShell variant="morador" shellClassName="bg-[var(--color-surface)]" contentClassName="px-4 py-4 pb-28 sm:px-6 sm:py-6 lg:px-8 lg:pb-28">
+      <div className="space-y-5">
+        <PageHeader
+          eyebrow="Recompensas"
+          title="Sorteios e vouchers"
+          description="Troque seus pontos por chances, acompanhe campanhas e resgate benefícios disponíveis."
+          action={
+            <span className="inline-flex min-h-10 items-center rounded-full bg-[#1F4E79] px-4 text-sm font-bold text-white">
+              {activeRafflesCount} ativos
             </span>
-          </div>
+          }
+        />
 
-          {rafflesLoading ? <p className="text-sm text-slate-500">Carregando sorteios...</p> : null}
+        {feedback ? <InlineAlert variant="success">{feedback}</InlineAlert> : null}
+        {showingFallbackData ? (
+          <InlineAlert variant="warning" title="Dados demonstrativos">
+            Não foi possível carregar sorteios reais do servidor. Parte deste conteúdo está usando fallback local.
+          </InlineAlert>
+        ) : null}
+
+          <SectionCard title="Sorteios ativos" description="Confira regras, pontos necessários e andamento de cada campanha.">
+          {rafflesLoading ? <LoadingState title="Carregando sorteios..." /> : null}
           {rafflesError ? (
-            <p className="text-sm text-red-600">
-              {getApiErrorMessage(rafflesQueryError, 'Não foi possível carregar os sorteios.')}
-            </p>
+            <ErrorState title={getApiErrorMessage(rafflesQueryError, 'Não foi possível carregar os sorteios.')} />
           ) : null}
-
-          <div className="space-y-3">
-            {raffles.map((sorteio) => (
-              <SorteioCard key={sorteio.id} sorteio={sorteio} />
-            ))}
-          </div>
-
-          <div className="mb-4 mt-7 flex items-center justify-between">
-            <h2 className="text-lg font-black text-[#12384C]">Vouchers</h2>
-            <span className="text-xs font-black text-[#11527A]">Resgatar pontos</span>
-          </div>
-
-          {vouchersLoading ? <p className="text-sm text-slate-500">Carregando vouchers...</p> : null}
-          {vouchersError ? (
-            <p className="text-sm text-red-600">
-              {getApiErrorMessage(vouchersQueryError, 'Não foi possível carregar os vouchers.')}
-            </p>
-          ) : null}
-
-          <div className="space-y-3">
-            {rewardVouchers.map((voucher) => (
-              <VoucherCard
-                key={voucher.id}
-                voucher={voucher}
-                onRedeem={() => redeemMutation.mutate(voucher)}
+          {!rafflesLoading && !rafflesError ? (
+            raffles.length ? (
+              <div className="grid gap-4 lg:grid-cols-2">
+                {raffles.map((sorteio) => (
+                  <SorteioCard key={sorteio.id} sorteio={sorteio} />
+                ))}
+              </div>
+            ) : (
+              <EmptyState
+                title="Nenhum sorteio disponível."
+                description="Quando houver campanhas ativas, elas aparecerão aqui para participação."
+                className="bg-white"
               />
-            ))}
-          </div>
-        </div>
-        <Navbar />
-      </section>
-    </main>
+            )
+          ) : null}
+        </SectionCard>
+
+          <SectionCard title="Vouchers" description="Use seus pontos para resgatar benefícios já disponíveis na plataforma.">
+          {vouchersLoading ? <LoadingState title="Carregando vouchers..." /> : null}
+          {vouchersError ? (
+            <ErrorState title={getApiErrorMessage(vouchersQueryError, 'Não foi possível carregar os vouchers.')} />
+          ) : null}
+          {!vouchersLoading && !vouchersError ? (
+            rewardVouchers.length ? (
+              <div className="grid gap-4">
+                {rewardVouchers.map((voucher) => (
+                  <VoucherCard
+                    key={voucher.id}
+                    voucher={voucher}
+                    disabled={redeemMutation.isPending}
+                    onRedeem={() => redeemMutation.mutate(voucher)}
+                  />
+                ))}
+              </div>
+            ) : (
+              <EmptyState
+                title="Nenhum voucher disponível."
+                description="Os vouchers aparecerão aqui assim que forem publicados e liberados para resgate."
+                className="bg-white"
+              />
+            )
+          ) : null}
+        </SectionCard>
+      </div>
+    </RoleShell>
   )
 }

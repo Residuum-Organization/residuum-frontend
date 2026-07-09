@@ -2,10 +2,10 @@ import React, { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import { ArrowRight, BookText, CircleDot, FlaskConical, Trash2, Wine } from 'lucide-react'
-import Navbar from '../components/ui/Navbar'
 import Button from '../components/ui/Button'
-import PageContainer from '../components/layout/PageContainer'
+import RoleShell from '../components/layout/RoleShell'
 import PageHeader from '../components/ui/PageHeader'
+import SectionCard from '../components/ui/SectionCard'
 import LoadingState from '../components/ui/LoadingState'
 import ErrorState from '../components/ui/ErrorState'
 import EmptyState from '../components/ui/EmptyState'
@@ -25,7 +25,7 @@ const getItemIcon = (tipo) => {
 }
 
 const formatResidueType = (tipo) =>
-  String(tipo || 'residuo')
+  String(tipo || 'resíduo')
     .replaceAll('_', ' ')
     .replace(/\b\w/g, (letter) => letter.toUpperCase())
 
@@ -64,7 +64,7 @@ export default function MeuEstoquePage() {
     onError: (mutationError) => {
       setFeedback({
         tone: 'error',
-        message: getApiErrorMessage(mutationError, 'Nao foi possivel atualizar o item.'),
+        message: getApiErrorMessage(mutationError, 'Não foi possível atualizar o item.'),
       })
     },
   })
@@ -78,7 +78,7 @@ export default function MeuEstoquePage() {
     onError: (mutationError) => {
       setFeedback({
         tone: 'error',
-        message: getApiErrorMessage(mutationError, 'Nao foi possivel remover o item.'),
+        message: getApiErrorMessage(mutationError, 'Não foi possível remover o item.'),
       })
     },
   })
@@ -114,31 +114,29 @@ export default function MeuEstoquePage() {
 
   if (isLoading) {
     return (
-      <PageContainer innerClassName="pb-24">
+      <RoleShell variant="morador" shellClassName="bg-[var(--color-surface)]" contentClassName="px-4 py-4 pb-28 sm:px-6 sm:py-6 lg:px-8 lg:pb-28">
         <LoadingState title="Carregando estoque..." className="mx-auto mt-10 w-full max-w-md" />
-        <Navbar />
-      </PageContainer>
+      </RoleShell>
     )
   }
 
   if (isError) {
     return (
-      <PageContainer innerClassName="pb-24">
+      <RoleShell variant="morador" shellClassName="bg-[var(--color-surface)]" contentClassName="px-4 py-4 pb-28 sm:px-6 sm:py-6 lg:px-8 lg:pb-28">
         <div className="space-y-5">
-          <PageHeader title="Meu Estoque" description="Acompanhe os residuos cadastrados para entrega." />
-          <ErrorState title={getApiErrorMessage(error, 'Nao foi possivel carregar o estoque.')} />
+          <PageHeader title="Meu Estoque" description="Acompanhe os resíduos cadastrados para entrega." />
+          <ErrorState title={getApiErrorMessage(error, 'Não foi possível carregar o estoque.')} />
         </div>
-        <Navbar />
-      </PageContainer>
+      </RoleShell>
     )
   }
 
   return (
-    <PageContainer innerClassName="pb-28">
+    <RoleShell variant="morador" shellClassName="bg-[var(--color-surface)]" contentClassName="px-4 py-4 pb-28 sm:px-6 sm:py-6 lg:px-8 lg:pb-28">
       <div className="space-y-5">
         <PageHeader
           title="Meu Estoque"
-          description="Cadastre seus residuos antes de ir ao ponto de coleta."
+          description="Cadastre seus resíduos antes de ir ao ponto de coleta."
           action={
             <span className="rounded-full bg-[#1F4E79] px-4 py-2 text-sm font-semibold text-white">
               {itens.length} itens
@@ -148,15 +146,19 @@ export default function MeuEstoquePage() {
 
         {feedback ? <InlineAlert variant={feedback.tone}>{feedback.message}</InlineAlert> : null}
 
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <h2 className="text-base font-bold text-[#1a3a4a]">Itens no estoque</h2>
-          <Button type="button" onClick={() => navigate('/cadastrar-residuo')} className="w-full sm:w-auto">
-            Adicionar residuo
-          </Button>
-        </div>
+        <SectionCard
+          title="Itens no estoque"
+          description="Gerencie a quantidade disponível e siga para a validação presencial quando estiver pronto."
+        >
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <h2 className="text-base font-bold text-[#1a3a4a]">Itens no estoque</h2>
+            <Button type="button" onClick={() => navigate('/cadastrar-residuo')} className="w-full sm:w-auto">
+              Adicionar resíduo
+            </Button>
+          </div>
 
         {itens.length ? (
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {itens.map((item) => {
               const ItemIcon = getItemIcon(item.tipo_residuo)
               const quantityAvailable = Number(item.quantidade_disponivel ?? item.quantidade ?? 0)
@@ -171,13 +173,13 @@ export default function MeuEstoquePage() {
                       <p className="break-words text-base font-bold leading-tight text-[#1a3a4a]">
                         {item.descricao || formatResidueType(item.tipo_residuo)}
                       </p>
-                      <p className="mt-1 text-sm text-gray-500">Tipo: {formatResidueType(item.tipo_residuo)}</p>
-                      <p className="mt-1 text-xs font-medium text-gray-500">
-                        Disponivel: {formatQuantity(quantityAvailable)} kg
-                        {Number(item.quantidade_reservada || 0) > 0
-                          ? ` | Reservado: ${formatQuantity(item.quantidade_reservada)} kg`
-                          : ''}
-                      </p>
+                        <p className="mt-1 text-sm text-gray-500">Tipo: {formatResidueType(item.tipo_residuo)}</p>
+                        <p className="mt-1 text-xs font-medium text-gray-500">
+                          Disponível: {formatQuantity(quantityAvailable)} kg
+                          {Number(item.quantidade_reservada || 0) > 0
+                            ? ` | Reservado: ${formatQuantity(item.quantidade_reservada)} kg`
+                            : ''}
+                        </p>
                     </div>
                   </div>
 
@@ -230,15 +232,15 @@ export default function MeuEstoquePage() {
             })}
           </div>
         ) : (
-          <EmptyState
-            title="Seu estoque esta vazio."
-            description="Cadastre um residuo para comecar a organizar sua proxima entrega."
-            actionLabel="Cadastrar residuo"
-            onAction={() => navigate('/cadastrar-residuo')}
-          />
+            <EmptyState
+              title="Seu estoque está vazio."
+              description="Cadastre um resíduo para começar a organizar sua próxima entrega."
+              actionLabel="Cadastrar resíduo"
+              onAction={() => navigate('/cadastrar-residuo')}
+            />
         )}
+        </SectionCard>
       </div>
-      <Navbar />
-    </PageContainer>
+    </RoleShell>
   )
 }

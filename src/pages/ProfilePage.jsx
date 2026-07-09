@@ -8,12 +8,10 @@ import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
 import Badge from '../components/ui/Badge'
 import Label from '../components/ui/Label'
-import Navbar from '../components/ui/Navbar'
-import PageContainer from '../components/layout/PageContainer'
+import RoleShell from '../components/layout/RoleShell'
 import PageHeader from '../components/ui/PageHeader'
 import SectionCard from '../components/ui/SectionCard'
 import InlineAlert from '../components/ui/InlineAlert'
-import RoleEnvironmentBanner from '../components/layout/RoleEnvironmentBanner'
 import LoadingButton from '../components/ui/LoadingButton'
 import LoadingState from '../components/ui/LoadingState'
 import ErrorState from '../components/ui/ErrorState'
@@ -36,8 +34,8 @@ const getNextLevelPoints = (points) => {
 
 const getTierLabel = (points) => {
   if (points >= 500) return { tier: 'Elite', title: 'Transformador' }
-  if (points >= 250) return { tier: 'Avancado', title: 'Reciclador ativo' }
-  if (points >= 100) return { tier: 'Intermediario', title: 'Aliado sustentavel' }
+  if (points >= 250) return { tier: 'Avançado', title: 'Reciclador ativo' }
+  if (points >= 100) return { tier: 'Intermediário', title: 'Aliado sustentável' }
   return { tier: 'Inicial', title: 'Primeiros passos' }
 }
 
@@ -76,14 +74,14 @@ export default function ProfilePage() {
   const saveMutation = useMutation({
     mutationFn: updateProfile,
     onSuccess: () => {
-      setFeedback({ tone: 'success', message: 'Alteracoes salvas com sucesso.' })
+      setFeedback({ tone: 'success', message: 'Alterações salvas com sucesso.' })
       queryClient.invalidateQueries({ queryKey: queryKeys.profile })
       queryClient.invalidateQueries({ queryKey: queryKeys.currentUser })
     },
     onError: (mutationError) => {
       setFeedback({
         tone: 'error',
-        message: getApiErrorMessage(mutationError, 'Nao foi possivel salvar as alteracoes.'),
+        message: getApiErrorMessage(mutationError, 'Não foi possível salvar as alterações.'),
       })
     },
   })
@@ -95,22 +93,20 @@ export default function ProfilePage() {
 
   if (isLoading) {
     return (
-      <PageContainer className="bg-[var(--color-surface)]" innerClassName="pb-24">
+      <RoleShell variant="morador" shellClassName="bg-[var(--color-surface)]" contentClassName="px-4 py-4 pb-28 sm:px-6 sm:py-6 lg:px-8 lg:pb-28">
         <LoadingState title="Carregando perfil..." className="mx-auto mt-10 max-w-md" />
-        <Navbar />
-      </PageContainer>
+      </RoleShell>
     )
   }
 
   if (isError) {
     return (
-      <PageContainer className="bg-[var(--color-surface)]" innerClassName="pb-24">
+      <RoleShell variant="morador" shellClassName="bg-[var(--color-surface)]" contentClassName="px-4 py-4 pb-28 sm:px-6 sm:py-6 lg:px-8 lg:pb-28">
         <ErrorState
           title={getApiErrorMessage(error, 'Erro ao carregar perfil.')}
           className="mx-auto mt-10 max-w-md"
         />
-        <Navbar />
-      </PageContainer>
+      </RoleShell>
     )
   }
 
@@ -124,19 +120,17 @@ export default function ProfilePage() {
   const pendingDiscards = Number(profile?.resumo?.total_descartes_pendentes || 0)
 
   return (
-    <PageContainer className="bg-[var(--color-surface)] font-sans" innerClassName="pb-28">
+    <RoleShell variant="morador" shellClassName="bg-[var(--color-surface)]" contentClassName="px-4 py-4 pb-28 sm:px-6 sm:py-6 lg:px-8 lg:pb-28">
       <div className="space-y-6">
-        <RoleEnvironmentBanner variant="morador" />
-
         <PageHeader
           eyebrow="Painel do morador / gerador"
           title={profile?.nome || form.nome || 'Meu perfil'}
           description={`Acompanhando desde ${formatDate(memberSince)}`}
           action={
             <div className="grid gap-2 sm:flex">
-              <Button type="button" variant="secondary" onClick={() => navigate('/inicio')}>
-                Inicio
-              </Button>
+                <Button type="button" variant="secondary" onClick={() => navigate('/inicio')}>
+                  Início
+                </Button>
               <Button type="button" variant="secondary" onClick={() => navigate('/meu-estoque')}>
                 Ver estoque
               </Button>
@@ -155,7 +149,7 @@ export default function ProfilePage() {
             </div>
             <div className="flex-1">
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <Label className="text-white opacity-80">Nivel sustentavel</Label>
+                <Label className="text-white opacity-80">Nível sustentável</Label>
                 <Badge className="bg-[#1FA34A] text-white">{tier}</Badge>
               </div>
               <h2 className="mt-2 text-2xl font-bold">{title}</h2>
@@ -167,7 +161,7 @@ export default function ProfilePage() {
               </div>
               <div className="mt-2 flex justify-between gap-3 text-xs opacity-85">
                 <span>{currentPoints.toLocaleString('pt-BR')} pts</span>
-                <span>Proximo nivel: {nextLevelPoints.toLocaleString('pt-BR')}</span>
+                  <span>Próximo nível: {nextLevelPoints.toLocaleString('pt-BR')}</span>
               </div>
             </div>
           </div>
@@ -182,7 +176,7 @@ export default function ProfilePage() {
             <p className="mt-2 text-sm text-[#1FA34A]">{totalItems} item(ns) cadastrados</p>
           </Card>
           <Card>
-            <Label>Pontuacao</Label>
+            <Label>Pontuação</Label>
             <h2 className="mt-2 text-3xl font-bold text-[#1F4E79]">{currentPoints}</h2>
             <p className="mt-2 text-sm text-[#1FA34A]">{pendingDiscards} entrega(s) pendente(s)</p>
           </Card>
@@ -205,18 +199,18 @@ export default function ProfilePage() {
                 loadingText="Salvando..."
                 onClick={() => saveMutation.mutate(form)}
               >
-                Salvar alteracoes
+                  Salvar alterações
               </LoadingButton>
             </div>
           </SectionCard>
 
-          <SectionCard title="Acesso rapido" description="Atalhos para continuar seu fluxo.">
+          <SectionCard title="Acesso rápido" description="Atalhos para continuar seu fluxo.">
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
               <Button type="button" variant="primary" onClick={() => navigate('/mapa')} className="justify-start p-5 text-left">
                 <Recycle className="h-7 w-7 shrink-0" aria-hidden="true" />
                 <div className="ml-3">
                   <h3 className="text-base font-bold">Pontos de coleta</h3>
-                  <p className="text-sm opacity-80">Encontre locais proximos</p>
+                  <p className="text-sm opacity-80">Encontre locais próximos</p>
                 </div>
               </Button>
               <Button type="button" variant="secondary" onClick={() => navigate('/sorteios')} className="justify-start p-5 text-left">
@@ -230,8 +224,7 @@ export default function ProfilePage() {
           </SectionCard>
         </div>
       </div>
-      <Navbar />
-    </PageContainer>
+    </RoleShell>
   )
 }
 
