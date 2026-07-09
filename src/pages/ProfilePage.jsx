@@ -171,22 +171,8 @@ export default function ProfilePage() {
           </div>
         </section>
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Card>
-            <Label>Total no estoque</Label>
-            <h2 className="mt-2 text-3xl font-bold text-[#1F4E79]">
-              {totalInventoryKg.toLocaleString('pt-BR')} kg
-            </h2>
-            <p className="mt-2 text-sm text-[#1FA34A]">{totalItems} item(ns) cadastrados</p>
-          </Card>
-          <Card>
-            <Label>Pontuação</Label>
-            <h2 className="mt-2 text-3xl font-bold text-[#1F4E79]">{currentPoints}</h2>
-            <p className="mt-2 text-sm text-[#1FA34A]">{pendingDiscards} entrega(s) pendente(s)</p>
-          </Card>
-        </div>
 
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1.35fr)_minmax(280px,0.65fr)]">
+        <div className="max-w-2xl">
           <SectionCard title="Editar perfil" description="Confira seus dados e mantenha seu contato atualizado.">
             <div className="space-y-4">
               <Field label="Nome" value={form.nome} onChange={(value) => setForm((current) => ({ ...current, nome: value }))} />
@@ -205,25 +191,6 @@ export default function ProfilePage() {
               >
                   Salvar alterações
               </LoadingButton>
-            </div>
-          </SectionCard>
-
-          <SectionCard title="Acesso rápido" description="Atalhos para continuar seu fluxo.">
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
-              <Button type="button" variant="primary" onClick={() => navigate('/mapa')} className="justify-start p-5 text-left">
-                <Recycle className="h-7 w-7 shrink-0" aria-hidden="true" />
-                <div className="ml-3">
-                  <h3 className="text-base font-bold">Pontos de coleta</h3>
-                  <p className="text-sm opacity-80">Encontre locais próximos</p>
-                </div>
-              </Button>
-              <Button type="button" variant="secondary" onClick={() => navigate('/sorteios')} className="justify-start p-5 text-left">
-                <Gift className="h-7 w-7 shrink-0" aria-hidden="true" />
-                <div className="ml-3">
-                  <h3 className="text-base font-bold text-[#1F4E79]">Recompensas</h3>
-                  <p className="text-sm text-gray-500">Acompanhe sorteios e vouchers</p>
-                </div>
-              </Button>
             </div>
           </SectionCard>
         </div>
