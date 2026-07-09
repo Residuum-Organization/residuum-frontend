@@ -162,7 +162,8 @@ export default function MeuEstoquePage() {
         {itens.length ? (
           <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {itens.map((item) => {
-
+              const ItemIcon = getItemIcon(item.tipo_residuo)
+              const quantityAvailable = Number(item.quantidade || 0)
               return (
                 <article key={item.id} className="rounded-2xl border border-[#dde1ef] bg-[#f7f9fc] p-4 shadow-sm">
                   <div className="mb-4 flex items-start gap-3">
