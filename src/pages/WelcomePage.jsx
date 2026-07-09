@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import Button from "../components/ui/Button";
 
 export default function WelcomePage() {
@@ -7,8 +8,16 @@ export default function WelcomePage() {
 
   return (
     <main className="min-h-screen bg-[var(--color-welcome-surface)] px-4 py-5 sm:px-6 sm:py-8 lg:grid lg:place-items-center">
-      <section className="mx-auto flex w-full max-w-5xl flex-col gap-6 rounded-2xl bg-white p-5 shadow-sm shadow-slate-200/70 sm:p-8 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(21rem,0.8fr)] lg:items-center lg:gap-10">
-        <div>
+      <section className="mx-auto flex w-full max-w-5xl flex-col gap-6 rounded-2xl bg-white p-5 shadow-sm shadow-slate-200/70 sm:p-8 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(21rem,0.8fr)] lg:items-center lg:gap-10 relative">
+        <button
+          onClick={() => navigate("/")}
+          className="absolute top-4 left-4 sm:top-6 sm:left-6 flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-emerald-600 transition-colors"
+        >
+          <ArrowLeft size={18} />
+          Voltar
+        </button>
+
+        <div className="mt-8 sm:mt-6 lg:mt-0">
           <div className="mb-5 inline-flex items-center gap-3 rounded-full bg-[var(--color-primary)]/5 px-4 py-2 text-sm font-bold text-[var(--color-primary)]">
             <span className="h-2.5 w-2.5 rounded-full bg-[var(--color-accent)]" />
             Residuum

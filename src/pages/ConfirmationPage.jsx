@@ -12,11 +12,11 @@ import {
   buildCollectionPointPayload,
   clearCollectionPointDraft,
   getCollectionPointDraft,
-  getCollectionPointRequestErrorMessage,
   getCollectionPointRequestStatus,
   saveLocalCollectionPointRequestFallback,
   submitCollectionPointRequest,
 } from "../services/collectionPointRequests";
+import { getApiErrorMessage } from "../services/http/getApiErrorMessage";
 import { queryKeys } from "../services/queryKeys";
 
 const residuos = ["Plastico", "Metal", "Vidro", "Papelao"];
@@ -91,7 +91,7 @@ export default function Confirmation() {
       setFeedback("Solicitacao enviada com sucesso.");
     },
     onError: (error, payload) => {
-      const message = getCollectionPointRequestErrorMessage(error);
+      const message = getApiErrorMessage(error, "Não foi possível enviar sua solicitação. Seus dados foram preservados localmente.");
       setLocalFallback(saveLocalCollectionPointRequestFallback(payload, message));
       setFeedback(message);
     },

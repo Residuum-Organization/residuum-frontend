@@ -36,6 +36,7 @@ import NovaCampanhaPage from "./pages/NovaCampanhaPage";
 import CampanhaDetalhesPage from "./pages/CampanhaDetalhesPage";
 import Certificadodecoleta from "./pages/Certificadodecoleta";
 import LogoutPage from "./pages/LogoutPage";
+import LandingPage from "./pages/LandingPage";
 
 const moradorRoutes = [
   {
@@ -221,7 +222,7 @@ export default function App() {
         />
 
         <Route path="/logout" element={<LogoutPage />} />
-        <Route path="/" element={<Navigate to="/welcome" replace />} />
+        <Route path="/" element={<LandingPage />} />
         <Route path="/demo" element={<Navigate to="/welcome" replace />} />
         <Route path="*" element={<Navigate to="/welcome" replace />} />
       </Routes>
