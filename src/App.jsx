@@ -35,6 +35,8 @@ import CampanhasPage from "./pages/CampanhasPage";
 import NovaCampanhaPage from "./pages/NovaCampanhaPage";
 import CampanhaDetalhesPage from "./pages/CampanhaDetalhesPage";
 import Certificadodecoleta from "./pages/Certificadodecoleta";
+import LogoutPage from "./pages/LogoutPage";
+
 const moradorRoutes = [
   {
     path: "/welcome-residuum",
@@ -217,6 +219,7 @@ export default function App() {
           }
         />
 
+        <Route path="/logout" element={<LogoutPage />} />
         <Route path="/" element={<Navigate to="/welcome" replace />} />
         <Route path="/demo" element={<Navigate to="/welcome" replace />} />
         <Route path="*" element={<Navigate to="/welcome" replace />} />

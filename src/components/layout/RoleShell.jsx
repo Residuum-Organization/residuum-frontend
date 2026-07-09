@@ -12,7 +12,7 @@ export default function RoleShell({
       <section
         className={`mx-auto flex min-h-screen w-full max-w-7xl flex-col overflow-hidden shadow-sm sm:min-h-[760px] sm:rounded-2xl lg:min-h-[calc(100vh-2.5rem)] ${shellClassName}`}
       >
-        <div className={`flex-1 overflow-y-auto pb-24 lg:pb-8 ${contentClassName}`}>{children}</div>
+        <div className={`flex-1 overflow-y-auto pb-28 lg:pb-28 ${contentClassName}`}>{children}</div>
 
         <RoleNav variant={variant} mode="mobile" />
       </section>

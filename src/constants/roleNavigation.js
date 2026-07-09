@@ -9,6 +9,7 @@ import {
   User,
   Users,
   Warehouse,
+  LogOut,
 } from "lucide-react";
 
 export const roleNavigation = {
@@ -24,6 +25,7 @@ export const roleNavigation = {
     { to: "/schedule", label: "Agenda", Icon: CalendarDays },
     { to: "/aprovacao", label: "Aprovação", Icon: CheckCircle2 },
     { to: "/pontuacao-usuarios", label: "Pontuação", Icon: Users },
+    { to: "/logout", label: "Sair", Icon: LogOut },
   ],
   admin: [
     { to: "/admin", label: "Painel", Icon: LayoutDashboard },
@@ -31,5 +33,6 @@ export const roleNavigation = {
     { to: "/admin-pontos", label: "Pontos", Icon: MapPin },
     { to: "/usuarios", label: "Usuários", Icon: Users },
     { to: "/campanhas", label: "Campanhas", Icon: Megaphone },
+    { to: "/logout", label: "Sair", Icon: LogOut },
   ],
 };
