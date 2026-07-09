@@ -44,7 +44,7 @@ export default function Company() {
     <AuthShell
       title="Endereco de Coleta"
       subtitle="Cadastre onde o ponto recebe ou organiza os residuos."
-      description="O endereco correto facilita a rota dos moradores e ajuda a operacao de coleta a encontrar o ponto sem ruido."
+      description="O endereco correto facilita a rota dos moradores e ajuda a operação de coleta a encontrar o ponto sem ruido."
       highlights={[
         "Revise os dados do responsavel",
         "Informe dados completos de localizacao",
@@ -56,7 +56,7 @@ export default function Company() {
         <InlineAlert
           variant="info"
           title="Etapa 2 de 3"
-          description="Revise o responsavel e informe o endereco. A operacao do ponto sera definida na proxima etapa."
+          description="Revise o responsavel e informe o endereco. A operação do ponto sera definida na proxima etapa."
         />
 
         <div className="grid gap-4 lg:grid-cols-2">
@@ -96,7 +96,7 @@ export default function Company() {
               <div>
                 <dt className="font-bold text-[var(--color-primary)]">Situacao</dt>
                 <dd className="mt-1 text-[var(--color-text-muted)]">
-                  Pedido ainda pendente de envio e aprovacao.
+                  Pedido ainda pendente de envio e aprovação.
                 </dd>
               </div>
             </dl>
@@ -161,13 +161,13 @@ export default function Company() {
           </SectionCard>
 
           <SectionCard
-            title="Operacao do ponto"
+            title="Operação do ponto"
             description="Na proxima tela voce escolhe os residuos aceitos, volume e horario disponivel."
             className="p-4 sm:p-5"
           >
             <InlineAlert
               variant="warning"
-              title="Analise obrigatoria"
+              title="Análise obrigatoria"
               description="Finalizar o cadastro envia uma solicitacao. O ponto nao fica ativo automaticamente."
             />
           </SectionCard>

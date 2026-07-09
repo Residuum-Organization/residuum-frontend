@@ -33,7 +33,7 @@ const formatDate = (value) =>
       })
     : "-";
 
-export default function Aprovacao() {
+export default function Aprovação() {
   const [feedback, setFeedback] = useState(null);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -142,7 +142,7 @@ export default function Aprovacao() {
         <PageHeader
           eyebrow="Area operacional compartilhada"
           title="Descartes em confirmação"
-          description="Cooperativa ou empresa de coleta realiza a analise e validacao operacional; o administrador pode acompanhar por auditoria."
+          description="Cooperativa ou empresa de coleta realiza a análise e validação operacional; o administrador pode acompanhar por auditoria."
           action={
             <div className="flex flex-wrap items-center gap-2">
               <Button type="button" variant="secondary" onClick={() => navigate(-1)}>
@@ -158,7 +158,7 @@ export default function Aprovacao() {
         <InlineAlert
           variant="info"
           title="Fluxo compartilhado"
-          description="Esta area mantem o fluxo existente: cooperativa valida operacoes de descarte e admin acompanha sem alterar endpoint, payload ou regra de aprovacao."
+          description="Esta area mantem o fluxo existente: cooperativa valida operacoes de descarte e admin acompanha sem alterar endpoint, payload ou regra de aprovação."
         />
 
         {feedback ? (

@@ -170,7 +170,7 @@ export default function PageUsers() {
     <AdminShell>
       <PageHeader
         eyebrow="Administracao"
-        title="Usuarios"
+        title="Usuários"
         description="Consulte e filtre perfis cadastrados com nomenclatura alinhada ao MVP atual."
         action={
           <Button type="button" variant="secondary" onClick={() => navigate(-1)}>
@@ -255,16 +255,16 @@ export default function PageUsers() {
         />
       ) : null}
 
-      <SectionCard className="mt-5" title="Lista de usuarios">
+      <SectionCard className="mt-5" title="Lista de usuários">
         {loading ? (
           <LoadingState
-            title="Carregando usuarios..."
+            title="Carregando usuários..."
             description="Consultando a API administrativa."
             size="lg"
           />
         ) : loadError ? (
           <ErrorState
-            title="Nao foi possivel carregar usuarios."
+            title="Nao foi possivel carregar usuários."
             description={loadError}
             actionLabel="Tentar novamente"
             onAction={loadUsers}

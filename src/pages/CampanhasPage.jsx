@@ -164,7 +164,7 @@ export default function CampanhasPage() {
           ) : (
             <EmptyState
               title="Nenhuma campanha encontrada"
-              description="Crie uma campanha para organizar acoes de engajamento e premiacao."
+              description="Crie uma campanha para organizar ações de engajamento e premiacao."
               actionLabel="Criar campanha"
               onAction={() => navigate("/nova-campanha")}
             />
@@ -340,7 +340,7 @@ function CampanhasEncerradas() {
   return (
     <SectionCard
       title="Campanhas encerradas"
-      description="Historico de acoes finalizadas."
+      description="Histórico de ações finalizadas."
       className="h-full"
     >
       <EmptyState

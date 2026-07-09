@@ -119,15 +119,15 @@ export default function ExtratoPage() {
     queryFn: getPointsStatement,
   })
 
-  const historico = extrato?.itens || []
+  const histórico = extrato?.itens || []
   const total = Number(extrato?.pontuacao_total || 0)
-  const pendentes = historico
+  const pendentes = histórico
     .filter((item) => item.status === 'pendente')
     .reduce((sum, item) => sum + Math.max(Number(item.pontos || 0), 0), 0)
-  const confirmados = historico
+  const confirmados = histórico
     .filter((item) => item.status === 'confirmado')
     .reduce((sum, item) => sum + Math.max(Number(item.pontos || 0), 0), 0)
-  const resgatados = historico
+  const resgatados = histórico
     .filter((item) => item.status === 'resgatado')
     .reduce((sum, item) => sum + Math.abs(Number(item.pontos || 0)), 0)
 
@@ -168,9 +168,9 @@ export default function ExtratoPage() {
 
         <section className="space-y-4">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="text-lg font-black text-[#12384C]">Historico</h2>
+            <h2 className="text-lg font-black text-[#12384C]">Histórico</h2>
             <span className="w-fit rounded-full bg-white px-3 py-1 text-xs font-black text-[#11527A] shadow-sm">
-              {historico.length} registros
+              {histórico.length} registros
             </span>
           </div>
 
@@ -178,9 +178,9 @@ export default function ExtratoPage() {
             <LoadingState title="Carregando histórico de pontos..." />
           ) : isError ? (
             <ErrorState title={getApiErrorMessage(error, 'Não foi possível carregar o extrato de pontos.')} />
-          ) : historico.length ? (
+          ) : histórico.length ? (
             <div className="grid gap-3 lg:grid-cols-2">
-              {historico.map((item) => (
+              {histórico.map((item) => (
                 <HistoricoCard key={item.id_descarte || item.id_resgate} item={item} />
               ))}
             </div>

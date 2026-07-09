@@ -20,7 +20,7 @@ export const getUserDetails = async (usuarioId) => {
     const res = await api.get(`/admin/usuarios/${usuarioId}`)
     return res.data
   } catch (error) {
-    throw new Error(getApiErrorMessage(error, 'Erro ao buscar dados do usuário'))
+    throw new Error(getApiErrorMessage(error, 'Erro ao buscar detalhes do usuário'))
   }
 }
 
@@ -38,7 +38,7 @@ export const updateUserRole = async (usuarioId, role) => {
     const res = await api.patch(`/admin/usuarios/${usuarioId}/role`, { role })
     return res.data
   } catch (error) {
-    throw new Error(getApiErrorMessage(error, 'Erro ao alterar permissão'))
+    throw new Error(getApiErrorMessage(error, 'Erro ao alterar nível de acesso'))
   }
 }
 
@@ -46,7 +46,7 @@ export const deleteUser = async (usuarioId) => {
   try {
     await api.delete(`/admin/usuarios/${usuarioId}`)
   } catch (error) {
-    throw new Error(getApiErrorMessage(error, 'Erro ao remover usuário'))
+    throw new Error(getApiErrorMessage(error, 'Erro ao excluir usuário'))
   }
 }
 
@@ -56,5 +56,14 @@ export const getAdminPoints = async () => {
     return res.data
   } catch (error) {
     throw new Error(getApiErrorMessage(error, 'Erro ao buscar ocupação dos pontos'))
+  }
+}
+
+export const getAdminDashboard = async () => {
+  try {
+    const res = await api.get('/admin/metrics/resumo')
+    return res.data
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, 'Erro ao buscar resumo do dashboard'))
   }
 }

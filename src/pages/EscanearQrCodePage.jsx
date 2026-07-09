@@ -36,7 +36,7 @@ export default function EscanearQrCodePage() {
     if (itemId) params.set('itemId', itemId)
     if (pointId) params.set('pointId', pointId)
     params.set('qrToken', qrToken)
-    navigate(`/validacao-presenca?${params.toString()}`)
+    navigate(`/validação-presenca?${params.toString()}`)
   }
 
   const startScanner = async () => {
@@ -124,7 +124,7 @@ export default function EscanearQrCodePage() {
             </form>
 
             <InlineAlert variant="info" className="mt-5">
-              Depois da leitura, voce voltara para a tela de validacao para revisar e confirmar a transferencia.
+              Depois da leitura, voce voltara para a tela de validação para revisar e confirmar a transferencia.
             </InlineAlert>
           </SectionCard>
         </div>

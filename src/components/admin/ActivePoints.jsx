@@ -14,7 +14,7 @@ export default function ActivePoints() {
     <SectionCard
       className="mt-6"
       title="Pontos mais ativos"
-      description="Ranking demonstrativo de operacao dos pontos."
+      description="Ranking demonstrativo de operação dos pontos."
       action={<Badge variant="warning">Demonstrativo</Badge>}
     >
       <div className="grid gap-3 sm:grid-cols-2">

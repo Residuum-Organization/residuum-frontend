@@ -67,7 +67,7 @@ export default function CampanhaDetalhesPage() {
           <PageHeader
             eyebrow="Detalhes da campanha"
             title={campanha.nome}
-            description="Visao administrativa da campanha personalizada salva localmente."
+            description="Visão administrativa da campanha personalizada salva localmente."
             action={
               <Button type="button" variant="secondary" onClick={() => navigate("/campanhas")}>
                 <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
@@ -275,7 +275,7 @@ function SobreMarca({ campanha }) {
         <Linha
           icon={Sparkles}
           titulo="Compromisso ambiental"
-          texto="A empresa apoiadora financia ou apoia acoes voltadas a sustentabilidade e reducao de impactos ambientais."
+          texto="A empresa apoiadora financia ou apoia ações voltadas a sustentabilidade e reducao de impactos ambientais."
         />
 
         <Linha
@@ -287,7 +287,7 @@ function SobreMarca({ campanha }) {
         <Linha
           icon={Info}
           titulo="Parceria com a comunidade"
-          texto="A proposta aproxima empresas, pontos de coleta e moradores por meio de acoes sustentaveis."
+          texto="A proposta aproxima empresas, pontos de coleta e moradores por meio de ações sustentaveis."
         />
       </div>
     </div>

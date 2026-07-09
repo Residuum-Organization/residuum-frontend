@@ -38,7 +38,7 @@ export const getRoleDescription = (role) => {
   const normalizedRole = normalizeRole(role);
 
   if (normalizedRole === "admin") {
-    return "Gerencie usuarios, pontos, campanhas e regras da plataforma.";
+    return "Gerencie usuários, pontos, campanhas e regras da plataforma.";
   }
   if (normalizedRole === "cooperativa" || normalizedRole === "parceiro") {
     return "Acompanhe pontos, agenda, coletas e confirmacoes operacionais.";

@@ -138,7 +138,7 @@ const parceiroRoutes = [
 
 const aprovacaoRoute = {
   path: "/aprovacao",
-  label: "Aprovacao",
+  label: "Aprovação",
   Component: Aprovacao,
   integratedApi: true,
 };

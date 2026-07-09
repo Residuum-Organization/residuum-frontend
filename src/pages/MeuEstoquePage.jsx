@@ -219,7 +219,7 @@ export default function MeuEstoquePage() {
                       <span className="text-sm font-bold text-green-700">+{getEstimatedPoints(quantityAvailable)} pts</span>
                       <button
                         type="button"
-                        onClick={() => navigate(`/validacao-presenca?itemId=${item.id}`)}
+                        onClick={() => navigate(`/validação-presenca?itemId=${item.id}`)}
                         className="inline-flex min-h-11 items-center justify-center gap-1 rounded-2xl bg-[#1F4E79] px-4 py-2 text-sm font-semibold text-white"
                       >
                         Transferir

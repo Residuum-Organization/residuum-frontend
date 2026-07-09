@@ -62,7 +62,7 @@ export function MenuInferior() {
   const itens = [
     { to: "/admin", label: "Admin", Icon: LayoutGrid },
     { to: "/admin-pontos", label: "Pontos", Icon: MapPin },
-    { to: "/usuarios", label: "Usuarios", Icon: UsersRound },
+    { to: "/usuarios", label: "Usuários", Icon: UsersRound },
     { to: "/campanhas", label: "Campanhas", Icon: CircleCheck },
     { to: "/nova-campanha", label: "Nova campanha", Icon: Megaphone },
   ];
