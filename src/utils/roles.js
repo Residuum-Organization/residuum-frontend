@@ -14,10 +14,10 @@ export const getRoleHome = (role) => {
     return "/dashboard";
   }
   if (normalizedRole === "usuario" || normalizedRole === "morador") {
-    return "/welcome-residuum";
+    return "/inicio";
   }
 
-  return "/welcome-residuum";
+  return "/inicio";
 };
 
 export const getRoleLabel = (role) => {
@@ -38,7 +38,7 @@ export const getRoleDescription = (role) => {
   const normalizedRole = normalizeRole(role);
 
   if (normalizedRole === "admin") {
-    return "Gerencie usuarios, pontos, campanhas e regras da plataforma.";
+    return "Gerencie usuários, pontos, campanhas e regras da plataforma.";
   }
   if (normalizedRole === "cooperativa" || normalizedRole === "parceiro") {
     return "Acompanhe pontos, agenda, coletas e confirmacoes operacionais.";

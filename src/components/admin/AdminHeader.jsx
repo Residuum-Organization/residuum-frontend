@@ -7,7 +7,7 @@ export default function AdminHeader() {
     <PageHeader
       eyebrow="Painel administrativo"
       title="Dashboard"
-      description="Visao geral operacional do nucleo administrativo."
+      description="Visão geral operacional do núcleo administrativo."
     />
   );
 }

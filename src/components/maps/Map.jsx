@@ -77,6 +77,8 @@ export default function Map({
         borderRadius: '22px',
         overflow: 'hidden',
         background: '#e5e7eb',
+        position: 'relative',
+        zIndex: 0,
       }}
     >
       <MapContainer
@@ -86,6 +88,7 @@ export default function Map({
           width: '100%',
           height: '100%',
           minHeight: height,
+          zIndex: 0,
         }}
       >
         <MapCenterUpdater center={mapCenter} zoom={zoom} />

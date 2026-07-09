@@ -7,13 +7,13 @@ import SectionCard from "../ui/SectionCard";
 const actions = [
   {
     title: "Gestao de pontos",
-    description: "Acompanhar pontos e status de operacao.",
+    description: "Acompanhar pontos e status de operação.",
     to: "/admin-pontos",
     Icon: MapPin,
     variant: "primary",
   },
   {
-    title: "Usuarios",
+    title: "Usuários",
     description: "Gerenciar perfis e permissoes.",
     to: "/usuarios",
     Icon: Users,
@@ -27,7 +27,7 @@ export default function QuickActions() {
   return (
     <SectionCard
       className="mt-6"
-      title="Acoes rapidas"
+      title="Ações rapidas"
       description="Atalhos para rotinas administrativas recorrentes."
     >
       <div className="grid gap-3 sm:grid-cols-2">

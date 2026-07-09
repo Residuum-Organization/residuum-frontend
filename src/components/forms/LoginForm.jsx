@@ -35,7 +35,7 @@ export default function LoginForm() {
       const result = await login(data.email, data.password);
       navigate(getRoleHome(result.user?.role), { replace: true });
     } catch (e) {
-      setAuthError(e.message || "Credenciais invalidas");
+      setAuthError(e.message || "Credenciais inválidas");
     }
   };
 
@@ -91,9 +91,9 @@ export default function LoginForm() {
         <div className="mt-2 flex justify-end">
           <Link
             to="/recuperar-senha"
-            className="text-sm font-semibold text-[var(--color-welcome-muted)] underline-offset-2 hover:underline"
-          >
-            Esqueceu a senha?
+          className="text-sm font-semibold text-[var(--color-welcome-muted)] underline-offset-2 hover:underline"
+        >
+          Esqueceu a senha?
           </Link>
         </div>
       </div>
@@ -123,8 +123,8 @@ export default function LoginForm() {
           type="button"
           disabled
           className="rounded-full p-1 opacity-45 grayscale"
-          aria-label="Login com Google indisponivel"
-          title="Login com Google indisponivel"
+          aria-label="Login com Google indisponível"
+          title="Login com Google indisponível"
         >
           <GoogleIcon />
         </button>
@@ -132,18 +132,18 @@ export default function LoginForm() {
           type="button"
           disabled
           className="rounded-full p-1 opacity-45 grayscale"
-          aria-label="Login com Facebook indisponivel"
-          title="Login com Facebook indisponivel"
+          aria-label="Login com Facebook indisponível"
+          title="Login com Facebook indisponível"
         >
           <FacebookIcon />
         </button>
       </div>
       <p className="-mt-2 text-center text-xs font-medium text-[var(--color-welcome-muted)]">
-        Login social indisponivel no momento.
+        Login social indisponível no momento.
       </p>
 
       <p className="pt-1 text-center text-sm text-[var(--color-welcome-muted)]">
-        Nao tem conta?{" "}
+        Não tem conta?{" "}
         <Link
           to="/cadastro"
           className="font-semibold text-[var(--color-welcome-blue)] underline underline-offset-2"

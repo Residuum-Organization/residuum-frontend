@@ -5,13 +5,13 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useZxing } from 'react-zxing'
-import { BookText, Camera, Check, CircleDot, FlaskConical, ScanLine, Wine, X } from 'lucide-react'
-import Navbar from '../components/ui/Navbar'
-import PageContainer from '../components/layout/PageContainer'
+import { ArrowLeft, BookText, Camera, Check, CircleDot, FlaskConical, ScanLine, Wine, X } from 'lucide-react'
+import RoleShell from '../components/layout/RoleShell'
 import PageHeader from '../components/ui/PageHeader'
 import SectionCard from '../components/ui/SectionCard'
 import InlineAlert from '../components/ui/InlineAlert'
 import LoadingButton from '../components/ui/LoadingButton'
+import Button from '../components/ui/Button'
 import { createInventoryItem } from '../services/inventory'
 import { queryKeys } from '../services/queryKeys'
 import { getApiErrorMessage } from '../services/http/getApiErrorMessage'
@@ -22,7 +22,7 @@ const schema = z.object({
 })
 
 const tiposResiduo = [
-  { id: 'plastico', label: 'Plastico', icon: <FlaskConical size={22} /> },
+  { id: 'plastico', label: 'Plástico', icon: <FlaskConical size={22} /> },
   { id: 'metal', label: 'Metal', icon: <CircleDot size={22} /> },
   { id: 'papel', label: 'Papel', icon: <BookText size={22} /> },
   { id: 'vidro', label: 'Vidro', icon: <Wine size={22} /> },
@@ -49,7 +49,7 @@ function ScannerCamera({ onScan, onClose }) {
     },
     onError(err) {
       console.error('Erro no scanner:', err)
-      setError('Nao foi possivel acessar a camera. Verifique as permissoes.')
+      setError('Não foi possível acessar a câmera. Verifique as permissões.')
     },
     paused: scanned,
     timeBetweenDecodingAttempts: 300,
@@ -78,7 +78,7 @@ function ScannerCamera({ onScan, onClose }) {
           <div className="pointer-events-none absolute bottom-4 left-0 right-0 flex justify-center">
             <div className="flex items-center gap-2 rounded-full bg-black/50 px-3 py-1.5 text-xs text-white/80">
               <ScanLine size={14} />
-              <span>Aponte para o codigo</span>
+              <span>Aponte para o código</span>
             </div>
           </div>
         </div>
@@ -106,7 +106,7 @@ export default function CadastrarResiduo() {
   const handleScan = (barcode) => {
     setUltimoCodigo(barcode)
     setShowScanner(false)
-    setValue('descricao', `Codigo: ${barcode}`)
+    setValue('descricao', `Código: ${barcode}`)
     const tipoIdentificado = identificarTipoResiduo(barcode)
     if (tipoIdentificado) setTipoSelecionado(tipoIdentificado)
   }
@@ -115,7 +115,7 @@ export default function CadastrarResiduo() {
     mutationFn: createInventoryItem,
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.inventory })
-      setFeedback({ tone: 'success', message: 'Residuo cadastrado com sucesso.' })
+      setFeedback({ tone: 'success', message: 'Resíduo cadastrado com sucesso.' })
       setTimeout(() => {
         navigate('/meu-estoque')
       }, 800)
@@ -123,7 +123,7 @@ export default function CadastrarResiduo() {
     onError: (mutationError) => {
       setFeedback({
         tone: 'error',
-        message: getApiErrorMessage(mutationError, 'Nao foi possivel cadastrar o residuo.'),
+        message: getApiErrorMessage(mutationError, 'Não foi possível cadastrar o resíduo.'),
       })
     },
   })
@@ -132,13 +132,13 @@ export default function CadastrarResiduo() {
     setFeedback(null)
 
     if (!tipoSelecionado) {
-      setFeedback({ tone: 'error', message: 'Informe o tipo de residuo.' })
+      setFeedback({ tone: 'error', message: 'Informe o tipo de resíduo.' })
       return
     }
 
     const quantidadeNumerica = Number(quantidade)
     if (!Number.isFinite(quantidadeNumerica) || quantidadeNumerica <= 0) {
-      setFeedback({ tone: 'error', message: 'Informe uma quantidade valida.' })
+      setFeedback({ tone: 'error', message: 'Informe uma quantidade válida.' })
       return
     }
 
@@ -157,15 +157,20 @@ export default function CadastrarResiduo() {
   }
 
   return (
-    <PageContainer innerClassName="pb-28">
+    <RoleShell variant="morador" shellClassName="bg-[var(--color-surface)]" contentClassName="px-4 py-4 pb-28 sm:px-6 sm:py-6 lg:px-8 lg:pb-28">
       <div className="space-y-6">
-        <PageHeader
-          title="Cadastrar Residuo"
-          description="Escaneie o codigo ou preencha os dados do residuo."
-        />
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <PageHeader
+            title="Cadastrar resíduo"
+            description="Escaneie o código ou preencha os dados do resíduo antes da entrega."
+          />
+          <Button type="button" variant="secondary" onClick={() => navigate('/meu-estoque')} className="w-full sm:w-auto">
+            <ArrowLeft className="mr-2 h-4 w-4" /> Voltar para estoque
+          </Button>
+        </div>
 
         <div className="grid gap-6 lg:grid-cols-[minmax(280px,0.9fr)_minmax(0,1.1fr)] lg:items-start">
-          <SectionCard title="Codigo do produto" description="Use a camera se houver codigo de barras.">
+          <SectionCard title="Código do produto" description="Use a câmera se houver código de barras.">
             {showScanner ? (
               <ScannerCamera onScan={handleScan} onClose={() => setShowScanner(false)} />
             ) : (
@@ -181,8 +186,8 @@ export default function CadastrarResiduo() {
                   <Camera size={40} className="text-white" />
                 </div>
                 <div className="relative z-10 text-center">
-                  <span className="block text-lg font-bold text-white">Escanear codigo</span>
-                  <span className="mt-1 block text-sm text-white/75">Toque para ativar a camera</span>
+                  <span className="block text-lg font-bold text-white">Escanear código</span>
+                  <span className="mt-1 block text-sm text-white/75">Toque para ativar a câmera</span>
                 </div>
               </button>
             )}
@@ -191,7 +196,7 @@ export default function CadastrarResiduo() {
               <div className="mt-4 flex flex-col gap-3 rounded-2xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800 sm:flex-row sm:items-center">
                 <Check size={20} className="shrink-0 text-green-600" />
                 <div className="min-w-0 flex-1 break-words">
-                  <span className="font-medium">Codigo lido:</span> {ultimoCodigo}
+                  <span className="font-medium">Código lido:</span> {ultimoCodigo}
                 </div>
                 <button
                   type="button"
@@ -204,12 +209,12 @@ export default function CadastrarResiduo() {
             ) : null}
           </SectionCard>
 
-          <SectionCard title="Dados do residuo" description="Escolha o tipo e informe a quantidade em kg.">
+          <SectionCard title="Dados do resíduo" description="Escolha o tipo e informe a quantidade em kg.">
             <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
               {feedback ? <InlineAlert variant={feedback.tone}>{feedback.message}</InlineAlert> : null}
 
               <div>
-                <label className="mb-2 block text-sm font-bold text-[#1a3a4a]">Descricao do item</label>
+                <label className="mb-2 block text-sm font-bold text-[#1a3a4a]">Descrição do item</label>
                 <input
                   {...register('descricao')}
                   placeholder="Ex: Garrafa PET 2L"
@@ -219,7 +224,7 @@ export default function CadastrarResiduo() {
               </div>
 
               <div>
-                <label className="mb-3 block text-sm font-bold text-[#1a3a4a]">Tipo de residuo</label>
+                <label className="mb-3 block text-sm font-bold text-[#1a3a4a]">Tipo de resíduo</label>
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-2">
                   {tiposResiduo.map((tipo) => (
                     <button
@@ -261,17 +266,17 @@ export default function CadastrarResiduo() {
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-bold text-[#1a3a4a]">Observacao (opcional)</label>
+                <label className="mb-2 block text-sm font-bold text-[#1a3a4a]">Observação (opcional)</label>
                 <textarea
                   {...register('observacao')}
-                  placeholder="Ex: Embalagem sem rotulo"
+                  placeholder="Ex: Embalagem sem rótulo"
                   rows={3}
                   className="w-full resize-none rounded-2xl border border-gray-300 px-4 py-3 text-base text-gray-700 outline-none transition-colors placeholder:text-gray-400 focus:border-[#1F4E79]"
                 />
               </div>
 
               <InlineAlert variant="info">
-                A pontuacao so entra depois da confirmacao e pesagem pela cooperativa.
+                A pontuação só entra depois da confirmação e pesagem pela cooperativa.
               </InlineAlert>
 
               <LoadingButton
@@ -286,7 +291,6 @@ export default function CadastrarResiduo() {
           </SectionCard>
         </div>
       </div>
-      <Navbar />
-    </PageContainer>
+    </RoleShell>
   )
 }

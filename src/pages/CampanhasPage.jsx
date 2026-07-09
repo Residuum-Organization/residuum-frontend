@@ -9,10 +9,9 @@ import {
   Plus,
   Recycle,
   Trash2,
+  ArrowLeft,
 } from "lucide-react";
-import CampaignLayout, {
-  LogoResiduum,
-} from "../components/Campanhas/CampaignLayout";
+import AdminShell from "../components/admin/AdminShell";
 import Badge from "../components/ui/Badge";
 import Button from "../components/ui/Button";
 import EmptyState from "../components/ui/EmptyState";
@@ -102,13 +101,19 @@ export default function CampanhasPage() {
   }
 
   return (
-    <CampaignLayout>
+    <AdminShell>
       <div className="space-y-5">
         <PageHeader
           eyebrow="Modulo administrativo demonstrativo"
           title="Campanhas"
           description="Gestao administrativa de campanhas e empresas apoiadoras. A area propria da empresa apoiadora ainda nao esta implementada."
-          action={<LogoResiduum />}
+          action={
+            <div className="flex flex-wrap items-center gap-2">
+              <Button type="button" variant="secondary" onClick={() => navigate(-1)}>
+                <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
+              </Button>
+            </div>
+          }
         />
 
         <InlineAlert
@@ -159,7 +164,7 @@ export default function CampanhasPage() {
           ) : (
             <EmptyState
               title="Nenhuma campanha encontrada"
-              description="Crie uma campanha para organizar acoes de engajamento e premiacao."
+              description="Crie uma campanha para organizar ações de engajamento e premiacao."
               actionLabel="Criar campanha"
               onAction={() => navigate("/nova-campanha")}
             />
@@ -171,7 +176,7 @@ export default function CampanhasPage() {
           <NovaCampanhaSugerida onClick={() => navigate("/nova-campanha")} />
         </div>
       </div>
-    </CampaignLayout>
+    </AdminShell>
   );
 }
 
@@ -335,7 +340,7 @@ function CampanhasEncerradas() {
   return (
     <SectionCard
       title="Campanhas encerradas"
-      description="Historico de acoes finalizadas."
+      description="Histórico de ações finalizadas."
       className="h-full"
     >
       <EmptyState

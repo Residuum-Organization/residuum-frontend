@@ -1,10 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { CalendarDays, Gift, MapPin, Recycle, Users } from "lucide-react";
-import CampaignLayout, {
-  BotaoVoltar,
-  LogoResiduum,
-} from "../components/Campanhas/CampaignLayout";
+import { CalendarDays, Gift, MapPin, Recycle, Users, ArrowLeft } from "lucide-react";
+import AdminShell from "../components/admin/AdminShell";
 import FormField from "../components/forms/FormField";
 import Button from "../components/ui/Button";
 import InlineAlert from "../components/ui/InlineAlert";
@@ -84,15 +81,18 @@ export default function NovaCampanhaPage() {
   }
 
   return (
-    <CampaignLayout>
+    <AdminShell>
       <div className="space-y-5">
         <div>
-          <BotaoVoltar onClick={() => navigate("/campanhas")} />
           <PageHeader
             eyebrow="Cadastro local"
             title="Nova Campanha"
             description="Preencha os dados da empresa apoiadora, periodo, publico e premiacao. O painel proprio da apoiadora ainda nao existe."
-            action={<LogoResiduum />}
+            action={
+              <Button type="button" variant="secondary" onClick={() => navigate("/campanhas")}>
+                <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
+              </Button>
+            }
           />
         </div>
 
@@ -244,7 +244,7 @@ export default function NovaCampanhaPage() {
           </div>
         </form>
       </div>
-    </CampaignLayout>
+    </AdminShell>
   );
 }
 

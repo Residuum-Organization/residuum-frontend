@@ -1,13 +1,14 @@
 import React from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { CheckCircle2, Clock3, Recycle, TrendingDown, TrendingUp, Wallet, XCircle } from 'lucide-react'
-import Navbar from '../components/ui/Navbar'
-import PageContainer from '../components/layout/PageContainer'
+import { useNavigate } from 'react-router-dom'
+import { ArrowLeft, CheckCircle2, Clock3, Recycle, TrendingDown, TrendingUp, Wallet, XCircle } from 'lucide-react'
+import RoleShell from '../components/layout/RoleShell'
 import PageHeader from '../components/ui/PageHeader'
 import InlineAlert from '../components/ui/InlineAlert'
 import LoadingState from '../components/ui/LoadingState'
 import ErrorState from '../components/ui/ErrorState'
 import EmptyState from '../components/ui/EmptyState'
+import Button from '../components/ui/Button'
 import { getPointsStatement } from '../services/points'
 import { queryKeys } from '../services/queryKeys'
 import { getApiErrorMessage } from '../services/http/getApiErrorMessage'
@@ -51,12 +52,12 @@ const STATUS_CONFIG = {
 }
 
 const formatResidueType = (tipo) =>
-  String(tipo || 'residuo')
+  String(tipo || 'resíduo')
     .replaceAll('_', ' ')
     .replace(/\b\w/g, (letter) => letter.toUpperCase())
 
 const formatHistoryDate = (value) => {
-  if (!value) return 'Data indisponivel'
+  if (!value) return 'Data indisponível'
   return new Date(value).toLocaleString('pt-BR', {
     day: '2-digit',
     month: 'short',
@@ -112,35 +113,41 @@ function HistoricoCard({ item }) {
 }
 
 export default function ExtratoPage() {
+  const navigate = useNavigate()
   const { data: extrato, isLoading, isError, error } = useQuery({
     queryKey: queryKeys.pointsStatement,
     queryFn: getPointsStatement,
   })
 
-  const historico = extrato?.itens || []
+  const histórico = extrato?.itens || []
   const total = Number(extrato?.pontuacao_total || 0)
-  const pendentes = historico
+  const pendentes = histórico
     .filter((item) => item.status === 'pendente')
     .reduce((sum, item) => sum + Math.max(Number(item.pontos || 0), 0), 0)
-  const confirmados = historico
+  const confirmados = histórico
     .filter((item) => item.status === 'confirmado')
     .reduce((sum, item) => sum + Math.max(Number(item.pontos || 0), 0), 0)
-  const resgatados = historico
+  const resgatados = histórico
     .filter((item) => item.status === 'resgatado')
     .reduce((sum, item) => sum + Math.abs(Number(item.pontos || 0)), 0)
 
   return (
-    <PageContainer className="bg-[var(--color-surface)]" innerClassName="pb-28">
+    <RoleShell variant="morador" shellClassName="bg-[var(--color-surface)]" contentClassName="px-4 py-4 pb-28 sm:px-6 sm:py-6 lg:px-8 lg:pb-28">
       <div className="space-y-6">
         <PageHeader
           title="Extrato de Pontos"
           description="Acompanhe seu saldo e o status das entregas confirmadas ou pendentes."
+          action={
+            <Button type="button" variant="secondary" onClick={() => navigate(-1)} className="w-full sm:w-auto">
+              <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
+            </Button>
+          }
         />
 
         <section className="rounded-2xl bg-[#DDF7E9] p-5 shadow-sm sm:p-6">
           <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-xs font-black uppercase text-[#0B6B53]/80">Total disponivel</p>
+              <p className="text-xs font-black uppercase text-[#0B6B53]/80">Total disponível</p>
               <h2 className="mt-2 text-5xl font-black leading-none text-[#0B6B53] sm:text-6xl">{total}</h2>
             </div>
             <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-white/80 text-[#0B6B53] shadow-sm">
@@ -156,37 +163,36 @@ export default function ExtratoPage() {
         </section>
 
         <InlineAlert variant="info">
-          Pontos pendentes ainda dependem da confirmacao e pesagem real pela cooperativa.
+          Pontos pendentes ainda dependem da confirmação e pesagem real pela cooperativa.
         </InlineAlert>
 
         <section className="space-y-4">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="text-lg font-black text-[#12384C]">Historico</h2>
+            <h2 className="text-lg font-black text-[#12384C]">Histórico</h2>
             <span className="w-fit rounded-full bg-white px-3 py-1 text-xs font-black text-[#11527A] shadow-sm">
-              {historico.length} registros
+              {histórico.length} registros
             </span>
           </div>
 
           {isLoading ? (
-            <LoadingState title="Carregando historico de pontos..." />
+            <LoadingState title="Carregando histórico de pontos..." />
           ) : isError ? (
-            <ErrorState title={getApiErrorMessage(error, 'Nao foi possivel carregar o extrato de pontos.')} />
-          ) : historico.length ? (
+            <ErrorState title={getApiErrorMessage(error, 'Não foi possível carregar o extrato de pontos.')} />
+          ) : histórico.length ? (
             <div className="grid gap-3 lg:grid-cols-2">
-              {historico.map((item) => (
+              {histórico.map((item) => (
                 <HistoricoCard key={item.id_descarte || item.id_resgate} item={item} />
               ))}
             </div>
           ) : (
             <EmptyState
-              title="Seu extrato ainda esta vazio."
-              description="Suas entregas e resgates vao aparecer aqui assim que houver movimentacao."
+              title="Seu extrato ainda está vazio."
+              description="Suas entregas e resgates vão aparecer aqui assim que houver movimentação."
             />
           )}
         </section>
       </div>
-      <Navbar />
-    </PageContainer>
+    </RoleShell>
   )
 }
 

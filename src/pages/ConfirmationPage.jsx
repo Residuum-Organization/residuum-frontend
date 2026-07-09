@@ -23,8 +23,8 @@ const residuos = ["Plastico", "Metal", "Vidro", "Papelao"];
 
 const statusMap = {
   pendente: {
-    title: "Aguardando aprovacao",
-    description: "Seu cadastro foi enviado ao servidor e esta em analise manual pelo administrador.",
+    title: "Aguardando aprovação",
+    description: "Seu cadastro foi enviado ao servidor e esta em análise manual pelo administrador.",
     badge: "bg-amber-100 text-amber-700",
     Icon: Clock3,
   },
@@ -148,14 +148,14 @@ export default function Confirmation() {
     return (
       <AuthShell
         title="Status da Solicitacao"
-        subtitle="Acompanhe a aprovacao do seu ponto de coleta."
+        subtitle="Acompanhe a aprovação do seu ponto de coleta."
         description="Sempre que houver atualizacao real do backend, ela aparecera aqui."
         highlights={[
-          "Confira o andamento da analise",
-          "Saiba quando houver aprovacao do administrador",
+          "Confira o andamento da análise",
+          "Saiba quando houver aprovação do administrador",
           "Reenvie os dados se for necessario ajustar a solicitacao",
         ]}
-        footer='"Solicitacoes completas facilitam a analise do administrador."'
+        footer='"Solicitacoes completas facilitam a análise do administrador."'
       >
         <SectionCard className="p-5 text-center sm:p-6">
           <div className={`mx-auto flex h-16 w-16 items-center justify-center rounded-full ${statusConfig.badge}`}>
@@ -169,8 +169,8 @@ export default function Confirmation() {
             title={currentStatus === "aprovado" ? "Aprovado pelo servidor" : "Pendente de verificacao"}
             description={
               currentStatus === "aprovado"
-                ? "A aprovacao exibida veio da resposta do backend."
-                : "Enquanto nao houver aprovacao, o ponto nao deve ser considerado ativo."
+                ? "A aprovação exibida veio da resposta do backend."
+                : "Enquanto nao houver aprovação, o ponto nao deve ser considerado ativo."
             }
             className="mt-5 text-left"
           />
@@ -200,15 +200,15 @@ export default function Confirmation() {
       highlights={[
         "Revise os dados antes do envio",
         "Selecione os materiais aceitos",
-        "Aguarde a analise manual do administrador",
+        "Aguarde a análise manual do administrador",
       ]}
-      footer='"A confirmacao completa envia o pedido para analise, sem ativacao automatica."'
+      footer='"A confirmacao completa envia o pedido para análise, sem ativacao automatica."'
     >
       <div className="space-y-5">
         <InlineAlert
           variant="info"
           title="Etapa 3 de 3"
-          description="Revise os dados e informe como o ponto opera. A solicitacao ficara pendente ate a aprovacao manual."
+          description="Revise os dados e informe como o ponto opera. A solicitacao ficara pendente ate a aprovação manual."
         />
 
         {fallbackStatus ? (
@@ -340,7 +340,7 @@ export default function Confirmation() {
             className="h-14 w-full rounded-full text-base font-semibold sm:text-lg"
           >
             <span className="inline-flex items-center justify-center gap-2">
-              {fallbackStatus ? "Tentar enviar novamente" : "Enviar para analise"}
+              {fallbackStatus ? "Tentar enviar novamente" : "Enviar para análise"}
               <CheckCircle2 size={20} />
             </span>
           </LoadingButton>

@@ -60,7 +60,7 @@ export default function RegisterPontoColetaPage() {
         <InlineAlert
           variant="info"
           title="Etapa 1 de 3"
-          description="Informe quem sera o responsavel pelo pedido. O ponto so sera liberado depois da analise manual do administrador."
+          description="Informe quem sera o responsavel pelo pedido. O ponto so sera liberado depois da análise manual do administrador."
         />
 
         <form onSubmit={handleSubmit} className="space-y-5" noValidate>

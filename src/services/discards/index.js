@@ -2,7 +2,7 @@ import api from "../../api/client";
 import { getApiErrorMessage } from "../http/getApiErrorMessage";
 
 export const getDiscardHistory = async () => {
-  const res = await api.get("/descarte/historico");
+  const res = await api.get("/descarte/histórico");
   return res.data;
 };
 

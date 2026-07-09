@@ -15,37 +15,40 @@ import WelcomePage from "./pages/WelcomePage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import UserPointsManagementPage from "./pages/UserPointsManagementPage";
 import SorteiosPage from "./pages/SorteiosPage";
 import SorteioDetalhesPage from "./pages/SorteioDetalhesPage";
 import ExtratoPage from "./pages/ExtratoPage";
 import CampanhaHeineken from "./pages/CampanhaHeinekenPage";
 import Aprovacao from "./pages/AprovacaoPage";
 import AdminPage from "./pages/AdminPage";
-import WelcomeResiduum from "./pages/WelcomeResiduumPage";
+import HomePage from "./pages/HomePage";
+import WelcomeOnboardingPage from "./pages/WelcomeOnboardingPage";
 import PageUsers from "./pages/PageUsersPage";
 import AdminPoints from "./pages/AdminPointsPage";
 import Company from "./pages/CompanyPage";
 import Confirmation from "./pages/ConfirmationPage";
 import RegisterPontoColetaPage from "./pages/RegisterPontoColetaPage";
-import ComingSoonPage from "./pages/ComingSoonPage";
 import AcessoNegadoPage from "./pages/AcessoNegadoPage";
 
 import CampanhasPage from "./pages/CampanhasPage";
 import NovaCampanhaPage from "./pages/NovaCampanhaPage";
 import CampanhaDetalhesPage from "./pages/CampanhaDetalhesPage";
 import Certificadodecoleta from "./pages/Certificadodecoleta";
+import LogoutPage from "./pages/LogoutPage";
+
 const moradorRoutes = [
   {
-    path: "/welcome-residuum",
-    label: "Welcome Residuum",
-    Component: WelcomeResiduum,
+    path: "/inicio",
+    label: "Início",
+    Component: HomePage,
   },
   {
     path: "/certificado-coleta",
     label: "Certificado de Coleta",
     Component: Certificadodecoleta,
   },
-  { path: "/inicio", label: "Início", Component: ComingSoonPage },
+
   { path: "/mapa", label: "Mapa", Component: MapPage },
   {
     path: "/meu-estoque",
@@ -89,6 +92,7 @@ const moradorRoutes = [
 
 const authRoutes = [
   { path: "/welcome", label: "Boas-vindas", Component: WelcomePage },
+  { path: "/boas-vindas", label: "Boas-vindas Pós-Cadastro", Component: WelcomeOnboardingPage },
   {
     path: "/login",
     label: "Login",
@@ -129,11 +133,12 @@ const parceiroRoutes = [
     integratedApi: true,
   },
   { path: "/schedule", label: "Agenda", Component: ScheduleScreen },
+  { path: "/pontuacao-usuarios", label: "Pontuação", Component: UserPointsManagementPage, integratedApi: true },
 ];
 
 const aprovacaoRoute = {
   path: "/aprovacao",
-  label: "Aprovacao",
+  label: "Aprovação",
   Component: Aprovacao,
   integratedApi: true,
 };
@@ -215,6 +220,7 @@ export default function App() {
           }
         />
 
+        <Route path="/logout" element={<LogoutPage />} />
         <Route path="/" element={<Navigate to="/welcome" replace />} />
         <Route path="/demo" element={<Navigate to="/welcome" replace />} />
         <Route path="*" element={<Navigate to="/welcome" replace />} />

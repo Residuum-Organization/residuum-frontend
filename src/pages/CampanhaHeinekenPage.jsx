@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import CampaignLayout, {
-  LogoResiduum,
-  BotaoVoltar,
-} from "../components/Campanhas/CampaignLayout";
+import { ArrowLeft } from "lucide-react";
+import AdminShell from "../components/admin/AdminShell";
+import PageHeader from "../components/ui/PageHeader";
+import Button from "../components/ui/Button";
 
 const abas = [
   { id: "funciona", label: "Como funciona" },
@@ -16,8 +16,18 @@ export default function CampanhaHeinekenPage() {
   const navigate = useNavigate();
 
   return (
-    <CampaignLayout>
-      <Topo onVoltar={() => navigate("/campanhas")} />
+    <AdminShell>
+      <PageHeader
+        eyebrow="Detalhes da campanha"
+        title="Campanha Heineken"
+        description="Esta é uma campanha de exemplo integrada no sistema."
+        action={
+          <Button type="button" variant="secondary" onClick={() => navigate("/campanhas")}>
+            <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
+          </Button>
+        }
+        className="mb-5"
+      />
 
       <div className="rounded-[20px] border-2 border-[#5644ce] bg-[#fbfbff] px-3 pb-5 pt-4">
         <CabecalhoCampanha />
@@ -32,25 +42,11 @@ export default function CampanhaHeinekenPage() {
           {abaAtual === "premios" && <Premios />}
         </div>
       </div>
-    </CampaignLayout>
+    </AdminShell>
   );
 }
 
-function Topo({ onVoltar }) {
-  return (
-    <header className="mb-4 flex items-start justify-between">
-      <div>
-        <BotaoVoltar onClick={onVoltar} />
 
-        <h1 className="text-[22px] font-black leading-none text-[#0c1187]">
-          Campanha Heineken
-        </h1>
-      </div>
-
-      <LogoResiduum />
-    </header>
-  );
-}
 
 function CabecalhoCampanha() {
   return (

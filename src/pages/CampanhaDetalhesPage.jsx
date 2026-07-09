@@ -8,11 +8,9 @@ import {
   MapPin,
   Recycle,
   Sparkles,
+  ArrowLeft,
 } from "lucide-react";
-import CampaignLayout, {
-  BotaoVoltar,
-  LogoResiduum,
-} from "../components/Campanhas/CampaignLayout";
+import AdminShell from "../components/admin/AdminShell";
 import Badge from "../components/ui/Badge";
 import Button from "../components/ui/Button";
 import EmptyState from "../components/ui/EmptyState";
@@ -40,9 +38,17 @@ export default function CampanhaDetalhesPage() {
 
   if (!campanha) {
     return (
-      <CampaignLayout>
+      <AdminShell>
         <div className="space-y-5">
-          <BotaoVoltar onClick={() => navigate("/campanhas")} />
+          <PageHeader
+            eyebrow="Detalhes da campanha"
+            title="Campanha não encontrada"
+            action={
+              <Button type="button" variant="secondary" onClick={() => navigate("/campanhas")}>
+                <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
+              </Button>
+            }
+          />
           <EmptyState
             title="Campanha nao encontrada"
             description="Essa campanha pode ter sido removida ou nao existe mais neste navegador."
@@ -50,20 +56,23 @@ export default function CampanhaDetalhesPage() {
             onAction={() => navigate("/campanhas")}
           />
         </div>
-      </CampaignLayout>
+      </AdminShell>
     );
   }
 
   return (
-    <CampaignLayout>
+    <AdminShell>
       <div className="space-y-5">
         <div>
-          <BotaoVoltar onClick={() => navigate("/campanhas")} />
           <PageHeader
             eyebrow="Detalhes da campanha"
             title={campanha.nome}
-            description="Visao administrativa da campanha personalizada salva localmente."
-            action={<LogoResiduum />}
+            description="Visão administrativa da campanha personalizada salva localmente."
+            action={
+              <Button type="button" variant="secondary" onClick={() => navigate("/campanhas")}>
+                <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
+              </Button>
+            }
           />
         </div>
 
@@ -99,7 +108,7 @@ export default function CampanhaDetalhesPage() {
           </div>
         </SectionCard>
       </div>
-    </CampaignLayout>
+    </AdminShell>
   );
 }
 
@@ -266,7 +275,7 @@ function SobreMarca({ campanha }) {
         <Linha
           icon={Sparkles}
           titulo="Compromisso ambiental"
-          texto="A empresa apoiadora financia ou apoia acoes voltadas a sustentabilidade e reducao de impactos ambientais."
+          texto="A empresa apoiadora financia ou apoia ações voltadas a sustentabilidade e reducao de impactos ambientais."
         />
 
         <Linha
@@ -278,7 +287,7 @@ function SobreMarca({ campanha }) {
         <Linha
           icon={Info}
           titulo="Parceria com a comunidade"
-          texto="A proposta aproxima empresas, pontos de coleta e moradores por meio de acoes sustentaveis."
+          texto="A proposta aproxima empresas, pontos de coleta e moradores por meio de ações sustentaveis."
         />
       </div>
     </div>

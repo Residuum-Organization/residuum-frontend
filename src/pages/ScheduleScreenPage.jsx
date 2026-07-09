@@ -1,34 +1,38 @@
 import React from "react";
-import { CalendarClock, Truck } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { CalendarClock, Truck, ArrowLeft } from "lucide-react";
 import TimeSlots from "../components/coleta-dados/TimeSlots";
 import CollectionPoints from "../components/coleta-dados/CollectionPoints";
 import SystemStatus from "../components/coleta-dados/SystemStatus";
-import OperationalHeader from "../components/coleta-dados/OperationalHeader";
-import PageContainer from "../components/layout/PageContainer";
+import RoleShell from "../components/layout/RoleShell";
 import PageHeader from "../components/ui/PageHeader";
 import InlineAlert from "../components/ui/InlineAlert";
 import Button from "../components/ui/Button";
 import { COLLECTION_POINTS, TIME_SLOTS } from "../constants/schedule";
 
 export default function ScheduleScreen() {
+  const navigate = useNavigate();
   return (
-    <PageContainer className="bg-[var(--color-surface)]">
+    <RoleShell variant="operacional" shellClassName="bg-[var(--color-surface)]">
       <div className="space-y-5 rounded-2xl bg-[var(--color-surface-soft)] p-4 shadow-sm sm:p-6 lg:min-h-[calc(100vh-4rem)]">
-        <OperationalHeader />
-
         <PageHeader
           eyebrow="Cooperativa / Empresa de coleta"
           title="Agenda de coletas"
           description="Organize horários, disponibilidade dos pontos e leitura operacional da agenda."
           action={
-            <Button
-              type="button"
-              className="w-full gap-2 sm:w-auto"
-              aria-label="Agendar coleta demonstrativa"
-            >
-              <Truck className="h-4 w-4" aria-hidden="true" />
-              Agendar coleta
-            </Button>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button type="button" variant="secondary" onClick={() => navigate(-1)}>
+                <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
+              </Button>
+              <Button
+                type="button"
+                className="w-full gap-2 sm:w-auto"
+                aria-label="Agendar coleta demonstrativa"
+              >
+                <Truck className="h-4 w-4" aria-hidden="true" />
+                Agendar coleta
+              </Button>
+            </div>
           }
         />
 
@@ -91,6 +95,6 @@ export default function ScheduleScreen() {
           </div>
         </section>
       </div>
-    </PageContainer>
+    </RoleShell>
   );
 }

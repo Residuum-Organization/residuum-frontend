@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { Loader2, MapPin, QrCode, Send } from 'lucide-react'
-import Navbar from '../components/ui/Navbar'
-import PageContainer from '../components/layout/PageContainer'
+import { ArrowLeft, Loader2, MapPin, QrCode, Send } from 'lucide-react'
+import RoleShell from '../components/layout/RoleShell'
 import PageHeader from '../components/ui/PageHeader'
 import InlineAlert from '../components/ui/InlineAlert'
 import LoadingState from '../components/ui/LoadingState'
 import ErrorState from '../components/ui/ErrorState'
 import EmptyState from '../components/ui/EmptyState'
 import LoadingButton from '../components/ui/LoadingButton'
+import Button from '../components/ui/Button'
 import { listInventory, transferInventoryItem } from '../services/inventory'
 import { listCollectionPoints } from '../services/collectionPoints'
 import { queryKeys } from '../services/queryKeys'
@@ -18,7 +18,7 @@ import { getApiErrorMessage } from '../services/http/getApiErrorMessage'
 const POINTS_PER_KG = 10
 
 const formatResidueType = (tipo) =>
-  String(tipo || 'residuo')
+  String(tipo || 'resíduo')
     .replaceAll('_', ' ')
     .replace(/\b\w/g, (letter) => letter.toUpperCase())
 
@@ -33,7 +33,7 @@ const formatQuantity = (value) => {
 const getCurrentPosition = () =>
   new Promise((resolve, reject) => {
     if (!navigator.geolocation) {
-      reject(new Error('Geolocalizacao nao suportada neste dispositivo.'))
+      reject(new Error('Geolocalização não suportada neste dispositivo.'))
       return
     }
 
@@ -44,7 +44,7 @@ const getCurrentPosition = () =>
           lng: position.coords.longitude,
         })
       },
-      () => reject(new Error('Nao foi possivel obter sua localizacao atual.')),
+      () => reject(new Error('Não foi possível obter sua localização atual.')),
       {
         enableHighAccuracy: true,
         timeout: 10000,
@@ -68,10 +68,10 @@ const hasQrTokenQueryParam = (searchParams) =>
 
 const getTransferErrorMessage = (error) => {
   if (error?.isAxiosError && !error.response) {
-    return 'Servidor indisponivel. Verifique se o backend esta ligado e tente novamente.'
+    return 'Servidor indisponível. Verifique se o backend está ligado e tente novamente.'
   }
 
-  return getApiErrorMessage(error, 'Token QR Code invalido ou nao foi possivel enviar o item para o ponto.')
+  return getApiErrorMessage(error, 'Token QR Code inválido ou não foi possível enviar o item para o ponto.')
 }
 
 export default function ValidacaoPresencaPage() {
@@ -197,7 +197,7 @@ export default function ValidacaoPresencaPage() {
     if (hasQrTokenQueryParam(searchParams) && !qrToken.trim()) {
       setFeedback({
         tone: 'error',
-        message: 'Token QR Code ausente ou vazio. Escaneie novamente ou informe o codigo manualmente.',
+        message: 'Token QR Code ausente ou vazio. Escaneie novamente ou informe o código manualmente.',
       })
       return
     }
@@ -206,14 +206,14 @@ export default function ValidacaoPresencaPage() {
     const availableQuantity = Number(selectedItem.quantidade_disponivel ?? selectedItem.quantidade ?? 0)
 
     if (!quantityNumber || quantityNumber <= 0) {
-      setFeedback({ tone: 'error', message: 'Informe uma quantidade valida para a transferencia.' })
+      setFeedback({ tone: 'error', message: 'Informe uma quantidade válida para a transferência.' })
       return
     }
 
     if (quantityNumber > availableQuantity) {
       setFeedback({
         tone: 'error',
-        message: `A quantidade disponivel para este item e ${formatQuantity(availableQuantity)} kg.`,
+          message: `A quantidade disponível para este item é ${formatQuantity(availableQuantity)} kg.`,
       })
       return
     }
@@ -242,49 +242,52 @@ export default function ValidacaoPresencaPage() {
 
   if (inventoryLoading) {
     return (
-      <PageContainer innerClassName="pb-24">
+      <RoleShell variant="morador" shellClassName="bg-[var(--color-surface)]" contentClassName="px-4 py-4 pb-28 sm:px-6 sm:py-6 lg:px-8 lg:pb-28">
         <LoadingState title="Carregando itens para transferencia..." className="mx-auto mt-10 max-w-md" />
-        <Navbar />
-      </PageContainer>
+      </RoleShell>
     )
   }
 
   if (inventoryError) {
     return (
-      <PageContainer innerClassName="pb-24">
+      <RoleShell variant="morador" shellClassName="bg-[var(--color-surface)]" contentClassName="px-4 py-4 pb-28 sm:px-6 sm:py-6 lg:px-8 lg:pb-28">
         <div className="space-y-5">
-          <PageHeader title="Transferir para o ponto" description="Escolha o residuo, valide sua presenca e confirme." />
-          <ErrorState title={getApiErrorMessage(inventoryQueryError, 'Nao foi possivel carregar o estoque disponivel.')} />
+          <PageHeader title="Transferir para o ponto" description="Escolha o resíduo, valide sua presença e confirme." />
+          <ErrorState title={getApiErrorMessage(inventoryQueryError, 'Não foi possível carregar o estoque disponível.')} />
         </div>
-        <Navbar />
-      </PageContainer>
+      </RoleShell>
     )
   }
 
   return (
-    <PageContainer innerClassName="pb-28">
+    <RoleShell variant="morador" shellClassName="bg-[var(--color-surface)]" contentClassName="px-4 py-4 pb-28 sm:px-6 sm:py-6 lg:px-8 lg:pb-28">
       <div className="space-y-5">
-        <PageHeader
-          title="Transferir para o ponto"
-          description="Escolha o residuo, escolha o ponto, valide sua presenca e confirme a transferencia."
-        />
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <PageHeader
+            title="Transferir para o ponto"
+            description="Escolha o resíduo, escolha o ponto, valide sua presença e confirme a transferência."
+          />
+          <Button type="button" variant="secondary" onClick={() => navigate('/meu-estoque')} className="w-full sm:w-auto">
+            <ArrowLeft className="mr-2 h-4 w-4" /> Voltar para estoque
+          </Button>
+        </div>
 
         <InlineAlert variant="info">
-          A entrega so pode ser confirmada com localizacao ou QR Code. Os pontos entram apenas depois da confirmacao da cooperativa.
+          A entrega só pode ser confirmada com localização ou QR Code. Os pontos entram apenas depois da confirmação da cooperativa.
         </InlineAlert>
 
         {feedback ? <InlineAlert variant={feedback.tone}>{feedback.message}</InlineAlert> : null}
 
         {!inventory.length ? (
-          <EmptyState
-            title="Voce ainda nao tem itens disponiveis."
-            description="Cadastre um residuo no estoque antes de solicitar uma entrega."
-            actionLabel="Cadastrar residuo"
-            onAction={() => navigate('/cadastrar-residuo')}
-          />
-        ) : (
-          <div className="grid gap-5 lg:grid-cols-2">
-            <Panel title="1. Residuo">
+            <EmptyState
+              title="Você ainda não tem itens disponíveis."
+              description="Cadastre um resíduo no estoque antes de solicitar uma entrega."
+              actionLabel="Cadastrar resíduo"
+              onAction={() => navigate('/cadastrar-residuo')}
+            />
+          ) : (
+            <div className="grid gap-5 lg:grid-cols-2">
+            <Panel title="1. Resíduo">
               <label className="mb-2 block text-sm font-bold text-[#1a3a4a]">Item do estoque</label>
               <select
                 value={selectedItemId}
@@ -306,20 +309,20 @@ export default function ValidacaoPresencaPage() {
                   </p>
                   <p className="mt-1 text-sm text-gray-500">Tipo: {formatResidueType(selectedItem.tipo_residuo)}</p>
                   <p className="mt-2 text-xs font-medium text-gray-500">
-                    Disponivel: {formatQuantity(selectedItem.quantidade_disponivel ?? selectedItem.quantidade)} kg
+                    Disponível: {formatQuantity(selectedItem.quantidade_disponivel ?? selectedItem.quantidade)} kg
                   </p>
                 </div>
               ) : null}
             </Panel>
 
-            <Panel title="2. Validar presenca">
+            <Panel title="2. Validar presença">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <p className="text-base font-bold text-[#1a3a4a]">Sua localizacao</p>
+                  <p className="text-base font-bold text-[#1a3a4a]">Sua localização</p>
                   <p className="mt-1 text-sm text-gray-500">
                     {coords
                       ? `${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)}`
-                      : 'Use sua localizacao atual ou informe o QR Code do ponto.'}
+                      : 'Use sua localização atual ou informe o QR Code do ponto.'}
                   </p>
                 </div>
                 <div className="rounded-2xl bg-white p-3 text-[#C53030]">
@@ -337,7 +340,7 @@ export default function ValidacaoPresencaPage() {
               >
                 <span className="inline-flex items-center gap-2">
                   {isLocating ? <Loader2 size={18} className="animate-spin" /> : <MapPin size={18} />}
-                  {coords ? 'Atualizar localizacao' : 'Capturar localizacao'}
+                  {coords ? 'Atualizar localização' : 'Capturar localização'}
                 </span>
               </button>
             </Panel>
@@ -370,7 +373,7 @@ export default function ValidacaoPresencaPage() {
                   {selectedPoint ? (
                     <div className="mt-4 rounded-2xl bg-white px-4 py-4">
                       <p className="text-base font-bold text-[#1a3a4a]">{selectedPoint.nome}</p>
-                      <p className="mt-1 text-sm text-gray-500">{selectedPoint.endereco || 'Endereco nao informado'}</p>
+                      <p className="mt-1 text-sm text-gray-500">{selectedPoint.endereco || 'Endereço não informado'}</p>
                       <div className="mt-3 flex flex-wrap gap-2">
                         {(selectedPoint.tipos_residuos_aceitos || []).map((material) => (
                           <span key={material} className="rounded-full border border-[#1a3a4a] px-3 py-1 text-xs font-medium text-[#1a3a4a]">
@@ -382,11 +385,11 @@ export default function ValidacaoPresencaPage() {
                   ) : null}
                 </>
               ) : (
-                <p className="text-sm text-gray-500">Nenhum ponto disponivel foi encontrado para este tipo de residuo no momento.</p>
+                <p className="text-sm text-gray-500">Nenhum ponto disponível foi encontrado para este tipo de resíduo no momento.</p>
               )}
             </Panel>
 
-            <Panel title="4. Confirmar transferencia">
+            <Panel title="4. Confirmar transferência">
               <label className="mb-2 block text-sm font-bold text-[#1a3a4a]">Quantidade a transferir (kg)</label>
               <input
                 type="number"
@@ -397,7 +400,7 @@ export default function ValidacaoPresencaPage() {
                 className="min-h-12 w-full rounded-2xl border border-[#c8d2e3] bg-white px-4 py-3 text-base text-[#1a3a4a] outline-none"
               />
 
-              <label className="mb-2 mt-4 block text-sm font-bold text-[#1a3a4a]">Observacao (opcional)</label>
+              <label className="mb-2 mt-4 block text-sm font-bold text-[#1a3a4a]">Observação (opcional)</label>
               <textarea
                 rows={3}
                 value={observacao}
@@ -411,12 +414,12 @@ export default function ValidacaoPresencaPage() {
                 type="text"
                 value={qrToken}
                 onChange={(event) => setQrToken(event.target.value)}
-                placeholder="Cole o codigo do QR Code"
+                placeholder="Cole o código do QR Code"
                 className="min-h-12 w-full rounded-2xl border border-[#c8d2e3] bg-white px-4 py-3 text-base text-[#1a3a4a] outline-none"
               />
 
               <div className="mt-4 flex items-center justify-between rounded-2xl bg-[#e8f5e2] px-4 py-3">
-                <span className="text-sm font-medium text-green-700">Pontos estimados apos confirmacao</span>
+                <span className="text-sm font-medium text-green-700">Pontos estimados após confirmação</span>
                 <span className="text-sm font-bold text-green-700">
                   +{Math.round(Number(quantidade || 0) * POINTS_PER_KG)} pts
                 </span>
@@ -450,8 +453,7 @@ export default function ValidacaoPresencaPage() {
           </div>
         )}
       </div>
-      <Navbar />
-    </PageContainer>
+    </RoleShell>
   )
 }
 

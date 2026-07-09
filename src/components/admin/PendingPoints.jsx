@@ -23,7 +23,7 @@ export default function PendingPoints() {
     <SectionCard
       className="mt-6"
       title="Pontos pendentes"
-      description="Amostra visual para acompanhamento da fila de analise."
+      description="Amostra visual para acompanhamento da fila de análise."
       action={<Badge variant="warning">Demonstrativo</Badge>}
     >
       <div className="divide-y divide-[var(--color-border)] overflow-hidden rounded-2xl border border-[var(--color-border)]">
