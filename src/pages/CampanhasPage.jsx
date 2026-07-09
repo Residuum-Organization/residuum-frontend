@@ -11,9 +11,7 @@ import {
   Trash2,
   ArrowLeft,
 } from "lucide-react";
-import CampaignLayout, {
-  LogoResiduum,
-} from "../components/Campanhas/CampaignLayout";
+import AdminShell from "../components/admin/AdminShell";
 import Badge from "../components/ui/Badge";
 import Button from "../components/ui/Button";
 import EmptyState from "../components/ui/EmptyState";
@@ -103,7 +101,7 @@ export default function CampanhasPage() {
   }
 
   return (
-    <CampaignLayout>
+    <AdminShell>
       <div className="space-y-5">
         <PageHeader
           eyebrow="Modulo administrativo demonstrativo"
@@ -114,7 +112,6 @@ export default function CampanhasPage() {
               <Button type="button" variant="secondary" onClick={() => navigate(-1)}>
                 <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
               </Button>
-              <LogoResiduum />
             </div>
           }
         />
@@ -179,7 +176,7 @@ export default function CampanhasPage() {
           <NovaCampanhaSugerida onClick={() => navigate("/nova-campanha")} />
         </div>
       </div>
-    </CampaignLayout>
+    </AdminShell>
   );
 }
 
