@@ -16,8 +16,8 @@ import RoleEnvironmentBanner from "../components/layout/RoleEnvironmentBanner";
 
 const actions = [
   {
-    title: "Cadastrar residuo",
-    description: "Informe o material que voce ja separou em casa.",
+    title: "Cadastrar resíduo",
+    description: "Informe o material que você já separou em casa.",
     to: "/cadastrar-residuo",
     Icon: ClipboardList,
   },
@@ -35,13 +35,13 @@ const actions = [
   },
   {
     title: "Validar descarte",
-    description: "Confirme presenca somente por GPS ou QR Code.",
+    description: "Confirme presença somente por GPS ou QR Code.",
     to: "/validacao-presenca",
     Icon: QrCode,
   },
   {
     title: "Acompanhar extrato",
-    description: "Consulte pontos depois da confirmacao da cooperativa.",
+    description: "Consulte pontos depois da confirmação da cooperativa.",
     to: "/extrato",
     Icon: FileText,
   },
@@ -62,9 +62,9 @@ export default function WelcomeResiduum() {
                 <Recycle className="h-8 w-8" aria-hidden="true" />
               </div>
               <PageHeader
-                eyebrow="Area do morador / gerador"
+                eyebrow="Área do morador / gerador"
                 title="Bem-vindo ao Residuum"
-                description="Organize seus residuos, encontre pontos de coleta e acompanhe seu extrato com um fluxo simples e seguro."
+                description="Organize seus resíduos, encontre pontos de coleta e acompanhe seu extrato com um fluxo simples e seguro."
                 className="[&_h1]:text-white [&_p]:text-white/80"
               />
               <div className="mt-6 flex flex-col gap-3 sm:flex-row">
@@ -74,7 +74,7 @@ export default function WelcomeResiduum() {
                   onClick={() => navigate("/cadastrar-residuo")}
                   className="w-full bg-white text-[#1F4E79] hover:bg-white/90 sm:w-auto"
                 >
-                  Comecar a reciclar
+                  Começar a reciclar
                 </Button>
                 <Button
                   type="button"
@@ -90,15 +90,15 @@ export default function WelcomeResiduum() {
             <div className="rounded-2xl border border-white/15 bg-white/10 p-4">
               <p className="text-sm font-bold text-white">Como os pontos funcionam</p>
               <p className="mt-2 text-sm leading-relaxed text-white/80">
-                Seus pontos nao sao liberados no deposito. Eles dependem da
-                confirmacao e pesagem real feita pela cooperativa.
+                Seus pontos não são liberados no depósito. Eles dependem da
+                confirmação e pesagem real feita pela cooperativa.
               </p>
             </div>
           </div>
         </section>
 
-        <SectionCard
-          title="O que voce pode fazer agora"
+          <SectionCard
+          title="O que você pode fazer agora"
           description="Use os atalhos abaixo para continuar o fluxo principal do morador."
         >
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -121,12 +121,12 @@ export default function WelcomeResiduum() {
           </div>
         </SectionCard>
 
-        <SectionCard
+          <SectionCard
           title="Fluxo seguro de descarte"
-          description="Separe, cadastre, leve ao ponto e valide sua presenca fisica."
+          description="Separe, cadastre, leve ao ponto e valide sua presença física."
         >
           <div className="grid gap-3 md:grid-cols-3">
-            <Step number="1" title="Cadastre" text="Registre o residuo que esta separado." />
+            <Step number="1" title="Cadastre" text="Registre o resíduo que está separado." />
             <Step number="2" title="Leve ao ponto" text="Use o mapa para escolher um local." />
             <Step number="3" title="Valide" text="Confirme por GPS ou QR Code no ponto." />
           </div>

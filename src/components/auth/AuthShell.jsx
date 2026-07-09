@@ -4,7 +4,7 @@ import Card from "../ui/Card";
 const defaultHighlights = [
   "Cadastre dados essenciais em poucos passos",
   "Mantenha o fluxo de coleta claro para moradores e parceiros",
-  "Centralize informacoes importantes em um cadastro seguro",
+  "Centralize informações importantes em um cadastro seguro",
 ];
 
 export default function AuthShell({
@@ -13,7 +13,7 @@ export default function AuthShell({
   children,
   description = "O Residuum conecta moradores, pontos de coleta e parceiros para transformar descarte em impacto positivo.",
   highlights = defaultHighlights,
-  footer = '"Dados organizados tornam a coleta mais simples, rastreavel e sustentavel."',
+  footer = '"Dados organizados tornam a coleta mais simples, rastreável e sustentável."',
   showHighlights = true,
 }) {
   return (

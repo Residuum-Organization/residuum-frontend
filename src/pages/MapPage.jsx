@@ -45,19 +45,19 @@ export default function MapPage() {
         />
 
         <InlineAlert variant="warning" title="Mapa demonstrativo">
-          Os pontos exibidos podem nao representar dados reais do servidor.
-          Use esta tela apenas como referencia visual nesta fase.
+          Os pontos exibidos podem não representar dados reais do servidor.
+          Use esta tela apenas como referência visual nesta fase.
         </InlineAlert>
 
         <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_380px] xl:items-start">
           <div className="space-y-4">
             <SectionCard
               title="Filtrar pontos"
-              description="Selecione o tipo de residuo que voce quer entregar."
+              description="Selecione o tipo de resíduo que você quer entregar."
               className="p-4 sm:p-5"
             >
               <label className="sr-only" htmlFor="waste-type-filter">
-                Filtrar por tipo de residuo
+                Filtrar por tipo de resíduo
               </label>
               <select
                 id="waste-type-filter"
@@ -68,7 +68,7 @@ export default function MapPage() {
                 }}
                 className="min-h-12 w-full rounded-2xl border border-[var(--color-border)] bg-white px-4 py-3 text-base font-semibold text-[var(--color-text)] outline-none transition focus:border-[#1F4E79] focus:ring-2 focus:ring-[#1F4E79]/20"
               >
-                <option value="Todos">Todos os residuos</option>
+                <option value="Todos">Todos os resíduos</option>
                 {wasteTypes.map((type) => (
                   <option key={type} value={type}>
                     {type}
@@ -110,7 +110,7 @@ export default function MapPage() {
               ) : (
                 <EmptyState
                   title="Nenhum ponto encontrado."
-                  description="Tente selecionar outro tipo de residuo."
+                  description="Tente selecionar outro tipo de resíduo."
                   icon={MapPin}
                   className="bg-white"
                 />
@@ -130,7 +130,7 @@ function PointDetails({ point }) {
   return (
     <SectionCard
       title="Detalhes do ponto"
-      description="Confira endereco, funcionamento e materiais aceitos."
+      description="Confira endereço, funcionamento e materiais aceitos."
     >
       <div className="space-y-4">
         <div className="flex items-start justify-between gap-3">
@@ -149,8 +149,8 @@ function PointDetails({ point }) {
 
         <div className="grid gap-3 text-sm font-medium text-[var(--color-text-muted)]">
           <InfoLine label="Funcionamento" value={point.openingHours} />
-          <InfoLine
-            label="Distancia"
+            <InfoLine
+            label="Distância"
             value={`${point.distanceKm.toFixed(1).replace(".", ",")} km`}
           />
           <InfoLine
@@ -161,7 +161,7 @@ function PointDetails({ point }) {
 
         <div>
           <div className="mb-1 flex justify-between text-xs font-bold text-[var(--color-text-muted)]">
-            <span>Nivel de ocupacao</span>
+            <span>Nível de ocupação</span>
             <span>{fillPercentage}%</span>
           </div>
           <div className="h-2 overflow-hidden rounded-full bg-slate-100">
@@ -194,7 +194,7 @@ function PointDetails({ point }) {
           }}
         >
           <Navigation className="h-4 w-4" aria-hidden="true" />
-          Ver rota ate o ponto
+          Ver rota até o ponto
         </Button>
       </div>
     </SectionCard>

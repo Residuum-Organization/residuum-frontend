@@ -108,13 +108,13 @@ export default function RegisterPage() {
       <AuthShell
         title="Cadastro"
         subtitle="Preencha seus dados para continuar."
-        description="Transforme descarte em impacto positivo. O Residuum conecta voce aos pontos de coleta e simplifica a reciclagem no dia a dia."
+        description="Transforme descarte em impacto positivo. O Residuum conecta você aos pontos de coleta e simplifica a reciclagem no dia a dia."
         highlights={[
-          "Encontre pontos de coleta proximos em segundos",
+          "Encontre pontos de coleta próximos em segundos",
           "Registre seus descartes com poucos cliques",
           "Acompanhe seu impacto ambiental ao longo do tempo",
         ]}
-        footer='"Pequenas escolhas diarias geram grandes transformacoes para a cidade e para o planeta."'
+        footer='"Pequenas escolhas diárias geram grandes transformações para a cidade e para o planeta."'
       >
         <div className="mb-7">
           <div className="mx-auto flex w-full max-w-[220px] items-center">
@@ -133,7 +133,7 @@ export default function RegisterPage() {
 
           <div className="mx-auto mt-2 flex w-full max-w-[280px] items-start justify-between text-sm font-semibold text-[var(--color-welcome-blue)]">
             <p>Dados pessoais</p>
-            <p>Confirmacao</p>
+            <p>Confirmação</p>
           </div>
         </div>
 
@@ -163,7 +163,7 @@ export default function RegisterPage() {
         )}
 
         <p className="mt-5 text-center text-sm text-[var(--color-welcome-muted)]">
-          Ja tem conta?{" "}
+          Já tem conta?{" "}
           <Link
             to="/login"
             className="font-semibold text-[var(--color-welcome-blue)] underline underline-offset-2"

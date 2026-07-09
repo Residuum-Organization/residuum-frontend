@@ -18,7 +18,7 @@ export default function RegisterConfirmation({
           Confirme seus dados
         </h2>
         <p className="mt-1 text-sm text-[var(--color-welcome-muted)]">
-          Revise as informacoes antes de finalizar
+          Revise as informações antes de finalizar
         </p>
       </div>
 
@@ -33,7 +33,7 @@ export default function RegisterConfirmation({
         onClick={onEdit}
         className="mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 text-base font-semibold text-[var(--color-welcome-blue)] hover:opacity-80"
       >
-        <Pencil size={16} /> Editar informacoes
+        <Pencil size={16} /> Editar informações
       </button>
 
       <Button
