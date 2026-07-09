@@ -49,3 +49,12 @@ export const deleteUser = async (usuarioId) => {
     throw new Error(getApiErrorMessage(error, 'Erro ao remover usuário'))
   }
 }
+
+export const getAdminPoints = async () => {
+  try {
+    const res = await api.get('/admin/metrics/ocupacao-pontos')
+    return res.data
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, 'Erro ao buscar ocupação dos pontos'))
+  }
+}

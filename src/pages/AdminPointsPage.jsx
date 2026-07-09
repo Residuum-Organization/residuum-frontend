@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AlertTriangle, Eye, MapPin, SlidersHorizontal, ArrowLeft } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { AlertTriangle, Eye, MapPin, SlidersHorizontal, ArrowLeft, Loader2 } from "lucide-react";
 
 import AdminShell from "../components/admin/AdminShell";
 import Button from "../components/ui/Button";
@@ -9,54 +10,52 @@ import EmptyState from "../components/ui/EmptyState";
 import InlineAlert from "../components/ui/InlineAlert";
 import PageHeader from "../components/ui/PageHeader";
 import SectionCard from "../components/ui/SectionCard";
-
-const points = [
-  {
-    name: "Ponto Oeste",
-    address: "Rua Oeste, 101 - bairro",
-    percent: 72,
-    status: "Ativo",
-    tone: "success",
-  },
-  {
-    name: "Ponto Sul",
-    address: "Rua Sul, 789 - bairro",
-    percent: 45,
-    status: "Ativo",
-    tone: "success",
-  },
-  {
-    name: "Ponto Norte",
-    address: "Rua Norte, 456 - bairro",
-    percent: 88,
-    status: "Atencao",
-    tone: "warning",
-  },
-  {
-    name: "Ponto Leste",
-    address: "Av. Leste, 123 - bairro",
-    percent: 100,
-    status: "Critico",
-    tone: "error",
-  },
-];
-
-const filters = [
-  { label: "Todos", value: "all" },
-  { label: "Ativos", value: "Ativo" },
-  { label: "Atencao", value: "Atencao" },
-  { label: "Criticos", value: "Critico" },
-];
-
-const barClassByTone = {
-  success: "bg-[var(--color-accent)]",
-  warning: "bg-amber-500",
-  error: "bg-[var(--color-error)]",
-};
+import LoadingState from "../components/ui/LoadingState";
+import ErrorState from "../components/ui/ErrorState";
+import { getAdminPoints } from "../services/admin";
+import { getAllCollectionPoints } from "../services/collectionPoints/api";
 
 export default function AdminPoints() {
   const navigate = useNavigate();
   const [filter, setFilter] = useState("all");
+
+  const { data: ocupacaoData, isLoading: ocupacaoLoading, isError: ocupacaoError, refetch: refetchOcupacao } = useQuery({
+    queryKey: ["adminPointsOcupacao"],
+    queryFn: getAdminPoints,
+  });
+
+  const { data: pointsData, isLoading: pointsLoading, isError: pointsError, refetch: refetchPoints } = useQuery({
+    queryKey: ["adminPointsDetails"],
+    queryFn: getAllCollectionPoints,
+  });
+
+  const points = useMemo(() => {
+    if (!ocupacaoData || !pointsData) return [];
+
+    return ocupacaoData.map(ocup => {
+      const p = pointsData.find(pt => pt.id === ocup.ponto_coleta_id);
+      let status = "Ativo";
+      let tone = "success";
+      const percent = ocup.percentual_ocupacao || 0;
+
+      if (ocup.alerta) {
+        status = "Critico";
+        tone = "error";
+      } else if (percent >= 70) {
+        status = "Atencao";
+        tone = "warning";
+      }
+
+      return {
+        id: ocup.ponto_coleta_id,
+        name: ocup.nome,
+        address: p ? p.endereco_completo : "Endereço indisponível",
+        percent: percent,
+        status: status,
+        tone: tone,
+      };
+    });
+  }, [ocupacaoData, pointsData]);
 
   const filteredPoints = useMemo(() => {
     if (filter === "all") return points;
@@ -66,9 +65,16 @@ export default function AdminPoints() {
   const activeCount = points.filter((point) => point.status === "Ativo").length;
   const criticalCount = points.filter((point) => point.status === "Critico").length;
   const attentionCount = points.filter((point) => point.status === "Atencao").length;
-  const average = Math.round(
+  const average = points.length > 0 ? Math.round(
     points.reduce((sum, point) => sum + point.percent, 0) / points.length
-  );
+  ) : 0;
+
+  const isLoading = ocupacaoLoading || pointsLoading;
+  const isError = ocupacaoError || pointsError;
+  const refetchAll = () => {
+    refetchOcupacao();
+    refetchPoints();
+  };
 
   return (
     <AdminShell>
@@ -85,9 +91,9 @@ export default function AdminPoints() {
 
       <InlineAlert
         className="mt-5"
-        variant="warning"
-        title="Dados demonstrativos"
-        description="Esta tela ainda usa uma lista local para exibicao. Nenhum ponto e ativado, suspenso ou alterado aqui."
+        variant="info"
+        title="Dados integrados via API"
+        description="Esta tela reflete o inventário real e os pontos de coleta cadastrados."
       />
 
       <section className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -126,7 +132,15 @@ export default function AdminPoints() {
           </div>
         </div>
 
-        {filteredPoints.length === 0 ? (
+        {isLoading ? (
+          <LoadingState title="Carregando pontos de coleta..." size="md" />
+        ) : isError ? (
+          <ErrorState
+            title="Não foi possível carregar os pontos."
+            actionLabel="Tentar novamente"
+            onAction={refetchAll}
+          />
+        ) : filteredPoints.length === 0 ? (
           <EmptyState
             title="Nenhum ponto encontrado."
             description="Altere o filtro para visualizar outros status."
@@ -135,7 +149,7 @@ export default function AdminPoints() {
         ) : (
           <div className="grid gap-3 lg:grid-cols-2">
             {filteredPoints.map((point) => (
-              <PointCard key={point.name} point={point} />
+              <PointCard key={point.id} point={point} />
             ))}
           </div>
         )}
@@ -143,6 +157,19 @@ export default function AdminPoints() {
     </AdminShell>
   );
 }
+
+const filters = [
+  { label: "Todos", value: "all" },
+  { label: "Ativos", value: "Ativo" },
+  { label: "Atencao", value: "Atencao" },
+  { label: "Criticos", value: "Critico" },
+];
+
+const barClassByTone = {
+  success: "bg-[var(--color-accent)]",
+  warning: "bg-amber-500",
+  error: "bg-[var(--color-error)]",
+};
 
 function MetricCard({ label, value, variant = "primary" }) {
   const iconClass =
