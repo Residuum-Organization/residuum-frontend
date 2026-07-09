@@ -76,7 +76,9 @@ function VoucherCard({ voucher, onRedeem, disabled }) {
         </div>
         <div>
           <h3 className="text-sm font-extrabold text-[var(--color-primary)]">{voucher.titulo}</h3>
-          <p className="mt-1 text-xs font-semibold text-[var(--color-text-muted)]">{voucher.validade}</p>
+          <p className="mt-1 text-xs font-semibold text-[var(--color-text-muted)]">
+            Válido até: {new Date(voucher.validade).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }).replace(',', ' às')}
+          </p>
         </div>
       </div>
       <Button
