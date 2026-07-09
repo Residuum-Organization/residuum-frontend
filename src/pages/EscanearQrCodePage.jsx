@@ -2,12 +2,12 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Html5Qrcode } from 'html5-qrcode'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Camera, QrCode } from 'lucide-react'
-import PageContainer from '../components/layout/PageContainer'
+import RoleShell from '../components/layout/RoleShell'
 import PageHeader from '../components/ui/PageHeader'
 import SectionCard from '../components/ui/SectionCard'
 import InlineAlert from '../components/ui/InlineAlert'
 import Button from '../components/ui/Button'
-import Navbar from '../components/ui/Navbar'
+import { ArrowLeft } from 'lucide-react'
 
 export default function EscanearQrCodePage() {
   const navigate = useNavigate()
@@ -79,11 +79,16 @@ export default function EscanearQrCodePage() {
   }
 
   return (
-    <PageContainer innerClassName="pb-28">
+    <RoleShell variant="operacional" shellClassName="bg-[var(--color-surface)]" contentClassName="px-4 py-4 pb-28 sm:px-6 sm:py-6 lg:px-8 lg:pb-28">
       <div className="space-y-6">
         <PageHeader
           title="Escanear QR Code"
           description="Aponte a camera para o QR Code do ponto ou digite o codigo manualmente."
+          action={
+            <Button type="button" variant="secondary" onClick={() => navigate(-1)}>
+              <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
+            </Button>
+          }
         />
 
         <div className="grid gap-6 lg:grid-cols-[minmax(280px,0.9fr)_minmax(0,1.1fr)] lg:items-start">
@@ -129,7 +134,6 @@ export default function EscanearQrCodePage() {
           </SectionCard>
         </div>
       </div>
-      <Navbar />
-    </PageContainer>
+    </RoleShell>
   )
 }

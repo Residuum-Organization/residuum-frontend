@@ -75,7 +75,13 @@ export default function Confirmation() {
   const navigate = useNavigate();
   const draft = useMemo(() => getCollectionPointDraft() || {}, []);
   const [residuosSelecionados, setResiduosSelecionados] = useState([]);
-  const [details, setDetails] = useState({ quantidade: "", data: "", horario: "", observacoes: "" });
+  const [details, setDetails] = useState({
+    quantidade: draft.quantidade || "",
+    diasSemana: draft.diasSemana || [],
+    horaAbertura: draft.horaAbertura || "",
+    horaFechamento: draft.horaFechamento || "",
+    observacoes: draft.observacoes || "",
+  });
   const [feedback, setFeedback] = useState("");
   const [localFallback, setLocalFallback] = useState(null);
   const { login, isAuthenticated } = useAuth();
@@ -144,7 +150,15 @@ export default function Confirmation() {
     }
 
     try {
-      const payload = buildCollectionPointPayload(draft, residuosSelecionados, details);
+      let horarioFuncionamento = "";
+      if (details.diasSemana.length > 0 && details.horaAbertura && details.horaFechamento) {
+        horarioFuncionamento = `Dias: ${details.diasSemana.join(", ")}, Horário: ${details.horaAbertura} às ${details.horaFechamento}`;
+      }
+
+      const payload = buildCollectionPointPayload(draft, residuosSelecionados, {
+        ...details,
+        horario_funcionamento: horarioFuncionamento
+      });
       const validationMessage = validatePayload(payload);
 
       if (validationMessage) {
@@ -343,9 +357,34 @@ export default function Confirmation() {
                 onChange={handleDetailChange}
               />
 
+              <div className="space-y-3">
+                <label className="block text-sm font-semibold text-[#1F4E79]">Dias de Funcionamento</label>
+                <div className="flex flex-wrap gap-2">
+                  {['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'].map(dia => (
+                    <button
+                      key={dia}
+                      type="button"
+                      onClick={() => {
+                        const newDias = details.diasSemana.includes(dia) 
+                          ? details.diasSemana.filter(d => d !== dia)
+                          : [...details.diasSemana, dia];
+                        setDetails({ ...details, diasSemana: newDias });
+                      }}
+                      className={`min-h-10 rounded-full border px-4 py-2 text-sm font-bold transition focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/30 ${
+                        details.diasSemana.includes(dia)
+                          ? "border-[var(--color-welcome-blue)] bg-[var(--color-welcome-blue)] text-white"
+                          : "border-slate-300 bg-white text-slate-600 hover:border-[var(--color-welcome-blue)]"
+                      }`}
+                    >
+                      {dia}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <div className="grid gap-4 sm:grid-cols-2">
-                <FormField id="data" name="data" label="Data" type="date" value={details.data} onChange={handleDetailChange} />
-                <FormField id="horario" name="horario" label="Horario" type="time" value={details.horario} onChange={handleDetailChange} />
+                <FormField id="horaAbertura" name="horaAbertura" label="Horário de Abertura" type="time" value={details.horaAbertura} onChange={handleDetailChange} />
+                <FormField id="horaFechamento" name="horaFechamento" label="Horário de Fechamento" type="time" value={details.horaFechamento} onChange={handleDetailChange} />
               </div>
 
               <FormField

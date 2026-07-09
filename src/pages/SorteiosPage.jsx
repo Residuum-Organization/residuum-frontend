@@ -39,7 +39,7 @@ function SorteioCard({ sorteio }) {
           <div className="mt-3 grid gap-2 text-xs font-semibold text-[var(--color-text-muted)] sm:grid-cols-2">
             <span className="flex items-center gap-1.5"><Gift size={14} /> {sorteio.pontosNecessarios} pts</span>
             <span className="flex items-center gap-1.5"><Users size={14} /> {sorteio.participantes}</span>
-            <span className="flex items-center gap-1.5 sm:col-span-2"><CalendarDays size={14} /> até {sorteio.dataFim}</span>
+            <span className="flex items-center gap-1.5 sm:col-span-2"><CalendarDays size={14} /> até {new Date(sorteio.dataFim).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }).replace(',', ' às')}</span>
             <span className="flex items-center gap-1.5 font-bold text-[var(--color-primary)] sm:col-span-2">
               <Ticket size={14} /> {sorteio.participacaoUsuario || 0} participação(ões)
             </span>
