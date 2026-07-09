@@ -1,5 +1,5 @@
 import api from "../../api/client";
-import { sorteios, vouchers } from "../../constants/sorteios";
+
 import { getApiErrorMessage } from "../http/getApiErrorMessage";
 
 const RAFFLE_DEFAULTS = {
@@ -132,43 +132,11 @@ const normalizeRafflesPayload = (payload) =>
 const normalizeVouchersPayload = (payload) =>
   getCollectionPayload(payload, ["vouchers"]).map(normalizeVoucher);
 
-const shouldUseFallback = (error) => {
-  const status = error?.response?.status;
-  if (status === 401 || status === 403) return false;
-  return status === 404 || !error?.response;
-};
-
-const warnFallback = (context, error) => {
-  console.warn(`[rewards] Usando fallback de ${context}.`, {
-    status: error?.response?.status,
-    message: error?.message,
-  });
-};
-
-const withDataOrigin = (data, origin) => {
-  if (data && (Array.isArray(data) || typeof data === "object")) {
-    Object.defineProperty(data, "__dataOrigin", {
-      value: origin,
-      enumerable: true,
-      configurable: true,
-    });
-  }
-
-  return data;
-};
-
-const fallbackRaffles = () => withDataOrigin(sorteios.map(normalizeRaffle), "fallback");
-
 export const listActiveRaffles = async () => {
   try {
     const res = await api.get("/sorteios");
-    return withDataOrigin(normalizeRafflesPayload(res.data), "api");
+    return normalizeRafflesPayload(res.data);
   } catch (error) {
-    if (shouldUseFallback(error)) {
-      warnFallback("sorteios", error);
-      return fallbackRaffles();
-    }
-
     throw new Error(
       getApiErrorMessage(error, "Não foi possível carregar os sorteios."),
     );
@@ -178,23 +146,8 @@ export const listActiveRaffles = async () => {
 export const getRaffleDetails = async (raffleId) => {
   try {
     const res = await api.get(`/sorteios/${raffleId}`);
-    return withDataOrigin(
-      normalizeRaffle(getDetailPayload(res.data, ["sorteio", "raffle"])),
-      "api",
-    );
+    return normalizeRaffle(getDetailPayload(res.data, ["sorteio", "raffle"]));
   } catch (error) {
-    if (shouldUseFallback(error)) {
-      warnFallback("detalhes do sorteio", error);
-      const fallbackRaffle = fallbackRaffles()
-        .find((raffle) => String(raffle.id) === String(raffleId));
-
-      return (
-        fallbackRaffle
-          ? withDataOrigin(fallbackRaffle, "fallback")
-          : null
-      );
-    }
-
     throw new Error(
       getApiErrorMessage(
         error,
@@ -207,13 +160,8 @@ export const getRaffleDetails = async (raffleId) => {
 export const listVouchers = async () => {
   try {
     const res = await api.get("/vouchers");
-    return withDataOrigin(normalizeVouchersPayload(res.data), "api");
+    return normalizeVouchersPayload(res.data);
   } catch (error) {
-    if (shouldUseFallback(error)) {
-      warnFallback("vouchers", error);
-      return withDataOrigin(vouchers.map(normalizeVoucher), "fallback");
-    }
-
     throw new Error(
       getApiErrorMessage(error, "Não foi possível carregar os vouchers."),
     );

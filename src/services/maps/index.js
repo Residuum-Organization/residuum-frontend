@@ -47,29 +47,45 @@ export const normalizePoint = (point = {}) => {
   }
 }
 
+import { getApiErrorMessage } from '../http/getApiErrorMessage'
+
+// ... existing code ...
+
 export const listPoints = async ({ page = 1, perPage = 50, filters = {} } = {}) => {
-  const params = { ...filters }
+  try {
+    const params = { ...filters }
 
-  if (params.lng) {
-    params.long = params.lng
-    delete params.lng
+    if (params.lng) {
+      params.long = params.lng
+      delete params.lng
+    }
+
+    const res = await api.get('/pontos-coleta', { params })
+
+    return pickList(res.data)
+      .map(normalizePoint)
+      .filter((point) => point.id && Number.isFinite(point.latitude) && Number.isFinite(point.longitude))
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, "Não foi possível listar os pontos de coleta."))
   }
-
-  const res = await api.get('/pontos-coleta', { params })
-
-  return pickList(res.data)
-    .map(normalizePoint)
-    .filter((point) => point.id && Number.isFinite(point.latitude) && Number.isFinite(point.longitude))
 }
 
 export const getPoint = async (id) => {
-  const res = await api.get(`/pontos-coleta/${id}`)
-  return normalizePoint(res.data?.data ?? res.data)
+  try {
+    const res = await api.get(`/pontos-coleta/${id}`)
+    return normalizePoint(res.data?.data ?? res.data)
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, "Não foi possível buscar os dados do ponto de coleta."))
+  }
 }
 
 export const listNearby = async ({ lat, lng, radius = 1000 }) => {
-  const res = await api.get('/maps/points/nearby', { params: { lat, lng, radius } })
-  return pickList(res.data).map(normalizePoint)
+  try {
+    const res = await api.get('/maps/points/nearby', { params: { lat, lng, radius } })
+    return pickList(res.data).map(normalizePoint)
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, "Não foi possível buscar pontos próximos."))
+  }
 }
 
 export default { listPoints, getPoint, listNearby }

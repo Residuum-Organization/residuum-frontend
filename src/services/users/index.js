@@ -22,14 +22,7 @@ export const getProfile = async () => {
   }
 }
 
-export const getCurrentUser = async () => {
-  try {
-    const res = await api.get('/me')
-    return res.data
-  } catch (error) {
-    throw new Error(getApiErrorMessage(error, 'Não foi possível carregar os dados do usuário.'))
-  }
-}
+
 
 export const updateProfile = async (payload) => {
   try {

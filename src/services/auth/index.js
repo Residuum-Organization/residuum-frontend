@@ -1,6 +1,7 @@
 import api from '../../api/client'
 import { getAccessToken } from '../../api/token'
 import { getApiErrorMessage } from '../http/getApiErrorMessage'
+import { phoneSchema, emailSchema } from '../../schemas/validations'
 
 const getMeWithToken = async (accessToken) => {
   const res = await api.get('/me', {
@@ -35,6 +36,9 @@ export const logout = async () => {
 
 export const registerUser = async ({ name, email, phone, password }) => {
   try {
+    emailSchema.parse(email)
+    phoneSchema.parse(phone)
+
     const payload = {
       nome: name,
       email,

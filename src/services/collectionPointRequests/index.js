@@ -1,5 +1,6 @@
 import api from "../../api/client";
 import { getApiErrorMessage } from "../http/getApiErrorMessage";
+import { cpfSchema, cnpjSchema, phoneSchema } from "../../schemas/validations";
 
 const DRAFT_STORAGE_KEY = "residuum:collection-point-draft";
 const STATUS_STORAGE_KEY = "residuum:collection-point-request-status";
@@ -104,15 +105,27 @@ export const normalizeCollectionPointRequestResponse = (response) => {
 };
 
 export const buildCollectionPointPayload = (draft = {}, selectedWaste = [], details = {}) => {
-  const documento = String(draft.documento || "").replace(/\D/g, "");
+  const documentoBruto = String(draft.documento || "");
+  const documento = documentoBruto.replace(/\D/g, "");
+  
+  if (documento.length > 11) {
+    cnpjSchema.parse(documentoBruto);
+  } else if (documento.length > 0) {
+    cpfSchema.parse(documentoBruto);
+  }
+
   const tipoSolicitante =
     draft.tipo_solicitante ||
     draft.tipo_solicitacao ||
     (documento.length > 11 ? "cnpj" : "cpf");
   const responsavelNome =
     draft.responsavel_nome || draft.nome_responsavel || draft.responsavel || "";
-  const responsavelTelefone =
-    draft.responsavel_telefone || draft.telefone || details.telefone || "";
+  
+  const responsavelTelefoneBruto = String(
+    draft.responsavel_telefone || draft.telefone || details.telefone || ""
+  );
+  if (responsavelTelefoneBruto) phoneSchema.parse(responsavelTelefoneBruto);
+  
   const capacidadeMaxima =
     details.capacidade_maxima || details.capacidade_estimada || details.quantidade || "";
   const tiposResiduosAceitos = normalizeWasteTypes(
@@ -124,7 +137,7 @@ export const buildCollectionPointPayload = (draft = {}, selectedWaste = [], deta
     tipo_responsavel: draft.tipo_responsavel || tipoSolicitante,
     documento,
     responsavel_nome: responsavelNome,
-    responsavel_telefone: String(responsavelTelefone).replace(/\D/g, ""),
+    responsavel_telefone: responsavelTelefoneBruto.replace(/\D/g, ""),
     email: draft.email || "",
     nome_ponto: draft.nome_ponto || details.nome_ponto || responsavelNome || "Ponto de coleta",
     endereco: formatAddress(draft.endereco),
@@ -198,45 +211,15 @@ export const saveLocalCollectionPointRequestFallback = (payload, message) => {
   return fallback;
 };
 
-export const getCollectionPointRequestErrorMessage = (error) => {
-  const status = error?.response?.status;
-
-  if (status === 401 || status === 403) {
-    return "Nao foi possivel enviar sua solicitacao. Faca login novamente ou verifique sua permissao.";
-  }
-
-  if (status === 422) {
-    return "Nao foi possivel enviar sua solicitacao. Confira os dados obrigatorios e tente novamente.";
-  }
-
-  if (!error?.response) {
-    return "Servidor indisponivel no momento. Seus dados foram preservados localmente para nova tentativa.";
-  }
-
-  if (status === 404) {
-    return "O endpoint de solicitacao de ponto nao foi encontrado. Seus dados foram preservados localmente para nova tentativa.";
-  }
-
-  if (status >= 500) {
-    return "O servidor encontrou um erro ao processar a solicitacao. Seus dados foram preservados localmente para nova tentativa.";
-  }
-
-  return getApiErrorMessage(
-    error,
-    "Nao foi possivel enviar sua solicitacao ao servidor. Seus dados foram preservados localmente para nova tentativa.",
-  );
-};
-
 export const submitCollectionPointRequest = async (payload) => {
-  const res = await api.post("/solicitacoes-pontos-coleta", payload);
-
-  if (![200, 201].includes(res.status)) {
-    throw new Error("A solicitacao nao foi confirmada pelo servidor.");
+  try {
+    const res = await api.post("/solicitacoes-pontos-coleta", payload);
+    const normalized = normalizeCollectionPointRequestResponse(res.data);
+    writeStorage(STATUS_STORAGE_KEY, normalized || res.data);
+    return normalized || res.data;
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, "Não foi possível enviar sua solicitação."));
   }
-
-  const normalized = normalizeCollectionPointRequestResponse(res.data);
-  writeStorage(STATUS_STORAGE_KEY, normalized || res.data);
-  return normalized || res.data;
 };
 
 export const getCollectionPointRequestStatus = async () => {

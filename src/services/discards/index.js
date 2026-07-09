@@ -2,8 +2,12 @@ import api from "../../api/client";
 import { getApiErrorMessage } from "../http/getApiErrorMessage";
 
 export const getDiscardHistory = async () => {
-  const res = await api.get("/descarte/histórico");
-  return res.data;
+  try {
+    const res = await api.get("/descarte/historico");
+    return res.data;
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, "Não foi possível carregar o histórico de descartes."));
+  }
 };
 
 export const getPendingDiscards = async () => {

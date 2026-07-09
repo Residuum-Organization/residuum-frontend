@@ -23,9 +23,58 @@ export default function DashboardScreen() {
     queryFn: getCollectionPointDashboard,
   });
 
-  const statCards = data?.statCards || [];
+  const metrics = data?.metrics || {};
+  const points = data?.points || [];
   const hasLoaded = !isLoading && !isError;
   const hasOperationalData = Boolean(data?.hasOperationalData);
+
+  const formatKg = (value) =>
+    `${Number(value || 0).toLocaleString("pt-BR", {
+      maximumFractionDigits: 1,
+    })} kg`;
+
+  const statCards = [
+    {
+      id: "total",
+      title: "Total Coletado",
+      value: formatKg(metrics.totalCollected),
+      trend: `${metrics.totalPoints || 0} ponto(s) monitorado(s)`,
+      iconBg: "bg-green-100",
+      iconColor: "text-green-500",
+      icon: "Recycle",
+    },
+    {
+      id: "users",
+      title: "Usuários Atendidos",
+      value: String(metrics.uniqueUsers || 0),
+      trend: `${metrics.pendingDiscards || 0} coleta(s) pendente(s)`,
+      iconBg: "bg-blue-100",
+      iconColor: "text-blue-400",
+      icon: "User",
+    },
+    {
+      id: "coletas",
+      title: "Pontos Vinculados",
+      value: String(metrics.totalPoints || 0),
+      trend: `${metrics.pointsActive || 0} ativo(s) agora`,
+      iconBg: "bg-slate-800",
+      iconColor: "text-white",
+      icon: "Truck",
+    },
+    {
+      id: "status",
+      title: "Status do Sistema",
+      value: (metrics.criticalPoints || 0) > 0 ? "Atenção" : "Ativo",
+      trend:
+        (metrics.criticalPoints || 0) > 0
+          ? `${metrics.criticalPoints} ponto(s) crítico(s)`
+          : "Operação estável",
+      iconBg: "bg-yellow-100",
+      iconColor: "text-yellow-500",
+      icon: "Activity",
+      valueClass: (metrics.criticalPoints || 0) > 0 ? "text-amber-500" : "text-green-500",
+    },
+  ];
 
   return (
     <RoleShell variant="operacional" shellClassName="bg-[var(--color-surface)]">
@@ -88,27 +137,9 @@ export default function DashboardScreen() {
 
             <InlineAlert
               variant="info"
-              title="Indicadores operacionais"
-              description="Os totais e pendências vêm da API atual. Séries históricas e distribuição por material permanecem demonstrativas enquanto não houver endpoint específico."
+              title="Séries históricas indisponíveis"
+              description="A distribuição por material e volume histórico necessitam de um endpoint dedicado na API para serem exibidos."
             />
-
-            <section className="grid gap-4 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.85fr)]">
-              <SectionCard
-                title="Volume de resíduos"
-                description="Visão gráfica para acompanhamento operacional."
-                className="min-w-0"
-              >
-                <LineChart data={data?.chartData || []} embedded />
-              </SectionCard>
-
-              <SectionCard
-                title="Materiais"
-                description="Distribuição visual por tipo."
-                className="min-w-0"
-              >
-                <PieChart data={data?.materialData || []} embedded />
-              </SectionCard>
-            </section>
           </>
         ) : null}
       </div>
