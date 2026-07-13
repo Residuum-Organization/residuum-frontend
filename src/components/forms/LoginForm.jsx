@@ -96,7 +96,7 @@ export default function LoginForm() {
               defaultChecked={true}
               {...register("rememberMe")}
             />
-            Lembrar-me
+            Lembrar de mim
           </label>
           <Link
             to="/recuperar-senha"
