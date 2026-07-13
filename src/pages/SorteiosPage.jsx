@@ -23,7 +23,7 @@ function SorteioCard({ sorteio }) {
   return (
     <article className="rounded-2xl border border-[var(--color-border)] bg-white p-4 shadow-sm">
       <div className="flex items-start gap-3">
-        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-white shadow-sm" style={{ backgroundColor: sorteio.cor }}>
+        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-white shadow-sm bg-[#0B6B53]">
           <Trophy size={26} />
         </div>
 
@@ -34,14 +34,14 @@ function SorteioCard({ sorteio }) {
               <span className="rounded-full bg-slate-100 px-2 py-1 text-[10px] font-black text-slate-500">ENCERRADO</span>
             ) : null}
           </div>
-          <p className="mt-1 text-sm font-semibold text-[var(--color-text-muted)]">{sorteio.patrocinador}</p>
+          <p className="mt-1 text-sm font-semibold text-[var(--color-text-muted)]">Residuum</p>
 
           <div className="mt-3 grid gap-2 text-xs font-semibold text-[var(--color-text-muted)] sm:grid-cols-2">
-            <span className="flex items-center gap-1.5"><Gift size={14} /> {sorteio.pontosNecessarios} pts</span>
-            <span className="flex items-center gap-1.5"><Users size={14} /> {sorteio.participantes}</span>
-            <span className="flex items-center gap-1.5 sm:col-span-2"><CalendarDays size={14} /> até {new Date(sorteio.dataFim).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }).replace(',', ' às')}</span>
+            <span className="flex items-center gap-1.5"><Gift size={14} /> {sorteio.custo_pontos} pts</span>
+            <span className="flex items-center gap-1.5"><Users size={14} /> 0</span>
+            <span className="flex items-center gap-1.5 sm:col-span-2"><CalendarDays size={14} /> {sorteio.data_fim ? `até ${new Date(sorteio.data_fim).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }).replace(',', ' às')}` : 'Sem data limite'}</span>
             <span className="flex items-center gap-1.5 font-bold text-[var(--color-primary)] sm:col-span-2">
-              <Ticket size={14} /> {sorteio.participacaoUsuario || 0} participação(ões)
+              <Ticket size={14} /> 0 participação(ões)
             </span>
           </div>
         </div>
@@ -77,17 +77,17 @@ function VoucherCard({ voucher, onRedeem, disabled }) {
         <div>
           <h3 className="text-sm font-extrabold text-[var(--color-primary)]">{voucher.titulo}</h3>
           <p className="mt-1 text-xs font-semibold text-[var(--color-text-muted)]">
-            Válido até: {new Date(voucher.validade).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }).replace(',', ' às')}
+            {voucher.data_fim ? `Válido até: ${new Date(voucher.data_fim).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }).replace(',', ' às')}` : 'Sem validade estipulada'}
           </p>
         </div>
       </div>
       <Button
         type="button"
         onClick={onRedeem}
-        disabled={disabled}
+        disabled={disabled || (voucher.quantidade_disponivel || 0) <= 0}
         className="w-full bg-[#0B6B53] px-4 py-3 text-sm font-bold sm:w-auto"
       >
-        Resgatar · {voucher.pontos} pts
+        Resgatar · {voucher.custo_pontos} pts
       </Button>
     </article>
   )

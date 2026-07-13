@@ -24,27 +24,32 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-// Mock data para o gráfico, até integrarmos isso com a API real futuramente
-const chartData = [
-  { name: "Jan", entregas: 4 },
-  { name: "Fev", entregas: 3 },
-  { name: "Mar", entregas: 2 },
-  { name: "Abr", entregas: 6 },
-  { name: "Mai", entregas: 8 },
-  { name: "Jun", entregas: 5 },
-];
+import { useQuery } from "@tanstack/react-query";
+import { getUserMetrics } from "../services/users";
+
+const MONTH_NAMES = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
 
 export default function HomePage() {
   const navigate = useNavigate();
   const { data: profile, isLoading } = useProfile();
 
-  if (isLoading) {
+  const { data: metricsData, isLoading: isLoadingMetrics } = useQuery({
+    queryKey: ["userMetrics"],
+    queryFn: () => getUserMetrics(),
+  });
+
+  if (isLoading || isLoadingMetrics) {
     return (
       <RoleShell variant="morador" shellClassName="bg-[var(--color-surface)]">
         <LoadingState title="Carregando painel..." className="mx-auto mt-10" />
       </RoleShell>
     );
   }
+
+  const chartData = metricsData?.por_mes?.map((m) => ({
+    name: MONTH_NAMES[m.mes - 1] || String(m.mes),
+    entregas: m.kg || 0,
+  })) || [];
 
   const userName = profile?.nome || profile?.usuario?.nome || "Usuário";
   const firstName = userName.split(" ")[0];

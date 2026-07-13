@@ -1,68 +1,32 @@
 import api from '../../api/client'
-
-const pickList = (payload) => {
-  if (Array.isArray(payload)) return payload
-  if (Array.isArray(payload?.data)) return payload.data
-  if (Array.isArray(payload?.items)) return payload.items
-  if (Array.isArray(payload?.results)) return payload.results
-  if (Array.isArray(payload?.pontos)) return payload.pontos
-  return []
-}
-
-const normalizeWasteTypes = (point) => {
-  const values =
-    point.wasteTypes ||
-    point.tipos_residuos_aceitos ||
-    point.tiposResiduosAceitos ||
-    point.residuos_aceitos ||
-    point.residuosAceitos ||
-    []
-
-  if (Array.isArray(values)) return values.filter(Boolean)
-  if (typeof values === 'string') return values.split(',').map((type) => type.trim()).filter(Boolean)
-  return []
-}
-
-export const normalizePoint = (point = {}) => {
-  const latitude = Number(point.latitude ?? point.lat ?? point.usuario_lat ?? point.coordenadas?.lat)
-  const longitude = Number(
-    point.longitude ?? point.lng ?? point.long ?? point.usuario_long ?? point.coordenadas?.lng ?? point.coordenadas?.long
-  )
-
-  return {
-    ...point,
-    id: point.id ?? point._id ?? point.uuid,
-    name: point.name ?? point.nome ?? point.razao_social ?? 'Ponto de coleta',
-    address: point.address ?? point.endereco ?? point.logradouro ?? 'Endereço não informado',
-    openingHours: point.openingHours ?? point.horario_funcionamento ?? point.funcionamento ?? 'Horário não informado',
-    latitude,
-    longitude,
-    status: String(point.status ?? point.situacao ?? 'ativo').toLowerCase(),
-    statusLabel: point.statusLabel ?? point.status_label ?? point.situacao_label,
-    wasteTypes: normalizeWasteTypes(point),
-    distanceKm: Number(point.distanceKm ?? point.distancia_km ?? point.distanciaKm ?? 0),
-    currentVolumeKg: Number(point.currentVolumeKg ?? point.quantidade_atual_kg ?? point.volume_atual_kg ?? point.current_volume_kg ?? 0),
-    capacityKg: Number(point.capacityKg ?? point.capacidade_kg ?? point.capacity_kg ?? 0),
-    fillPercentage: Number(point.fillPercentage ?? point.nivel_ocupacao ?? point.percentual_ocupacao ?? point.fill_percentage ?? 0),
-  }
-}
-
 import { getApiErrorMessage } from '../http/getApiErrorMessage'
 
-// ... existing code ...
+export const normalizePoint = (point) => {
+  return {
+    ...point,
+    id: point.id,
+    name: point.nome || 'Ponto de coleta',
+    address: point.endereco || 'Endereço não informado',
+    openingHours: point.horario_funcionamento || 'Horário não informado',
+    latitude: Number(point.latitude),
+    longitude: Number(point.longitude),
+    status: String(point.status_calculado || point.status || 'ativo').toLowerCase(),
+    statusLabel: point.status_calculado || point.status || 'ativo',
+    wasteTypes: Array.isArray(point.tipos_residuos_aceitos) ? point.tipos_residuos_aceitos : [],
+    distanceKm: Number(point.distancia_km || 0),
+    currentVolumeKg: Number(point.total_inventario || 0),
+    capacityKg: Number(point.capacidade_maxima || 0),
+    fillPercentage: Number(point.percentual_ocupacao || 0),
+  }
+}
 
 export const listPoints = async ({ page = 1, perPage = 50, filters = {} } = {}) => {
   try {
     const params = { ...filters }
-
-    if (params.lng) {
-      params.long = params.lng
-      delete params.lng
-    }
-
     const res = await api.get('/pontos-coleta', { params })
+    const dataList = Array.isArray(res.data) ? res.data : Array.isArray(res.data?.data) ? res.data.data : []
 
-    return pickList(res.data)
+    return dataList
       .map(normalizePoint)
       .filter((point) => point.id && Number.isFinite(point.latitude) && Number.isFinite(point.longitude))
   } catch (error) {
@@ -73,7 +37,7 @@ export const listPoints = async ({ page = 1, perPage = 50, filters = {} } = {}) 
 export const getPoint = async (id) => {
   try {
     const res = await api.get(`/pontos-coleta/${id}`)
-    return normalizePoint(res.data?.data ?? res.data)
+    return normalizePoint(res.data)
   } catch (error) {
     throw new Error(getApiErrorMessage(error, "Não foi possível buscar os dados do ponto de coleta."))
   }
@@ -82,7 +46,8 @@ export const getPoint = async (id) => {
 export const listNearby = async ({ lat, lng, radius = 1000 }) => {
   try {
     const res = await api.get('/maps/points/nearby', { params: { lat, lng, radius } })
-    return pickList(res.data).map(normalizePoint)
+    const dataList = Array.isArray(res.data) ? res.data : []
+    return dataList.map(normalizePoint)
   } catch (error) {
     throw new Error(getApiErrorMessage(error, "Não foi possível buscar pontos próximos."))
   }

@@ -32,18 +32,22 @@ api.interceptors.response.use(
       isRefreshing = true
 
       try {
-        const r = await api.post('/auth/refresh')
-        const { accessToken } = r.data
-        if (accessToken) setAccessToken(accessToken)
-        processQueue(null, accessToken)
+        const { getRefreshToken, setRefreshToken } = require('./token')
+        const r = await api.post('/auth/refresh', { refresh_token: getRefreshToken() })
+        const { access_token, refresh_token } = r.data
+        if (access_token) setAccessToken(access_token)
+        if (refresh_token) setRefreshToken(refresh_token)
+        processQueue(null, access_token)
         isRefreshing = false
         // retry original request with new token
-        originalRequest.headers['Authorization'] = 'Bearer ' + accessToken
+        originalRequest.headers['Authorization'] = 'Bearer ' + access_token
         return api(originalRequest)
       } catch (e) {
         processQueue(e, null)
         isRefreshing = false
         clearAccessToken()
+        const { clearRefreshToken } = require('./token')
+        clearRefreshToken()
         return Promise.reject(e)
       }
     }

@@ -36,16 +36,21 @@ export const AuthProvider = ({ children }) => {
     })();
   }, []);
 
-  const login = async (email, password) => {
+  const login = async (email, password, rememberMe = true) => {
+    const { setRefreshToken, clearRefreshToken } = require("../api/token");
     // Limpa sessão anterior antes de logar
     clearAccessToken();
+    clearRefreshToken();
     setUser(null);
     setAuthenticated(false);
 
     const res = await authService.login(email, password);
-    const { accessToken, user } = res;
+    const { accessToken, refreshToken, user } = res;
     if (accessToken) {
       setAccessToken(accessToken);
+      if (rememberMe && refreshToken) {
+        setRefreshToken(refreshToken);
+      }
       setUser(user);
       setAuthenticated(true);
       queryClient.invalidateQueries({ queryKey: ["current-user"] });
@@ -59,7 +64,9 @@ export const AuthProvider = ({ children }) => {
     } catch (e) {
       // ignore
     }
+    const { clearRefreshToken } = require("../api/token");
     clearAccessToken();
+    clearRefreshToken();
     setUser(null);
     setAuthenticated(false);
     queryClient.clear();

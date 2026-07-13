@@ -3,9 +3,19 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import Card from "../components/ui/Card";
 import LoginForm from "../components/forms/LoginForm";
+import { useAuth } from "../contexts/AuthContext";
+import { getRoleHome } from "../utils/roles";
+import { useEffect } from "react";
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const { isAuthenticated, user } = useAuth();
+
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      navigate(getRoleHome(user.role), { replace: true });
+    }
+  }, [isAuthenticated, user, navigate]);
   return (
     <main className="min-h-screen bg-[var(--color-welcome-surface)] px-4 py-5 sm:px-6 sm:py-8 lg:grid lg:place-items-center">
       <div className="mx-auto w-full max-w-md">

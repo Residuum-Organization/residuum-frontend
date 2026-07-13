@@ -67,17 +67,20 @@ const formatHistoryDate = (value) => {
 }
 
 function HistoricoCard({ item }) {
-  const config = STATUS_CONFIG[item.status] || STATUS_CONFIG.confirmado
+  const status = item.status || 'pendente'
+  const config = STATUS_CONFIG[status] || STATUS_CONFIG.confirmado
   const StatusIcon = config.Icon
-  const points = Number(item.pontos || 0)
-  const hasQuantity = item.quantidade != null
+  const points = Number(item.pontos || item.pontos_recebidos || 0)
+  const quantidadeValue = item.quantidade_confirmada ?? item.quantidade ?? 0
+  const hasQuantity = quantidadeValue > 0
   const quantityLabel = hasQuantity
-    ? Number(item.quantidade).toLocaleString('pt-BR', {
+    ? Number(quantidadeValue).toLocaleString('pt-BR', {
         minimumFractionDigits: 0,
         maximumFractionDigits: 2,
       })
     : null
   const title = item.inventario_item_descricao || item.descricao || formatResidueType(item.tipo_residuo)
+  const dataEvento = item.data_desc || item.data_evento
 
   return (
     <article className={`rounded-2xl border p-4 shadow-sm ${config.border}`}>
@@ -90,7 +93,7 @@ function HistoricoCard({ item }) {
             <h3 className="break-words text-sm font-black text-[#12384C]">{title}</h3>
             <p className="mt-1 text-xs font-semibold text-slate-500">
               {hasQuantity ? `${quantityLabel} kg | ` : ''}
-              {formatHistoryDate(item.data_evento)}
+              {formatHistoryDate(dataEvento)}
             </p>
             <p className="mt-1 text-xs font-medium text-slate-500">
               {item.ponto_coleta_nome || item.referencia || 'Evento de pontuacao'}
@@ -122,14 +125,14 @@ export default function ExtratoPage() {
   const histórico = extrato?.itens || []
   const total = Number(extrato?.pontuacao_total || 0)
   const pendentes = histórico
-    .filter((item) => item.status === 'pendente')
-    .reduce((sum, item) => sum + Math.max(Number(item.pontos || 0), 0), 0)
+    .filter((item) => (item.status || 'pendente') === 'pendente')
+    .reduce((sum, item) => sum + Math.max(Number(item.pontos || item.pontos_recebidos || 0), 0), 0)
   const confirmados = histórico
     .filter((item) => item.status === 'confirmado')
-    .reduce((sum, item) => sum + Math.max(Number(item.pontos || 0), 0), 0)
+    .reduce((sum, item) => sum + Math.max(Number(item.pontos || item.pontos_recebidos || 0), 0), 0)
   const resgatados = histórico
     .filter((item) => item.status === 'resgatado')
-    .reduce((sum, item) => sum + Math.abs(Number(item.pontos || 0)), 0)
+    .reduce((sum, item) => sum + Math.abs(Number(item.pontos || item.pontos_recebidos || 0)), 0)
 
   return (
     <RoleShell variant="morador" shellClassName="bg-[var(--color-surface)]" contentClassName="px-4 py-4 pb-28 sm:px-6 sm:py-6 lg:px-8 lg:pb-28">

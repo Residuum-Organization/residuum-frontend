@@ -32,7 +32,7 @@ export default function LoginForm() {
   const onSubmit = async (data) => {
     setAuthError("");
     try {
-      const result = await login(data.email, data.password);
+      const result = await login(data.email, data.password, data.rememberMe);
       navigate(getRoleHome(result.user?.role), { replace: true });
     } catch (e) {
       setAuthError(e.message || "Credenciais inválidas");
@@ -88,12 +88,21 @@ export default function LoginForm() {
             {errors.password.message}
           </p>
         )}
-        <div className="mt-2 flex justify-end">
+        <div className="mt-2 flex items-center justify-between">
+          <label className="flex items-center gap-2 text-sm font-medium text-slate-600 cursor-pointer">
+            <input
+              type="checkbox"
+              className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-600"
+              defaultChecked={true}
+              {...register("rememberMe")}
+            />
+            Lembrar-me
+          </label>
           <Link
             to="/recuperar-senha"
-          className="text-sm font-semibold text-[var(--color-welcome-muted)] underline-offset-2 hover:underline"
-        >
-          Esqueceu a senha?
+            className="text-sm font-semibold text-[var(--color-welcome-muted)] underline-offset-2 hover:underline"
+          >
+            Esqueceu a senha?
           </Link>
         </div>
       </div>

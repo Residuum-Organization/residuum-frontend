@@ -22,6 +22,7 @@ export const loginSchema = z.object({
   password: requiredString("Senha").min(6, {
     message: "Senha mínima de 6 caracteres",
   }),
+  rememberMe: z.boolean().optional(),
 });
 
 export const registerSchema = z

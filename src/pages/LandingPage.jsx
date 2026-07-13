@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Menu, X, MapPin, QrCode, Gift, BarChart3, Truck, ArrowRight, ChevronDown, CheckCircle2, Recycle, Users, Store, User } from "lucide-react";
+import { useAuth } from "../contexts/AuthContext";
+import { getRoleHome } from "../utils/roles";
 
 const faqs = [
   {
@@ -53,9 +55,16 @@ const features = [
 
 export default function LandingPage() {
   const navigate = useNavigate();
+  const { isAuthenticated, user } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openFaq, setOpenFaq] = useState(null);
+
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      navigate(getRoleHome(user.role), { replace: true });
+    }
+  }, [isAuthenticated, user, navigate]);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);

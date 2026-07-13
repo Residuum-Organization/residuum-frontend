@@ -8,8 +8,9 @@ import SectionCard from '../components/ui/SectionCard'
 import InlineAlert from '../components/ui/InlineAlert'
 import LoadingState from '../components/ui/LoadingState'
 import Button from '../components/ui/Button'
-import { getRaffleDetails } from '../services/rewards'
+import { getRaffleDetails, buyTicket } from '../services/rewards'
 import { queryKeys } from '../services/queryKeys'
+import { getApiErrorMessage } from '../services/http/getApiErrorMessage'
 
 const tabs = [
   { id: 'funciona', label: 'Como funciona' },
@@ -82,6 +83,21 @@ export default function SorteioDetalhesPage() {
     queryKey: queryKeys.raffleDetails(id),
     queryFn: () => getRaffleDetails(id),
     enabled: Boolean(id),
+  })
+
+  const [feedback, setFeedback] = useState('')
+  const { invalidateQueries } = require('@tanstack/react-query').useQueryClient()
+
+  const buyTicketMutation = require('@tanstack/react-query').useMutation({
+    mutationFn: (sorteioId) => buyTicket(sorteioId),
+    onSuccess: () => {
+      setFeedback('Bilhete comprado com sucesso!')
+      invalidateQueries(queryKeys.raffleDetails(id))
+      invalidateQueries(queryKeys.pointsStatement)
+    },
+    onError: (error) => {
+      setFeedback(getApiErrorMessage(error, 'Não foi possível comprar bilhete para este sorteio.'))
+    }
   })
 
   if (isLoading) {
@@ -157,11 +173,11 @@ export default function SorteioDetalhesPage() {
                   <Leaf size={24} />
                 </div>
                 <p className="text-sm font-semibold leading-relaxed text-[var(--color-text-muted)]">
-                  A cada {sorteio.pontosNecessarios} pontos você ganha uma chance. Quanto mais reciclar, maiores as chances.
+                  A cada {sorteio.custo_pontos} pontos você ganha uma chance. Quanto mais reciclar, maiores as chances.
                 </p>
               </div>
             </SectionCard>
-            <Timeline etapas={sorteio.etapas} />
+            <Timeline etapas={[]} />
           </div>
         ) : null}
 
@@ -170,15 +186,15 @@ export default function SorteioDetalhesPage() {
             <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-3xl bg-[#DDF7E9] text-[#0B6B53]">
               <Info size={28} />
             </div>
-            <p className="text-sm font-semibold leading-relaxed text-[var(--color-text-muted)]">{sorteio.descricao}</p>
+            <p className="text-sm font-semibold leading-relaxed text-[var(--color-text-muted)]">{sorteio.descricao || 'Sem descrição.'}</p>
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
               <div className="rounded-2xl bg-[var(--color-surface)] p-3">
                 <p className="text-xs font-bold text-[var(--color-text-muted)]">Pontos por chance</p>
-                <p className="mt-1 text-2xl font-black text-[#0B6B53]">{sorteio.pontosNecessarios}</p>
+                <p className="mt-1 text-2xl font-black text-[#0B6B53]">{sorteio.custo_pontos}</p>
               </div>
               <div className="rounded-2xl bg-[var(--color-surface)] p-3">
                 <p className="text-xs font-bold text-[var(--color-text-muted)]">Participantes</p>
-                <p className="mt-1 text-2xl font-black text-[#0B6B53]">{sorteio.participantes}</p>
+                <p className="mt-1 text-2xl font-black text-[#0B6B53]">0</p>
               </div>
             </div>
           </SectionCard>
@@ -189,9 +205,15 @@ export default function SorteioDetalhesPage() {
             <InlineAlert variant="info" title="Mais pontos, mais chances">
               Quanto maior sua pontuação acumulada, maior sua presença nas campanhas ativas.
             </InlineAlert>
-            <Premios premios={sorteio.premios} />
-            <Button type="button" disabled className="w-full bg-slate-300 py-4 text-sm font-bold text-white">
-              {sorteio.status === 'encerrado' ? 'Campanha encerrada' : 'Participação indisponível'}
+            {feedback && <InlineAlert variant="info" title="Atenção">{feedback}</InlineAlert>}
+            <Premios premios={sorteio.premio ? [{ posicao: "1º LUGAR", titulo: sorteio.premio, descricao: "" }] : []} />
+            <Button 
+              type="button" 
+              onClick={() => buyTicketMutation.mutate(sorteio.id)}
+              disabled={sorteio.status === 'encerrado' || buyTicketMutation.isPending} 
+              className="w-full bg-[#0B6B53] py-4 text-sm font-bold text-white hover:bg-[#0B6B53]/90 disabled:bg-slate-300"
+            >
+              {buyTicketMutation.isPending ? 'Comprando...' : sorteio.status === 'encerrado' ? 'Campanha encerrada' : 'Participar (Comprar bilhete)'}
             </Button>
           </div>
         ) : null}
