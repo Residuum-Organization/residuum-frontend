@@ -1,17 +1,15 @@
 services:
-  frontend:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: residuum-frontend
+  web:
+    build: .
+    container_name: residuum-web
+    restart: unless-stopped
+    environment:
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:8080}
+      PORT: ${FRONTEND_PORT:-5173}
     ports:
-      - "5173:5173"
+      - "${FRONTEND_PORT:-5173}:5173"
     volumes:
       - .:/app
       - /app/node_modules
-    environment:
-      - NODE_ENV=development
-      # Adicione aqui outras variáveis de ambiente se precisar, ex:
-      # - VITE_API_URL=http://localhost:8000
-    restart: unless-stopped
-    command: npm run dev -- --host
+    command: >
+      sh -c "pnpm run dev -- --host 0.0.0.0"
