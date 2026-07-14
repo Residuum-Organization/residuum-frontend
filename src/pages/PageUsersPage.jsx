@@ -30,9 +30,8 @@ import { getRoleLabel } from "../utils/roles";
 
 const roles = [
   { value: "", label: "Todos" },
-  { value: "usuario", label: "Morador / Gerador" },
-  { value: "cooperativa", label: "Cooperativa / Empresa de coleta" },
-  { value: "parceiro", label: "Empresa de coleta (role legado)" },
+  { value: "usuario", label: "Morador" },
+  { value: "cooperativa", label: "Empresa de coleta" },
   { value: "admin", label: "Administrador" },
 ];
 
@@ -42,8 +41,7 @@ export default function PageUsers() {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [pageSize] = useState(20);
-  const [searchNome, setSearchNome] = useState("");
-  const [searchEmail, setSearchEmail] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const [filterRole, setFilterRole] = useState("");
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(null);
@@ -55,27 +53,50 @@ export default function PageUsers() {
   const [editForm, setEditForm] = useState({ nome: "", email: "", telefone: "" });
   const [deleteConfirm, setDeleteConfirm] = useState(null);
 
+  const removeAccents = (str) =>
+    str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
   const loadUsers = useCallback(async () => {
     setLoading(true);
     setLoadError("");
     try {
+      // Como a busca precisa ignorar acentos e case e buscar em dois campos,
+      // trazemos uma página maior do backend e filtramos no frontend se houver busca.
+      // Se não houver busca, respeitamos a paginação normal.
+      const isSearching = searchQuery.trim().length > 0;
       const data = await listUsers({
-        page,
-        pageSize,
-        nome: searchNome || undefined,
-        email: searchEmail || undefined,
+        page: isSearching ? 1 : page,
+        pageSize: isSearching ? 100 : pageSize,
         role: filterRole || undefined,
       });
-      setUsers(data.itens || []);
-      setTotal(data.total || 0);
+      
+      let fetchedUsers = data.itens || [];
+      let totalFetched = data.total || 0;
+
+      if (isSearching) {
+        const queryClean = removeAccents(searchQuery);
+        fetchedUsers = fetchedUsers.filter(u => {
+          const nomeMatch = u.nome && removeAccents(u.nome).includes(queryClean);
+          const emailMatch = u.email && removeAccents(u.email).includes(queryClean);
+          return nomeMatch || emailMatch;
+        });
+        totalFetched = fetchedUsers.length;
+        
+        // Paginação manual no frontend
+        const startIndex = (page - 1) * pageSize;
+        fetchedUsers = fetchedUsers.slice(startIndex, startIndex + pageSize);
+      }
+
+      setUsers(fetchedUsers);
+      setTotal(totalFetched);
     } catch (error) {
-      setLoadError(error.message);
+      setLoadError("Não foi possível carregar ou buscar os usuários no momento. Tente novamente mais tarde.");
       setUsers([]);
       setTotal(0);
     } finally {
       setLoading(false);
     }
-  }, [page, pageSize, searchNome, searchEmail, filterRole]);
+  }, [page, pageSize, searchQuery, filterRole]);
 
   useEffect(() => {
     loadUsers();
@@ -184,22 +205,13 @@ export default function PageUsers() {
         title="Busca e filtros"
         description={`${total} usuario(s) encontrados conforme os filtros atuais.`}
       >
-        <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] lg:items-end">
+        <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-end">
           <SearchField
-            label="Nome"
-            placeholder="Buscar por nome..."
-            value={searchNome}
+            label="Buscar usuário"
+            placeholder="Buscar por nome ou e-mail..."
+            value={searchQuery}
             onChange={(value) => {
-              setSearchNome(value);
-              setPage(1);
-            }}
-          />
-          <SearchField
-            label="E-mail"
-            placeholder="Buscar por e-mail..."
-            value={searchEmail}
-            onChange={(value) => {
-              setSearchEmail(value);
+              setSearchQuery(value);
               setPage(1);
             }}
           />
@@ -230,12 +242,6 @@ export default function PageUsers() {
         </div>
       </SectionCard>
 
-      <InlineAlert
-        className="mt-4"
-        variant="info"
-        title="Edicao de perfil limitada"
-        description="A acao rapida desta tela preserva o fluxo existente e alterna apenas Administrador e Morador / Gerador. Cooperativa, empresa de coleta em role legado e novos perfis do MVP ficam documentados como pendencia."
-      />
 
       {successMessage ? (
         <InlineAlert
