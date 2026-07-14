@@ -31,5 +31,6 @@ export const roleNavigation = {
     { to: "/admin-pontos", label: "Pontos", Icon: MapPin },
     { to: "/usuarios", label: "Usuários", Icon: Users },
     { to: "/campanhas", label: "Campanhas", Icon: Megaphone },
+    { to: "/admin-sorteios", label: "Sorteios", Icon: Star },
   ],
 };

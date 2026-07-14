@@ -31,8 +31,8 @@ export default function ActivePoints() {
     return (
       <SectionCard
         className="mt-6"
-        title="Pontos mais ativos"
-        description="Ranking operacional dos pontos."
+        title="Top Pontos de Coleta"
+        description="Os pontos com maior volume de resíduos arrecadados."
       >
         <div className="p-4 text-center text-sm text-slate-500">
           Carregando...
@@ -44,13 +44,13 @@ export default function ActivePoints() {
   return (
     <SectionCard
       className="mt-6"
-      title="Pontos mais ativos"
-      description="Ranking operacional dos pontos."
+      title="Top Pontos de Coleta"
+      description="Os pontos com maior volume de resíduos arrecadados."
     >
       <div className="grid gap-3 sm:grid-cols-2">
         {activePoints.length === 0 ? (
-          <div className="col-span-2 p-4 text-center text-sm text-slate-500">
-            Nenhum dado disponível.
+          <div className="col-span-2 p-6 text-center rounded-2xl border border-dashed border-[var(--color-border)]">
+            <p className="text-sm font-medium text-[var(--color-text-muted)]">Ainda não há arrecadações suficientes para gerar o ranking.</p>
           </div>
         ) : (
           activePoints.map((point) => (

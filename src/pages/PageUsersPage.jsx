@@ -192,7 +192,7 @@ export default function PageUsers() {
       <PageHeader
         eyebrow="Administracao"
         title="Usuários"
-        description="Consulte e filtre perfis cadastrados com nomenclatura alinhada ao MVP atual."
+        description="Gerencie os moradores e administradores da plataforma, edite informações e controle permissões de acesso."
         action={
           <Button type="button" variant="secondary" onClick={() => navigate(-1)}>
             <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
@@ -388,25 +388,26 @@ function UserCard({ user, initials, loading, onEdit, onToggleRole, onDelete }) {
         </div>
       </div>
 
-      <div className="mt-4 grid gap-2 sm:grid-cols-3">
+      <div className="mt-4 flex items-center justify-end gap-1 border-t border-[var(--color-border)] pt-4">
         <button
           type="button"
           onClick={onEdit}
           disabled={loading}
-          className="inline-flex min-h-10 items-center justify-center gap-2 rounded-2xl border border-blue-200 px-3 text-sm font-bold text-[var(--color-primary)] transition hover:bg-blue-50 disabled:opacity-50"
+          title="Editar usuário"
+          className="flex h-9 w-9 items-center justify-center rounded-full text-[var(--color-text-muted)] transition-colors hover:bg-gray-100 hover:text-[var(--color-primary)] disabled:opacity-50"
         >
           <Pencil className="h-4 w-4" aria-hidden="true" />
-          Editar
         </button>
 
         <button
           type="button"
           onClick={onToggleRole}
           disabled={loading}
-          className={`inline-flex min-h-10 items-center justify-center gap-2 rounded-2xl border px-3 text-sm font-bold transition disabled:opacity-50 ${
+          title={isAdmin ? "Rebaixar para morador" : "Tornar Administrador"}
+          className={`flex h-9 w-9 items-center justify-center rounded-full text-[var(--color-text-muted)] transition-colors disabled:opacity-50 ${
             isAdmin
-              ? "border-amber-200 text-amber-700 hover:bg-amber-50"
-              : "border-violet-200 text-violet-700 hover:bg-violet-50"
+              ? "hover:bg-amber-50 hover:text-amber-600"
+              : "hover:bg-violet-50 hover:text-violet-600"
           }`}
         >
           {loading ? (
@@ -416,21 +417,20 @@ function UserCard({ user, initials, loading, onEdit, onToggleRole, onDelete }) {
           ) : (
             <Shield className="h-4 w-4" aria-hidden="true" />
           )}
-          {isAdmin ? "Rebaixar para morador" : "Tornar Administrador"}
         </button>
 
         <button
           type="button"
           onClick={onDelete}
           disabled={loading}
-          className="inline-flex min-h-10 items-center justify-center gap-2 rounded-2xl border border-red-200 px-3 text-sm font-bold text-[var(--color-error)] transition hover:bg-red-50 disabled:opacity-50"
+          title="Remover usuário"
+          className="flex h-9 w-9 items-center justify-center rounded-full text-[var(--color-text-muted)] transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
         >
           {loading ? (
             <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
           ) : (
             <Trash2 className="h-4 w-4" aria-hidden="true" />
           )}
-          Remover
         </button>
       </div>
     </article>
