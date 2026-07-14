@@ -1,6 +1,7 @@
 services:
   web:
     build: .
+    image: residuum-frontend
     container_name: residuum-web
     restart: unless-stopped
     environment:
