@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { ArrowLeft, Loader2, MapPin, QrCode, Send } from 'lucide-react'
+import { ArrowLeft, Loader2, MapPin, QrCode, Send, CircleDot, BookText, FlaskConical, Wine } from 'lucide-react'
 import RoleShell from '../components/layout/RoleShell'
 import PageHeader from '../components/ui/PageHeader'
 import InlineAlert from '../components/ui/InlineAlert'
@@ -21,6 +21,14 @@ const formatResidueType = (tipo) =>
   String(tipo || 'resíduo')
     .replaceAll('_', ' ')
     .replace(/\b\w/g, (letter) => letter.toUpperCase())
+
+const getItemIcon = (tipo) => {
+  const normalizedType = String(tipo || '').toLowerCase()
+  if (normalizedType === 'metal' || normalizedType === 'aluminio') return CircleDot
+  if (normalizedType === 'papel' || normalizedType === 'papelao') return BookText
+  if (normalizedType === 'plastico') return FlaskConical
+  return Wine
+}
 
 const formatQuantity = (value) => {
   const quantity = Number(value || 0)
@@ -288,45 +296,59 @@ export default function ValidacaoPresencaPage() {
           ) : (
             <div className="grid gap-5 lg:grid-cols-2">
             <Panel title="1. Resíduo">
-              <label className="mb-2 block text-sm font-bold text-[#1a3a4a]">Item do estoque</label>
-              <select
-                value={selectedItemId}
-                onChange={(event) => setSelectedItemId(event.target.value)}
-                className="min-h-12 w-full rounded-2xl border border-[#c8d2e3] bg-white px-4 py-3 text-base text-[#1a3a4a] outline-none"
-              >
-                {inventory.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {(item.descricao || formatResidueType(item.tipo_residuo)) +
-                      ` | ${formatQuantity(item.quantidade_disponivel ?? item.quantidade)} kg`}
-                  </option>
-                ))}
-              </select>
-
-              {selectedItem ? (
-                <div className="mt-4 rounded-2xl bg-white px-4 py-4">
-                  <p className="text-sm font-bold text-[#1a3a4a]">
-                    {selectedItem.descricao || formatResidueType(selectedItem.tipo_residuo)}
-                  </p>
-                  <p className="mt-1 text-sm text-gray-500">Tipo: {formatResidueType(selectedItem.tipo_residuo)}</p>
-                  <p className="mt-2 text-xs font-medium text-gray-500">
-                    Disponível: {formatQuantity(selectedItem.quantidade_disponivel ?? selectedItem.quantidade)} kg
-                  </p>
-                </div>
-              ) : null}
+              <label className="mb-2 block text-sm font-bold text-[#1a3a4a]">Selecione um item do estoque</label>
+              <div className="flex flex-col gap-3 max-h-[350px] overflow-y-auto pr-1 custom-scrollbar">
+                {inventory.map((item) => {
+                  const isSelected = String(item.id) === String(selectedItemId);
+                  const maxKg = Number(item.quantidade_disponivel ?? item.quantidade ?? 0);
+                  const ItemIcon = getItemIcon(item.tipo_residuo);
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => setSelectedItemId(String(item.id))}
+                      className={`flex w-full items-center gap-4 rounded-2xl border-2 p-4 transition-all text-left outline-none ${
+                        isSelected
+                          ? 'border-[#1F4E79] bg-[#f4f7fa] shadow-sm'
+                          : 'border-[#edf1f5] bg-white hover:border-[#c8d2e3] hover:bg-gray-50'
+                      }`}
+                    >
+                      <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl transition-colors ${
+                        isSelected ? 'bg-[#1F4E79] text-white' : 'bg-slate-100 text-[#1F4E79]'
+                      }`}>
+                        <ItemIcon size={24} />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className={`truncate text-base font-bold ${isSelected ? 'text-[#1F4E79]' : 'text-[#1a3a4a]'}`}>
+                          {item.descricao || formatResidueType(item.tipo_residuo)}
+                        </p>
+                        <div className="flex flex-col mt-0.5">
+                          <span className="text-xs font-medium text-gray-500">{formatResidueType(item.tipo_residuo)}</span>
+                          <span className={`text-sm font-bold ${isSelected ? 'text-[#1F4E79]' : 'text-[#1F4E79]'}`}>
+                            {formatQuantity(maxKg)} kg disponíveis
+                          </span>
+                        </div>
+                      </div>
+                    </button>
+                  )
+                })}
+              </div>
             </Panel>
 
             <Panel title="2. Validar presença">
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <p className="text-base font-bold text-[#1a3a4a]">Sua localização</p>
-                  <p className="mt-1 text-sm text-gray-500">
-                    {coords
-                      ? `${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)}`
-                      : 'Use sua localização atual ou informe o QR Code do ponto.'}
-                  </p>
-                </div>
-                <div className="rounded-2xl bg-white p-3 text-[#C53030]">
-                  <MapPin size={28} />
+                  {coords ? (
+                    <p className="mt-1 flex items-center gap-1.5 text-sm font-semibold text-emerald-600">
+                      <MapPin size={16} />
+                      Localização capturada com sucesso
+                    </p>
+                  ) : (
+                    <p className="mt-1 text-sm text-gray-500">
+                      Use sua localização atual ou informe o QR Code do ponto.
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -391,14 +413,55 @@ export default function ValidacaoPresencaPage() {
 
             <Panel title="4. Confirmar transferência">
               <label className="mb-2 block text-sm font-bold text-[#1a3a4a]">Quantidade a transferir (kg)</label>
-              <input
-                type="number"
-                min="0.1"
-                step="0.1"
-                value={quantidade}
-                onChange={(event) => setQuantidade(event.target.value)}
-                className="min-h-12 w-full rounded-2xl border border-[#c8d2e3] bg-white px-4 py-3 text-base text-[#1a3a4a] outline-none"
-              />
+              <div className="flex items-center justify-between gap-3 rounded-2xl bg-slate-100 p-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const current = Number(quantidade) || 0;
+                    setQuantidade(Math.max(0.1, current - 0.5).toFixed(1));
+                  }}
+                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border-2 border-[#1F4E79] bg-white text-2xl font-bold text-[#1F4E79] transition-colors hover:bg-slate-50"
+                >
+                  -
+                </button>
+                <input
+                  type="number"
+                  min="0.1"
+                  step="0.1"
+                  value={quantidade}
+                  onChange={(event) => {
+                    const rawValue = event.target.value;
+                    const numValue = Number(rawValue);
+                    const maxVal = Number(selectedItem?.quantidade_disponivel ?? selectedItem?.quantidade ?? 0);
+                    
+                    if (numValue > maxVal) {
+                      setQuantidade(String(maxVal));
+                    } else {
+                      setQuantidade(rawValue);
+                    }
+                  }}
+                  className="h-12 w-full bg-transparent text-center text-2xl font-bold text-[#1a3a4a] outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const current = Number(quantidade) || 0;
+                    const maxVal = Number(selectedItem?.quantidade_disponivel ?? selectedItem?.quantidade ?? 0);
+                    if (current < maxVal) {
+                      setQuantidade(Math.min(maxVal, current + 0.5).toFixed(1));
+                    }
+                  }}
+                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#1F4E79] text-2xl font-bold text-white transition-colors hover:bg-[#173B5C]"
+                >
+                  +
+                </button>
+              </div>
+
+              {selectedItem && Number(quantidade) >= Number(selectedItem.quantidade_disponivel ?? selectedItem.quantidade ?? 0) && (
+                <p className="mt-2 text-sm font-semibold text-amber-600">
+                  ⚠️ Limite máximo do estoque atingido.
+                </p>
+              )}
 
               <label className="mb-2 mt-4 block text-sm font-bold text-[#1a3a4a]">Observação (opcional)</label>
               <textarea
@@ -409,16 +472,26 @@ export default function ValidacaoPresencaPage() {
                 className="w-full resize-none rounded-2xl border border-[#c8d2e3] bg-white px-4 py-3 text-base text-[#1a3a4a] outline-none"
               />
 
-              <label className="mb-2 mt-4 block text-sm font-bold text-[#1a3a4a]">Token QR Code (opcional)</label>
-              <input
-                type="text"
-                value={qrToken}
-                onChange={(event) => setQrToken(event.target.value)}
-                placeholder="Cole o código do QR Code"
-                className="min-h-12 w-full rounded-2xl border border-[#c8d2e3] bg-white px-4 py-3 text-base text-[#1a3a4a] outline-none"
-              />
+              <label className="mb-2 mt-5 block text-sm font-bold text-[#1a3a4a]">Token QR Code (opcional)</label>
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <input
+                  type="text"
+                  value={qrToken}
+                  onChange={(event) => setQrToken(event.target.value)}
+                  placeholder="Cole o token do ponto..."
+                  className="min-h-12 flex-1 rounded-2xl border border-[#c8d2e3] bg-white px-4 py-3 text-base text-[#1a3a4a] outline-none focus:border-[#1F4E79]"
+                />
+                <button
+                  type="button"
+                  onClick={() => navigate(selectedItemId ? `/escanear-qr?itemId=${selectedItemId}` : '/escanear-qr')}
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-[#1F4E79] px-6 text-sm font-semibold text-white transition hover:bg-[#173B5C]"
+                >
+                  <QrCode size={18} />
+                  Escanear código
+                </button>
+              </div>
 
-              <div className="mt-4 flex items-center justify-between rounded-2xl bg-[#e8f5e2] px-4 py-3">
+              <div className="mt-6 flex items-center justify-between rounded-2xl bg-[#e8f5e2] px-4 py-3">
                 <span className="text-sm font-medium text-green-700">Pontos estimados após confirmação</span>
                 <span className="text-sm font-bold text-green-700">
                   +{Math.round(Number(quantidade || 0) * POINTS_PER_KG)} pts
@@ -433,22 +506,11 @@ export default function ValidacaoPresencaPage() {
                 disabled={transferMutation.isPending || !selectedItem || !selectedPointId}
                 isLoading={transferMutation.isPending}
                 loadingText="Enviando..."
-                className="w-full py-4"
+                className="w-full py-4 text-base shadow-sm"
               >
                 <Send size={18} />
-                Enviar para o ponto de coleta
+                Confirmar envio para o ponto
               </LoadingButton>
-
-              <button
-                type="button"
-                onClick={() => navigate(selectedItemId ? `/escanear-qr?itemId=${selectedItemId}` : '/escanear-qr')}
-                className="w-full rounded-2xl border-2 border-[#1F4E79] bg-white py-4 text-sm font-semibold text-[#1F4E79]"
-              >
-                <span className="inline-flex items-center gap-2">
-                  <QrCode size={18} />
-                  Usar QR Code como alternativa
-                </span>
-              </button>
             </div>
           </div>
         )}

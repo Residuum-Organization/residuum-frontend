@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -12,7 +12,7 @@ import SectionCard from '../components/ui/SectionCard'
 import InlineAlert from '../components/ui/InlineAlert'
 import LoadingButton from '../components/ui/LoadingButton'
 import Button from '../components/ui/Button'
-import { createInventoryItem } from '../services/inventory'
+import { createInventoryItem, updateInventoryItem } from '../services/inventory'
 import { queryKeys } from '../services/queryKeys'
 import { getApiErrorMessage } from '../services/http/getApiErrorMessage'
 
@@ -88,10 +88,13 @@ function ScannerCamera({ onScan, onClose }) {
 }
 
 export default function CadastrarResiduo() {
-  const [tipoSelecionado, setTipoSelecionado] = useState(null)
-  const [quantidade, setQuantidade] = useState(1)
+  const location = useLocation()
+  const editItem = location.state?.item
+
+  const [tipoSelecionado, setTipoSelecionado] = useState(editItem?.tipo_residuo || null)
+  const [quantidade, setQuantidade] = useState(Number(editItem?.quantidade || 1))
   const [showScanner, setShowScanner] = useState(false)
-  const [ultimoCodigo, setUltimoCodigo] = useState(null)
+  const [ultimoCodigo, setUltimoCodigo] = useState(editItem?.codigo_barras || null)
   const [feedback, setFeedback] = useState(null)
   const navigate = useNavigate()
   const queryClient = useQueryClient()
@@ -101,7 +104,13 @@ export default function CadastrarResiduo() {
     setValue,
     handleSubmit,
     formState: { errors },
-  } = useForm({ resolver: zodResolver(schema) })
+  } = useForm({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      descricao: editItem?.descricao || '',
+      observacao: editItem?.observacao || '',
+    },
+  })
 
   const handleScan = (barcode) => {
     setUltimoCodigo(barcode)
@@ -124,6 +133,23 @@ export default function CadastrarResiduo() {
       setFeedback({
         tone: 'error',
         message: getApiErrorMessage(mutationError, 'Não foi possível cadastrar o resíduo.'),
+      })
+    },
+  })
+
+  const updateMutation = useMutation({
+    mutationFn: (payload) => updateInventoryItem(editItem?.id, payload),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: queryKeys.inventory })
+      setFeedback({ tone: 'success', message: 'Resíduo atualizado com sucesso.' })
+      setTimeout(() => {
+        navigate('/meu-estoque')
+      }, 800)
+    },
+    onError: (mutationError) => {
+      setFeedback({
+        tone: 'error',
+        message: getApiErrorMessage(mutationError, 'Não foi possível atualizar o resíduo.'),
       })
     },
   })
@@ -153,7 +179,11 @@ export default function CadastrarResiduo() {
     if (observacao) payload.observacao = observacao
     if (ultimoCodigo) payload.codigo_barras = ultimoCodigo
 
-    createMutation.mutate(payload)
+    if (editItem) {
+      updateMutation.mutate(payload)
+    } else {
+      createMutation.mutate(payload)
+    }
   }
 
   return (
@@ -161,8 +191,8 @@ export default function CadastrarResiduo() {
       <div className="space-y-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <PageHeader
-            title="Cadastrar resíduo"
-            description="Escaneie o código ou preencha os dados do resíduo antes da entrega."
+            title={editItem ? "Editar resíduo" : "Cadastrar resíduo"}
+            description={editItem ? "Atualize as informações do seu item no estoque." : "Escaneie o código ou preencha os dados do resíduo antes da entrega."}
           />
           <Button type="button" variant="secondary" onClick={() => navigate('/meu-estoque')} className="w-full sm:w-auto">
             <ArrowLeft className="mr-2 h-4 w-4" /> Voltar para estoque
@@ -233,7 +263,7 @@ export default function CadastrarResiduo() {
                       onClick={() => setTipoSelecionado(tipo.id)}
                       className={`flex min-h-14 items-center gap-3 rounded-2xl px-4 py-4 font-semibold text-white transition-all ${
                         tipoSelecionado === tipo.id
-                          ? 'bg-[#173B5C] ring-2 ring-[#1F4E79] ring-offset-2'
+                          ? 'bg-emerald-600 ring-2 ring-emerald-500 ring-offset-2 shadow-md scale-[1.02]'
                           : 'bg-[#1F4E79] hover:bg-[#173B5C]'
                       }`}
                     >
@@ -281,11 +311,11 @@ export default function CadastrarResiduo() {
 
               <LoadingButton
                 type="submit"
-                isLoading={createMutation.isPending}
+                isLoading={editItem ? updateMutation.isPending : createMutation.isPending}
                 loadingText="Salvando..."
                 className="w-full py-4"
               >
-                Adicionar ao estoque
+                {editItem ? "Salvar alterações" : "Adicionar ao estoque"}
               </LoadingButton>
             </form>
           </SectionCard>
