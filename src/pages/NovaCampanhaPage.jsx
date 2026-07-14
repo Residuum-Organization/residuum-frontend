@@ -12,12 +12,14 @@ import SectionCard from "../components/ui/SectionCard";
 import { createCampanha } from "../services/admin";
 import { getApiErrorMessage } from "../services/http/getApiErrorMessage";
 
+const today = new Date().toISOString().split("T")[0];
+
 const estadoInicial = {
   titulo: "",
   descricao: "",
   patrocinador: "",
   pontos_recompensa: "",
-  data_inicio: "",
+  data_inicio: today,
   data_fim: "",
 };
 

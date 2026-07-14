@@ -8,6 +8,9 @@ import {
   Megaphone,
   Plus,
   ArrowLeft,
+  Pencil,
+  Trash2,
+  XCircle,
 } from "lucide-react";
 import AdminShell from "../components/admin/AdminShell";
 import Badge from "../components/ui/Badge";
@@ -77,6 +80,9 @@ export default function CampanhasPage() {
                   key={campanha.id}
                   campanha={campanha}
                   onClick={() => navigate(`/campanhas/${campanha.id}`)}
+                  onEdit={(id) => alert(`Ação de Editar para a campanha ${id} será implementada quando a rota existir no Backend.`)}
+                  onClose={(id) => alert(`Ação de Encerrar para a campanha ${id} será implementada quando a rota existir no Backend.`)}
+                  onDelete={(id) => alert(`Ação de Deletar para a campanha ${id} será implementada quando a rota existir no Backend.`)}
                 />
               ))}
             </div>
@@ -121,16 +127,13 @@ function ResumoCampanhas({ total, ativas }) {
   );
 }
 
-function CardCampanha({ campanha, onClick }) {
-  const dataFim = campanha.data_fim ? new Date(campanha.data_fim).toLocaleDateString("pt-BR") : "Sem data fim";
+function CardCampanha({ campanha, onClick, onEdit, onClose, onDelete }) {
+  const dataInicio = campanha.data_inicio ? new Date(campanha.data_inicio).toLocaleDateString("pt-BR") : "Início indefinido";
+  const dataFim = campanha.data_fim ? new Date(campanha.data_fim).toLocaleDateString("pt-BR") : "Sem prazo";
 
   return (
-    <article className="relative rounded-2xl border border-[var(--color-border)] bg-white p-4 shadow-sm transition hover:border-[var(--color-primary)]/40">
-      <button
-        type="button"
-        onClick={onClick}
-        className="w-full text-left focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/30 focus-visible:ring-offset-2"
-      >
+    <article className="relative flex flex-col rounded-2xl border border-[var(--color-border)] bg-white p-4 shadow-sm transition hover:border-[var(--color-primary)]/40">
+      <div className="flex-1 cursor-pointer" onClick={onClick} role="button" tabIndex={0}>
         <div className="grid grid-cols-[52px_1fr] gap-3 sm:grid-cols-[60px_1fr]">
           <LogoCampanha patrocinador={campanha.patrocinador} logoUrl={campanha.patrocinador_logo_url} />
 
@@ -148,17 +151,30 @@ function CardCampanha({ campanha, onClick }) {
             </p>
 
             <div className="mt-3 grid gap-2 text-sm font-medium text-[var(--color-text-muted)]">
-              <InfoLinha icon={CalendarDays} texto={`Até ${dataFim}`} />
+              <InfoLinha icon={CalendarDays} texto={`${dataInicio} até ${dataFim}`} />
               <InfoLinha icon={Gift} texto={`${campanha.pontos_recompensa} pontos`} />
             </div>
           </div>
         </div>
+      </div>
 
-        <span className="mt-4 inline-flex items-center text-sm font-bold text-[var(--color-primary)]">
+      <div className="mt-4 flex items-center justify-between border-t border-[var(--color-border)] pt-4">
+        <button type="button" onClick={onClick} className="inline-flex items-center text-sm font-bold text-[var(--color-primary)] hover:underline">
           Ver detalhes
           <ChevronRight className="ml-1 h-4 w-4" aria-hidden="true" />
-        </span>
-      </button>
+        </button>
+        <div className="flex items-center gap-1">
+          <button type="button" onClick={(e) => { e.stopPropagation(); onEdit(campanha.id); }} title="Editar" className="flex h-9 w-9 items-center justify-center rounded-full text-[var(--color-text-muted)] transition-colors hover:bg-gray-100 hover:text-[var(--color-primary)]">
+            <Pencil className="h-4 w-4" />
+          </button>
+          <button type="button" onClick={(e) => { e.stopPropagation(); onClose(campanha.id); }} title="Encerrar" className="flex h-9 w-9 items-center justify-center rounded-full text-[var(--color-text-muted)] transition-colors hover:bg-orange-50 hover:text-orange-600">
+            <XCircle className="h-4 w-4" />
+          </button>
+          <button type="button" onClick={(e) => { e.stopPropagation(); onDelete(campanha.id); }} title="Deletar" className="flex h-9 w-9 items-center justify-center rounded-full text-[var(--color-text-muted)] transition-colors hover:bg-red-50 hover:text-red-600">
+            <Trash2 className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
     </article>
   );
 }

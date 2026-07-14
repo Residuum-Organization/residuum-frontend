@@ -22,16 +22,11 @@ import SectionCard from "../components/ui/SectionCard";
 import { listCampanhas } from "../services/admin";
 import { getApiErrorMessage } from "../services/http/getApiErrorMessage";
 
-const abas = [
-  { id: "funciona", label: "Como funciona" },
-  { id: "sobre", label: "Sobre a marca" },
-  { id: "premios", label: "Premios" },
-];
+
 
 export default function CampanhaDetalhesPage() {
   const navigate = useNavigate();
   const { id } = useParams();
-  const [abaAtual, setAbaAtual] = useState("funciona");
 
   const { data: campanhas = [], isLoading, isError, error } = useQuery({
     queryKey: ["campanhas"],
@@ -69,8 +64,8 @@ export default function CampanhaDetalhesPage() {
             }
           />
           <EmptyState
-            title="Campanha nao encontrada"
-            description="Essa campanha pode ter sido removida ou nao existe."
+            title="Campanha não encontrada"
+            description="Essa campanha pode ter sido removida ou não existe."
             actionLabel="Voltar para campanhas"
             onAction={() => navigate("/campanhas")}
           />
@@ -100,21 +95,34 @@ export default function CampanhaDetalhesPage() {
 
         <div className="grid gap-4 lg:grid-cols-2">
           <Metrica label="Status" value={campanha.status} />
-          <Metrica label="Período" value={campanha.data_fim ? `Até ${new Date(campanha.data_fim).toLocaleDateString("pt-BR")}` : 'Sem prazo'} />
+          <Metrica label="Período" value={`${campanha.data_inicio ? new Date(campanha.data_inicio).toLocaleDateString("pt-BR") : 'Início indefinido'} até ${campanha.data_fim ? new Date(campanha.data_fim).toLocaleDateString("pt-BR") : 'Sem prazo'}`} />
         </div>
 
         <SectionCard
-          title="Informacoes da campanha"
-          description="Consulte orientacoes, marca e premios."
+          title="Informações da campanha"
+          description="Consulte orientações, marca e prêmios."
         >
-          <Abas abaAtual={abaAtual} setAbaAtual={setAbaAtual} />
+          <div className="flex flex-col gap-6 pt-2">
+            <div>
+              <h3 className="mb-4 text-base font-extrabold uppercase tracking-wider text-[var(--color-text-muted)]">
+                Descrição
+              </h3>
+              <DescricaoCampanha campanha={campanha} />
+            </div>
 
-          <div className="pt-5">
-            {abaAtual === "funciona" ? (
-              <ComoFunciona campanha={campanha} />
-            ) : null}
-            {abaAtual === "sobre" ? <SobreMarca campanha={campanha} /> : null}
-            {abaAtual === "premios" ? <Premios campanha={campanha} /> : null}
+            <div>
+              <h3 className="mb-4 text-base font-extrabold uppercase tracking-wider text-[var(--color-text-muted)]">
+                Sobre a Marca
+              </h3>
+              <SobreMarca campanha={campanha} />
+            </div>
+
+            <div>
+              <h3 className="mb-4 text-base font-extrabold uppercase tracking-wider text-[var(--color-text-muted)]">
+                Prêmios
+              </h3>
+              <Premios campanha={campanha} />
+            </div>
           </div>
         </SectionCard>
       </div>
@@ -123,7 +131,9 @@ export default function CampanhaDetalhesPage() {
 }
 
 function CabecalhoCampanha({ campanha }) {
-  const dataFim = campanha.data_fim ? `Até ${new Date(campanha.data_fim).toLocaleDateString("pt-BR")}` : 'Sem prazo';
+  const dataInicio = campanha.data_inicio ? new Date(campanha.data_inicio).toLocaleDateString("pt-BR") : "Início indefinido";
+  const dataFim = campanha.data_fim ? new Date(campanha.data_fim).toLocaleDateString("pt-BR") : "Sem prazo";
+  const periodo = `${dataInicio} até ${dataFim}`;
 
   return (
     <div className="grid gap-4 md:grid-cols-[72px_1fr_auto] md:items-start">
@@ -143,7 +153,7 @@ function CabecalhoCampanha({ campanha }) {
         </p>
 
         <div className="mt-4 grid gap-2 text-sm font-medium text-[var(--color-text-muted)] sm:grid-cols-3">
-          <Meta icon={CalendarDays} texto={dataFim} />
+          <Meta icon={CalendarDays} texto={periodo} />
           <Meta icon={Award} texto={`${campanha.pontos_recompensa} pontos`} />
         </div>
       </div>
@@ -195,93 +205,61 @@ function Metrica({ label, value }) {
   );
 }
 
-function Abas({ abaAtual, setAbaAtual }) {
+
+
+function DescricaoCampanha({ campanha }) {
   return (
-    <div className="flex overflow-x-auto border-b border-[var(--color-border)]">
-      {abas.map((aba) => {
-        const isAtiva = abaAtual === aba.id;
-
-        return (
-          <button
-            key={aba.id}
-            onClick={() => setAbaAtual(aba.id)}
-            className={`whitespace-nowrap px-4 py-3 text-sm font-bold transition ${
-              isAtiva
-                ? "border-b-2 border-[var(--color-primary)] text-[var(--color-primary)]"
-                : "text-[var(--color-text-muted)] hover:text-[var(--color-primary)]"
-            }`}
-          >
-            {aba.label}
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
-function ComoFunciona({ campanha }) {
-  const passos = [
-    {
-      titulo: "Participe da campanha",
-      descricao: "Se inscreva para confirmar sua participacao na acao.",
-    },
-    {
-      titulo: "Acumule pontos extras",
-      descricao: "Você ganhará a recompensa base e poderá trocar por benefícios.",
-    },
-  ];
-
-  return (
-    <div className="space-y-4">
-      {passos.map((passo, index) => (
-        <div key={index} className="flex gap-4 rounded-2xl bg-[var(--color-surface)] p-4">
-          <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-[var(--color-primary)] text-sm font-extrabold text-white">
-            {index + 1}
-          </div>
-          <div>
-            <h3 className="font-extrabold text-[var(--color-primary)]">
-              {passo.titulo}
-            </h3>
-            <p className="mt-1 text-sm font-medium text-[var(--color-text-muted)]">
-              {passo.descricao}
-            </p>
-          </div>
-        </div>
-      ))}
-      <div className="mt-4 p-4 text-sm text-[var(--color-text)] bg-white border rounded-2xl">
-        {campanha.descricao || "Nenhuma descrição fornecida."}
-      </div>
+    <div className="rounded-2xl bg-indigo-50 border border-indigo-100 p-5">
+      <h4 className="flex items-center text-sm font-extrabold uppercase tracking-widest text-indigo-800 mb-2">
+        <Info className="h-4 w-4 mr-2" />
+        Regras e Detalhes Adicionais
+      </h4>
+      <p className="text-sm font-medium text-indigo-900/80 leading-relaxed whitespace-pre-wrap">
+        {campanha.descricao || "Esta campanha não possui regras adicionais ou descrição específica."}
+      </p>
     </div>
   );
 }
 
 function SobreMarca({ campanha }) {
   return (
-    <div className="rounded-2xl border border-[var(--color-border)] bg-white p-5 text-center shadow-sm">
-      <LogoCampanha patrocinador={campanha.patrocinador} logoUrl={campanha.patrocinador_logo_url} />
+    <div className="flex flex-col sm:flex-row items-center gap-5 rounded-2xl border border-[var(--color-border)] bg-white p-5 shadow-sm transition hover:shadow-md">
+      <div className="shrink-0 p-1 bg-white border border-[var(--color-border)] rounded-2xl shadow-sm">
+        <LogoCampanha patrocinador={campanha.patrocinador} logoUrl={campanha.patrocinador_logo_url} />
+      </div>
 
-      <h3 className="mt-4 font-extrabold text-[var(--color-primary)]">
-        {campanha.patrocinador}
-      </h3>
-      <p className="mt-2 text-sm font-medium text-[var(--color-text-muted)]">
-        Apoiadora oficial desta campanha na plataforma.
-      </p>
+      <div className="text-center sm:text-left">
+        <h3 className="text-lg font-extrabold text-[var(--color-text)]">
+          {campanha.patrocinador}
+        </h3>
+        <p className="mt-1 text-sm font-medium text-[var(--color-text-muted)] leading-relaxed">
+          Apoiadora oficial desta campanha na plataforma. A marca está comprometida com o engajamento e a sustentabilidade no descarte correto.
+        </p>
+      </div>
     </div>
   );
 }
 
 function Premios({ campanha }) {
   return (
-    <div className="rounded-2xl border border-[var(--color-border)] bg-white p-5 shadow-sm">
-      <div className="flex items-center gap-3">
-        <Sparkles className="h-6 w-6 text-[var(--color-accent)]" />
-        <h3 className="font-extrabold text-[var(--color-primary)]">
-          Recompensa Garantida
-        </h3>
+    <div className="relative overflow-hidden rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white p-6 shadow-sm">
+      <div className="absolute -right-4 -top-4 text-emerald-100 opacity-50">
+        <Award className="h-32 w-32" />
       </div>
-      <p className="mt-3 text-sm font-medium text-[var(--color-text-muted)]">
-        Esta campanha distribui {campanha.pontos_recompensa} pontos de recompensa.
-      </p>
+      
+      <div className="relative z-10 flex items-center gap-4">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600 shadow-sm">
+          <Sparkles className="h-6 w-6" />
+        </div>
+        <div>
+          <h3 className="text-lg font-extrabold text-emerald-900">
+            Recompensa Garantida
+          </h3>
+          <p className="mt-1 text-sm font-medium text-emerald-700/80">
+            O participante ganhará <strong className="text-emerald-800 font-extrabold">{campanha.pontos_recompensa} pontos</strong> ao concluir a ação.
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
