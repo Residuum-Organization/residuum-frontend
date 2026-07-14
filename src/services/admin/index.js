@@ -148,3 +148,55 @@ export const deactivateCollectionPoint = async (id) => {
     throw new Error(getApiErrorMessage(error, "Erro ao desativar ponto de coleta"));
   }
 };
+
+export const updateCampanha = async (id, payload) => {
+  try {
+    const res = await api.put(`/campanhas/${id}`, payload);
+    return res.data;
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, "Erro ao atualizar campanha"));
+  }
+};
+
+export const deleteCampanha = async (id) => {
+  try {
+    await api.delete(`/campanhas/${id}`);
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, "Erro ao deletar campanha"));
+  }
+};
+
+export const listAgendas = async () => {
+  try {
+    const res = await api.get("/admin/agenda");
+    return res.data;
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, "Erro ao buscar agendas"));
+  }
+};
+
+export const createAgenda = async (payload) => {
+  try {
+    const res = await api.post("/admin/agenda", payload);
+    return res.data;
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, "Erro ao agendar coleta"));
+  }
+};
+
+export const updateAgenda = async (id, payload) => {
+  try {
+    const res = await api.put(`/admin/agenda/${id}`, payload);
+    return res.data;
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, "Erro ao atualizar agendamento"));
+  }
+};
+
+export const deleteAgenda = async (id) => {
+  try {
+    await api.delete(`/admin/agenda/${id}`);
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, "Erro ao deletar agendamento"));
+  }
+};

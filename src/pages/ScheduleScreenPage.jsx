@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { CalendarClock, ArrowLeft, CheckCircle2, Calendar, MapPin, Plus } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { CalendarClock, ArrowLeft, CheckCircle2, Calendar, MapPin, Plus, Trash2 } from "lucide-react";
 import TimeSlots from "../components/coleta-dados/TimeSlots";
 import CollectionPoints from "../components/coleta-dados/CollectionPoints";
 import SystemStatus from "../components/coleta-dados/SystemStatus";
@@ -12,11 +12,12 @@ import SectionCard from "../components/ui/SectionCard";
 import InlineAlert from "../components/ui/InlineAlert";
 import { TIME_SLOTS } from "../constants/schedule";
 import { listCollectionPoints } from "../services/collectionPoints";
+import { listAgendas, createAgenda, deleteAgenda } from "../services/admin";
 
 export default function ScheduleScreen() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [scheduledItems, setScheduledItems] = useState([]);
   
   const [form, setForm] = useState({
     pontoId: "",
@@ -25,9 +26,38 @@ export default function ScheduleScreen() {
   });
   const [feedback, setFeedback] = useState(null);
 
-  const { data: points = [], isLoading } = useQuery({
+  const { data: points = [], isLoading: isLoadingPoints } = useQuery({
     queryKey: ["collectionPoints"],
     queryFn: listCollectionPoints,
+  });
+
+  const { data: agendas = [], isLoading: isLoadingAgendas } = useQuery({
+    queryKey: ["agendas"],
+    queryFn: listAgendas,
+  });
+
+  const scheduleMutation = useMutation({
+    mutationFn: createAgenda,
+    onSuccess: () => {
+      setFeedback({ tone: "success", message: "Coleta agendada com sucesso!" });
+      setIsModalOpen(false);
+      setForm({ pontoId: "", data: new Date().toISOString().split("T")[0], turnoId: "" });
+      queryClient.invalidateQueries(["agendas"]);
+    },
+    onError: (err) => {
+      setFeedback({ tone: "error", message: err.message });
+    }
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteAgenda,
+    onSuccess: () => {
+      setFeedback({ tone: "success", message: "Coleta cancelada." });
+      queryClient.invalidateQueries(["agendas"]);
+    },
+    onError: (err) => {
+      setFeedback({ tone: "error", message: err.message });
+    }
   });
 
   const handleSchedule = (e) => {
@@ -37,24 +67,30 @@ export default function ScheduleScreen() {
       return;
     }
     
-    const point = points.find(p => String(p.id) === form.pontoId);
-    const slot = TIME_SLOTS.find(s => s.id === form.turnoId);
-    
-    setScheduledItems(prev => [
-      {
-        id: Date.now(),
-        pointName: point?.nome || "Ponto desconhecido",
-        date: form.data,
-        slotName: slot?.label || "Desconhecido",
-        slotTime: slot?.time || ""
-      },
-      ...prev
-    ]);
-    
-    setIsModalOpen(false);
-    setForm({ pontoId: "", data: new Date().toISOString().split("T")[0], turnoId: "" });
-    setFeedback({ tone: "success", message: "Coleta agendada com sucesso!" });
+    scheduleMutation.mutate({
+      ponto_coleta_id: parseInt(form.pontoId),
+      data: form.data,
+      turno_id: form.turnoId
+    });
   };
+
+  const handleCancel = (id) => {
+    if (window.confirm("Deseja cancelar esta coleta agendada?")) {
+      deleteMutation.mutate(id);
+    }
+  };
+
+  const scheduledItems = agendas.map(agenda => {
+    const point = points.find(p => p.id === agenda.ponto_coleta_id);
+    const slot = TIME_SLOTS.find(s => s.id === agenda.turno_id);
+    return {
+      id: agenda.id,
+      pointName: point?.nome || "Ponto desconhecido",
+      date: agenda.data,
+      slotName: slot?.label || "Desconhecido",
+      slotTime: slot?.time || ""
+    };
+  });
 
   return (
     <RoleShell variant="operacional" shellClassName="bg-[var(--color-surface)]">
@@ -111,8 +147,13 @@ export default function ScheduleScreen() {
                         <MapPin className="mt-0.5 h-4 w-4 text-slate-400 shrink-0" />
                         <span className="text-sm font-medium text-slate-600 line-clamp-2">{item.pointName}</span>
                       </div>
-                      <div className="mt-2 flex items-center gap-1 text-xs font-bold text-green-600">
-                        <CheckCircle2 className="h-3 w-3" /> Confirmado
+                      <div className="mt-2 flex items-center justify-between text-xs font-bold text-green-600">
+                        <span className="flex items-center gap-1">
+                          <CheckCircle2 className="h-3 w-3" /> Confirmado
+                        </span>
+                        <button type="button" onClick={() => handleCancel(item.id)} className="text-red-500 hover:bg-red-50 p-1.5 rounded-lg flex items-center gap-1 transition">
+                          <Trash2 className="h-3 w-3" /> Cancelar
+                        </button>
                       </div>
                     </div>
                   ))}
@@ -121,7 +162,7 @@ export default function ScheduleScreen() {
             </SectionCard>
 
             <TimeSlots />
-            {isLoading ? (
+            {isLoadingPoints ? (
               <div className="p-4 text-center">Carregando pontos...</div>
             ) : (
               <CollectionPoints points={points} />

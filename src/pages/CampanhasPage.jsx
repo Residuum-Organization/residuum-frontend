@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   CalendarDays,
   ChevronRight,
@@ -21,17 +21,52 @@ import ErrorState from "../components/ui/ErrorState";
 import InlineAlert from "../components/ui/InlineAlert";
 import PageHeader from "../components/ui/PageHeader";
 import SectionCard from "../components/ui/SectionCard";
-import { listCampanhas } from "../services/admin";
+import { listCampanhas, updateCampanha, deleteCampanha } from "../services/admin";
 import { getApiErrorMessage } from "../services/http/getApiErrorMessage";
 
 export default function CampanhasPage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [feedback, setFeedback] = React.useState(null);
   
   const { data: todasCampanhas = [], isLoading, isError, error } = useQuery({
     queryKey: ["campanhas"],
     queryFn: listCampanhas,
   });
+
+  const encerramentoMutation = useMutation({
+    mutationFn: (id) => updateCampanha(id, { status: "encerrada" }),
+    onSuccess: () => {
+      setFeedback({ tone: "success", message: "Campanha encerrada com sucesso." });
+      queryClient.invalidateQueries(["campanhas"]);
+    },
+    onError: (err) => {
+      setFeedback({ tone: "error", message: err.message });
+    }
+  });
+
+  const delecaoMutation = useMutation({
+    mutationFn: (id) => deleteCampanha(id),
+    onSuccess: () => {
+      setFeedback({ tone: "success", message: "Campanha deletada com sucesso." });
+      queryClient.invalidateQueries(["campanhas"]);
+    },
+    onError: (err) => {
+      setFeedback({ tone: "error", message: err.message });
+    }
+  });
+
+  const handleEncerramento = (id) => {
+    if (window.confirm("Deseja realmente encerrar esta campanha?")) {
+      encerramentoMutation.mutate(id);
+    }
+  };
+
+  const handleDelecao = (id) => {
+    if (window.confirm("Deseja deletar permanentemente esta campanha?")) {
+      delecaoMutation.mutate(id);
+    }
+  };
 
   const campanhasAtivas = todasCampanhas.filter(
     (campanha) => campanha.status === "ativa"
@@ -86,9 +121,9 @@ export default function CampanhasPage() {
                   key={campanha.id}
                   campanha={campanha}
                   onClick={() => navigate(`/campanhas/${campanha.id}`)}
-                  onEdit={(id) => setFeedback({ tone: "warning", message: `Ação de Editar será implementada quando a rota existir no Backend.` })}
-                  onClose={(id) => setFeedback({ tone: "warning", message: `Ação de Encerrar será implementada quando a rota existir no Backend.` })}
-                  onDelete={(id) => setFeedback({ tone: "error", message: `Ação de Deletar será implementada quando a rota existir no Backend.` })}
+                  onEdit={(id) => setFeedback({ tone: "warning", message: `Edição em desenvolvimento.` })}
+                  onClose={handleEncerramento}
+                  onDelete={handleDelecao}
                 />
               ))}
             </div>
@@ -102,7 +137,7 @@ export default function CampanhasPage() {
           )}
         </SectionCard>
 
-        <CampanhasEncerradas />
+        <CampanhasEncerradas campanhas={todasCampanhas.filter((c) => c.status === "encerrada")} />
       </div>
     </AdminShell>
   );
@@ -216,19 +251,34 @@ function InfoLinha({ icon: Icon, texto }) {
   );
 }
 
-function CampanhasEncerradas() {
+function CampanhasEncerradas({ campanhas = [] }) {
   return (
     <SectionCard
       title="Campanhas encerradas"
       description="Histórico de ações finalizadas."
       className="h-full"
     >
-      <EmptyState
-        icon={Gift}
-        title="Nenhuma campanha encerrada"
-        description="Campanhas finalizadas aparecerao aqui quando existirem dados."
-        className="py-6"
-      />
+      {campanhas.length > 0 ? (
+        <div className="grid gap-4 lg:grid-cols-2">
+          {campanhas.map((campanha) => (
+            <CardCampanha
+              key={campanha.id}
+              campanha={campanha}
+              onClick={() => {}}
+              onEdit={() => {}}
+              onClose={() => {}}
+              onDelete={() => {}}
+            />
+          ))}
+        </div>
+      ) : (
+        <EmptyState
+          icon={Gift}
+          title="Nenhuma campanha encerrada"
+          description="Campanhas finalizadas aparecerao aqui quando existirem dados."
+          className="py-6"
+        />
+      )}
     </SectionCard>
   );
 }
