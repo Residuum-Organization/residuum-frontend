@@ -155,11 +155,6 @@ export default function Aprovação() {
           }
         />
 
-        <InlineAlert
-          variant="info"
-          title="Fluxo compartilhado"
-          description="Esta area mantem o fluxo existente: cooperativa valida operacoes de descarte e admin acompanha sem alterar endpoint, payload ou regra de aprovação."
-        />
 
         {feedback ? (
           <InlineAlert

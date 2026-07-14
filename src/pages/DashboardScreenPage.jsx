@@ -135,11 +135,6 @@ export default function DashboardScreen() {
               ))}
             </section>
 
-            <InlineAlert
-              variant="info"
-              title="Séries históricas indisponíveis"
-              description="A distribuição por material e volume histórico necessitam de um endpoint dedicado na API para serem exibidos."
-            />
           </>
         ) : null}
       </div>

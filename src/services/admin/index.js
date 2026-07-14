@@ -131,3 +131,12 @@ export const listCampanhas = async () => {
     throw new Error(getApiErrorMessage(error, "Erro ao buscar campanhas"));
   }
 };
+
+export const createCampanha = async (payload) => {
+  try {
+    const res = await api.post("/campanhas", payload);
+    return res.data;
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, "Erro ao criar campanha"));
+  }
+};

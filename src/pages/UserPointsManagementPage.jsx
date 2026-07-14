@@ -77,9 +77,6 @@ export default function UserPointsManagementPage() {
           }
         />
 
-        <InlineAlert variant="info" title="Leitura operacional">
-          Esta tela consolida os descartes pendentes por usuário com base no backend atual. A pontuação final só entra após a confirmação na etapa de aprovação.
-        </InlineAlert>
 
         <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           <MetricCard label="Usuários aguardando" value={String(totalUsuarios)} icon={Users} />

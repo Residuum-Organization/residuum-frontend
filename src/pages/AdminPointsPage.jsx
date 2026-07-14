@@ -89,12 +89,6 @@ export default function AdminPoints() {
         }
       />
 
-      <InlineAlert
-        className="mt-5"
-        variant="info"
-        title="Dados integrados via API"
-        description="Esta tela reflete o inventário real e os pontos de coleta cadastrados."
-      />
 
       <section className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <MetricCard label="Media de preenchimento" value={`${average}%`} />
@@ -107,7 +101,6 @@ export default function AdminPoints() {
         className="mt-6"
         title="Lista de pontos"
         description="Status, ocupacao e endereco em cards fluidos para mobile e desktop."
-        action={<Badge variant="warning">Demo</Badge>}
       >
         <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-center gap-2 text-sm font-bold text-[var(--color-text-muted)]">
