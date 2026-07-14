@@ -61,3 +61,25 @@ export const buyTicket = async (sorteioId) => {
     );
   }
 };
+
+export const createRaffle = async (payload) => {
+  try {
+    const res = await api.post("/sorteios", payload);
+    return res.data;
+  } catch (error) {
+    throw new Error(
+      getApiErrorMessage(error, "N�o foi poss�vel criar o sorteio.")
+    );
+  }
+};
+
+export const createVoucher = async (payload) => {
+  try {
+    const res = await api.post("/vouchers", payload);
+    return res.data;
+  } catch (error) {
+    throw new Error(
+      getApiErrorMessage(error, "N�o foi poss�vel criar o voucher.")
+    );
+  }
+};

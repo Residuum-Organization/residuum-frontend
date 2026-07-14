@@ -32,12 +32,15 @@ function SorteioCard({ sorteio }) {
               <span className="rounded-full bg-slate-100 px-2 py-1 text-[10px] font-black text-slate-500">ENCERRADO</span>
             ) : null}
           </div>
-          <p className="mt-1 text-sm font-semibold text-[var(--color-text-muted)]">Residuum</p>
+          <p className="mt-1 text-sm font-semibold text-[var(--color-text-muted)]">{sorteio.patrocinador ? `Oferecido por ${sorteio.patrocinador}` : 'Sorteio Exclusivo Residuum'}</p>
 
           <div className="mt-3 grid gap-2 text-xs font-semibold text-[var(--color-text-muted)] sm:grid-cols-2">
             <span className="flex items-center gap-1.5"><Gift size={14} /> {sorteio.custo_pontos} pts</span>
             <span className="flex items-center gap-1.5"><Users size={14} /> 0</span>
-            <span className="flex items-center gap-1.5 sm:col-span-2"><CalendarDays size={14} /> {sorteio.data_fim ? `até ${new Date(sorteio.data_fim).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }).replace(',', ' às')}` : 'Sem data limite'}</span>
+            <span className="flex items-center gap-1.5 sm:col-span-2">
+              <CalendarDays size={14} /> 
+              {sorteio.data_inicio ? `${new Date(sorteio.data_inicio).toLocaleDateString('pt-BR')} até ` : ''}{sorteio.data_fim ? new Date(sorteio.data_fim).toLocaleDateString('pt-BR') : 'Sem data limite'}
+            </span>
             <span className="flex items-center gap-1.5 font-bold text-[var(--color-primary)] sm:col-span-2">
               <Ticket size={14} /> 0 participação(ões)
             </span>
@@ -52,14 +55,14 @@ function SorteioCard({ sorteio }) {
         >
           Ver detalhes
         </Link>
-        <button
-          type="button"
-          disabled
-          title={encerrado ? 'Sorteio encerrado.' : 'Participação em sorteios ainda não disponível.'}
-          className="flex-1 rounded-full bg-slate-300 px-4 py-3 text-sm font-bold text-white"
+        <Link
+          to={`/sorteios/${sorteio.id}`}
+          className={`flex-1 rounded-full px-4 py-3 text-center text-sm font-bold text-white transition-colors ${
+            encerrado ? 'bg-slate-400 hover:bg-slate-500' : 'bg-[#1F4E79] hover:bg-[#1a3a4a]'
+          }`}
         >
-          {encerrado ? 'Encerrado' : 'Em breve'}
-        </button>
+          {encerrado ? 'Sorteio Encerrado' : 'Participar'}
+        </Link>
       </div>
     </article>
   )
@@ -74,8 +77,14 @@ function VoucherCard({ voucher, onRedeem, disabled }) {
         </div>
         <div>
           <h3 className="text-sm font-extrabold text-[var(--color-primary)]">{voucher.titulo}</h3>
+          {voucher.parceiro && (
+            <p className="text-[10px] font-bold uppercase tracking-wider text-[#0B6B53] mt-0.5">
+              Por {voucher.parceiro}
+            </p>
+          )}
           <p className="mt-1 text-xs font-semibold text-[var(--color-text-muted)]">
-            {voucher.data_fim ? `Válido até: ${new Date(voucher.data_fim).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }).replace(',', ' às')}` : 'Sem validade estipulada'}
+            {voucher.data_inicio ? `${new Date(voucher.data_inicio).toLocaleDateString('pt-BR')} até ` : 'Válido até: '}
+            {voucher.data_fim ? new Date(voucher.data_fim).toLocaleDateString('pt-BR') : 'Sem validade estipulada'}
           </p>
         </div>
       </div>
@@ -94,7 +103,7 @@ function VoucherCard({ voucher, onRedeem, disabled }) {
 export default function SorteiosPage() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
-  const [feedback, setFeedback] = React.useState('')
+  const [feedback, setFeedback] = React.useState(null)
 
   const {
     data: raffles = [],
@@ -119,12 +128,14 @@ export default function SorteiosPage() {
   const redeemMutation = useMutation({
     mutationFn: redeemVoucher,
     onSuccess: () => {
-      setFeedback('Resgate solicitado com sucesso.')
+      setFeedback({ type: 'success', text: 'Resgate solicitado com sucesso.' })
       queryClient.invalidateQueries({ queryKey: queryKeys.pointsStatement })
       queryClient.invalidateQueries({ queryKey: queryKeys.vouchers })
     },
     onError: (error) => {
-      setFeedback(getApiErrorMessage(error, 'Não foi possível resgatar este voucher.'))
+      let errorMsg = getApiErrorMessage(error, 'Não foi possível resgatar este voucher.');
+      errorMsg = errorMsg.replace('Pontuacao', 'Pontuação');
+      setFeedback({ type: 'error', text: errorMsg });
     },
   })
 
@@ -149,7 +160,11 @@ export default function SorteiosPage() {
           }
         />
 
-        {feedback ? <InlineAlert variant="success">{feedback}</InlineAlert> : null}
+        {feedback ? (
+          <InlineAlert variant={feedback.type} title={feedback.type === 'error' ? 'Atenção' : 'Sucesso!'}>
+            {feedback.text}
+          </InlineAlert>
+        ) : null}
 
           <SectionCard title="Sorteios ativos" description="Confira regras, pontos necessários e andamento de cada campanha.">
           {rafflesLoading ? <LoadingState title="Carregando sorteios..." /> : null}
@@ -186,7 +201,10 @@ export default function SorteiosPage() {
                     key={voucher.id}
                     voucher={voucher}
                     disabled={redeemMutation.isPending}
-                    onRedeem={() => redeemMutation.mutate(voucher)}
+                    onRedeem={() => {
+                      setFeedback(null);
+                      redeemMutation.mutate(voucher);
+                    }}
                   />
                 ))}
               </div>

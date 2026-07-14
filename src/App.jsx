@@ -37,6 +37,7 @@ import CampanhaDetalhesPage from "./pages/CampanhaDetalhesPage";
 import Certificadodecoleta from "./pages/Certificadodecoleta";
 import LogoutPage from "./pages/LogoutPage";
 import LandingPage from "./pages/LandingPage";
+import AdminSorteiosPage from "./pages/AdminSorteiosPage";
 
 const moradorRoutes = [
   {
@@ -146,6 +147,7 @@ const aprovacaoRoute = {
 
 const adminRoutes = [
   { path: "/admin", label: "Painel admin", Component: AdminPage },
+  { path: "/admin-sorteios", label: "Sorteios", Component: AdminSorteiosPage },
   {
     path: "/campanhas",
     label: "Campanhas",
