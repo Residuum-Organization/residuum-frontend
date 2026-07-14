@@ -18,8 +18,6 @@ const tabs = [
   { id: 'premios', label: 'Prêmios' },
 ]
 
-const isFallbackOrMockData = (data) => ['fallback', 'mock'].includes(data?.__dataOrigin)
-
 function TabButton({ active, children, onClick }) {
   return (
     <button
@@ -110,8 +108,6 @@ export default function SorteioDetalhesPage() {
 
   if (!sorteio) return <Navigate to="/sorteios" replace />
 
-  const showingFallbackData = isFallbackOrMockData(sorteio)
-
   return (
     <RoleShell variant="morador" shellClassName="bg-[var(--color-surface)]" contentClassName="px-4 py-4 pb-28 sm:px-6 sm:py-6 lg:px-8 lg:pb-28">
       <div className="space-y-5">
@@ -126,10 +122,6 @@ export default function SorteioDetalhesPage() {
             {sorteio.status === 'ativo' ? 'ATIVO' : 'ENCERRADO'}
           </span>
         </div>
-
-        {showingFallbackData ? (
-          <InlineAlert variant="warning">Este sorteio está sendo exibido com dados demonstrativos.</InlineAlert>
-        ) : null}
 
         <section className="overflow-hidden rounded-2xl text-white shadow-lg" style={{ backgroundColor: sorteio.cor }}>
           <div className="p-5 sm:p-6">

@@ -15,8 +15,6 @@ import { listActiveRaffles, listVouchers, redeemVoucher } from '../services/rewa
 import { queryKeys } from '../services/queryKeys'
 import { getApiErrorMessage } from '../services/http/getApiErrorMessage'
 
-const isFallbackOrMockData = (data) => ['fallback', 'mock'].includes(data?.__dataOrigin)
-
 function SorteioCard({ sorteio }) {
   const encerrado = sorteio.status === 'encerrado'
 
@@ -130,7 +128,6 @@ export default function SorteiosPage() {
     },
   })
 
-  const showingFallbackData = isFallbackOrMockData(raffles) || isFallbackOrMockData(rewardVouchers)
   const activeRafflesCount = raffles.filter((item) => item.status === 'ativo').length
 
   return (
@@ -153,11 +150,6 @@ export default function SorteiosPage() {
         />
 
         {feedback ? <InlineAlert variant="success">{feedback}</InlineAlert> : null}
-        {showingFallbackData ? (
-          <InlineAlert variant="warning" title="Dados demonstrativos">
-            Não foi possível carregar sorteios reais do servidor. Parte deste conteúdo está usando fallback local.
-          </InlineAlert>
-        ) : null}
 
           <SectionCard title="Sorteios ativos" description="Confira regras, pontos necessários e andamento de cada campanha.">
           {rafflesLoading ? <LoadingState title="Carregando sorteios..." /> : null}
