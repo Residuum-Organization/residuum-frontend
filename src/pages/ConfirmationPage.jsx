@@ -77,9 +77,9 @@ export default function Confirmation() {
   const [residuosSelecionados, setResiduosSelecionados] = useState([]);
   const [details, setDetails] = useState({
     quantidade: draft.quantidade || "",
-    diasSemana: draft.diasSemana || [],
-    horaAbertura: draft.horaAbertura || "",
-    horaFechamento: draft.horaFechamento || "",
+    diasSemana: draft.diasSemana || ["Seg", "Ter", "Qua", "Qui", "Sex"],
+    horaAbertura: draft.horaAbertura || "08:00",
+    horaFechamento: draft.horaFechamento || "17:00",
     observacoes: draft.observacoes || "",
   });
   const [feedback, setFeedback] = useState("");

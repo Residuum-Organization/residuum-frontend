@@ -37,12 +37,6 @@ export default function SystemStatus() {
         })}
       </div>
 
-      <InlineAlert variant="info" className="mt-4">
-        <span className="inline-flex items-center gap-2">
-          <ShieldCheck size={18} className="shrink-0" aria-hidden="true" />
-          Status ilustrativo. Não use esta seção como confirmação de disponibilidade real da API.
-        </span>
-      </InlineAlert>
     </SectionCard>
   );
 }

@@ -8,11 +8,6 @@ export default function TimeSlots() {
     <SectionCard
       title="Horários de coleta"
       description="Janelas operacionais exibidas para planejamento."
-      action={
-        <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-700">
-          Demo
-        </span>
-      }
     >
       <div className="divide-y divide-slate-100">
         {TIME_SLOTS.map((slot) => (
