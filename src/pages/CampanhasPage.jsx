@@ -18,6 +18,7 @@ import Button from "../components/ui/Button";
 import EmptyState from "../components/ui/EmptyState";
 import LoadingState from "../components/ui/LoadingState";
 import ErrorState from "../components/ui/ErrorState";
+import InlineAlert from "../components/ui/InlineAlert";
 import PageHeader from "../components/ui/PageHeader";
 import SectionCard from "../components/ui/SectionCard";
 import { listCampanhas } from "../services/admin";
@@ -25,6 +26,7 @@ import { getApiErrorMessage } from "../services/http/getApiErrorMessage";
 
 export default function CampanhasPage() {
   const navigate = useNavigate();
+  const [feedback, setFeedback] = React.useState(null);
   
   const { data: todasCampanhas = [], isLoading, isError, error } = useQuery({
     queryKey: ["campanhas"],
@@ -49,6 +51,10 @@ export default function CampanhasPage() {
             </div>
           }
         />
+
+        {feedback && (
+          <InlineAlert variant={feedback.tone}>{feedback.message}</InlineAlert>
+        )}
 
         <ResumoCampanhas
           total={todasCampanhas.length}
@@ -80,9 +86,9 @@ export default function CampanhasPage() {
                   key={campanha.id}
                   campanha={campanha}
                   onClick={() => navigate(`/campanhas/${campanha.id}`)}
-                  onEdit={(id) => alert(`Ação de Editar para a campanha ${id} será implementada quando a rota existir no Backend.`)}
-                  onClose={(id) => alert(`Ação de Encerrar para a campanha ${id} será implementada quando a rota existir no Backend.`)}
-                  onDelete={(id) => alert(`Ação de Deletar para a campanha ${id} será implementada quando a rota existir no Backend.`)}
+                  onEdit={(id) => setFeedback({ tone: "warning", message: `Ação de Editar será implementada quando a rota existir no Backend.` })}
+                  onClose={(id) => setFeedback({ tone: "warning", message: `Ação de Encerrar será implementada quando a rota existir no Backend.` })}
+                  onDelete={(id) => setFeedback({ tone: "error", message: `Ação de Deletar será implementada quando a rota existir no Backend.` })}
                 />
               ))}
             </div>

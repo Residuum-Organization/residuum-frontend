@@ -1,9 +1,14 @@
 import React, { useEffect, useState } from 'react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { ArrowLeft, Loader2, MapPin, QrCode, Send, CircleDot, BookText, FlaskConical, Wine } from 'lucide-react'
+import {
+  ArrowLeft, Loader2, MapPin, QrCode, Send,
+  CircleDot, BookText, FlaskConical, Wine,
+  CheckSquare, Square, Recycle,
+} from 'lucide-react'
 import RoleShell from '../components/layout/RoleShell'
 import PageHeader from '../components/ui/PageHeader'
+import SectionCard from '../components/ui/SectionCard'
 import InlineAlert from '../components/ui/InlineAlert'
 import LoadingState from '../components/ui/LoadingState'
 import ErrorState from '../components/ui/ErrorState'
@@ -44,20 +49,10 @@ const getCurrentPosition = () =>
       reject(new Error('Geolocalização não suportada neste dispositivo.'))
       return
     }
-
     navigator.geolocation.getCurrentPosition(
-      (position) => {
-        resolve({
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        })
-      },
+      (position) => resolve({ lat: position.coords.latitude, lng: position.coords.longitude }),
       () => reject(new Error('Não foi possível obter sua localização atual.')),
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0,
-      }
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     )
   })
 
@@ -78,23 +73,28 @@ const getTransferErrorMessage = (error) => {
   if (error?.isAxiosError && !error.response) {
     return 'Servidor indisponível. Verifique se o backend está ligado e tente novamente.'
   }
-
   return getApiErrorMessage(error, 'Token QR Code inválido ou não foi possível enviar o item para o ponto.')
 }
 
+/* ─────────────────────────────────────────────────────── */
+/* Main Component                                         */
+/* ─────────────────────────────────────────────────────── */
+
 export default function ValidacaoPresencaPage() {
   const [searchParams] = useSearchParams()
-  const [selectedItemId, setSelectedItemId] = useState(searchParams.get('itemId') || '')
+  const [selectedItems, setSelectedItems] = useState({})
   const [selectedPointId, setSelectedPointId] = useState('')
-  const [quantidade, setQuantidade] = useState('1')
   const [observacao, setObservacao] = useState('')
   const [qrToken, setQrToken] = useState(() => getQrTokenFromSearchParams(searchParams))
   const [coords, setCoords] = useState(null)
   const [locationError, setLocationError] = useState('')
   const [feedback, setFeedback] = useState(null)
   const [isLocating, setIsLocating] = useState(false)
+  const [isTransferring, setIsTransferring] = useState(false)
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+
+  /* ── Queries ── */
 
   const {
     data: inventory = [],
@@ -104,84 +104,130 @@ export default function ValidacaoPresencaPage() {
   } = useQuery({
     queryKey: queryKeys.inventory,
     queryFn: () => listInventory(),
-    select: (items) =>
-      items.filter(
+    select: (items) => {
+      const filtered = items.filter(
         (item) =>
-          item.status !== 'cancelado' && Number(item.quantidade_disponivel ?? item.quantidade ?? 0) > 0
-      ),
+          item.status !== 'cancelado' &&
+          Number(item.quantidade_disponivel ?? item.quantidade ?? 0) > 0
+      )
+      const urlItemId = searchParams.get('itemId')
+      if (urlItemId) {
+        const idx = filtered.findIndex((i) => String(i.id) === urlItemId)
+        if (idx > 0) {
+          const [item] = filtered.splice(idx, 1)
+          filtered.unshift(item)
+        }
+      }
+      return filtered
+    },
   })
 
-  useEffect(() => {
-    if (!inventory.length) return
-    const hasSelectedItem = inventory.some((item) => String(item.id) === String(selectedItemId))
-    if (!hasSelectedItem) setSelectedItemId(String(inventory[0].id))
-  }, [inventory, selectedItemId])
-
-  const selectedItem = inventory.find((item) => String(item.id) === String(selectedItemId))
-
-  useEffect(() => {
-    if (!selectedItem) return
-    const availableQuantity = Number(selectedItem.quantidade_disponivel ?? selectedItem.quantidade ?? 1)
-    setQuantidade(String(availableQuantity))
-  }, [selectedItemId, selectedItem])
-
   const pointFilters = {}
-  if (selectedItem?.tipo_residuo) pointFilters.tipo_residuo = selectedItem.tipo_residuo
   if (coords) {
     pointFilters.lat = coords.lat
     pointFilters.long = coords.lng
   }
 
   const {
-    data: points = [],
+    data: allPoints = [],
     isLoading: pointsLoading,
     isError: pointsError,
     error: pointsQueryError,
   } = useQuery({
     queryKey: queryKeys.collectionPoints(pointFilters),
     queryFn: () => listCollectionPoints(pointFilters),
-    enabled: Boolean(selectedItem),
   })
 
+  /* ── Derived state ── */
+
+  const selectedTypes = Object.keys(selectedItems)
+    .map((id) => {
+      const item = inventory.find((i) => String(i.id) === id)
+      return item ? String(item.tipo_residuo || '').toLowerCase() : ''
+    })
+    .filter(Boolean)
+
+  const compatiblePoints = allPoints.filter((p) => {
+    const accepted = (p.tipos_residuos_aceitos || []).map((t) => t.toLowerCase())
+    return selectedTypes.every((t) => accepted.includes(t))
+  })
+
+  const totalPoints = Object.keys(selectedItems).reduce(
+    (sum, id) => sum + Math.round(Number(selectedItems[id]) * POINTS_PER_KG),
+    0
+  )
+
+  const selectedCount = Object.keys(selectedItems).length
+
+  /* ── Effects ── */
+
   useEffect(() => {
-    if (!points.length) {
+    if (inventory.length > 0 && Object.keys(selectedItems).length === 0) {
+      const urlItemId = searchParams.get('itemId')
+      if (urlItemId) {
+        const item = inventory.find((i) => String(i.id) === urlItemId)
+        if (item) {
+          setSelectedItems({ [item.id]: Number(item.quantidade_disponivel ?? item.quantidade ?? 1) })
+        }
+      } else {
+        const item = inventory[0]
+        setSelectedItems({ [item.id]: Number(item.quantidade_disponivel ?? item.quantidade ?? 1) })
+      }
+    }
+  }, [inventory, searchParams])
+
+  useEffect(() => {
+    if (!compatiblePoints.length) {
       setSelectedPointId('')
       return
     }
-
-    const hasSelectedPoint = points.some((point) => String(point.id) === String(selectedPointId))
-    if (!hasSelectedPoint) setSelectedPointId(String(points[0].id))
-  }, [points, selectedPointId])
-
-  const selectedPoint = points.find((point) => String(point.id) === String(selectedPointId))
-
-  const transferMutation = useMutation({
-    mutationFn: ({ itemId, payload }) => transferInventoryItem(itemId, payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.inventory })
-      queryClient.invalidateQueries({ queryKey: queryKeys.discardHistory })
-      navigate('/extrato')
-    },
-    onError: (error) => {
-      setFeedback({ tone: 'error', message: getTransferErrorMessage(error) })
-    },
-  })
+    const hasSelectedPoint = compatiblePoints.some((p) => String(p.id) === String(selectedPointId))
+    if (!hasSelectedPoint) setSelectedPointId(String(compatiblePoints[0].id))
+  }, [compatiblePoints, selectedPointId])
 
   useEffect(() => {
     const tokenFromUrl = getQrTokenFromSearchParams(searchParams)
     if (tokenFromUrl) setQrToken(tokenFromUrl)
   }, [searchParams])
 
+  /* ── Handlers ── */
+
+  const toggleItem = (item) => {
+    setSelectedItems((prev) => {
+      const next = { ...prev }
+      if (next[item.id]) {
+        delete next[item.id]
+      } else {
+        next[item.id] = Number(item.quantidade_disponivel ?? item.quantidade ?? 1)
+      }
+      return next
+    })
+  }
+
+  const updateQuantity = (itemId, newQuantity, maxVal) => {
+    setSelectedItems((prev) => {
+      if (prev[itemId] === undefined) return prev
+      return { ...prev, [itemId]: Math.max(0.1, Math.min(Number(newQuantity), maxVal)) }
+    })
+  }
+
+  const handleInputChange = (itemId, rawValue, maxVal) => {
+    setSelectedItems((prev) => {
+      if (prev[itemId] === undefined) return prev
+      const numValue = Number(rawValue)
+      return { ...prev, [itemId]: numValue > maxVal ? maxVal : rawValue }
+    })
+  }
+
   const requestLocation = async () => {
     setLocationError('')
     setIsLocating(true)
-
     try {
       const nextCoords = await getCurrentPosition()
       setCoords(nextCoords)
       return nextCoords
     } catch (error) {
-      const message = getApiErrorMessage(error, 'Nao foi possivel validar sua localizacao.')
+      const message = getApiErrorMessage(error, 'Não foi possível validar sua localização.')
       setLocationError(message)
       throw error
     } finally {
@@ -191,39 +237,33 @@ export default function ValidacaoPresencaPage() {
 
   const handleTransfer = async () => {
     setFeedback(null)
+    const itemIds = Object.keys(selectedItems)
 
-    if (!selectedItem) {
-      setFeedback({ tone: 'error', message: 'Selecione um item do estoque para transferir.' })
+    if (itemIds.length === 0) {
+      setFeedback({ tone: 'error', message: 'Selecione pelo menos um item do estoque para transferir.' })
       return
     }
-
     if (!selectedPointId) {
       setFeedback({ tone: 'error', message: 'Selecione um ponto de coleta.' })
       return
     }
-
     if (hasQrTokenQueryParam(searchParams) && !qrToken.trim()) {
-      setFeedback({
-        tone: 'error',
-        message: 'Token QR Code ausente ou vazio. Escaneie novamente ou informe o código manualmente.',
-      })
+      setFeedback({ tone: 'error', message: 'Token QR Code ausente ou vazio. Escaneie novamente ou informe o código manualmente.' })
       return
     }
 
-    const quantityNumber = Number(quantidade)
-    const availableQuantity = Number(selectedItem.quantidade_disponivel ?? selectedItem.quantidade ?? 0)
-
-    if (!quantityNumber || quantityNumber <= 0) {
-      setFeedback({ tone: 'error', message: 'Informe uma quantidade válida para a transferência.' })
-      return
-    }
-
-    if (quantityNumber > availableQuantity) {
-      setFeedback({
-        tone: 'error',
-          message: `A quantidade disponível para este item é ${formatQuantity(availableQuantity)} kg.`,
-      })
-      return
+    for (const itemId of itemIds) {
+      const item = inventory.find((i) => String(i.id) === itemId)
+      const quantityNumber = Number(selectedItems[itemId])
+      const availableQuantity = Number(item?.quantidade_disponivel ?? item?.quantidade ?? 0)
+      if (!quantityNumber || quantityNumber <= 0) {
+        setFeedback({ tone: 'error', message: `Informe uma quantidade válida para ${formatResidueType(item?.tipo_residuo)}.` })
+        return
+      }
+      if (quantityNumber > availableQuantity) {
+        setFeedback({ tone: 'error', message: `A quantidade de ${formatResidueType(item?.tipo_residuo)} excede o limite disponível de ${formatQuantity(availableQuantity)} kg.` })
+        return
+      }
     }
 
     let currentCoords = coords
@@ -235,23 +275,36 @@ export default function ValidacaoPresencaPage() {
       }
     }
 
-    transferMutation.mutate({
-      itemId: selectedItem.id,
-      payload: {
-        quantidade: quantityNumber,
-        ponto_coleta_id: Number(selectedPointId),
-        usuario_lat: currentCoords?.lat ?? 0,
-        usuario_long: currentCoords?.lng ?? 0,
-        observacao: observacao || undefined,
-        qrcode_token: qrToken.trim() || undefined,
-      },
-    })
+    setIsTransferring(true)
+    try {
+      await Promise.all(
+        itemIds.map((itemId) =>
+          transferInventoryItem(itemId, {
+            quantidade: Number(selectedItems[itemId]),
+            ponto_coleta_id: Number(selectedPointId),
+            usuario_lat: currentCoords?.lat ?? 0,
+            usuario_long: currentCoords?.lng ?? 0,
+            observacao: observacao || undefined,
+            qrcode_token: qrToken.trim() || undefined,
+          })
+        )
+      )
+      queryClient.invalidateQueries({ queryKey: queryKeys.inventory })
+      queryClient.invalidateQueries({ queryKey: queryKeys.discardHistory })
+      navigate('/extrato')
+    } catch (error) {
+      setFeedback({ tone: 'error', message: getTransferErrorMessage(error) })
+    } finally {
+      setIsTransferring(false)
+    }
   }
+
+  /* ── Early returns ── */
 
   if (inventoryLoading) {
     return (
       <RoleShell variant="morador" shellClassName="bg-[var(--color-surface)]" contentClassName="px-4 py-4 pb-28 sm:px-6 sm:py-6 lg:px-8 lg:pb-28">
-        <LoadingState title="Carregando itens para transferencia..." className="mx-auto mt-10 max-w-md" />
+        <LoadingState title="Carregando itens para transferência..." className="mx-auto mt-10 max-w-md" />
       </RoleShell>
     )
   }
@@ -267,248 +320,244 @@ export default function ValidacaoPresencaPage() {
     )
   }
 
-  return (
-    <RoleShell variant="morador" shellClassName="bg-[var(--color-surface)]" contentClassName="px-4 py-4 pb-28 sm:px-6 sm:py-6 lg:px-8 lg:pb-28">
-      <div className="space-y-5">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <PageHeader
-            title="Transferir para o ponto"
-            description="Escolha o resíduo, escolha o ponto, valide sua presença e confirme a transferência."
-          />
-          <Button type="button" variant="secondary" onClick={() => navigate('/meu-estoque')} className="w-full sm:w-auto">
-            <ArrowLeft className="mr-2 h-4 w-4" /> Voltar para estoque
-          </Button>
-        </div>
+  /* ── Render ── */
 
-        <InlineAlert variant="info">
-          A entrega só pode ser confirmada com localização ou QR Code. Os pontos entram apenas depois da confirmação da cooperativa.
-        </InlineAlert>
+  return (
+    <RoleShell variant="morador" shellClassName="bg-[var(--color-surface)]" contentClassName="px-4 py-4 pb-36 sm:px-6 sm:py-6 lg:px-8 lg:pb-56">
+      <div className="space-y-6">
+        <PageHeader
+          eyebrow="Validação & Transferência"
+          title="Transferir para o Ponto"
+          description="Valide sua presença, selecione os resíduos e escolha o ponto de coleta."
+          action={
+            <Button type="button" variant="secondary" onClick={() => navigate('/meu-estoque')} className="w-full sm:w-auto">
+              <ArrowLeft className="mr-2 h-4 w-4" /> Voltar para estoque
+            </Button>
+          }
+        />
 
         {feedback ? <InlineAlert variant={feedback.tone}>{feedback.message}</InlineAlert> : null}
 
         {!inventory.length ? (
-            <EmptyState
-              title="Você ainda não tem itens disponíveis."
-              description="Cadastre um resíduo no estoque antes de solicitar uma entrega."
-              actionLabel="Cadastrar resíduo"
-              onAction={() => navigate('/cadastrar-residuo')}
-            />
-          ) : (
-            <div className="grid gap-5 lg:grid-cols-2">
-            <Panel title="1. Resíduo">
-              <label className="mb-2 block text-sm font-bold text-[#1a3a4a]">Selecione um item do estoque</label>
-              <div className="flex flex-col gap-3 max-h-[350px] overflow-y-auto pr-1 custom-scrollbar">
+          <EmptyState
+            title="Você ainda não tem itens disponíveis."
+            description="Cadastre um resíduo no estoque antes de solicitar uma entrega."
+            actionLabel="Cadastrar resíduo"
+            onAction={() => navigate('/cadastrar-residuo')}
+            icon={Recycle}
+          />
+        ) : (
+          <div className="grid gap-6 lg:grid-cols-2">
+            {/* ── Top-Left: Validação ── */}
+            <SectionCard title="1. Validar presença" description="Capture sua localização ou use o QR Code do ponto.">
+              <div className="mt-2 flex flex-col gap-4">
+                <div className="flex items-center gap-3">
+                  <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${coords ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-400'}`}>
+                    <MapPin size={22} />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold text-[#1a3a4a]">{coords ? 'Localização capturada' : 'Localização não detectada'}</p>
+                    <p className="text-xs text-slate-500">{coords ? 'Você pode atualizar a qualquer momento.' : 'Necessária para listar pontos próximos.'}</p>
+                  </div>
+                </div>
+
+                {locationError ? <p className="text-xs font-medium text-red-600">{locationError}</p> : null}
+
+                <button
+                  type="button"
+                  onClick={requestLocation}
+                  disabled={isLocating}
+                  className="w-full rounded-2xl border-2 border-[#1F4E79] bg-white py-3 text-sm font-semibold text-[#1F4E79] transition-colors hover:bg-slate-50 disabled:opacity-60"
+                >
+                  <span className="inline-flex items-center justify-center gap-2">
+                    {isLocating ? <Loader2 size={18} className="animate-spin" /> : <MapPin size={18} />}
+                    {coords ? 'Atualizar localização' : 'Capturar localização'}
+                  </span>
+                </button>
+
+                <div className="my-1 flex items-center gap-3">
+                  <div className="h-px flex-1 bg-slate-200" />
+                  <span className="text-xs font-bold uppercase text-slate-400">ou</span>
+                  <div className="h-px flex-1 bg-slate-200" />
+                </div>
+
+                <label className="block text-sm font-bold text-[#1a3a4a]">Token QR Code</label>
+                <div className="flex flex-col gap-3 sm:flex-row">
+                  <input
+                    type="text"
+                    value={qrToken}
+                    onChange={(e) => setQrToken(e.target.value)}
+                    placeholder="Cole o token do ponto..."
+                    className="min-h-12 flex-1 rounded-2xl border border-[var(--color-border)] bg-white px-4 py-3 text-sm text-[#1a3a4a] outline-none focus:border-[#1F4E79]"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const firstId = Object.keys(selectedItems)[0] || ''
+                      navigate(firstId ? `/escanear-qr?itemId=${firstId}` : '/escanear-qr')
+                    }}
+                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-[#1F4E79] px-5 text-sm font-semibold text-white transition hover:bg-[#173B5C]"
+                  >
+                    <QrCode size={18} />
+                    Escanear
+                  </button>
+                </div>
+              </div>
+            </SectionCard>
+
+            {/* ── Top-Right: Resíduos ── */}
+            <SectionCard
+              title="2. Resíduos a transferir"
+              description="Selecione um ou mais itens do seu estoque."
+              action={
+                <span className="inline-flex min-h-8 items-center rounded-full bg-[#1F4E79] px-3 text-xs font-bold text-white">
+                  {selectedCount} selecionado{selectedCount !== 1 ? 's' : ''}
+                </span>
+              }
+            >
+              <div className="mt-2 flex flex-col gap-3 max-h-[380px] overflow-y-auto pr-1 custom-scrollbar">
                 {inventory.map((item) => {
-                  const isSelected = String(item.id) === String(selectedItemId);
-                  const maxKg = Number(item.quantidade_disponivel ?? item.quantidade ?? 0);
-                  const ItemIcon = getItemIcon(item.tipo_residuo);
+                  const isSelected = selectedItems[item.id] !== undefined
+                  const maxKg = Number(item.quantidade_disponivel ?? item.quantidade ?? 0)
+                  const ItemIcon = getItemIcon(item.tipo_residuo)
+                  const currentQuantity = selectedItems[item.id] ?? maxKg
+
                   return (
-                    <button
+                    <article
                       key={item.id}
-                      type="button"
-                      onClick={() => setSelectedItemId(String(item.id))}
-                      className={`flex w-full items-center gap-4 rounded-2xl border-2 p-4 transition-all text-left outline-none ${
+                      className={`rounded-2xl border-2 p-4 transition-all ${
                         isSelected
                           ? 'border-[#1F4E79] bg-[#f4f7fa] shadow-sm'
-                          : 'border-[#edf1f5] bg-white hover:border-[#c8d2e3] hover:bg-gray-50'
+                          : 'border-[var(--color-border)] bg-white hover:border-slate-300'
                       }`}
                     >
-                      <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl transition-colors ${
-                        isSelected ? 'bg-[#1F4E79] text-white' : 'bg-slate-100 text-[#1F4E79]'
-                      }`}>
-                        <ItemIcon size={24} />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className={`truncate text-base font-bold ${isSelected ? 'text-[#1F4E79]' : 'text-[#1a3a4a]'}`}>
-                          {item.descricao || formatResidueType(item.tipo_residuo)}
-                        </p>
-                        <div className="flex flex-col mt-0.5">
-                          <span className="text-xs font-medium text-gray-500">{formatResidueType(item.tipo_residuo)}</span>
-                          <span className={`text-sm font-bold ${isSelected ? 'text-[#1F4E79]' : 'text-[#1F4E79]'}`}>
-                            {formatQuantity(maxKg)} kg disponíveis
-                          </span>
+                      <div onClick={() => toggleItem(item)} className="flex items-center gap-3 cursor-pointer">
+                        <div className={isSelected ? 'text-[#1F4E79]' : 'text-slate-300'}>
+                          {isSelected ? <CheckSquare size={22} /> : <Square size={22} />}
+                        </div>
+                        <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${isSelected ? 'bg-[#1F4E79] text-white' : 'bg-slate-100 text-[#1F4E79]'}`}>
+                          <ItemIcon size={22} />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className={`truncate text-sm font-bold ${isSelected ? 'text-[#1F4E79]' : 'text-[#1a3a4a]'}`}>
+                            {item.descricao || formatResidueType(item.tipo_residuo)}
+                          </p>
+                          <p className="text-xs text-slate-500">
+                            {formatResidueType(item.tipo_residuo)} · <span className="font-bold text-[#1F4E79]">{formatQuantity(maxKg)} kg</span>
+                          </p>
                         </div>
                       </div>
-                    </button>
+
+                      {isSelected && (
+                        <div className="mt-3 flex items-center justify-between gap-3 border-t border-slate-200 pt-3">
+                          <span className="text-xs font-bold text-[#1F4E79]">Quantidade (kg)</span>
+                          <div className="flex items-center gap-1 rounded-xl border border-[var(--color-border)] bg-white p-1">
+                            <button type="button" onClick={() => updateQuantity(item.id, Number(currentQuantity) - 0.5, maxKg)} className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-lg font-bold text-[#1F4E79] hover:bg-slate-200">−</button>
+                            <input type="number" min="0.1" step="0.1" value={currentQuantity} onChange={(e) => handleInputChange(item.id, e.target.value, maxKg)} className="h-8 w-16 bg-transparent text-center text-sm font-bold text-[#1a3a4a] outline-none" />
+                            <button type="button" onClick={() => updateQuantity(item.id, Number(currentQuantity) + 0.5, maxKg)} className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#1F4E79] text-lg font-bold text-white hover:bg-[#173B5C]">+</button>
+                          </div>
+                        </div>
+                      )}
+                    </article>
                   )
                 })}
               </div>
-            </Panel>
+            </SectionCard>
 
-            <Panel title="2. Validar presença">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-base font-bold text-[#1a3a4a]">Sua localização</p>
-                  {coords ? (
-                    <p className="mt-1 flex items-center gap-1.5 text-sm font-semibold text-emerald-600">
-                      <MapPin size={16} />
-                      Localização capturada com sucesso
-                    </p>
-                  ) : (
-                    <p className="mt-1 text-sm text-gray-500">
-                      Use sua localização atual ou informe o QR Code do ponto.
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              {locationError ? <p className="mt-3 text-xs font-medium text-red-600">{locationError}</p> : null}
-
-              <button
-                type="button"
-                onClick={requestLocation}
-                disabled={isLocating}
-                className="mt-4 w-full rounded-2xl border-2 border-[#1F4E79] bg-white py-3 text-sm font-semibold text-[#1F4E79] disabled:opacity-60"
-              >
-                <span className="inline-flex items-center gap-2">
-                  {isLocating ? <Loader2 size={18} className="animate-spin" /> : <MapPin size={18} />}
-                  {coords ? 'Atualizar localização' : 'Capturar localização'}
+            {/* ── Bottom-Left: Pontos de Coleta ── */}
+            <SectionCard
+              title="3. Ponto de coleta"
+              description="Pontos que aceitam todos os resíduos selecionados."
+              action={compatiblePoints.length > 0 ? (
+                <span className="inline-flex min-h-8 items-center rounded-full bg-emerald-100 px-3 text-xs font-bold text-emerald-700">
+                  {compatiblePoints.length} compatível{compatiblePoints.length !== 1 ? 'is' : ''}
                 </span>
-              </button>
-            </Panel>
-
-            <Panel title="3. Ponto de coleta">
-              {pointsLoading ? (
-                <div className="flex items-center gap-2 text-sm text-[#1a3a4a]">
-                  <Loader2 className="animate-spin" size={16} />
-                  Buscando pontos compativeis...
+              ) : null}
+            >
+              {selectedCount === 0 ? (
+                <div className="mt-2 rounded-2xl border border-dashed border-amber-300 bg-amber-50 p-5 text-center text-sm font-medium text-amber-700">
+                  Selecione pelo menos um resíduo para ver os pontos compatíveis.
+                </div>
+              ) : pointsLoading ? (
+                <div className="flex items-center gap-2 p-6 text-sm text-[#1a3a4a]">
+                  <Loader2 className="animate-spin" size={18} />
+                  Buscando pontos compatíveis...
                 </div>
               ) : pointsError ? (
-                <InlineAlert variant="error">
-                  {getApiErrorMessage(pointsQueryError, 'Nao foi possivel carregar os pontos.')}
+                <InlineAlert variant="error" className="mt-2">
+                  {getApiErrorMessage(pointsQueryError, 'Não foi possível carregar os pontos.')}
                 </InlineAlert>
-              ) : points.length ? (
-                <>
-                  <select
-                    value={selectedPointId}
-                    onChange={(event) => setSelectedPointId(event.target.value)}
-                    className="min-h-12 w-full rounded-2xl border border-[#c8d2e3] bg-white px-4 py-3 text-base text-[#1a3a4a] outline-none"
-                  >
-                    {points.map((point) => (
-                      <option key={point.id} value={point.id}>
-                        {point.nome}
-                        {point.distancia_km != null ? ` | ${point.distancia_km.toFixed(1)} km` : ''}
-                      </option>
-                    ))}
-                  </select>
-
-                  {selectedPoint ? (
-                    <div className="mt-4 rounded-2xl bg-white px-4 py-4">
-                      <p className="text-base font-bold text-[#1a3a4a]">{selectedPoint.nome}</p>
-                      <p className="mt-1 text-sm text-gray-500">{selectedPoint.endereco || 'Endereço não informado'}</p>
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        {(selectedPoint.tipos_residuos_aceitos || []).map((material) => (
-                          <span key={material} className="rounded-full border border-[#1a3a4a] px-3 py-1 text-xs font-medium text-[#1a3a4a]">
-                            {formatResidueType(material)}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  ) : null}
-                </>
+              ) : compatiblePoints.length ? (
+                <div className="mt-2 flex flex-col gap-3 max-h-[320px] overflow-y-auto pr-1 custom-scrollbar">
+                  {compatiblePoints.map((point) => {
+                    const isSelected = String(point.id) === String(selectedPointId)
+                    return (
+                      <button
+                        key={point.id}
+                        type="button"
+                        onClick={() => setSelectedPointId(String(point.id))}
+                        className={`flex w-full flex-col gap-2 rounded-2xl border-2 p-4 text-left transition-all outline-none ${
+                          isSelected
+                            ? 'border-[#1F4E79] bg-[#f4f7fa] shadow-sm'
+                            : 'border-[var(--color-border)] bg-white hover:border-slate-300'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-2 w-full">
+                          <p className={`text-sm font-bold leading-tight ${isSelected ? 'text-[#1F4E79]' : 'text-[#1a3a4a]'}`}>{point.nome}</p>
+                          {point.distancia_km != null && (
+                            <span className="shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-bold text-emerald-700">
+                              {point.distancia_km.toFixed(1).replace('.', ',')} km
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-slate-500 line-clamp-2">{point.endereco || 'Endereço não informado'}</p>
+                        <div className="mt-1 flex flex-wrap gap-1">
+                          {(point.tipos_residuos_aceitos || []).map((material) => (
+                            <span key={material} className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide border ${isSelected ? 'border-[#1F4E79]/30 bg-[#1F4E79] text-white' : 'border-slate-200 bg-slate-100 text-slate-600'}`}>
+                              {formatResidueType(material)}
+                            </span>
+                          ))}
+                        </div>
+                      </button>
+                    )
+                  })}
+                </div>
               ) : (
-                <p className="text-sm text-gray-500">Nenhum ponto disponível foi encontrado para este tipo de resíduo no momento.</p>
+                <div className="mt-2 rounded-2xl border border-dashed border-rose-300 bg-rose-50 p-5 text-center text-sm font-medium text-rose-700">
+                  Nenhum ponto próximo aceita todos os resíduos selecionados. Tente remover algum ou atualizar sua localização.
+                </div>
               )}
-            </Panel>
+            </SectionCard>
 
-            <Panel title="4. Confirmar transferência">
-              <label className="mb-2 block text-sm font-bold text-[#1a3a4a]">Quantidade a transferir (kg)</label>
-              <div className="flex items-center justify-between gap-3 rounded-2xl bg-slate-100 p-3">
-                <button
-                  type="button"
-                  onClick={() => {
-                    const current = Number(quantidade) || 0;
-                    setQuantidade(Math.max(0.1, current - 0.5).toFixed(1));
-                  }}
-                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border-2 border-[#1F4E79] bg-white text-2xl font-bold text-[#1F4E79] transition-colors hover:bg-slate-50"
-                >
-                  -
-                </button>
-                <input
-                  type="number"
-                  min="0.1"
-                  step="0.1"
-                  value={quantidade}
-                  onChange={(event) => {
-                    const rawValue = event.target.value;
-                    const numValue = Number(rawValue);
-                    const maxVal = Number(selectedItem?.quantidade_disponivel ?? selectedItem?.quantidade ?? 0);
-                    
-                    if (numValue > maxVal) {
-                      setQuantidade(String(maxVal));
-                    } else {
-                      setQuantidade(rawValue);
-                    }
-                  }}
-                  className="h-12 w-full bg-transparent text-center text-2xl font-bold text-[#1a3a4a] outline-none"
-                />
-                <button
-                  type="button"
-                  onClick={() => {
-                    const current = Number(quantidade) || 0;
-                    const maxVal = Number(selectedItem?.quantidade_disponivel ?? selectedItem?.quantidade ?? 0);
-                    if (current < maxVal) {
-                      setQuantidade(Math.min(maxVal, current + 0.5).toFixed(1));
-                    }
-                  }}
-                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#1F4E79] text-2xl font-bold text-white transition-colors hover:bg-[#173B5C]"
-                >
-                  +
-                </button>
-              </div>
-
-              {selectedItem && Number(quantidade) >= Number(selectedItem.quantidade_disponivel ?? selectedItem.quantidade ?? 0) && (
-                <p className="mt-2 text-sm font-semibold text-amber-600">
-                  ⚠️ Limite máximo do estoque atingido.
-                </p>
-              )}
-
-              <label className="mb-2 mt-4 block text-sm font-bold text-[#1a3a4a]">Observação (opcional)</label>
+            {/* ── Bottom-Right: Observação + Pontos ── */}
+            <SectionCard title="4. Observação" description="Informações adicionais para a cooperativa (opcional).">
               <textarea
-                rows={3}
+                rows={4}
                 value={observacao}
-                onChange={(event) => setObservacao(event.target.value)}
-                placeholder="Ex.: entrega parcial do item"
-                className="w-full resize-none rounded-2xl border border-[#c8d2e3] bg-white px-4 py-3 text-base text-[#1a3a4a] outline-none"
+                onChange={(e) => setObservacao(e.target.value)}
+                placeholder="Ex.: entrega em fardos, embalagens lavadas..."
+                className="mt-2 w-full resize-none rounded-2xl border border-[var(--color-border)] bg-white px-4 py-3 text-sm text-[#1a3a4a] outline-none focus:border-[#1F4E79]"
               />
-
-              <label className="mb-2 mt-5 block text-sm font-bold text-[#1a3a4a]">Token QR Code (opcional)</label>
-              <div className="flex flex-col gap-3 sm:flex-row">
-                <input
-                  type="text"
-                  value={qrToken}
-                  onChange={(event) => setQrToken(event.target.value)}
-                  placeholder="Cole o token do ponto..."
-                  className="min-h-12 flex-1 rounded-2xl border border-[#c8d2e3] bg-white px-4 py-3 text-base text-[#1a3a4a] outline-none focus:border-[#1F4E79]"
-                />
-                <button
-                  type="button"
-                  onClick={() => navigate(selectedItemId ? `/escanear-qr?itemId=${selectedItemId}` : '/escanear-qr')}
-                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-[#1F4E79] px-6 text-sm font-semibold text-white transition hover:bg-[#173B5C]"
-                >
-                  <QrCode size={18} />
-                  Escanear código
-                </button>
+              <div className="mt-4 flex items-center justify-between rounded-2xl bg-[#f0faf4] border border-emerald-200/50 px-4 py-3">
+                <div>
+                  <p className="text-sm font-bold text-[#1a3a4a]">Pontos estimados</p>
+                  <p className="text-xs text-slate-500">Após confirmação</p>
+                </div>
+                <span className="text-2xl font-black text-[#2EA44F]">+{totalPoints} <span className="text-sm font-bold">pts</span></span>
               </div>
+            </SectionCard>
 
-              <div className="mt-6 flex items-center justify-between rounded-2xl bg-[#e8f5e2] px-4 py-3">
-                <span className="text-sm font-medium text-green-700">Pontos estimados após confirmação</span>
-                <span className="text-sm font-bold text-green-700">
-                  +{Math.round(Number(quantidade || 0) * POINTS_PER_KG)} pts
-                </span>
-              </div>
-            </Panel>
-
-            <div className="flex flex-col gap-3 lg:col-span-2">
+            {/* ── Botão centralizado embaixo ── */}
+            <div className="lg:col-span-2 flex justify-center">
               <LoadingButton
                 type="button"
                 onClick={handleTransfer}
-                disabled={transferMutation.isPending || !selectedItem || !selectedPointId}
-                isLoading={transferMutation.isPending}
+                disabled={isTransferring || selectedCount === 0 || !selectedPointId}
+                isLoading={isTransferring}
                 loadingText="Enviando..."
-                className="w-full py-4 text-base shadow-sm"
+                className="w-full max-w-lg py-4 text-base font-bold shadow-sm"
               >
-                <Send size={18} />
+                <Send size={18} className="mr-2" />
                 Confirmar envio para o ponto
               </LoadingButton>
             </div>
@@ -516,14 +565,5 @@ export default function ValidacaoPresencaPage() {
         )}
       </div>
     </RoleShell>
-  )
-}
-
-function Panel({ title, children }) {
-  return (
-    <section className="rounded-2xl border border-[#dde1ef] bg-[#f7f9fc] px-5 py-5 shadow-sm">
-      <h2 className="mb-4 text-base font-bold text-[#1F4E79]">{title}</h2>
-      {children}
-    </section>
   )
 }

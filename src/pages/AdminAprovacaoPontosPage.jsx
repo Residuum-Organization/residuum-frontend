@@ -1,8 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { Building2, ArrowLeft } from "lucide-react";
-import ApprovalCard from "../components/coleta-dados/ApprovalCard";
+import { Building2, ArrowLeft, User, Phone, Mail, Clock, Box, MapPin, Recycle } from "lucide-react";
 import Button from "../components/ui/Button";
 import AdminShell from "../components/admin/AdminShell";
 import PageHeader from "../components/ui/PageHeader";
@@ -49,22 +48,24 @@ export default function AdminAprovacaoPontosPage() {
     queryFn: listPendingCollectionPoints,
   });
 
-  const pendingPoints = Array.isArray(pendingPointsData) ? pendingPointsData : (pendingPointsData.items || []);
+  const pendingPoints = Array.isArray(pendingPointsData) 
+    ? pendingPointsData 
+    : (pendingPointsData.itens || pendingPointsData.items || []);
 
   const cards = useMemo(
     () =>
       pendingPoints.map((item) => ({
         id: item.id,
-        empresa: item.nome_ponto || item.responsavel_nome || "Ponto sem nome",
-        cnpj: `Doc: ${item.documento || "Não informado"}`,
+        nomePonto: item.nome_ponto || item.responsavel_nome || "Ponto sem nome",
+        documento: item.documento || "Não informado",
         endereco: item.endereco || "Endereço não informado",
-        material: item.tipos_residuos_aceitos?.map(formatResidueType).join(", ") || "Não informado",
-        quantidade: item.horario_funcionamento || "Horário não informado",
-        funcionamento: `Capacidade: ${item.capacidade_maxima || "-"} kg`,
-        frequencia: `Responsável: ${item.responsavel_nome} (${item.responsavel_telefone})`,
-        confiabilidade: item.email || "Sem e-mail",
-        observacoes: item.observacoes || "Sem observações",
-        data: formatDate(item.data_criacao || item.criado_em),
+        materiais: item.tipos_residuos_aceitos?.map(formatResidueType).join(", ") || "Não informado",
+        horario: item.horario_funcionamento || "Não informado",
+        capacidade: item.capacidade_maxima ? `${item.capacidade_maxima} kg` : "Não informada",
+        responsavel: item.responsavel_nome || "Não informado",
+        telefone: item.responsavel_telefone || "Não informado",
+        email: item.email || "Não informado",
+        data: formatDate(item.criado_em || item.data_criacao),
       })),
     [pendingPoints],
   );
@@ -153,17 +154,98 @@ export default function AdminAprovacaoPontosPage() {
         )}
 
         {!isLoading && !isError && cards.length > 0 && (
-          <section className="grid gap-4 xl:grid-cols-2">
+          <section className="grid gap-6">
             {cards.map((item) => (
-              <ApprovalCard
-                key={item.id}
-                item={item}
-                onAprovar={() => approveMutation.mutate(item.id)}
-                onRejeitar={() => rejectMutation.mutate(item.id)}
-                isApproving={approveMutation.isLoading && approveMutation.variables === item.id}
-                isRejecting={rejectMutation.isLoading && rejectMutation.variables === item.id}
-                disabled={approveMutation.isLoading || rejectMutation.isLoading}
-              />
+              <article key={item.id} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md sm:p-6 lg:flex lg:items-start lg:gap-8">
+                {/* Visual Icon */}
+                <div className="hidden h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 lg:flex">
+                  <Building2 size={28} />
+                </div>
+                
+                {/* Details Grid */}
+                <div className="flex-1 space-y-5">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                      <h2 className="text-xl font-extrabold text-[#1F4E79]">{item.nomePonto}</h2>
+                      <p className="text-sm font-semibold text-slate-500">Solicitante: <span className="text-slate-700">{item.documento}</span></p>
+                    </div>
+                    <span className="w-fit rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-800">
+                      Pendente
+                    </span>
+                  </div>
+
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Responsável</p>
+                      <div className="mt-2 space-y-2">
+                        <div className="flex items-center gap-2 text-sm text-slate-700">
+                          <User size={16} className="text-slate-400 shrink-0" />
+                          <span className="font-semibold">{item.responsavel}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-slate-600">
+                          <Phone size={16} className="text-slate-400 shrink-0" />
+                          <span>{item.telefone}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-slate-600">
+                          <Mail size={16} className="text-slate-400 shrink-0" />
+                          <span className="truncate" title={item.email}>{item.email}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Operação</p>
+                      <div className="mt-2 space-y-2">
+                        <div className="flex items-center gap-2 text-sm text-slate-700">
+                          <Box size={16} className="text-orange-500 shrink-0" />
+                          <span className="font-semibold">Capacidade: {item.capacidade}</span>
+                        </div>
+                        <div className="flex items-start gap-2 text-sm text-slate-600">
+                          <Clock size={16} className="mt-0.5 text-blue-500 shrink-0" />
+                          <span>{item.horario}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="sm:col-span-2 lg:col-span-1">
+                      <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Materiais & Local</p>
+                      <div className="mt-2 space-y-2">
+                        <div className="flex items-start gap-2 text-sm text-emerald-700 font-semibold">
+                          <Recycle size={16} className="mt-0.5 text-emerald-500 shrink-0" />
+                          <span>{item.materiais}</span>
+                        </div>
+                        <div className="flex items-start gap-2 text-sm text-slate-600">
+                          <MapPin size={16} className="mt-0.5 text-rose-500 shrink-0" />
+                          <span>{item.endereco}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="mt-6 flex shrink-0 flex-col gap-3 border-t pt-5 lg:mt-0 lg:w-40 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
+                  <Button
+                    type="button"
+                    variant="brandPrimary"
+                    onClick={() => approveMutation.mutate(item.id)}
+                    disabled={approveMutation.isLoading || rejectMutation.isLoading}
+                    className="w-full bg-emerald-600 hover:bg-emerald-700"
+                  >
+                    {approveMutation.isLoading && approveMutation.variables === item.id ? "Aprovando..." : "Aprovar"}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="brandOutline"
+                    onClick={() => rejectMutation.mutate(item.id)}
+                    disabled={approveMutation.isLoading || rejectMutation.isLoading}
+                    className="w-full border-rose-200 text-rose-600 hover:bg-rose-50 hover:text-rose-700"
+                  >
+                    {rejectMutation.isLoading && rejectMutation.variables === item.id ? "Rejeitando..." : "Rejeitar"}
+                  </Button>
+                  <p className="mt-2 text-center text-xs text-slate-400">Recebido em: {item.data}</p>
+                </div>
+              </article>
             ))}
           </section>
         )}

@@ -140,3 +140,11 @@ export const createCampanha = async (payload) => {
     throw new Error(getApiErrorMessage(error, "Erro ao criar campanha"));
   }
 };
+
+export const deactivateCollectionPoint = async (id) => {
+  try {
+    await api.delete(`/admin/pontos-coleta/${id}`);
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, "Erro ao desativar ponto de coleta"));
+  }
+};

@@ -9,41 +9,42 @@ import LoadingState from '../components/ui/LoadingState'
 import ErrorState from '../components/ui/ErrorState'
 import EmptyState from '../components/ui/EmptyState'
 import Button from '../components/ui/Button'
+import SectionCard from '../components/ui/SectionCard'
 import { getPointsStatement } from '../services/points'
 import { queryKeys } from '../services/queryKeys'
 import { getApiErrorMessage } from '../services/http/getApiErrorMessage'
 
 const STATUS_CONFIG = {
   pendente: {
-    label: 'PENDENTE',
+    label: 'Pendente',
     border: 'border-amber-200 bg-amber-50',
     icon: 'bg-amber-100 text-amber-700',
     badge: 'bg-amber-100 text-amber-700',
     Icon: Clock3,
   },
   confirmado: {
-    label: 'CONFIRMADO',
+    label: 'Confirmado',
     border: 'border-emerald-100 bg-white',
     icon: 'bg-emerald-100 text-emerald-700',
     badge: 'bg-emerald-100 text-emerald-700',
     Icon: CheckCircle2,
   },
   rejeitado: {
-    label: 'REJEITADO',
+    label: 'Rejeitado',
     border: 'border-rose-200 bg-rose-50',
     icon: 'bg-rose-100 text-rose-700',
     badge: 'bg-rose-100 text-rose-700',
     Icon: XCircle,
   },
   revertido: {
-    label: 'ESTORNADO',
+    label: 'Estornado',
     border: 'border-slate-200 bg-slate-50',
     icon: 'bg-slate-200 text-slate-700',
     badge: 'bg-slate-200 text-slate-700',
     Icon: XCircle,
   },
   resgatado: {
-    label: 'RESGATADO',
+    label: 'Resgatado',
     border: 'border-sky-200 bg-sky-50',
     icon: 'bg-sky-100 text-sky-700',
     badge: 'bg-sky-100 text-sky-700',
@@ -71,47 +72,58 @@ function HistoricoCard({ item }) {
   const config = STATUS_CONFIG[status] || STATUS_CONFIG.confirmado
   const StatusIcon = config.Icon
   const points = Number(item.pontos || item.pontos_recebidos || 0)
+  
   const quantidadeValue = item.quantidade_confirmada ?? item.quantidade ?? 0
   const hasQuantity = quantidadeValue > 0
   const quantityLabel = hasQuantity
-    ? Number(quantidadeValue).toLocaleString('pt-BR', {
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 2,
-      })
+    ? Number(quantidadeValue).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 2 })
     : null
+    
   const title = item.inventario_item_descricao || item.descricao || formatResidueType(item.tipo_residuo)
   const dataEvento = item.data_desc || item.data_evento
 
   return (
-    <article className={`rounded-2xl border p-4 shadow-sm ${config.border}`}>
+    <article className={`rounded-2xl border p-5 shadow-sm transition-colors hover:border-[#1F4E79]/40 ${config.border}`}>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex min-w-0 items-start gap-3">
-          <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${config.icon}`}>
-            <Recycle size={24} />
+        <div className="flex min-w-0 items-start gap-4">
+          <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl ${config.icon}`}>
+            <Recycle size={28} />
           </div>
           <div className="min-w-0">
-            <h3 className="break-words text-sm font-black text-[#12384C]">{title}</h3>
-            <p className="mt-1 text-xs font-semibold text-slate-500">
+            <h3 className="break-words text-base font-bold text-[#1a3a4a]">{title}</h3>
+            <p className="mt-1 text-sm font-semibold text-slate-500">
               {hasQuantity ? `${quantityLabel} kg | ` : ''}
               {formatHistoryDate(dataEvento)}
             </p>
-            <p className="mt-1 text-xs font-medium text-slate-500">
-              {item.ponto_coleta_nome || item.referencia || 'Evento de pontuacao'}
+            <p className="mt-1 text-sm font-medium text-slate-500 line-clamp-1">
+              {item.ponto_coleta_nome || item.referencia || 'Evento de pontuação'}
             </p>
           </div>
         </div>
         <div className="flex items-center justify-between gap-3 sm:flex-col sm:items-end">
-          <p className="text-lg font-black text-[#0B6B53]">
+          <p className={`text-2xl font-black ${points >= 0 ? 'text-[#2EA44F]' : 'text-rose-600'}`}>
             {points >= 0 ? '+' : ''}
             {points}
           </p>
-          <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-black ${config.badge}`}>
-            <StatusIcon size={12} />
+          <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider ${config.badge}`}>
+            <StatusIcon size={14} />
             {config.label}
           </span>
         </div>
       </div>
     </article>
+  )
+}
+
+function SummaryCard({ icon, label, value, colorClass }) {
+  return (
+    <div className="rounded-2xl border border-[var(--color-border)] bg-white p-4 shadow-sm">
+      <div className={`flex items-center gap-2 text-sm font-bold uppercase ${colorClass}`}>
+        {icon}
+        {label}
+      </div>
+      <p className="mt-2 text-3xl font-black text-[#1a3a4a]">{value}</p>
+    </div>
   )
 }
 
@@ -124,20 +136,24 @@ export default function ExtratoPage() {
 
   const histórico = extrato?.itens || []
   const total = Number(extrato?.pontuacao_total || 0)
+  
   const pendentes = histórico
     .filter((item) => (item.status || 'pendente') === 'pendente')
     .reduce((sum, item) => sum + Math.max(Number(item.pontos || item.pontos_recebidos || 0), 0), 0)
+    
   const confirmados = histórico
     .filter((item) => item.status === 'confirmado')
     .reduce((sum, item) => sum + Math.max(Number(item.pontos || item.pontos_recebidos || 0), 0), 0)
+    
   const resgatados = histórico
     .filter((item) => item.status === 'resgatado')
     .reduce((sum, item) => sum + Math.abs(Number(item.pontos || item.pontos_recebidos || 0)), 0)
 
   return (
-    <RoleShell variant="morador" shellClassName="bg-[var(--color-surface)]" contentClassName="px-4 py-4 pb-28 sm:px-6 sm:py-6 lg:px-8 lg:pb-28">
+    <RoleShell variant="morador" shellClassName="bg-[var(--color-surface)]" contentClassName="px-4 py-4 pb-36 sm:px-6 sm:py-6 lg:px-8 lg:pb-56">
       <div className="space-y-6">
         <PageHeader
+          eyebrow="Extrato"
           title="Extrato de Pontos"
           description="Acompanhe seu saldo e o status das entregas confirmadas ou pendentes."
           action={
@@ -147,66 +163,61 @@ export default function ExtratoPage() {
           }
         />
 
-        <section className="rounded-2xl bg-[#DDF7E9] p-5 shadow-sm sm:p-6">
-          <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+        <SectionCard className="p-5 sm:p-8 bg-[#f4f7fa] border-[#1F4E79]/20">
+          <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-xs font-black uppercase text-[#0B6B53]/80">Total disponível</p>
-              <h2 className="mt-2 text-5xl font-black leading-none text-[#0B6B53] sm:text-6xl">{total}</h2>
+              <p className="text-sm font-bold uppercase tracking-wide text-[#1F4E79]">Saldo Atual Disponível</p>
+              <h2 className="mt-2 text-6xl font-black tracking-tight text-[#1a3a4a] sm:text-7xl">
+                {total} <span className="text-2xl font-bold text-slate-400">pts</span>
+              </h2>
             </div>
-            <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-white/80 text-[#0B6B53] shadow-sm">
-              <Wallet size={32} />
+            <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-[#1F4E79] text-white shadow-md">
+              <Wallet size={40} />
             </div>
           </div>
 
-          <div className="mt-6 grid gap-3 sm:grid-cols-3">
-            <SummaryCard icon={<Clock3 size={16} />} label="Pendentes" value={pendentes} className="text-amber-700" />
-            <SummaryCard icon={<TrendingUp size={16} />} label="Confirmados" value={confirmados} className="text-emerald-700" />
-            <SummaryCard icon={<TrendingDown size={16} />} label="Resgatados" value={resgatados} className="text-sky-700" />
+          <div className="mt-8 grid gap-4 sm:grid-cols-3">
+            <SummaryCard icon={<TrendingUp size={18} />} label="Confirmados" value={confirmados} colorClass="text-[#2EA44F]" />
+            <SummaryCard icon={<Clock3 size={18} />} label="Em Análise" value={pendentes} colorClass="text-amber-600" />
+            <SummaryCard icon={<TrendingDown size={18} />} label="Resgatados" value={resgatados} colorClass="text-sky-600" />
           </div>
-        </section>
+        </SectionCard>
 
-        <InlineAlert variant="info">
-          Pontos pendentes ainda dependem da confirmação e pesagem real pela cooperativa.
-        </InlineAlert>
+        {pendentes > 0 && (
+          <InlineAlert variant="info">
+            Pontos pendentes ainda dependem da confirmação e pesagem real pela cooperativa.
+          </InlineAlert>
+        )}
 
-        <section className="space-y-4">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="text-lg font-black text-[#12384C]">Histórico</h2>
-            <span className="w-fit rounded-full bg-white px-3 py-1 text-xs font-black text-[#11527A] shadow-sm">
+        <SectionCard
+          title="Histórico de Transações"
+          description="Consulte todas as suas movimentações de pontos."
+          action={
+            <span className="inline-flex min-h-10 items-center rounded-full bg-[#1F4E79] px-4 text-sm font-bold text-white">
               {histórico.length} registros
             </span>
-          </div>
-
+          }
+        >
           {isLoading ? (
             <LoadingState title="Carregando histórico de pontos..." />
           ) : isError ? (
             <ErrorState title={getApiErrorMessage(error, 'Não foi possível carregar o extrato de pontos.')} />
           ) : histórico.length ? (
-            <div className="grid gap-3 lg:grid-cols-2">
+            <div className="grid gap-4 lg:grid-cols-2 mt-2">
               {histórico.map((item) => (
-                <HistoricoCard key={item.id_descarte || item.id_resgate} item={item} />
+                <HistoricoCard key={item.id_descarte || item.id_resgate || Math.random()} item={item} />
               ))}
             </div>
           ) : (
             <EmptyState
               title="Seu extrato ainda está vazio."
               description="Suas entregas e resgates vão aparecer aqui assim que houver movimentação."
+              icon={Wallet}
+              className="bg-white"
             />
           )}
-        </section>
+        </SectionCard>
       </div>
     </RoleShell>
-  )
-}
-
-function SummaryCard({ icon, label, value, className = '' }) {
-  return (
-    <div className="rounded-2xl bg-white/80 p-3">
-      <div className={`flex items-center gap-2 text-xs font-black ${className}`}>
-        {icon}
-        {label}
-      </div>
-      <p className="mt-2 text-2xl font-black text-[#12384C]">{value}</p>
-    </div>
   )
 }

@@ -9,8 +9,8 @@ import SectionCard from "../components/ui/SectionCard";
 import { saveCollectionPointDraft } from "../services/collectionPointRequests";
 
 const responsibleFields = [
-  { id: "responsavel", label: "Nome do responsavel", type: "text" },
-  { id: "documento", label: "CPF/CNPJ", type: "text" },
+  { id: "responsavel", label: "Seu nome completo", type: "text" },
+  { id: "documento", label: "Seu CPF ou CNPJ", type: "text" },
   { id: "telefone", label: "Telefone", type: "tel" },
   { id: "email", label: "E-mail", type: "email" },
   { id: "senha", label: "Senha", type: "password" },
@@ -47,15 +47,15 @@ export default function RegisterPontoColetaPage() {
 
   return (
     <AuthShell
-      title="Cadastro do Ponto"
-      subtitle="Informe os dados do responsavel pelo ponto de coleta."
-      description="Cadastre seu ponto de coleta para receber moradores, organizar descartes e acompanhar solicitacoes na plataforma Residuum."
+      title="Seja um Ponto de Coleta"
+      subtitle="Vamos começar conhecendo quem vai gerenciar o espaço."
+      description="Junte-se à nossa rede! Ao se tornar um ponto de coleta parceiro, você ajuda a vizinhança a reciclar e contribui ativamente para uma cidade mais limpa."
       highlights={[
-        "Identifique o responsavel pelo cadastro",
-        "Mantenha contato e acesso protegidos",
-        "Avance para cadastrar o endereco de coleta",
+        "Cadastro gratuito e rápido",
+        "Aumente a visibilidade e visitas ao seu espaço",
+        "Faça parte da rede oficial de impacto sustentável",
       ]}
-      footer='"Pontos bem cadastrados ajudam a cidade a reciclar com mais confianca."'
+      footer='"Toda grande mudança ambiental começa com pequenas iniciativas locais."'
     >
       <div className="mb-6">
         <button 
@@ -69,14 +69,14 @@ export default function RegisterPontoColetaPage() {
       <div className="space-y-5">
         <InlineAlert
           variant="info"
-          title="Etapa 1 de 3"
-          description="Informe quem sera o responsavel pelo pedido. O ponto so sera liberado depois da análise manual do administrador."
+          title="Vamos juntos? (Etapa 1 de 3)"
+          description="Para começarmos, precisamos saber quem será a pessoa responsável pelo local. Nossa equipe fará uma validação super rápida para aprovar sua entrada."
         />
 
         <form onSubmit={handleSubmit} className="space-y-5" noValidate>
           <SectionCard
-            title="Dados do responsavel"
-            description="Use um contato ativo para que a equipe possa validar a solicitacao."
+            title="Seus dados de contato"
+            description="Use o e-mail e telefone que você acessa com mais frequência para não perder nenhuma atualização."
             className="p-4 sm:p-5"
           >
             <div className="grid gap-4 sm:grid-cols-2">

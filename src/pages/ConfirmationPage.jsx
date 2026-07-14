@@ -25,20 +25,20 @@ const residuos = ["Plastico", "Metal", "Vidro", "Papelao"];
 
 const statusMap = {
   pendente: {
-    title: "Aguardando aprovação",
-    description: "Seu cadastro foi enviado ao servidor e esta em análise manual pelo administrador.",
+    title: "Em análise",
+    description: "Sua solicitação está com a nossa equipe. Em breve daremos um retorno!",
     badge: "bg-amber-100 text-amber-700",
     Icon: Clock3,
   },
   aprovado: {
-    title: "Ponto aprovado",
-    description: "Seu ponto foi aprovado pelo backend e pode seguir o fluxo operacional.",
+    title: "Ponto Aprovado!",
+    description: "Parabéns! Seu ponto de coleta já faz parte da rede oficial e está pronto.",
     badge: "bg-emerald-100 text-emerald-700",
     Icon: CheckCircle2,
   },
   rejeitado: {
-    title: "Solicitacao rejeitada",
-    description: "Revise as informacoes e envie uma nova solicitacao.",
+    title: "Ops! Precisamos de ajustes",
+    description: "Algo não deu certo. Revise suas informações e envie uma nova solicitação.",
     badge: "bg-rose-100 text-rose-700",
     Icon: X,
   },
@@ -188,15 +188,15 @@ export default function Confirmation() {
 
     return (
       <AuthShell
-        title="Status da Solicitacao"
-        subtitle="Acompanhe a aprovação do seu ponto de coleta."
-        description="Sempre que houver atualizacao real do backend, ela aparecera aqui."
+        title="Status do seu Cadastro"
+        subtitle="Acompanhe a aprovação do seu ponto."
+        description="Esta tela mostra em tempo real o andamento da sua parceria com a nossa rede."
         highlights={[
-          "Confira o andamento da análise",
-          "Saiba quando houver aprovação do administrador",
-          "Reenvie os dados se for necessario ajustar a solicitacao",
+          "Fique de olho no andamento da sua análise",
+          "Avisaremos assim que você for aprovado",
+          "Ajuste os dados e envie novamente, se precisar",
         ]}
-        footer='"Solicitacoes completas facilitam a análise do administrador."'
+        footer='"Estamos super ansiosos para ter você no nosso time de parceiros!"'
       >
         <SectionCard className="p-5 text-center sm:p-6">
           <div className={`mx-auto flex h-16 w-16 items-center justify-center rounded-full ${statusConfig.badge}`}>
@@ -207,11 +207,11 @@ export default function Confirmation() {
 
           <InlineAlert
             variant={currentStatus === "aprovado" ? "success" : currentStatus === "rejeitado" ? "error" : "warning"}
-            title={currentStatus === "aprovado" ? "Aprovado pelo servidor" : "Pendente de verificacao"}
+            title={currentStatus === "aprovado" ? "Tudo certo para começar!" : "Aguardando verificação"}
             description={
               currentStatus === "aprovado"
-                ? "A aprovação exibida veio da resposta do backend."
-                : "Enquanto nao houver aprovação, o ponto nao deve ser considerado ativo."
+                ? "Agora você pode acessar a plataforma e organizar sua rotina de recebimentos."
+                : "A sua solicitação chegou até nós e a nossa equipe já vai analisar seu perfil com muito carinho."
             }
             className="mt-5 text-left"
           />
@@ -235,15 +235,15 @@ export default function Confirmation() {
 
   return (
     <AuthShell
-      title="Confirmacao do Ponto"
-      subtitle="Defina os tipos de residuo, quantidade e disponibilidade."
-      description="Finalize o cadastro informando quais residuos o ponto recebe e quando a coleta pode acontecer."
+      title="Sua Operação (Último passo!)"
+      subtitle="Quais materiais você vai receber e quando?"
+      description="Para fecharmos com chave de ouro, nos conte o que o seu ponto recebe e quais os horários de funcionamento. Os moradores vão usar essas informações para te encontrar."
       highlights={[
-        "Revise os dados antes do envio",
-        "Selecione os materiais aceitos",
-        "Aguarde a análise manual do administrador",
+        "Fica mais fácil para a vizinhança reciclar",
+        "Você escolhe o que pode receber",
+        "Sua aprovação será mais rápida",
       ]}
-      footer='"A confirmacao completa envia o pedido para análise, sem ativacao automatica."'
+      footer='"Informação clara ajuda o morador e fortalece a rede sustentável."'
     >
       <div className="mb-6">
         <button 
@@ -257,8 +257,8 @@ export default function Confirmation() {
       <div className="space-y-5">
         <InlineAlert
           variant="info"
-          title="Etapa 3 de 3"
-          description="Revise os dados e informe como o ponto opera. A solicitacao ficara pendente ate a aprovação manual."
+          title="Tudo pronto? (Etapa 3 de 3)"
+          description="Confira seus dados pela última vez e nos diga quais materiais a sua estrutura consegue receber. Em seguida, é só enviar e aguardar nossa confirmação super rápida."
         />
 
         {fallbackStatus ? (
@@ -269,8 +269,8 @@ export default function Confirmation() {
         ) : null}
 
         <SectionCard
-          title="Revisao do cadastro"
-          description="Confira os dados principais antes de enviar ao servidor."
+          title="Seu Resumo"
+          description="Veja se essas informações de contato e endereço estão corretinhas."
           className="p-4 sm:p-5"
         >
           <dl className="grid gap-4 text-sm sm:grid-cols-2">
@@ -297,8 +297,8 @@ export default function Confirmation() {
 
         <form onSubmit={handleSubmit} className="space-y-5" noValidate>
           <SectionCard
-            title="Residuos aceitos"
-            description="Selecione todos os materiais que o ponto podera receber."
+            title="O que você aceita receber?"
+            description="Marque todas as opções de materiais que você tem capacidade para organizar."
             action={
               <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-700">
                 {residuosSelecionados.length} selecionado(s)
@@ -343,8 +343,8 @@ export default function Confirmation() {
           </SectionCard>
 
           <SectionCard
-            title="Disponibilidade"
-            description="Informe volume estimado e melhor horario para a coleta."
+            title="Horários e Limites"
+            description="Nos diga qual o volume máximo que consegue armazenar e qual o horário as pessoas podem levar até você."
             className="p-4 sm:p-5"
           >
             <div className="space-y-4">

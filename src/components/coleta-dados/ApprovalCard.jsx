@@ -1,28 +1,16 @@
 import React from "react";
 import {
-  FaBox,
-  FaBuilding,
-  FaClipboardList,
-  FaClock,
-  FaMapMarkerAlt,
-  FaRecycle,
-  FaRegCalendarAlt,
-  FaStar,
-  FaSyncAlt,
-} from "react-icons/fa";
+  Building2,
+  User,
+  Mail,
+  Box,
+  Clock,
+  Recycle,
+  MapPin,
+  ClipboardCheck,
+  Scale
+} from "lucide-react";
 import LoadingButton from "../ui/LoadingButton";
-
-function InfoRow({ icon, label, value }) {
-  return (
-    <div className="flex min-w-0 items-start gap-2 text-sm text-slate-600">
-      <span className="mt-0.5 shrink-0">{icon}</span>
-      <span className="min-w-0">
-        <span className="font-bold text-slate-700">{label}: </span>
-        <span className="break-words">{value || "-"}</span>
-      </span>
-    </div>
-  );
-}
 
 function ApprovalCard({
   item,
@@ -35,81 +23,87 @@ function ApprovalCard({
   const actionDisabled = disabled || isApproving || isRejecting;
 
   return (
-    <article className="mb-4 rounded-2xl border border-[var(--color-border)] bg-white p-4 shadow-sm shadow-slate-200/70 transition hover:shadow-md sm:p-5">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
-        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-slate-100 text-2xl text-slate-600">
-          <FaBuilding aria-hidden="true" />
+    <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md sm:p-6 xl:col-span-2 2xl:col-span-1 lg:flex lg:items-start lg:gap-8">
+      {/* Visual Icon */}
+      <div className="hidden h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-[#1F4E79]/10 text-[#1F4E79] lg:flex">
+        <Recycle size={28} />
+      </div>
+      
+      {/* Details Grid */}
+      <div className="flex-1 space-y-5">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <h2 className="text-xl font-extrabold text-[#1F4E79]">{item.empresa || "Ponto de Coleta"}</h2>
+            <p className="text-sm font-semibold text-slate-500">
+              Solicitante: <span className="text-slate-700">{item.cnpj || "-"}</span>
+            </p>
+          </div>
+          <span className="w-fit rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-800">
+            Pendente
+          </span>
         </div>
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
-            <div className="min-w-0">
-              <h2 className="break-words text-xl font-extrabold leading-tight text-slate-800">
-                {item.empresa || "-"}
-              </h2>
-              <p className="mt-1 break-words text-sm font-semibold text-[var(--color-primary)]">
-                Solicitante{" "}
-                <span className="text-slate-500">{item.cnpj || "-"}</span>
-              </p>
+
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Entrega & Operação</p>
+            <div className="mt-2 space-y-2">
+              <div className="flex items-center gap-2 text-sm text-slate-700">
+                <Box size={16} className="text-orange-500 shrink-0" />
+                <span className="font-semibold">{item.quantidade || "0 kg"}</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-slate-600">
+                <Recycle size={16} className="text-emerald-500 shrink-0" />
+                <span className="font-semibold text-emerald-700">{item.material || "Resíduo"}</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-slate-600">
+                <MapPin size={16} className="text-rose-500 shrink-0" />
+                <span className="truncate" title={item.endereco}>{item.endereco || "Endereço não informado"}</span>
+              </div>
             </div>
-            <span className="w-fit rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-700">
-              Pendente
-            </span>
           </div>
 
-          <div className="mt-4 grid gap-2 sm:grid-cols-2">
-            <InfoRow
-              icon={<FaMapMarkerAlt className="text-[var(--color-primary)]" />}
-              label="Endereço"
-              value={item.endereco}
-            />
-            <InfoRow
-              icon={<FaRecycle className="text-green-600" />}
-              label="Material"
-              value={item.material}
-            />
-            <InfoRow
-              icon={<FaBox className="text-orange-500" />}
-              label="Quantidade"
-              value={item.quantidade}
-            />
-            <InfoRow
-              icon={<FaRegCalendarAlt className="text-slate-500" />}
-              label="Data"
-              value={item.data}
-            />
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Conferência</p>
+            <div className="mt-2 space-y-2">
+              <div className="flex items-center gap-2 text-sm text-slate-700">
+                <Scale size={16} className="text-blue-500 shrink-0" />
+                <span className="font-semibold">{item.confiabilidade || "Aguardando peso"}</span>
+              </div>
+              <div className="flex items-start gap-2 text-sm text-slate-600">
+                <ClipboardCheck size={16} className="mt-0.5 text-purple-500 shrink-0" />
+                <span className="line-clamp-2" title={item.observacoes}>{item.observacoes || "Sem observações"}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="sm:col-span-2 lg:col-span-1">
+            <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Status & Contato</p>
+            <div className="mt-2 space-y-2">
+              <div className="flex items-start gap-2 text-sm text-slate-700">
+                <Clock size={16} className="mt-0.5 text-slate-400 shrink-0" />
+                <span className="capitalize">{item.funcionamento || "Pendente"}</span>
+              </div>
+              <div className="flex items-start gap-2 text-sm text-slate-600">
+                <Mail size={16} className="mt-0.5 text-slate-400 shrink-0" />
+                <span className="truncate" title={item.frequencia}>{item.frequencia || "Sem e-mail"}</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="mt-5 rounded-2xl bg-slate-50 p-4">
-        <h3 className="mb-3 text-sm font-extrabold uppercase text-slate-700">
-          Dados de conferência
-        </h3>
-        <div className="grid gap-2 lg:grid-cols-2">
-          <InfoRow
-            icon={<FaClock className="text-blue-500" />}
-            label="Status"
-            value={item.funcionamento}
-          />
-          <InfoRow
-            icon={<FaSyncAlt className="text-purple-500" />}
-            label="Contato"
-            value={item.frequencia}
-          />
-          <InfoRow
-            icon={<FaStar className="text-yellow-500" />}
-            label="Conferência"
-            value={item.confiabilidade}
-          />
-          <InfoRow
-            icon={<FaClipboardList className="text-slate-500" />}
-            label="Observações"
-            value={item.observacoes}
-          />
-        </div>
-      </div>
-
-      <div className="mt-5 flex flex-col-reverse gap-3 border-t pt-5 sm:flex-row sm:items-center sm:justify-end">
+      {/* Actions */}
+      <div className="mt-6 flex shrink-0 flex-col gap-3 border-t pt-5 lg:mt-0 lg:w-40 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
+        <LoadingButton
+          type="button"
+          onClick={onAprovar}
+          isLoading={isApproving}
+          loadingText="Aprovando..."
+          disabled={actionDisabled}
+          className="w-full bg-[#2EA44F] hover:bg-[#258740] font-bold shadow-sm"
+        >
+          Aprovar
+        </LoadingButton>
         <LoadingButton
           type="button"
           variant="brandOutline"
@@ -117,20 +111,11 @@ function ApprovalCard({
           isLoading={isRejecting}
           loadingText="Rejeitando..."
           disabled={actionDisabled}
-          className="w-full border-red-300 text-red-600 hover:bg-red-50 sm:w-auto"
+          className="w-full border-rose-200 text-rose-600 hover:bg-rose-50 hover:border-rose-300 font-bold"
         >
           Rejeitar
         </LoadingButton>
-        <LoadingButton
-          type="button"
-          onClick={onAprovar}
-          isLoading={isApproving}
-          loadingText="Aprovando..."
-          disabled={actionDisabled}
-          className="w-full bg-green-600 hover:bg-green-700 sm:w-auto"
-        >
-          Aprovar
-        </LoadingButton>
+        <p className="mt-2 text-center text-xs text-slate-400">Criado em: {item.data}</p>
       </div>
     </article>
   );

@@ -27,14 +27,38 @@ export default function Company() {
   const draft = React.useMemo(() => getCollectionPointDraft() || {}, []);
   const { address, cepStatus, handleFieldChange, validateCep } = useCepAddress();
 
-  function handleSubmit(event) {
+  const [isGeocoding, setIsGeocoding] = React.useState(false);
+
+  async function handleSubmit(event) {
     event.preventDefault();
 
     if (!validateCep()) return;
 
+    setIsGeocoding(true);
+    let lat = 0.0;
+    let lon = 0.0;
+
+    try {
+      const enderecoBusca = `${address.rua || ""}, ${address.numero || ""}, ${address.cidade || ""}, Brasil`.replace(/,\s*,/g, ",");
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(enderecoBusca)}`, {
+        headers: { "User-Agent": "Residuum-App/1.0" }
+      });
+      const data = await res.json();
+      if (data && data.length > 0) {
+        lat = parseFloat(data[0].lat);
+        lon = parseFloat(data[0].lon);
+      }
+    } catch (err) {
+      console.warn("Geocoding failed:", err);
+    } finally {
+      setIsGeocoding(false);
+    }
+
     saveCollectionPointDraft({
       ...draft,
       endereco: address,
+      latitude: lat,
+      longitude: lon,
     });
 
     navigate("/confirmacao");
@@ -42,15 +66,15 @@ export default function Company() {
 
   return (
     <AuthShell
-      title="Endereco de Coleta"
-      subtitle="Cadastre onde o ponto recebe ou organiza os residuos."
-      description="O endereco correto facilita a rota dos moradores e ajuda a operação de coleta a encontrar o ponto sem ruido."
+      title="Onde você fica?"
+      subtitle="Conte para nós onde os moradores podem te encontrar."
+      description="Um endereço certinho ajuda muito as pessoas da sua região a levarem os recicláveis até você sem se perderem no caminho."
       highlights={[
-        "Revise os dados do responsavel",
-        "Informe dados completos de localizacao",
-        "Finalize configurando os residuos aceitos",
+        "Fácil de ser encontrado no mapa",
+        "Atraia moradores da sua vizinhança",
+        "Só falta mais um passo depois deste!",
       ]}
-      footer='"Um endereco claro reduz atrito e aumenta a adesao a coleta seletiva."'
+      footer='"Estar acessível é o primeiro passo para criar um grande impacto local."'
     >
       <div className="mb-6">
         <button 
@@ -64,14 +88,14 @@ export default function Company() {
       <div className="space-y-5">
         <InlineAlert
           variant="info"
-          title="Etapa 2 de 3"
-          description="Revise o responsavel e informe o endereco. A operação do ponto sera definida na proxima etapa."
+          title="Quase lá! (Etapa 2 de 3)"
+          description="Dê uma conferida rápida nos seus dados de contato e nos diga o endereço exato onde você vai receber os materiais."
         />
 
         <div className="grid gap-4 lg:grid-cols-2">
           <SectionCard
-            title="Dados do responsavel"
-            description="Informacoes trazidas da etapa anterior."
+            title="Seus dados (Resumo)"
+            description="Informações que você preencheu na etapa anterior."
             className="p-4 sm:p-5"
           >
             <dl className="space-y-3 text-sm">
@@ -91,8 +115,8 @@ export default function Company() {
           </SectionCard>
 
           <SectionCard
-            title="Dados da empresa"
-            description="O documento informado identifica se o pedido e de pessoa fisica ou juridica."
+            title="Documento cadastrado"
+            description="Isso nos ajuda a saber se você é uma pessoa física ou uma empresa."
             className="p-4 sm:p-5"
           >
             <dl className="space-y-3 text-sm">
@@ -184,10 +208,10 @@ export default function Company() {
           <Button
             type="submit"
             variant="brandPrimary"
-            disabled={cepStatus.loading}
+            disabled={cepStatus.loading || isGeocoding}
             className="h-14 w-full rounded-full text-base font-semibold sm:text-lg"
           >
-            {cepStatus.loading ? "Aguarde a busca..." : "Continuar"}
+            {cepStatus.loading ? "Aguarde a busca do CEP..." : isGeocoding ? "Calculando localização..." : "Continuar"}
           </Button>
         </form>
       </div>

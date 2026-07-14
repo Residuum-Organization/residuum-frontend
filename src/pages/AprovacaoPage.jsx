@@ -83,8 +83,8 @@ export default function Aprovação() {
     onSuccess: () => {
       setFeedback({
         variant: "success",
-        title: "Descarte confirmado com sucesso.",
-        description: "A fila será atualizada com os dados retornados pela API.",
+        title: "Tudo certo!",
+        description: "O descarte foi aprovado e o material já consta no estoque.",
       });
       queryClient.invalidateQueries({ queryKey: queryKeys.pendingDiscards });
     },
@@ -111,8 +111,8 @@ export default function Aprovação() {
     onSuccess: () => {
       setFeedback({
         variant: "success",
-        title: "Solicitação removida da fila de pendências.",
-        description: "A rejeição foi concluída pela resposta real da API.",
+        title: "Descarte rejeitado.",
+        description: "A solicitação foi removida da sua lista de pendências.",
       });
       queryClient.invalidateQueries({ queryKey: queryKeys.pendingDiscards });
     },
@@ -216,14 +216,7 @@ export default function Aprovação() {
           </section>
         ) : null}
 
-        {!isLoading && !isError && cards.length > 0 ? (
-          <InlineAlert variant="info">
-            <span className="inline-flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 shrink-0" aria-hidden="true" />
-              Aprovação e rejeição usam as mutations existentes. O feedback de sucesso só aparece depois da resposta da API.
-            </span>
-          </InlineAlert>
-        ) : null}
+
       </div>
     </AdminShell>
   );

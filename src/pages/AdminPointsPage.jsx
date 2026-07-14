@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { AlertTriangle, Eye, MapPin, SlidersHorizontal, ArrowLeft, Loader2 } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { AlertTriangle, Eye, MapPin, SlidersHorizontal, ArrowLeft, Loader2, PowerOff } from "lucide-react";
 
 import AdminShell from "../components/admin/AdminShell";
 import Button from "../components/ui/Button";
@@ -12,12 +12,14 @@ import PageHeader from "../components/ui/PageHeader";
 import SectionCard from "../components/ui/SectionCard";
 import LoadingState from "../components/ui/LoadingState";
 import ErrorState from "../components/ui/ErrorState";
-import { getAdminPoints } from "../services/admin";
+import { getAdminPoints, deactivateCollectionPoint } from "../services/admin";
 import { listCollectionPoints } from "../services/collectionPoints";
 
 export default function AdminPoints() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [filter, setFilter] = useState("all");
+  const [feedback, setFeedback] = useState(null);
 
   const { data: ocupacaoData, isLoading: ocupacaoLoading, isError: ocupacaoError, refetch: refetchOcupacao } = useQuery({
     queryKey: ["adminPointsOcupacao"],
@@ -49,7 +51,7 @@ export default function AdminPoints() {
       return {
         id: ocup.ponto_coleta_id,
         name: ocup.nome,
-        address: p ? p.endereco_completo : "Endereço indisponível",
+        address: p?.endereco || "Endereço indisponível",
         percent: percent,
         status: status,
         tone: tone,
@@ -76,6 +78,17 @@ export default function AdminPoints() {
     refetchPoints();
   };
 
+  const deactivateMutation = useMutation({
+    mutationFn: (id) => deactivateCollectionPoint(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["adminPointsOcupacao"] });
+      queryClient.invalidateQueries({ queryKey: ["adminPointsDetails"] });
+    },
+    onError: (err) => {
+      setFeedback({ tone: "error", message: "Não foi possível desativar o ponto: " + err.message });
+    }
+  });
+
   return (
     <AdminShell>
       <PageHeader
@@ -96,6 +109,12 @@ export default function AdminPoints() {
         <MetricCard label="Pontos criticos" value={criticalCount} variant="error" />
         <MetricCard label="Requerem atencao" value={attentionCount} variant="warning" />
       </section>
+
+      {feedback && (
+        <div className="mt-5">
+          <InlineAlert variant={feedback.tone}>{feedback.message}</InlineAlert>
+        </div>
+      )}
 
       <SectionCard
         className="mt-6"
@@ -142,7 +161,16 @@ export default function AdminPoints() {
         ) : (
           <div className="grid gap-3 lg:grid-cols-2">
             {filteredPoints.map((point) => (
-              <PointCard key={point.id} point={point} />
+              <PointCard 
+                key={point.id} 
+                point={point} 
+                onDeactivate={(id) => {
+                  if (window.confirm("Tem certeza que deseja desativar este ponto de coleta? Ele não receberá mais descartes.")) {
+                    deactivateMutation.mutate(id);
+                  }
+                }}
+                isDeactivating={deactivateMutation.isLoading && deactivateMutation.variables === point.id}
+              />
             ))}
           </div>
         )}
@@ -195,7 +223,7 @@ function MetricCard({ label, value, variant = "primary" }) {
   );
 }
 
-function PointCard({ point }) {
+function PointCard({ point, onDeactivate, isDeactivating }) {
   return (
     <article className="rounded-2xl border border-[var(--color-border)] bg-white p-4 shadow-sm">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -230,10 +258,16 @@ function PointCard({ point }) {
           </p>
           <button
             type="button"
-            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-2xl border border-[var(--color-border)] px-3 text-sm font-bold text-[var(--color-primary)] transition hover:border-[var(--color-primary)]/40 hover:bg-[var(--color-surface)] focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/30"
+            onClick={() => onDeactivate(point.id)}
+            disabled={isDeactivating}
+            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-2xl border border-rose-200 bg-white px-3 text-sm font-bold text-rose-600 transition hover:border-rose-300 hover:bg-rose-50 focus-visible:ring-2 focus-visible:ring-rose-500/30 disabled:opacity-50"
           >
-            <Eye className="h-4 w-4" aria-hidden="true" />
-            Visualizar
+            {isDeactivating ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <PowerOff className="h-4 w-4" aria-hidden="true" />
+            )}
+            {isDeactivating ? "Desativando..." : "Desativar Ponto"}
           </button>
         </div>
       </div>
