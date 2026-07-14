@@ -1,78 +1,116 @@
-# Residuum Frontend
+# Residuum
 
-Frontend da plataforma Residuum, uma aplicacao mobile-first para gestao inteligente de residuos reciclaveis. O sistema conecta moradores, pontos de coleta e cooperativas em um fluxo completo de descarte, rastreamento e gamificacao.
+> Plataforma inteligente para gestão de resíduos recicláveis com foco em logística verde, rastreamento ambiental e engajamento via gamificação.
 
-## Stack Tecnologico
+O **Residuum** é uma aplicação focada em modernizar o ciclo de descarte sustentável. O sistema cria uma ponte digital entre moradores (geradores de resíduos), pontos de coleta e cooperativas de reciclagem. Através de um fluxo transparente, garante-se rastreabilidade do resíduo e recompensa ao usuário, incentivando a economia circular sustentável.
 
-| Camada | Tecnologia |
-|---|---|
-| Framework | React 18 + Vite |
-| Estilizacao | Tailwind CSS |
-| Roteamento | React Router DOM v6 (protecao por roles) |
-| Estado do Servidor | @tanstack/react-query |
-| Requisicoes HTTP | Axios (interceptor com JWT) |
-| Formularios | React Hook Form + Zod |
-| Graficos | Recharts |
-| Mapas | Leaflet / OpenStreetMap |
-| Icones | Lucide React |
+---
 
-## Arquitetura
+## 🎯 Principais Funcionalidades
 
-O projeto adota um modelo de **Shell Architecture** baseado em perfis de acesso:
+- **Mapeamento e Geofencing:** Localização de pontos de coleta integrados com mapas e validação de presença física do usuário (GPS/Raio de Tolerância) para evitar fraudes no descarte.
+- **Validação Offline-first (QR Code):** Alternativa para registro de descarte sem dependência imediata de rede.
+- **Sistema de Agendamento:** Gestão de calendário para reservas e janelas de atendimento logístico das cooperativas.
+- **Ecossistema de Gamificação:** Conversão de material reciclável em pontos virtuais.
+- **Marketplace de Recompensas:** Troca dinâmica de pontos por Vouchers, produtos em parceiros e bilhetes para Sorteios promovidos por campanhas.
+- **Painel Administrativo (B2B):** Dashboards gerenciais em tempo real com métricas agregadas de impacto ambiental e moderação de perfis.
 
-- **Morador (usuario):** Dashboard pessoal com KPIs de impacto, mapa de pontos de coleta, inventario de residuos, sorteios e extrato de pontuacao.
-- **Cooperativa/Ponto de Coleta (operacional):** Dashboard operacional com volume de residuos, aprovacao de descartes pendentes e gestao de pontuacao dos moradores.
-- **Administrador (admin):** Painel centralizado com metricas agregadas em tempo real, gestao de usuarios, pontos de coleta e campanhas.
+---
 
-Cada perfil e envelopado por um componente de layout dedicado (`RoleShell` ou `AdminShell`) que gerencia a navegacao de forma adaptativa: sidebar fixa em desktop e navegacao inferior (BottomNav) em dispositivos moveis.
+## 💻 Tecnologias e Ferramentas
 
-## Configuracao
+O desenvolvimento da interface segue os padrões modernos do ecossistema React, privilegiando performance e manutenibilidade.
 
-1. Instalar dependencias:
+**Core & Interface:**
+- React 18 + Vite
+- Tailwind CSS (Estilização utilitária e Design System interno)
+- Lucide React (Ícones vetoriais)
+- Recharts (Visualização de dados)
+- Leaflet / OpenStreetMap (Mapas open-source)
+
+**Gerenciamento de Estado & Comunicação HTTP:**
+- TanStack Query (React Query)
+- Axios (Interceptor de autenticação com JWT)
+
+**Arquitetura de Dados no Client:**
+- React Hook Form
+- Zod (Validação de schemas)
+
+**Infraestrutura:**
+- pnpm (Gerenciador de pacotes otimizado)
+- Docker & Docker Compose (Containerização para desenvolvimento isolado)
+
+---
+
+## 🏗️ Arquitetura
+
+A fundação do projeto implementa um padrão de **Role-Based Shell Architecture**, permitindo que o layout se adapte drasticamente de acordo com a permissão (Role) do usuário autenticado.
+
+1. **User Shell (Morador):** Experiência mobile-first focada em conversão. Menu inferior (BottomNav), fluxos guiados de descarte e visualização clara de saldos e resgates.
+2. **Operational Shell (Cooperativa/Ponto):** Experiência híbrida focada em volumetria e validação. Listagem de chamados, fluxo de aprovação de descarte, pesagem e gestão de capacidade física.
+3. **Admin Shell (Administrador):** Experiência desktop-first focada em relatórios. Visualização global, moderação de cooperativas (KYC), criação de Campanhas, Sorteios e auditoria (Audit Logs).
+
+---
+
+## 🚀 Como Executar o Projeto
+
+Para executar o Residuum, você precisará ter o [Docker](https://docs.docker.com/get-docker/) instalado ou o ambiente Node.js com [pnpm](https://pnpm.io/).
+
+### Ambientes via Docker (Recomendado)
+
+A infraestrutura local com Docker abstrai a necessidade de instalar ferramentas de Node localmente e configura o mapeamento de volumes para que o *Hot-Reload* do Vite funcione de forma transparente no container.
+
 ```bash
-npm install
+# Inicia a aplicação expondo a porta 5173
+docker compose up -d --build
+
+# Para visualizar os logs de execução
+docker compose logs -f
 ```
 
-2. Criar o arquivo `.env` na raiz do projeto:
+Acesse a aplicação em `http://localhost:5173`.
+
+### Ambientes Manuais (Bare-metal)
+
+1. Clone o repositório e instale as dependências rigorosamente através do `pnpm` (que respeitará o `pnpm-lock.yaml`):
+```bash
+pnpm install
+```
+
+2. Crie ou copie o arquivo `.env` referenciando a URL da API backend:
 ```env
-VITE_API_BASE_URL=http://localhost:8080
+VITE_API_URL=http://localhost:8080
 ```
-O valor deve apontar para a instancia do backend Python (`backend-residuum`).
 
-3. Iniciar o servidor de desenvolvimento:
+3. Inicie o servidor em modo watch:
 ```bash
-npm run dev
+pnpm run dev
 ```
 
-## Scripts Disponiveis
+---
 
-| Comando | Descricao |
-|---|---|
-| `npm run dev` | Inicia o servidor de desenvolvimento (Vite) |
-| `npm run build` | Gera o build otimizado para producao |
-| `npm run preview` | Serve o build de producao localmente |
-| `npm run format` | Aplica formatacao com Prettier |
+## 📦 Estrutura de Diretórios
 
-## Estrutura de Diretorios
+O projeto utiliza um design modular agrupado por responsabilidades técnicas e domínios.
 
-```
+```text
 src/
-  api/            # Cliente Axios e interceptors
-  components/     # Componentes reutilizaveis (ui, layout, admin, auth, forms, dashboard, maps)
-  constants/      # Configuracoes estaticas (roleNavigation)
-  hooks/          # Hooks customizados
-  pages/          # Paginas da aplicacao
-  providers/      # Providers de contexto (Auth, QueryClient)
-  services/       # Camada de servicos (chamadas REST organizadas por dominio)
-  utils/          # Utilitarios e helpers
+├── api/          # Configuração base do Axios e interceptors de Refresh Token
+├── components/   # Componentes puramente de interface (ui) ou de domínios (admin, forms)
+├── constants/    # Definições estáticas, paletas, dicionários e metadados de navegação
+├── hooks/        # Lógica de interface abstraída (useAuth, usePermissions)
+├── pages/        # Views principais injetadas no Router
+├── providers/    # Injeção de dependências globais (Contextos do React)
+├── services/     # Funções de acesso às chamadas da REST API 
+└── utils/        # Funções de formatação e utilitários puros
 ```
 
-## Contribuicao
+---
 
-- Branches nomeadas por contexto: `feature/<nome>`, `fix/<nome>`, `refactor/<nome>`.
-- Mensagens de commit seguindo o padrao Conventional Commits.
-- Pull Requests direcionados para a branch `main`.
+## 🤝 Contribuição
 
-## Repositorio
+Para garantir a estabilidade do repositório principal, por favor siga nosso guia de versionamento:
 
-https://github.com/quely78/residuum
+- **Commits:** Siga os padrões do [Conventional Commits](https://www.conventionalcommits.org/). Exemplos: `feat(ui): ...`, `fix(api): ...`.
+- **Branches:** Utilize o prefixo correspondente, ex: `feature/adiciona-mapa`, `bugfix/corrige-token`.
+- As integrações com a `main` ocorrem estritamente via **Pull Request (PR)** com revisão por pares.
