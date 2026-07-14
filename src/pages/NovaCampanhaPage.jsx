@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CalendarDays, Gift, MapPin, Recycle, Users, ArrowLeft } from "lucide-react";
 import AdminShell from "../components/admin/AdminShell";
 import FormField from "../components/forms/FormField";
@@ -8,76 +9,73 @@ import InlineAlert from "../components/ui/InlineAlert";
 import LoadingButton from "../components/ui/LoadingButton";
 import PageHeader from "../components/ui/PageHeader";
 import SectionCard from "../components/ui/SectionCard";
+import { createCampanha } from "../services/admin";
+import { getApiErrorMessage } from "../services/http/getApiErrorMessage";
 
 const estadoInicial = {
-  nome: "",
-  empresa: "",
-  periodo: "",
-  locais: "",
-  residuo: "",
-  premiacao: "",
+  titulo: "",
+  descricao: "",
+  patrocinador: "",
+  pontos_recompensa: "",
+  data_inicio: "",
+  data_fim: "",
 };
 
 export default function NovaCampanhaPage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [formulario, setFormulario] = useState(estadoInicial);
   const [erro, setErro] = useState("");
   const [sucesso, setSucesso] = useState(false);
 
+  const mutation = useMutation({
+    mutationFn: (payload) => createCampanha(payload),
+    onSuccess: () => {
+      setErro("");
+      setSucesso(true);
+      setFormulario(estadoInicial);
+      queryClient.invalidateQueries(["campanhas"]);
+      setTimeout(() => {
+        navigate("/campanhas");
+      }, 1200);
+    },
+    onError: (error) => {
+      setErro(getApiErrorMessage(error, "Erro ao salvar a campanha"));
+    },
+  });
+
   function atualizarCampo(event) {
     const { name, value } = event.target;
-
     setFormulario((dadosAtuais) => ({
       ...dadosAtuais,
       [name]: value,
     }));
   }
 
+
+
   function salvarCampanha(event) {
     event.preventDefault();
-
     if (
-      !formulario.nome ||
-      !formulario.empresa ||
-      !formulario.periodo ||
-      !formulario.locais ||
-      !formulario.residuo ||
-      !formulario.premiacao
+      !formulario.titulo ||
+      !formulario.patrocinador ||
+      !formulario.pontos_recompensa
     ) {
-      setErro("Preencha todos os campos antes de salvar a campanha.");
+      setErro("Preencha título, patrocinador e pontos de recompensa antes de salvar.");
       return;
     }
 
-    const novaCampanha = {
-      id: Date.now(),
-      nome: formulario.nome,
-      empresa: formulario.empresa,
-      status: "Planejada",
-      periodo: formulario.periodo,
-      locais: formulario.locais,
-      residuo: formulario.residuo,
-      premiacao: formulario.premiacao,
-      progresso: 0,
-      tipo: "personalizada",
+    const payload = {
+      titulo: formulario.titulo,
+      descricao: formulario.descricao || null,
+      patrocinador: formulario.patrocinador,
+      pontos_recompensa: Number(formulario.pontos_recompensa) || 0,
+      status: "ativa",
+      data_inicio: formulario.data_inicio ? new Date(formulario.data_inicio).toISOString() : null,
+      data_fim: formulario.data_fim ? new Date(formulario.data_fim).toISOString() : null,
     };
 
-    const campanhasSalvas =
-      JSON.parse(localStorage.getItem("campanhasCriadas")) || [];
-
-    const campanhasAtualizadas = [...campanhasSalvas, novaCampanha];
-
-    localStorage.setItem(
-      "campanhasCriadas",
-      JSON.stringify(campanhasAtualizadas)
-    );
-
-    setErro("");
-    setSucesso(true);
-    setFormulario(estadoInicial);
-
-    setTimeout(() => {
-      navigate("/campanhas");
-    }, 1200);
+    mutation.mutate(payload);
   }
 
   return (
@@ -85,9 +83,8 @@ export default function NovaCampanhaPage() {
       <div className="space-y-5">
         <div>
           <PageHeader
-            eyebrow="Cadastro local"
             title="Nova Campanha"
-            description="Preencha os dados da empresa apoiadora, periodo, publico e premiacao. O painel proprio da apoiadora ainda nao existe."
+            description="Cadastre uma nova campanha na plataforma."
             action={
               <Button type="button" variant="secondary" onClick={() => navigate("/campanhas")}>
                 <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
@@ -95,12 +92,6 @@ export default function NovaCampanhaPage() {
             }
           />
         </div>
-
-        <InlineAlert
-          variant="warning"
-          title="Fluxo demonstrativo"
-          description="A campanha criada sera salva no navegador via localStorage. Nenhum endpoint, payload de API ou role de empresa apoiadora foi alterado."
-        />
 
         {erro ? <InlineAlert variant="error" description={erro} /> : null}
 
@@ -118,128 +109,95 @@ export default function NovaCampanhaPage() {
           >
             <div className="grid gap-4 md:grid-cols-2">
               <FormField
-                id="nome"
-                label="Nome da campanha"
-                name="nome"
-                value={formulario.nome}
+                id="titulo"
+                label="Título da campanha"
+                name="titulo"
+                value={formulario.titulo}
                 onChange={atualizarCampo}
                 placeholder="Ex: Campanha Heineken"
               />
 
               <FormField
-                id="empresa"
-                label="Empresa apoiadora"
-                name="empresa"
-                value={formulario.empresa}
+                id="patrocinador"
+                label="Patrocinador"
+                name="patrocinador"
+                value={formulario.patrocinador}
                 onChange={atualizarCampo}
                 placeholder="Ex: Heineken"
+              />
+            </div>
+            <div className="mt-4">
+              <FormField
+                id="descricao"
+                label="Descrição"
+                as="textarea"
+                name="descricao"
+                value={formulario.descricao}
+                onChange={atualizarCampo}
+                placeholder="Detalhes sobre a campanha"
               />
             </div>
           </SectionCard>
 
           <div className="grid gap-5 lg:grid-cols-2">
             <SectionCard
-              title="Periodo"
+              title="Período"
               description="Informe a janela operacional da campanha."
             >
-              <CampoComIcone icon={CalendarDays}>
-                <FormField
-                  id="periodo"
-                  label="Periodo da campanha"
-                  name="periodo"
-                  value={formulario.periodo}
-                  onChange={atualizarCampo}
-                  placeholder="Ex: 01/04/2026 - 30/04/2026"
-                />
-              </CampoComIcone>
-            </SectionCard>
-
-            <SectionCard
-              title="Publico e condicoes"
-              description="Defina regioes e material aceito."
-            >
               <div className="grid gap-4">
-                <CampoComIcone icon={MapPin}>
+                <CampoComIcone icon={CalendarDays}>
                   <FormField
-                    id="locais"
-                    label="Regioes participantes"
-                    name="locais"
-                    value={formulario.locais}
+                    id="data_inicio"
+                    type="date"
+                    label="Data de Início"
+                    name="data_inicio"
+                    value={formulario.data_inicio}
                     onChange={atualizarCampo}
-                    placeholder="Ex: Norte, Sul e Leste"
                   />
                 </CampoComIcone>
 
-                <CampoComIcone icon={Recycle}>
+                <CampoComIcone icon={CalendarDays}>
                   <FormField
-                    id="residuo"
-                    label="Tipo de residuo"
-                    name="residuo"
-                    value={formulario.residuo}
+                    id="data_fim"
+                    type="date"
+                    label="Data de Fim"
+                    name="data_fim"
+                    value={formulario.data_fim}
                     onChange={atualizarCampo}
-                    placeholder="Ex: Garrafas PET"
+                  />
+                </CampoComIcone>
+              </div>
+            </SectionCard>
+
+            <SectionCard
+              title="Recompensa"
+              description="Defina a pontuação."
+            >
+              <div className="grid gap-4">
+                <CampoComIcone icon={Gift}>
+                  <FormField
+                    id="pontos_recompensa"
+                    type="number"
+                    label="Pontos de Recompensa"
+                    name="pontos_recompensa"
+                    value={formulario.pontos_recompensa}
+                    onChange={atualizarCampo}
+                    placeholder="Ex: 30"
                   />
                 </CampoComIcone>
               </div>
             </SectionCard>
           </div>
 
-          <SectionCard
-            title="Recompensa e premiacao"
-            description="Descreva os premios ou beneficios previstos."
-          >
-            <CampoComIcone icon={Gift}>
-              <FormField
-                id="premiacao"
-                as="textarea"
-                label="Premiacao"
-                name="premiacao"
-                value={formulario.premiacao}
-                onChange={atualizarCampo}
-                placeholder="Descreva os premios da campanha"
-              />
-            </CampoComIcone>
-          </SectionCard>
-
-          <SectionCard
-            title="Pontos de coleta participantes"
-            description="Esta versao ainda usa a descricao de regioes participantes informada acima."
-          >
-            <div className="flex items-start gap-3 rounded-2xl border border-dashed border-[var(--color-border)] bg-[var(--color-surface)] p-4">
-              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-white text-[var(--color-primary)] shadow-sm">
-                <Users className="h-5 w-5" aria-hidden="true" />
-              </div>
-              <p className="text-sm font-medium leading-6 text-[var(--color-text-muted)]">
-                Nenhum seletor de pontos foi adicionado nesta fase para preservar
-                o fluxo atual. Use o campo de regioes participantes para orientar
-                a campanha.
-              </p>
-            </div>
-          </SectionCard>
-
-          <SectionCard
-            title="Revisao"
-            description="Confira os principais dados antes de salvar."
-          >
-            <ResumoFormulario formulario={formulario} />
-          </SectionCard>
-
-          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => navigate("/campanhas")}
-              disabled={sucesso}
-            >
-              Cancelar
-            </Button>
+          <div className="flex justify-end pt-5">
             <LoadingButton
-              type="submit"
-              isLoading={sucesso}
+              isLoading={mutation.isPending}
               loadingText="Salvando..."
-              disabled={sucesso}
+              type="submit"
+              variant="brandPrimary"
+              className="w-full rounded-full text-base sm:w-auto sm:px-10"
             >
-              Salvar campanha
+              Salvar Campanha
             </LoadingButton>
           </div>
         </form>
@@ -250,39 +208,11 @@ export default function NovaCampanhaPage() {
 
 function CampoComIcone({ icon: Icon, children }) {
   return (
-    <div className="grid gap-3 sm:grid-cols-[44px_1fr]">
-      <div className="hidden h-11 w-11 place-items-center rounded-2xl bg-[var(--color-surface)] text-[var(--color-primary)] sm:grid">
+    <div className="flex items-start gap-3">
+      <div className="mt-7 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[var(--color-surface)] text-[var(--color-primary)]">
         <Icon className="h-5 w-5" aria-hidden="true" />
       </div>
-      <div className="min-w-0">{children}</div>
+      <div className="min-w-0 grow">{children}</div>
     </div>
-  );
-}
-
-function ResumoFormulario({ formulario }) {
-  const itens = [
-    ["Campanha", formulario.nome || "Nao informado"],
-    ["Empresa", formulario.empresa || "Nao informado"],
-    ["Periodo", formulario.periodo || "Nao informado"],
-    ["Regioes", formulario.locais || "Nao informado"],
-    ["Residuo", formulario.residuo || "Nao informado"],
-  ];
-
-  return (
-    <dl className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-      {itens.map(([label, value]) => (
-        <div
-          key={label}
-          className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-3"
-        >
-          <dt className="text-xs font-bold uppercase text-[var(--color-text-muted)]">
-            {label}
-          </dt>
-          <dd className="mt-1 break-words text-sm font-semibold text-[var(--color-primary)]">
-            {value}
-          </dd>
-        </div>
-      ))}
-    </dl>
   );
 }
