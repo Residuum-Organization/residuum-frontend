@@ -13,4 +13,5 @@ export const queryKeys = {
   collectionPointDashboard: ["collection-point-dashboard"],
   collectionPointRequestStatus: ["collection-point-request-status"],
   collectionPoints: (filters = {}) => ["collection-points", filters],
+  pendingCollectionPoints: ["pending-collection-points"],
 };

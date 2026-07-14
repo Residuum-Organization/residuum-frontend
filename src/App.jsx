@@ -38,6 +38,7 @@ import Certificadodecoleta from "./pages/Certificadodecoleta";
 import LogoutPage from "./pages/LogoutPage";
 import LandingPage from "./pages/LandingPage";
 import AdminSorteiosPage from "./pages/AdminSorteiosPage";
+import AdminAprovacaoPontosPage from "./pages/AdminAprovacaoPontosPage";
 
 const moradorRoutes = [
   {
@@ -148,6 +149,7 @@ const aprovacaoRoute = {
 const adminRoutes = [
   { path: "/admin", label: "Painel admin", Component: AdminPage },
   { path: "/admin-sorteios", label: "Sorteios", Component: AdminSorteiosPage },
+  { path: "/admin-aprovacao-pontos", label: "Novos Pontos", Component: AdminAprovacaoPontosPage },
   {
     path: "/campanhas",
     label: "Campanhas",

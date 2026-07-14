@@ -27,8 +27,9 @@ export const roleNavigation = {
   ],
   admin: [
     { to: "/admin", label: "Painel", Icon: LayoutDashboard },
-    { to: "/aprovacao", label: "Aprovação", Icon: CheckCircle2 },
-    { to: "/admin-pontos", label: "Pontos", Icon: MapPin },
+    { to: "/admin-aprovacao-pontos", label: "Novos Pontos", Icon: CheckCircle2 },
+    { to: "/aprovacao", label: "Auditoria", Icon: Warehouse },
+    { to: "/admin-pontos", label: "Pontos Ativos", Icon: MapPin },
     { to: "/usuarios", label: "Usuários", Icon: Users },
     { to: "/campanhas", label: "Campanhas", Icon: Megaphone },
     { to: "/admin-sorteios", label: "Sorteios", Icon: Star },
