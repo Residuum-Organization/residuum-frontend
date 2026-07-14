@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import * as authService from "../services/auth";
-import { setAccessToken, clearAccessToken, getAccessToken } from "../api/token";
+import { setAccessToken, clearAccessToken, getAccessToken, setRefreshToken, clearRefreshToken } from "../api/token";
 import { useQueryClient } from "@tanstack/react-query";
 
 const AuthContext = createContext();
@@ -12,24 +12,33 @@ export const AuthProvider = ({ children }) => {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    if (!getAccessToken()) {
+    const token = getAccessToken();
+    if (!token) {
       setLoading(false);
       return undefined;
     }
 
     (async () => {
       try {
-        const res = await authService.refresh();
-        const { accessToken, user } = res;
-        if (accessToken) {
-          setAccessToken(accessToken);
+        const user = await authService.getMeWithToken(token);
+        if (user) {
           setUser(user);
           setAuthenticated(true);
         }
       } catch (e) {
-        clearAccessToken();
-        setUser(null);
-        setAuthenticated(false);
+        // Se falhar (ex: token expirado), tenta fazer o refresh como fallback
+        try {
+          const res = await authService.refresh();
+          if (res.accessToken) {
+            setAccessToken(res.accessToken);
+            setUser(res.user);
+            setAuthenticated(true);
+          }
+        } catch (refreshErr) {
+          clearAccessToken();
+          setUser(null);
+          setAuthenticated(false);
+        }
       } finally {
         setLoading(false);
       }
@@ -37,7 +46,6 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (email, password, rememberMe = true) => {
-    const { setRefreshToken, clearRefreshToken } = require("../api/token");
     // Limpa sessão anterior antes de logar
     clearAccessToken();
     clearRefreshToken();
@@ -64,7 +72,6 @@ export const AuthProvider = ({ children }) => {
     } catch (e) {
       // ignore
     }
-    const { clearRefreshToken } = require("../api/token");
     clearAccessToken();
     clearRefreshToken();
     setUser(null);

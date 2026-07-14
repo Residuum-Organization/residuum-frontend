@@ -1,9 +1,9 @@
 import api from "../../api/client";
-import { getAccessToken } from "../../api/token";
+import { getAccessToken, getRefreshToken, setRefreshToken, setAccessToken } from "../../api/token";
 import { getApiErrorMessage } from "../http/getApiErrorMessage";
 import { phoneSchema, emailSchema } from "../../schemas/validations";
 
-const getMeWithToken = async (accessToken) => {
+export const getMeWithToken = async (accessToken) => {
   const res = await api.get("/me", {
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -55,11 +55,6 @@ export const registerUser = async ({ name, email, phone, password }) => {
 };
 
 export const refresh = async () => {
-  const {
-    getRefreshToken,
-    setRefreshToken,
-    setAccessToken,
-  } = require("../../api/token");
   const refreshToken = getRefreshToken();
 
   if (!refreshToken) {
