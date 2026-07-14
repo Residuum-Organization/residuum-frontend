@@ -1,14 +1,14 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import Button from "../components/ui/Button";
 import { useAuth } from "../contexts/AuthContext";
 import { getRoleHome } from "../utils/roles";
-import { useEffect } from "react";
 
 export default function WelcomePage() {
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
+  const [view, setView] = useState('initial'); // 'initial' | 'register'
 
   useEffect(() => {
     if (isAuthenticated && user) {
@@ -20,7 +20,10 @@ export default function WelcomePage() {
     <main className="min-h-screen bg-[var(--color-welcome-surface)] px-4 py-5 sm:px-6 sm:py-8 lg:grid lg:place-items-center">
       <section className="mx-auto flex w-full max-w-5xl flex-col gap-6 rounded-2xl bg-white p-5 shadow-sm shadow-slate-200/70 sm:p-8 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(21rem,0.8fr)] lg:items-center lg:gap-10 relative">
         <button
-          onClick={() => navigate("/")}
+          onClick={() => {
+            if (view === 'register') setView('initial');
+            else navigate("/");
+          }}
           className="absolute top-4 left-4 sm:top-6 sm:left-6 flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-emerald-600 transition-colors"
         >
           <ArrowLeft size={18} />
@@ -50,37 +53,52 @@ export default function WelcomePage() {
         />
 
         <div className="space-y-3 sm:space-y-4 lg:col-span-2 lg:mx-auto lg:w-full lg:max-w-md">
-          <Button
-            variant="brandPrimary"
-            onClick={() => navigate("/login")}
-            className="h-14 w-full rounded-full text-base font-semibold sm:h-16 sm:text-lg"
-          >
-            Entrar como morador
-          </Button>
+          {view === 'initial' ? (
+            <>
+              <Button
+                variant="brandPrimary"
+                onClick={() => navigate("/login")}
+                className="h-14 w-full rounded-full text-base font-semibold sm:h-16 sm:text-lg"
+              >
+                Entrar na minha conta
+              </Button>
 
-          <div className="flex w-full items-center gap-2.5 text-[var(--color-welcome-muted)] sm:gap-3">
-            <hr className="m-0 h-px basis-0 grow border-0 bg-current" />
-            <span className="shrink-0 text-base font-semibold leading-none sm:text-lg">
-              ou
-            </span>
-            <hr className="m-0 h-px basis-0 grow border-0 bg-current" />
-          </div>
+              <div className="flex w-full items-center gap-2.5 text-[var(--color-welcome-muted)] sm:gap-3">
+                <hr className="m-0 h-px basis-0 grow border-0 bg-current" />
+                <span className="shrink-0 text-base font-semibold leading-none sm:text-lg">
+                  ou
+                </span>
+                <hr className="m-0 h-px basis-0 grow border-0 bg-current" />
+              </div>
 
-          <Button
-            variant="brandOutline"
-            onClick={() => navigate("/admin")}
-            className="h-14 w-full rounded-full border-2 text-base font-semibold sm:h-16 sm:text-lg"
-          >
-            Entrar como funcionario
-          </Button>
+              <Button
+                variant="brandOutline"
+                onClick={() => setView('register')}
+                className="h-14 w-full rounded-full border-2 text-base font-semibold sm:h-16 sm:text-lg"
+              >
+                Cadastrar-se
+              </Button>
+            </>
+          ) : (
+            <>
+              <h3 className="text-center font-bold text-[var(--color-primary)] mb-4 text-xl">Como deseja se cadastrar?</h3>
+              <Button
+                variant="brandPrimary"
+                onClick={() => navigate("/register")}
+                className="h-14 w-full rounded-full text-base font-semibold sm:h-16 sm:text-lg"
+              >
+                Cadastrar como Morador
+              </Button>
 
-          <Button
-            variant="brandOutline"
-            onClick={() => navigate("/cadastro-ponto-coleta")}
-            className="h-14 w-full rounded-full border-2 text-base font-semibold sm:h-16 sm:text-lg"
-          >
-            Entrar como ponto de coleta
-          </Button>
+              <Button
+                variant="brandOutline"
+                onClick={() => navigate("/cadastro-ponto-coleta")}
+                className="h-14 w-full rounded-full border-2 text-base font-semibold sm:h-16 sm:text-lg mt-3"
+              >
+                Cadastrar como Ponto de Coleta
+              </Button>
+            </>
+          )}
         </div>
       </section>
     </main>
