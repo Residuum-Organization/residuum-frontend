@@ -38,7 +38,7 @@ export default function AdminAprovacaoPontosPage() {
   const navigate = useNavigate();
 
   const {
-    data: pendingPoints = [],
+    data: pendingPointsData = {},
     isLoading,
     isError,
     error,
@@ -48,6 +48,8 @@ export default function AdminAprovacaoPontosPage() {
     queryKey: queryKeys.pendingCollectionPoints,
     queryFn: listPendingCollectionPoints,
   });
+
+  const pendingPoints = Array.isArray(pendingPointsData) ? pendingPointsData : (pendingPointsData.items || []);
 
   const cards = useMemo(
     () =>
