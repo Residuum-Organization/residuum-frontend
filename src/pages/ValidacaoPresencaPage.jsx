@@ -470,7 +470,7 @@ export default function ValidacaoPresencaPage() {
               description="Pontos que aceitam todos os resíduos selecionados."
               action={compatiblePoints.length > 0 ? (
                 <span className="inline-flex min-h-8 items-center rounded-full bg-emerald-100 px-3 text-xs font-bold text-emerald-700">
-                  {compatiblePoints.length} compatível{compatiblePoints.length !== 1 ? 'is' : ''}
+                  {compatiblePoints.length} {compatiblePoints.length === 1 ? 'compatível' : 'compatíveis'}
                 </span>
               ) : null}
             >
