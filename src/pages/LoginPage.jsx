@@ -21,7 +21,7 @@ export default function LoginPage() {
       <div className="mx-auto w-full max-w-md">
         <button 
           type="button" 
-          onClick={() => navigate(-1)} 
+          onClick={() => navigate('/welcome')} 
           className="mb-4 inline-flex items-center text-sm font-semibold text-[var(--color-primary)] transition-opacity hover:opacity-80"
         >
           <ArrowLeft className="mr-2 h-4 w-4" /> Voltar

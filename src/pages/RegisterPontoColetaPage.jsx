@@ -60,7 +60,7 @@ export default function RegisterPontoColetaPage() {
       <div className="mb-6">
         <button 
           type="button" 
-          onClick={() => navigate(-1)} 
+          onClick={() => navigate('/welcome')} 
           className="inline-flex items-center text-sm font-semibold text-[var(--color-welcome-blue)] transition-opacity hover:opacity-80"
         >
           <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
