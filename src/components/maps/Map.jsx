@@ -58,6 +58,7 @@ export default function Map({
   markers = [],
   selectedMarkerId,
   onMarkerClick,
+  userLocation,
   height = '560px',
 }) {
   const validMarkers = markers.filter(
@@ -96,6 +97,15 @@ export default function Map({
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
+
+        {userLocation ? (
+          <Marker
+            position={[Number(userLocation.lat), Number(userLocation.lng)]}
+            icon={createMarkerIcon('#1F4E79')}
+          >
+            <Popup>Sua localizacao aproximada</Popup>
+          </Marker>
+        ) : null}
 
         {validMarkers.map((marker) => {
           const isSelected = String(marker.id) === String(selectedMarkerId)

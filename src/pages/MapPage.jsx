@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { MapPin, Navigation, ArrowLeft } from "lucide-react";
@@ -12,6 +12,7 @@ import LoadingState from "../components/ui/LoadingState";
 import ErrorState from "../components/ui/ErrorState";
 import Button from "../components/ui/Button";
 import { listCollectionPoints } from "../services/collectionPoints";
+import { queryKeys } from "../services/queryKeys";
 
 const initialCenter = { lat: -3.119, lng: -60.0217 };
 const wasteTypesOptions = [
@@ -29,10 +30,41 @@ export default function MapPage() {
   const navigate = useNavigate();
   const [selectedWasteType, setSelectedWasteType] = useState("Todos");
   const [selectedPoint, setSelectedPoint] = useState(null);
+  const [userLocation, setUserLocation] = useState(null);
+  const [locationStatus, setLocationStatus] = useState("requesting");
+
+  const requestLocation = () => {
+    if (!navigator.geolocation) {
+      setLocationStatus("unavailable");
+      return;
+    }
+
+    setLocationStatus("requesting");
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        setUserLocation({ lat: coords.latitude, lng: coords.longitude });
+        setLocationStatus("available");
+      },
+      () => setLocationStatus("denied"),
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 },
+    );
+  };
+
+  useEffect(() => {
+    requestLocation();
+  }, []);
 
   const { data: apiPoints = [], isLoading, isError } = useQuery({
-    queryKey: ['collectionPoints'],
-    queryFn: () => listCollectionPoints()
+    queryKey: queryKeys.collectionPoints({
+      tipo_residuo: selectedWasteType,
+      lat: userLocation?.lat,
+      long: userLocation?.lng,
+    }),
+    queryFn: () => listCollectionPoints({
+      ...(selectedWasteType !== "Todos" ? { tipo_residuo: selectedWasteType } : {}),
+      ...(userLocation ? { lat: userLocation.lat, long: userLocation.lng } : {}),
+    }),
+    enabled: locationStatus !== "requesting",
   });
 
   const formattedPoints = useMemo(() => {
@@ -45,7 +77,7 @@ export default function MapPage() {
       status: p.status === 'ativo' ? 'ativo' : 'inativo',
       statusLabel: p.status === 'ativo' ? 'Ativo' : 'Inativo',
       openingHours: p.horario_funcionamento || 'Não informado',
-      distanceKm: p.distancia_km || 0,
+      distanceKm: Number.isFinite(Number(p.distancia_km)) ? Number(p.distancia_km) : null,
       currentVolumeKg: p.total_inventario || 0,
       capacityKg: p.capacidade_maxima || 0,
       fillPercentage: p.percentual_ocupacao || 0,
@@ -90,6 +122,19 @@ export default function MapPage() {
           <ErrorState title="Erro ao carregar os pontos de coleta da API." />
         )}
 
+        {locationStatus === "denied" || locationStatus === "unavailable" ? (
+          <InlineAlert
+            variant="warning"
+            title="Distancia indisponivel"
+            description="Permita o acesso a sua localizacao para ordenar os pontos por proximidade e calcular a distancia real."
+            action={
+              <Button type="button" variant="secondary" onClick={requestLocation}>
+                Tentar novamente
+              </Button>
+            }
+          />
+        ) : null}
+
         <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_380px] xl:items-start">
           <div className="space-y-4">
             <SectionCard
@@ -128,6 +173,7 @@ export default function MapPage() {
                   markers={filteredPoints}
                   selectedMarkerId={selected?.id}
                   onMarkerClick={setSelectedPoint}
+                  userLocation={userLocation}
                   height="clamp(300px, 46vh, 500px)"
                 />
               )}
@@ -195,7 +241,7 @@ function PointDetails({ point }) {
           <InfoLine label="Funcionamento" value={point.openingHours} />
             <InfoLine
             label="Distância"
-            value={`${point.distanceKm.toFixed(1).replace(".", ",")} km`}
+            value={point.distanceKm == null ? "Ative sua localizacao" : `${point.distanceKm.toFixed(1).replace(".", ",")} km`}
           />
           <InfoLine
             label="Quantidade acumulada"
@@ -268,7 +314,7 @@ function PointListItem({ point, active, onClick }) {
           </p>
         </div>
         <span className="shrink-0 text-xs font-black text-[#2EA44F]">
-          {point.distanceKm.toFixed(1).replace(".", ",")} km
+          {point.distanceKm == null ? "-" : `${point.distanceKm.toFixed(1).replace(".", ",")} km`}
         </span>
       </div>
 
