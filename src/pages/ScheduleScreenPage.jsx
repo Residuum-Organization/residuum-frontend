@@ -11,7 +11,7 @@ import Button from "../components/ui/Button";
 import SectionCard from "../components/ui/SectionCard";
 import InlineAlert from "../components/ui/InlineAlert";
 import { TIME_SLOTS } from "../constants/schedule";
-import { listCollectionPoints } from "../services/collectionPoints";
+import { listOperationalCollectionPoints } from "../services/collectionPoints";
 import { listAgendas, createAgenda, deleteAgenda } from "../services/admin";
 
 export default function ScheduleScreen() {
@@ -28,7 +28,7 @@ export default function ScheduleScreen() {
 
   const { data: points = [], isLoading: isLoadingPoints } = useQuery({
     queryKey: ["collectionPoints"],
-    queryFn: listCollectionPoints,
+    queryFn: listOperationalCollectionPoints,
   });
 
   const { data: agendas = [], isLoading: isLoadingAgendas } = useQuery({

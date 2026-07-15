@@ -9,3 +9,21 @@ export const listCollectionPoints = async (params = {}) => {
     throw new Error(getApiErrorMessage(error, "Não foi possível listar os pontos de coleta."))
   }
 }
+
+export const listOperationalCollectionPoints = async () => {
+  try {
+    const res = await api.get('/cooperativa/pontos-coleta')
+    return res.data
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, "Nao foi possivel listar os pontos da operacao."))
+  }
+}
+
+export const updateOperationalCollectionPoint = async (pointId, payload) => {
+  try {
+    const res = await api.put(`/pontos-coleta/${pointId}`, payload)
+    return res.data
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, "Nao foi possivel atualizar o ponto."))
+  }
+}
