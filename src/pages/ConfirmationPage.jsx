@@ -94,6 +94,20 @@ export default function Confirmation() {
 
   const requestMutation = useMutation({
     mutationFn: async (payload) => {
+      if (!isAuthenticated) {
+        try {
+          await registerUser({
+            name: draft.responsavel,
+            email: draft.email,
+            phone: draft.telefone,
+            password: draft.senha,
+          });
+        } catch (_registrationError) {
+          // An existing account can continue when the supplied credentials are valid.
+        }
+
+        await login(draft.email, draft.senha);
+      }
       return submitCollectionPointRequest(payload);
     },
     onSuccess: () => {
