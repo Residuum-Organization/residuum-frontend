@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { CheckCircle2, Clock3, X, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AuthShell from "../components/auth/AuthShell";
@@ -12,13 +12,10 @@ import {
   buildCollectionPointPayload,
   clearCollectionPointDraft,
   getCollectionPointDraft,
-  getCollectionPointRequestStatus,
   saveLocalCollectionPointRequestFallback,
   submitCollectionPointRequest,
 } from "../services/collectionPointRequests";
 import { getApiErrorMessage } from "../services/http/getApiErrorMessage";
-import { queryKeys } from "../services/queryKeys";
-import { registerUser } from "../services/auth";
 import { useAuth } from "../contexts/AuthContext";
 
 const residuos = ["Plastico", "Metal", "Vidro", "Papelao"];
@@ -49,6 +46,7 @@ const requiredPayloadFields = [
   ["documento", "Informe CPF ou CNPJ antes de finalizar."],
   ["responsavel_telefone", "Informe o telefone do responsavel antes de finalizar."],
   ["email", "Informe o e-mail do responsavel antes de finalizar."],
+  ["senha", "Informe a senha de acesso antes de finalizar."],
   ["endereco", "Informe o endereco do ponto antes de finalizar."],
   ["capacidade_maxima", "Informe a quantidade/capacidade antes de finalizar."],
   ["horario_funcionamento", "Informe o horario disponivel antes de finalizar."],
@@ -84,36 +82,14 @@ export default function Confirmation() {
   });
   const [feedback, setFeedback] = useState("");
   const [localFallback, setLocalFallback] = useState(null);
-  const { login, isAuthenticated } = useAuth();
-
-  const statusQuery = useQuery({
-    queryKey: queryKeys.collectionPointRequestStatus,
-    queryFn: getCollectionPointRequestStatus,
-    enabled: isAuthenticated,
-  });
+  const { logout } = useAuth();
 
   const requestMutation = useMutation({
-    mutationFn: async (payload) => {
-      if (!isAuthenticated) {
-        try {
-          await registerUser({
-            name: draft.responsavel,
-            email: draft.email,
-            phone: draft.telefone,
-            password: draft.senha,
-          });
-        } catch (_registrationError) {
-          // An existing account can continue when the supplied credentials are valid.
-        }
-
-        await login(draft.email, draft.senha);
-      }
-      return submitCollectionPointRequest(payload);
-    },
-    onSuccess: () => {
+    mutationFn: submitCollectionPointRequest,
+    onSuccess: async () => {
+      await logout();
       clearCollectionPointDraft();
       setLocalFallback(null);
-      statusQuery.refetch();
       setFeedback("Solicitacao enviada com sucesso.");
     },
     onError: (error, payload) => {
@@ -178,7 +154,7 @@ export default function Confirmation() {
     }
   }
 
-  const visibleStatus = requestMutation.data || statusQuery.data;
+  const visibleStatus = requestMutation.data;
   const fallbackStatus = localFallback || (visibleStatus?.isLocalFallback ? visibleStatus : null);
   const realStatus = visibleStatus && !visibleStatus.isLocalFallback ? visibleStatus : null;
   const currentStatus = realStatus?.status;

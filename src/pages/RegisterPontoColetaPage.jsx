@@ -19,6 +19,7 @@ const responsibleFields = [
 
 export default function RegisterPontoColetaPage() {
   const navigate = useNavigate();
+  const [feedback, setFeedback] = React.useState("");
   const [form, setForm] = React.useState({
     responsavel: "",
     documento: "",
@@ -35,6 +36,21 @@ export default function RegisterPontoColetaPage() {
 
   function handleSubmit(event) {
     event.preventDefault();
+
+    if (Object.values(form).some((value) => !String(value).trim())) {
+      setFeedback("Preencha todos os campos para continuar.");
+      return;
+    }
+    if (form.senha.length < 6) {
+      setFeedback("A senha deve ter pelo menos 6 caracteres.");
+      return;
+    }
+    if (form.senha !== form.confirmarSenha) {
+      setFeedback("As senhas informadas nao conferem.");
+      return;
+    }
+
+    setFeedback("");
     saveCollectionPointDraft({
       responsavel: form.responsavel,
       documento: form.documento,
@@ -95,6 +111,10 @@ export default function RegisterPontoColetaPage() {
               ))}
             </div>
           </SectionCard>
+
+          {feedback ? (
+            <InlineAlert variant="warning" title="Revise os dados" description={feedback} />
+          ) : null}
 
           <Button
             type="submit"

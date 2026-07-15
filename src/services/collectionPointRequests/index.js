@@ -139,6 +139,7 @@ export const buildCollectionPointPayload = (draft = {}, selectedWaste = [], deta
     responsavel_nome: responsavelNome,
     responsavel_telefone: responsavelTelefoneBruto.replace(/\D/g, ""),
     email: draft.email || "",
+    senha: draft.senha || "",
     nome_ponto: draft.nome_ponto || details.nome_ponto || responsavelNome || "Ponto de coleta",
     endereco: formatAddress(draft.endereco),
     latitude: Number(draft.latitude ?? details.latitude ?? 0),
