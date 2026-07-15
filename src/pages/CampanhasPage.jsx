@@ -68,9 +68,8 @@ export default function CampanhasPage() {
     }
   };
 
-  const campanhasAtivas = todasCampanhas.filter(
-    (campanha) => campanha.status === "ativa"
-  ).length;
+  const campanhasAtivas = todasCampanhas.filter((c) => c.status === "ativa" || c.status !== "encerrada");
+  const campanhasEncerradas = todasCampanhas.filter((c) => c.status === "encerrada");
 
   return (
     <AdminShell>
@@ -93,7 +92,7 @@ export default function CampanhasPage() {
 
         <ResumoCampanhas
           total={todasCampanhas.length}
-          ativas={campanhasAtivas}
+          ativas={campanhasAtivas.length}
         />
 
         <SectionCard
@@ -114,14 +113,14 @@ export default function CampanhasPage() {
             <LoadingState title="Carregando campanhas..." />
           ) : isError ? (
             <ErrorState title={getApiErrorMessage(error, "Não foi possível carregar as campanhas.")} />
-          ) : todasCampanhas.length ? (
+          ) : campanhasAtivas.length ? (
             <div className="grid gap-4 lg:grid-cols-2">
-              {todasCampanhas.map((campanha) => (
+              {campanhasAtivas.map((campanha) => (
                 <CardCampanha
                   key={campanha.id}
                   campanha={campanha}
                   onClick={() => navigate(`/campanhas/${campanha.id}`)}
-                  onEdit={(id) => navigate(`/campanhas/${id}`)}
+                  onEdit={(id) => navigate(`/campanhas/${id}`, { state: { editMode: true } })}
                   onClose={handleEncerramento}
                   onDelete={handleDelecao}
                 />
@@ -137,7 +136,7 @@ export default function CampanhasPage() {
           )}
         </SectionCard>
 
-        <CampanhasEncerradas campanhas={todasCampanhas.filter((c) => c.status === "encerrada")} />
+        <CampanhasEncerradas campanhas={campanhasEncerradas} />
       </div>
     </AdminShell>
   );
