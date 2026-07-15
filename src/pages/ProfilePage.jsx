@@ -15,7 +15,7 @@ import InlineAlert from '../components/ui/InlineAlert'
 import LoadingButton from '../components/ui/LoadingButton'
 import LoadingState from '../components/ui/LoadingState'
 import ErrorState from '../components/ui/ErrorState'
-import { updateProfile } from '../services/users'
+import { updateAddress, updateProfile } from '../services/users'
 import { queryKeys } from '../services/queryKeys'
 import { getApiErrorMessage } from '../services/http/getApiErrorMessage'
 
@@ -53,7 +53,7 @@ const formatDate = (value) => {
 
 export default function ProfilePage() {
   const { data: profile, isLoading, isError, error } = useProfile()
-  const [form, setForm] = React.useState({ nome: '', email: '', telefone: '' })
+  const [form, setForm] = React.useState({ nome: '', email: '', telefone: '', rua: '', bairro: '', numero: '', cep: '', cidade: '' })
   const [feedback, setFeedback] = React.useState(null)
   const navigate = useNavigate()
   const { logout } = useAuth()
@@ -68,11 +68,22 @@ export default function ProfilePage() {
       nome: profile.nome || profile.usuario?.nome || '',
       email: profile.email || profile.usuario?.email || '',
       telefone: profile.telefone || profile.usuario?.telefone || '',
+      rua: profile.endereco?.rua || '',
+      bairro: profile.endereco?.bairro || '',
+      numero: profile.endereco?.numero || '',
+      cep: profile.endereco?.cep || '',
+      cidade: profile.endereco?.cidade || '',
     })
   }, [profile])
 
   const saveMutation = useMutation({
-    mutationFn: updateProfile,
+    mutationFn: async (payload) => {
+      await updateProfile(payload)
+      const hasAddress = ['rua', 'bairro', 'numero', 'cep', 'cidade'].some((field) => String(payload[field] || '').trim())
+      if (hasAddress) {
+        await updateAddress(payload)
+      }
+    },
     onSuccess: () => {
       setFeedback({ tone: 'success', message: 'Alterações salvas com sucesso.' })
       queryClient.invalidateQueries({ queryKey: queryKeys.profile })
@@ -179,6 +190,18 @@ export default function ProfilePage() {
               <Field label="E-mail" value={form.email} onChange={(value) => setForm((current) => ({ ...current, email: value }))} />
               <Field label="Telefone" value={form.telefone} onChange={(value) => setForm((current) => ({ ...current, telefone: value }))} />
 
+              <div className="border-t border-slate-100 pt-4">
+                <h3 className="font-extrabold text-[var(--color-primary)]">Endereco residencial</h3>
+                <p className="mt-1 text-sm text-[var(--color-text-muted)]">Usado para manter seu cadastro completo.</p>
+              </div>
+              <Field label="Rua" value={form.rua} onChange={(value) => setForm((current) => ({ ...current, rua: value }))} />
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field label="Numero" type="number" value={form.numero} onChange={(value) => setForm((current) => ({ ...current, numero: value }))} />
+                <Field label="Bairro" value={form.bairro} onChange={(value) => setForm((current) => ({ ...current, bairro: value }))} />
+                <Field label="CEP" value={form.cep} onChange={(value) => setForm((current) => ({ ...current, cep: value }))} />
+                <Field label="Cidade" value={form.cidade} onChange={(value) => setForm((current) => ({ ...current, cidade: value }))} />
+              </div>
+
               {feedback ? <InlineAlert variant={feedback.tone}>{feedback.message}</InlineAlert> : null}
 
               <LoadingButton
@@ -199,12 +222,13 @@ export default function ProfilePage() {
   )
 }
 
-function Field({ label, value, onChange }) {
+function Field({ label, value, onChange, type = 'text' }) {
   return (
     <div>
       <Label className="mb-1.5 block text-sm font-semibold text-[#1F4E79]">{label}</Label>
       <input
-        value={value}
+      value={value}
+      type={type}
         onChange={(event) => onChange(event.target.value)}
         className="min-h-12 w-full rounded-2xl border border-[var(--color-border)] bg-white px-4 py-3 text-base text-[var(--color-text)] outline-none transition focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20"
       />

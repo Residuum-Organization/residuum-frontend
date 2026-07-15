@@ -30,6 +30,21 @@ export const updateProfile = async (payload) => {
   }
 };
 
+export const updateAddress = async (payload) => {
+  try {
+    const res = await api.put("/me/endereco", {
+      rua: payload.rua,
+      bairro: payload.bairro,
+      numero: Number(payload.numero),
+      cep: String(payload.cep || "").replace(/\D/g, ""),
+      cidade: payload.cidade,
+    });
+    return res.data;
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, "Nao foi possivel salvar o endereco."));
+  }
+};
+
 export const getUserMetrics = async (ano) => {
   try {
     const params = ano ? { ano } : {};

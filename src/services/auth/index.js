@@ -1,5 +1,5 @@
 import api from "../../api/client";
-import { getAccessToken, getRefreshToken, setRefreshToken, setAccessToken } from "../../api/token";
+import { getRefreshToken, setRefreshToken, setAccessToken } from "../../api/token";
 import { getApiErrorMessage } from "../http/getApiErrorMessage";
 import { phoneSchema, emailSchema } from "../../schemas/validations";
 
@@ -62,7 +62,7 @@ export const refresh = async () => {
   }
 
   try {
-    const res = await api.post("/auth/refresh", {
+    const res = await api.post("/refresh", {
       refresh_token: refreshToken,
     });
     const { access_token, refresh_token, token_type } = res.data;
