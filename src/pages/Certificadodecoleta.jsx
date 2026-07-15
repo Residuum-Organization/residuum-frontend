@@ -1,403 +1,109 @@
-import React,{ useState } from "react";
-import {
-  Eye,
-  Download,
-  Home,
-  Briefcase,
-  MapPin,
-  User,
-  Check,
-  FileText,
-  QrCode,
-  ArrowLeft,
-} from "lucide-react";
-import Navbar from "../components/ui/Navbar";
+import React from "react";
+import { useQuery } from "@tanstack/react-query";
+import { ArrowLeft, Award, Download, Leaf, Recycle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import RoleShell from "../components/layout/RoleShell";
+import PageHeader from "../components/ui/PageHeader";
+import SectionCard from "../components/ui/SectionCard";
+import Button from "../components/ui/Button";
+import LoadingState from "../components/ui/LoadingState";
+import ErrorState from "../components/ui/ErrorState";
+import EmptyState from "../components/ui/EmptyState";
+import { getDiscardHistory } from "../services/discards";
+import { queryKeys } from "../services/queryKeys";
+import { useAuth } from "../contexts/AuthContext";
 
-export default function Certificadodecoleta() {
-  const [status, setStatus] = useState("inicial");
-  const [modal, setModal] = useState(false);
+const formatDate = (value) => value ? new Date(value).toLocaleDateString("pt-BR") : "Data nao informada";
 
-  const styles = {
-    page: {
-      minHeight: "100vh",
-      background: "#dfe7f0",
-      display: "flex",
-      justifyContent: "center",
-      padding: 16,
-      fontFamily: "Arial, sans-serif",
-    },
-    phone: {
-      position: "relative",
-      width: 390,
-      minHeight: 720,
-      background: "#f8fbff",
-      borderRadius: 32,
-      padding: 24,
-      overflow: "hidden",
-      boxSizing: "border-box",
-    },
-    title: {
-      color: "#0b2a78",
-      fontSize: 38,
-      fontWeight: 800,
-      lineHeight: 1.05,
-      marginTop: 20,
-    },
-    subtitle: {
-      color: "#94a3b8",
-      fontSize: 13,
-      marginTop: 6,
-    },
-    logo: {
-      fontSize: 34,
-      color: "#047857",
-      fontWeight: 900,
-    },
-    card: {
-      background: "#fff",
-      borderRadius: 24,
-      padding: 16,
-      boxShadow: "0 4px 12px rgba(0,0,0,0.06)",
-      border: "1px solid #e5e7eb",
-      marginTop: 24,
-    },
-    section: {
-      color: "#0b2a78",
-      fontSize: 20,
-      fontWeight: 800,
-      marginTop: 26,
-      marginBottom: 12,
-    },
-    btnGreen: {
-      background: "#047857",
-      color: "#fff",
-      border: 0,
-      borderRadius: 16,
-      padding: 14,
-      fontWeight: 800,
-      width: "100%",
-      cursor: "pointer",
-    },
-    btnWhite: {
-      background: "#fff",
-      color: "#0b3b66",
-      border: "1px solid #e5e7eb",
-      borderRadius: 16,
-      padding: 13,
-      fontWeight: 800,
-      cursor: "pointer",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      gap: 8,
-      width: "100%",
-    },
-    nav: {
-      position: "absolute",
-      bottom: 0,
-      left: 0,
-      right: 0,
-      height: 56,
-      background: "#2f6b9a",
-      color: "#fff",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "space-around",
-    },
-  };
+export default function CertificadoDeColeta() {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const [selectedId, setSelectedId] = React.useState("");
+  const historyQuery = useQuery({ queryKey: queryKeys.discardHistory, queryFn: getDiscardHistory });
+  const confirmed = (historyQuery.data || []).filter((item) => item.status === "confirmado");
+  const selected = confirmed.find((item) => String(item.id_descarte) === String(selectedId)) || confirmed[0];
 
-  function Info({ label, value }) {
-    return (
-      <div>
-        <p style={{ fontSize: 11, color: "#cbd5e1", fontWeight: 800 }}>{label}</p>
-        <p style={{ fontSize: 16, color: "#17324d", fontWeight: 800 }}>{value}</p>
-      </div>
-    );
-  }
-
-  function Box({ label, value }) {
-    return (
-      <div
-        style={{
-          background: "#ecfdf5",
-          borderRadius: 16,
-          padding: 12,
-          textAlign: "center",
-        }}
-      >
-        <p style={{ fontSize: 11, color: "#047857", fontWeight: 800 }}>{label}</p>
-        <p style={{ fontSize: 24, color: "#047857", fontWeight: 900 }}>{value}</p>
-      </div>
-    );
-  }
-
-  function Menu() {
-    return (
-      <div style={styles.nav}>
-        <Home />
-        <Briefcase />
-        <MapPin />
-        <User />
-      </div>
-    );
-  }
-
-  function Logo() {
-    return <div style={styles.logo}>♻</div>;
-  }
-
-  function TelaVisualizar() {
-    return (
-      <div style={styles.page}>
-        <div style={styles.phone}>
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <button
-              onClick={() => setStatus("gerado")}
-              style={{ background: "none", border: 0, cursor: "pointer" }}
-            >
-              <ArrowLeft color="#0b2a78" />
-            </button>
-
-            <h2 style={{ color: "#0b2a78", fontWeight: 800, flex: 1 }}>
-              Visualizar certificado
-            </h2>
-
-            <Logo />
-          </div>
-
-          <div
-            style={{
-              marginTop: 36,
-              background: "#fff",
-              borderRadius: 24,
-              overflow: "hidden",
-              border: "1px solid #e5e7eb",
-            }}
-          >
-            <div style={{ height: 28, background: "#047857" }}></div>
-
-            <div style={{ padding: 28, textAlign: "center" }}>
-              <p style={{ color: "#047857", fontWeight: 900, fontSize: 13 }}>
-                CERTIFICADO AMBIENTAL
-              </p>
-
-              <h1 style={{ color: "#17324d", fontSize: 26 }}>
-                Morador Residuum
-              </h1>
-
-              <p style={{ color: "#94a3b8", fontSize: 13 }}>
-                Este certificado comprova a destinação correta de resíduos
-                recicláveis registrados na plataforma Residuum.
-              </p>
-
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 26 }}>
-                <Info label="COLETA" value="02/06/2026" />
-                <Info label="PONTO" value="Norte - Manaus" />
-              </div>
-
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 24 }}>
-                <Box label="PESO TOTAL" value="18,5 kg" />
-                <Box label="PONTOS" value="+740" />
-              </div>
-
-              <div style={{ marginTop: 28 }}>
-                <QrCode size={80} color="#047857" />
-              </div>
-
-              <p style={{ color: "#cbd5e1", fontSize: 11, borderTop: "1px solid #e5e7eb", paddingTop: 12 }}>
-                Assinatura digital Residuum
-              </p>
-            </div>
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginTop: 18 }}>
-            <button style={styles.btnWhite} onClick={() => setStatus("gerado")}>
-              Voltar
-            </button>
-            <button style={styles.btnGreen} onClick={() => setModal(true)}>
-              Baixar PDF
-            </button>
-          </div>
-
-          <Menu />
-        </div>
-      </div>
-    );
-  }
-
-  if (status === "visualizar") return <TelaVisualizar />;
+  React.useEffect(() => {
+    if (!selectedId && confirmed[0]) setSelectedId(String(confirmed[0].id_descarte));
+  }, [confirmed, selectedId]);
 
   return (
-    <div style={styles.page}>
-      <div style={styles.phone}>
-        <p style={{ fontSize: 11, color: "#17415f", fontWeight: 800 }}>RESIDUUM</p>
+    <RoleShell variant="morador" contentClassName="px-4 py-4 pb-36 sm:px-6 sm:py-6 lg:px-8 lg:pb-32">
+      <style>{`@media print { body * { visibility: hidden; } #certificate, #certificate * { visibility: visible; } #certificate { position: fixed; inset: 0; width: 100%; border: 0 !important; box-shadow: none !important; } }`}</style>
+      <div className="space-y-5">
+        <PageHeader
+          eyebrow="Comprovacao ambiental"
+          title="Certificado de coleta"
+          description="Gere um comprovante para cada descarte validado pela rede Residuum."
+          action={<Button type="button" variant="secondary" onClick={() => navigate(-1)}><ArrowLeft className="mr-2 h-4 w-4" /> Voltar</Button>}
+        />
 
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <div>
-            <h1 style={styles.title}>
-              Certificado <br /> de coleta
-            </h1>
-            <p style={styles.subtitle}>Gere, visualize e baixe sua nota ambiental.</p>
-          </div>
-          <Logo />
-        </div>
+        {historyQuery.isLoading ? <LoadingState title="Carregando coletas confirmadas..." /> : null}
+        {historyQuery.isError ? <ErrorState title="Nao foi possivel carregar suas coletas." /> : null}
+        {!historyQuery.isLoading && !historyQuery.isError && !confirmed.length ? (
+          <EmptyState title="Nenhuma coleta disponivel para certificado." description="O certificado e liberado apos a confirmacao presencial do descarte." icon={Award} />
+        ) : null}
 
-        <div style={{ ...styles.card, display: "flex", alignItems: "center", gap: 14 }}>
-          <div style={{ background: "#dcfce7", borderRadius: 16, padding: 10 }}>
-            <Check color="#047857" size={34} />
-          </div>
-
-          <div style={{ flex: 1 }}>
-            <h3 style={{ margin: 0, color: "#17324d" }}>
-              {status === "gerado"
-                ? "Certificado gerado com sucesso"
-                : "Coleta pronta para certificado"}
-            </h3>
-            <p style={{ margin: 0, color: "#94a3b8", fontSize: 13 }}>
-              {status === "gerado" ? "Visualize ou baixe agora." : "PET, papelão e alumínio."}
-            </p>
-          </div>
-
-          <span
-            style={{
-              background: "#dcfce7",
-              color: "#047857",
-              fontSize: 11,
-              fontWeight: 800,
-              padding: "8px 12px",
-              borderRadius: 20,
-            }}
-          >
-            {status === "gerado" ? "PDF" : "VALIDADO"}
-          </span>
-        </div>
-
-        <h2 style={styles.section}>Dados da coleta</h2>
-
-        <div style={styles.card}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
-            <Info label="DATA" value="02/06/2026" />
-            <Info label="PONTO DE COLETA" value="Norte - Manaus" />
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginTop: 16 }}>
-            <Box label="PESO TOTAL" value="18,5 kg" />
-            <Box label="PONTOS" value="+740" />
-          </div>
-        </div>
-
-        <h2 style={styles.section}>Prévia do certificado</h2>
-
-        <div
-          style={{
-            background: "#fff",
-            borderRadius: 24,
-            overflow: "hidden",
-            border: "1px solid #e5e7eb",
-          }}
-        >
-          <div style={{ height: 18, background: "#047857" }}></div>
-
-          <div style={{ padding: 18, display: "flex", alignItems: "center", gap: 14 }}>
-            <FileText color="#047857" />
-
-            <div style={{ flex: 1 }}>
-              <p style={{ color: "#047857", fontSize: 11, fontWeight: 900, margin: 0 }}>
-                CERTIFICADO AMBIENTAL
-              </p>
-              <h3 style={{ margin: "4px 0", color: "#17324d" }}>
-                Morador Residuum
-              </h3>
-              <p style={{ margin: 0, color: "#94a3b8", fontSize: 13 }}>
-                Destinação correta de 18,5 kg
-              </p>
-            </div>
-
-            <QrCode color="#047857" />
-          </div>
-        </div>
-
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginTop: 18 }}>
-          <button style={styles.btnWhite} onClick={() => setStatus("visualizar")}>
-            <Eye size={20} /> Visualizar
-          </button>
-
-          <button style={styles.btnWhite} onClick={() => setModal(true)}>
-            <Download size={20} /> Baixar PDF
-          </button>
-        </div>
-
-        <button
-          style={{
-            ...styles.btnGreen,
-            marginTop: 12,
-            background: status === "gerado" ? "#ecfdf5" : "#047857",
-            color: status === "gerado" ? "#047857" : "#fff",
-            border: status === "gerado" ? "1px solid #bbf7d0" : "none",
-          }}
-          onClick={() => setStatus("gerado")}
-        >
-          {status === "gerado" ? "Gerar novamente" : "Gerar certificado"}
-        </button>
-
-        <Navbar />
-
-        {modal && (
-          <div
-            style={{
-              position: "fixed",
-              inset: 0,
-              background: "rgba(15,23,42,0.65)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              padding: 24,
-            }}
-          >
-            <div
-              style={{
-                background: "#fff",
-                borderRadius: 28,
-                padding: 32,
-                maxWidth: 320,
-                textAlign: "center",
-              }}
-            >
-              <div
-                style={{
-                  width: 90,
-                  height: 90,
-                  background: "#dcfce7",
-                  borderRadius: 24,
-                  margin: "0 auto",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
+        {selected ? (
+          <>
+            <SectionCard title="Escolha a coleta" description="Cada documento corresponde a uma validacao confirmada.">
+              <select
+                value={selectedId}
+                onChange={(event) => setSelectedId(event.target.value)}
+                className="min-h-12 w-full rounded-2xl border border-[var(--color-border)] bg-white px-4 font-semibold text-[var(--color-primary)]"
               >
-                <Check color="#047857" size={56} />
+                {confirmed.map((item) => (
+                  <option key={item.id_descarte} value={item.id_descarte}>
+                    {formatDate(item.data_desc)} - {item.ponto_coleta_nome || "Ponto Residuum"} - {Number(item.quantidade_confirmada ?? item.quantidade ?? 0).toLocaleString("pt-BR")} kg
+                  </option>
+                ))}
+              </select>
+            </SectionCard>
+
+            <article id="certificate" className="overflow-hidden rounded-[2rem] border border-emerald-200 bg-white shadow-xl shadow-emerald-950/10">
+              <div className="h-4 bg-[#0B6B53]" />
+              <div className="relative overflow-hidden p-6 sm:p-10">
+                <div className="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-emerald-50" />
+                <div className="relative">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-xs font-black uppercase tracking-[0.24em] text-[#0B6B53]">Residuum</p>
+                      <h2 className="mt-2 text-3xl font-black text-[#17324d] sm:text-4xl">Certificado ambiental</h2>
+                    </div>
+                    <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-[#0B6B53] text-white"><Leaf size={32} /></div>
+                  </div>
+
+                  <p className="mt-8 max-w-2xl text-base leading-relaxed text-slate-600">
+                    A Residuum certifica que <strong className="text-[#17324d]">{user?.nome || user?.name || "Cidadao Residuum"}</strong> realizou a destinacao ambientalmente adequada do material descrito abaixo, com validacao do ponto de coleta credenciado.
+                  </p>
+
+                  <dl className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    <DataBox label="Data da coleta" value={formatDate(selected.data_desc)} />
+                    <DataBox label="Ponto de coleta" value={selected.ponto_coleta_nome || "Ponto Residuum"} />
+                    <DataBox label="Material" value={String(selected.tipo_residuo || "Reciclavel").replaceAll("_", " ")} />
+                    <DataBox label="Peso validado" value={`${Number(selected.quantidade_confirmada ?? selected.quantidade ?? 0).toLocaleString("pt-BR")} kg`} />
+                  </dl>
+
+                  <div className="mt-6 flex flex-col gap-4 rounded-3xl bg-emerald-50 p-5 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex items-center gap-3"><Recycle className="text-[#0B6B53]" /><div><p className="text-xs font-black uppercase text-emerald-700">Pontos concedidos</p><p className="text-2xl font-black text-[#0B6B53]">+{selected.pontos_recebidos || selected.pontos || 0} pts</p></div></div>
+                    <p className="font-mono text-xs font-bold text-slate-500">CERT-RSD-{String(selected.id_descarte).padStart(8, "0")}</p>
+                  </div>
+
+                  <p className="mt-8 border-t border-slate-200 pt-4 text-center text-xs text-slate-400">Documento gerado pela plataforma Residuum com base em um descarte confirmado.</p>
+                </div>
               </div>
+            </article>
 
-              <h2 style={{ color: "#0b2a78", marginTop: 24 }}>
-                Download concluído
-              </h2>
-
-              <p style={{ color: "#94a3b8", fontSize: 14 }}>
-                O certificado foi salvo em PDF e está pronto para compartilhar.
-              </p>
-
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 24 }}>
-                <button style={styles.btnWhite} onClick={() => setModal(false)}>
-                  Voltar
-                </button>
-                <button style={styles.btnGreen} onClick={() => setModal(false)}>
-                  Abrir PDF
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+            <Button type="button" className="w-full sm:w-auto" onClick={() => window.print()}>
+              <Download className="mr-2 h-4 w-4" /> Imprimir ou salvar em PDF
+            </Button>
+          </>
+        ) : null}
       </div>
-    </div>
+    </RoleShell>
   );
+}
+
+function DataBox({ label, value }) {
+  return <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4"><dt className="text-xs font-black uppercase tracking-wider text-slate-400">{label}</dt><dd className="mt-2 break-words text-base font-extrabold capitalize text-[#17324d]">{value}</dd></div>;
 }
