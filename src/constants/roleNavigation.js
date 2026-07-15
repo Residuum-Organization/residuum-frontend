@@ -27,11 +27,10 @@ export const roleNavigation = {
   ],
   admin: [
     { to: "/admin", label: "Painel", Icon: LayoutDashboard },
-    { to: "/admin-aprovacao-pontos", label: "Novos Pontos", Icon: CheckCircle2 },
-    { to: "/aprovacao", label: "Auditoria", Icon: Warehouse },
-    { to: "/admin-pontos", label: "Pontos Ativos", Icon: MapPin },
+    { to: "/admin-pontos", label: "Pontos de Coleta", Icon: MapPin },
     { to: "/usuarios", label: "Usuários", Icon: Users },
     { to: "/campanhas", label: "Campanhas", Icon: Megaphone },
+    { to: "/aprovacao", label: "Validar Descartes", Icon: Warehouse },
     { to: "/admin-sorteios", label: "Sorteios", Icon: Star },
   ],
 };

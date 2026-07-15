@@ -36,7 +36,6 @@ export default function AdminStats() {
         >
           Indicadores principais
         </h2>
-        <Badge className="bg-[#1FA34A] text-white">Dados em tempo real</Badge>
       </div>
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
