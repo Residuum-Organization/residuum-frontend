@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Plus, Star, Ticket, Pencil, Trash2, Trophy, X } from "lucide-react";
+import { ArrowLeft, Plus, Star, Ticket, Pencil, Trash2, Trophy, X, Square } from "lucide-react";
 import AdminShell from "../components/admin/AdminShell";
 import Button from "../components/ui/Button";
 import PageHeader from "../components/ui/PageHeader";
@@ -68,6 +68,22 @@ export default function AdminSorteiosPage() {
     mutationFn: drawRaffleWinner,
     onSuccess: (result) => {
       setFeedback({ type: "success", text: `Vencedor publicado: ${result.vencedor_nome}, bilhete #${result.numero}.` });
+      queryClient.invalidateQueries({ queryKey: ["admin_sorteios"] });
+    },
+    onError: (error) => setFeedback({ type: "error", text: error.message }),
+  });
+
+  const closeSorteioMutation = useMutation({
+    mutationFn: (sorteioId) =>
+      updateRaffle(sorteioId, {
+        status: "encerrado",
+        data_fim: new Date().toISOString(),
+      }),
+    onSuccess: () => {
+      setFeedback({
+        type: "success",
+        text: "Sorteio encerrado. Agora voce pode apurar o vencedor.",
+      });
       queryClient.invalidateQueries({ queryKey: ["admin_sorteios"] });
     },
     onError: (error) => setFeedback({ type: "error", text: error.message }),
@@ -159,6 +175,12 @@ export default function AdminSorteiosPage() {
                   reward={{ ...s, type: "sorteio" }}
                   onEdit={() => handleEdit({ ...s, type: "sorteio" })}
                   onDelete={() => handleDelete({ ...s, type: "sorteio" })}
+                  onEnd={() => {
+                    if (window.confirm("Encerrar as participacoes deste sorteio agora?")) {
+                      setFeedback(null);
+                      closeSorteioMutation.mutate(s.id);
+                    }
+                  }}
                   onDraw={() => {
                     if (window.confirm("Confirmar a apuracao? O vencedor sera publicado e nao podera ser sorteado novamente.")) {
                       setFeedback(null);
@@ -187,8 +209,11 @@ export default function AdminSorteiosPage() {
   );
 }
 
-function RewardCard({ reward, onEdit, onDelete, onDraw }) {
+function RewardCard({ reward, onEdit, onDelete, onDraw, onEnd }) {
   const isSorteio = reward.type === "sorteio";
+  const canDraw =
+    reward.status === "encerrado" ||
+    Boolean(reward.data_fim && new Date(reward.data_fim).getTime() <= Date.now());
 
   return (
     <article className="flex items-center justify-between rounded-2xl border border-[var(--color-border)] bg-white p-4 shadow-sm transition hover:border-[var(--color-primary)]/40">
@@ -215,7 +240,7 @@ function RewardCard({ reward, onEdit, onDelete, onDraw }) {
           <div className="mt-2 flex gap-2">
             <Badge variant={isSorteio ? "primary" : "success"}>
               {isSorteio
-                ? `Sorteio em: ${formatCalendarDate(reward.data_fim || reward.date)}`
+                ? `${reward.status === "encerrado" ? "Encerrado em" : "Sorteio em"}: ${formatCalendarDate(reward.data_fim || reward.date)}`
                 : `Disponíveis: ${
                     reward.quantidade_disponivel || reward.available
                   }`}
@@ -225,8 +250,23 @@ function RewardCard({ reward, onEdit, onDelete, onDraw }) {
         </div>
       </div>
       <div className="flex flex-col gap-2">
-        {isSorteio && !reward.resultado ? (
-          <button onClick={onDraw} className="flex h-10 w-10 items-center justify-center rounded-full text-slate-400 transition hover:bg-amber-50 hover:text-amber-700" title="Apurar vencedor"><Trophy size={18} /></button>
+        {isSorteio && reward.status !== "encerrado" && !reward.resultado ? (
+          <button
+            onClick={onEnd}
+            className="flex h-10 w-10 items-center justify-center rounded-full text-slate-400 transition hover:bg-rose-50 hover:text-rose-700"
+            title="Encerrar sorteio"
+          >
+            <Square size={17} />
+          </button>
+        ) : null}
+        {isSorteio && canDraw && !reward.resultado ? (
+          <button
+            onClick={onDraw}
+            className="flex h-10 w-10 items-center justify-center rounded-full text-slate-400 transition hover:bg-amber-50 hover:text-amber-700"
+            title="Apurar vencedor"
+          >
+            <Trophy size={18} />
+          </button>
         ) : null}
         <button 
           onClick={onEdit} 
