@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Plus, Star, Ticket, Pencil, Trash2, X } from "lucide-react";
+import { ArrowLeft, Plus, Star, Ticket, Pencil, Trash2, Trophy, X } from "lucide-react";
 import AdminShell from "../components/admin/AdminShell";
 import Button from "../components/ui/Button";
 import PageHeader from "../components/ui/PageHeader";
@@ -11,14 +11,15 @@ import LoadingState from "../components/ui/LoadingState";
 import ErrorState from "../components/ui/ErrorState";
 import Badge from "../components/ui/Badge";
 import {
-  listVouchers,
-  listActiveRaffles,
+  listAllVouchers,
+  listAllRaffles,
   createVoucher,
   createRaffle,
   updateRaffle,
   deleteRaffle,
   updateVoucher,
   deleteVoucher,
+  drawRaffleWinner,
 } from "../services/rewards";
 
 export default function AdminSorteiosPage() {
@@ -31,7 +32,7 @@ export default function AdminSorteiosPage() {
     isError: isErrorVouchers,
   } = useQuery({
     queryKey: ["admin_vouchers"],
-    queryFn: listVouchers,
+    queryFn: listAllVouchers,
   });
 
   const {
@@ -40,11 +41,12 @@ export default function AdminSorteiosPage() {
     isError: isErrorSorteios,
   } = useQuery({
     queryKey: ["admin_sorteios"],
-    queryFn: listActiveRaffles,
+    queryFn: listAllRaffles,
   });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editData, setEditData] = useState(null);
+  const [feedback, setFeedback] = useState(null);
 
   const deleteVoucherMutation = useMutation({
     mutationFn: deleteVoucher,
@@ -54,6 +56,15 @@ export default function AdminSorteiosPage() {
   const deleteSorteioMutation = useMutation({
     mutationFn: deleteRaffle,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["admin_sorteios"] }),
+  });
+
+  const drawMutation = useMutation({
+    mutationFn: drawRaffleWinner,
+    onSuccess: (result) => {
+      setFeedback({ type: "success", text: `Vencedor publicado: ${result.vencedor_nome}, bilhete #${result.numero}.` });
+      queryClient.invalidateQueries({ queryKey: ["admin_sorteios"] });
+    },
+    onError: (error) => setFeedback({ type: "error", text: error.message }),
   });
 
   const handleCreate = () => {
@@ -96,6 +107,8 @@ export default function AdminSorteiosPage() {
             </div>
           }
         />
+
+        {feedback ? <div className={`rounded-2xl border p-4 text-sm font-bold ${feedback.type === "success" ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-rose-200 bg-rose-50 text-rose-800"}`}>{feedback.text}</div> : null}
 
         <SectionCard
           title="Vouchers Ativos"
@@ -140,6 +153,12 @@ export default function AdminSorteiosPage() {
                   reward={{ ...s, type: "sorteio" }}
                   onEdit={() => handleEdit({ ...s, type: "sorteio" })}
                   onDelete={() => handleDelete({ ...s, type: "sorteio" })}
+                  onDraw={() => {
+                    if (window.confirm("Confirmar a apuracao? O vencedor sera publicado e nao podera ser sorteado novamente.")) {
+                      setFeedback(null);
+                      drawMutation.mutate(s.id);
+                    }
+                  }}
                 />
               ))}
             </div>
@@ -162,7 +181,7 @@ export default function AdminSorteiosPage() {
   );
 }
 
-function RewardCard({ reward, onEdit, onDelete }) {
+function RewardCard({ reward, onEdit, onDelete, onDraw }) {
   const isSorteio = reward.type === "sorteio";
 
   return (
@@ -198,9 +217,13 @@ function RewardCard({ reward, onEdit, onDelete }) {
                   }`}
             </Badge>
           </div>
+          {reward.resultado ? <p className="mt-2 text-xs font-extrabold text-emerald-700">Vencedor: {reward.resultado.vencedor_nome} | #{reward.resultado.numero}</p> : null}
         </div>
       </div>
       <div className="flex flex-col gap-2">
+        {isSorteio && !reward.resultado ? (
+          <button onClick={onDraw} className="flex h-10 w-10 items-center justify-center rounded-full text-slate-400 transition hover:bg-amber-50 hover:text-amber-700" title="Apurar vencedor"><Trophy size={18} /></button>
+        ) : null}
         <button 
           onClick={onEdit} 
           className="flex h-10 w-10 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-[#1F4E79]"

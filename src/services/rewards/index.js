@@ -14,8 +14,14 @@ export const listActiveRaffles = async () => {
 
 export const getRaffleDetails = async (raffleId) => {
   try {
-    const res = await api.get(`/sorteios/${raffleId}`);
-    return res.data;
+    const [raffleRes, resultRes] = await Promise.all([
+      api.get(`/sorteios/${raffleId}`),
+      api.get(`/sorteios/${raffleId}/resultado`).catch((error) => {
+        if (error?.response?.status === 404) return { data: null };
+        throw error;
+      }),
+    ]);
+    return { ...raffleRes.data, resultado: resultRes.data };
   } catch (error) {
     throw new Error(
       getApiErrorMessage(
@@ -35,6 +41,49 @@ export const listVouchers = async () => {
       getApiErrorMessage(error, "Não foi possível carregar os vouchers.")
     );
   }
+};
+
+export const listMyVoucherRedemptions = async () => {
+  try {
+    const res = await api.get("/vouchers/meus-resgates");
+    return res.data;
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, "Nao foi possivel carregar seus vouchers."));
+  }
+};
+
+export const listMyRaffleTickets = async () => {
+  try {
+    const res = await api.get("/sorteios/meus-bilhetes");
+    return res.data;
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, "Nao foi possivel carregar seus bilhetes."));
+  }
+};
+
+export const listAllRaffles = async () => {
+  const res = await api.get("/sorteios/admin");
+  return Promise.all(res.data.map(async (raffle) => {
+    const result = await api.get(`/sorteios/${raffle.id}/resultado`).then((response) => response.data).catch((error) => {
+      if (error?.response?.status === 404) return null;
+      throw error;
+    });
+    return { ...raffle, resultado: result };
+  }));
+};
+
+export const drawRaffleWinner = async (raffleId) => {
+  try {
+    const res = await api.post(`/sorteios/${raffleId}/sortear`);
+    return res.data;
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, "Nao foi possivel apurar o sorteio."));
+  }
+};
+
+export const listAllVouchers = async () => {
+  const res = await api.get("/vouchers/admin");
+  return res.data;
 };
 
 export const redeemVoucher = async (voucher) => {

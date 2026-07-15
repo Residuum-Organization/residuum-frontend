@@ -171,6 +171,17 @@ export default function SorteioDetalhesPage() {
           </div>
         </section>
 
+        {sorteio.resultado ? (
+          <SectionCard title="Resultado publicado" description="Apuracao oficial registrada pela Residuum.">
+            <div className="rounded-3xl bg-amber-50 p-6 text-center">
+              <Trophy className="mx-auto text-amber-600" size={42} />
+              <p className="mt-3 text-sm font-black uppercase tracking-wider text-amber-700">Bilhete vencedor #{sorteio.resultado.numero}</p>
+              <h2 className="mt-2 text-2xl font-black text-[var(--color-primary)]">{sorteio.resultado.vencedor_nome}</h2>
+              <p className="mt-1 text-sm text-slate-500">Premio: {sorteio.resultado.premio}</p>
+            </div>
+          </SectionCard>
+        ) : null}
+
         <SectionCard title="Tudo o que você precisa saber" description="Entenda como garantir seu bilhete e qual é o prêmio em jogo.">
           <div className="space-y-6">
             {/* Como Funciona */}
@@ -181,7 +192,7 @@ export default function SorteioDetalhesPage() {
               <div>
                 <h4 className="text-sm font-bold text-[var(--color-primary)]">Gere seus bilhetes da sorte</h4>
                 <p className="mt-1 text-sm font-medium leading-relaxed text-slate-500">
-                  Com apenas <strong className="text-emerald-600">{sorteio.custo_pontos} pontos</strong> acumulados nas suas reciclagens, você garante 1 bilhete. Você pode resgatar quantos bilhetes quiser para aumentar suas chances!
+                  Com <strong className="text-emerald-600">{sorteio.custo_pontos} pontos</strong> acumulados, voce garante seu bilhete. Cada pessoa pode adquirir somente 1 bilhete por sorteio e precisa ter ao menos um descarte presencial confirmado.
                 </p>
               </div>
             </div>

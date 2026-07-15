@@ -11,7 +11,13 @@ import LoadingState from '../components/ui/LoadingState'
 import ErrorState from '../components/ui/ErrorState'
 import EmptyState from '../components/ui/EmptyState'
 import Button from '../components/ui/Button'
-import { listActiveRaffles, listVouchers, redeemVoucher } from '../services/rewards'
+import {
+  listActiveRaffles,
+  listMyRaffleTickets,
+  listMyVoucherRedemptions,
+  listVouchers,
+  redeemVoucher,
+} from '../services/rewards'
 import { queryKeys } from '../services/queryKeys'
 import { getApiErrorMessage } from '../services/http/getApiErrorMessage'
 
@@ -36,13 +42,13 @@ function SorteioCard({ sorteio }) {
 
           <div className="mt-3 grid gap-2 text-xs font-semibold text-[var(--color-text-muted)] sm:grid-cols-2">
             <span className="flex items-center gap-1.5"><Gift size={14} /> {sorteio.custo_pontos} pts</span>
-            <span className="flex items-center gap-1.5"><Users size={14} /> 0</span>
+            <span className="flex items-center gap-1.5"><Users size={14} /> {sorteio.total_bilhetes || 0} participante(s)</span>
             <span className="flex items-center gap-1.5 sm:col-span-2">
               <CalendarDays size={14} /> 
               {sorteio.data_inicio ? `${new Date(sorteio.data_inicio).toLocaleDateString('pt-BR')} até ` : ''}{sorteio.data_fim ? new Date(sorteio.data_fim).toLocaleDateString('pt-BR') : 'Sem data limite'}
             </span>
             <span className="flex items-center gap-1.5 font-bold text-[var(--color-primary)] sm:col-span-2">
-              <Ticket size={14} /> 0 participação(ões)
+              <Ticket size={14} /> Limite de 1 bilhete por pessoa
             </span>
           </div>
         </div>
@@ -125,12 +131,23 @@ export default function SorteiosPage() {
     queryFn: listVouchers,
   })
 
+  const { data: myRedemptions = [] } = useQuery({
+    queryKey: queryKeys.myVoucherRedemptions,
+    queryFn: listMyVoucherRedemptions,
+  })
+
+  const { data: myTickets = [] } = useQuery({
+    queryKey: queryKeys.myRaffleTickets,
+    queryFn: listMyRaffleTickets,
+  })
+
   const redeemMutation = useMutation({
     mutationFn: redeemVoucher,
-    onSuccess: () => {
-      setFeedback({ type: 'success', text: 'Resgate solicitado com sucesso.' })
+    onSuccess: (redemption) => {
+      setFeedback({ type: 'success', text: `Voucher resgatado. Seu codigo e ${redemption.codigo}.` })
       queryClient.invalidateQueries({ queryKey: queryKeys.pointsStatement })
       queryClient.invalidateQueries({ queryKey: queryKeys.vouchers })
+      queryClient.invalidateQueries({ queryKey: queryKeys.myVoucherRedemptions })
     },
     onError: (error) => {
       let errorMsg = getApiErrorMessage(error, 'Não foi possível resgatar este voucher.');
@@ -216,6 +233,32 @@ export default function SorteiosPage() {
               />
             )
           ) : null}
+        </SectionCard>
+
+        <SectionCard title="Minhas recompensas" description="Codigos promocionais e bilhetes vinculados a sua conta.">
+          {myRedemptions.length || myTickets.length ? (
+            <div className="grid gap-4 lg:grid-cols-2">
+              {myRedemptions.map((item) => (
+                <article key={`voucher-${item.id}`} className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+                  <p className="text-xs font-black uppercase tracking-wider text-emerald-700">Voucher ativo</p>
+                  <h3 className="mt-1 font-extrabold text-[var(--color-primary)]">{item.titulo || 'Voucher Residuum'}</h3>
+                  <p className="mt-3 rounded-xl bg-white px-3 py-2 font-mono text-lg font-black tracking-wider text-[#0B6B53]">{item.codigo}</p>
+                  <p className="mt-2 text-xs font-semibold text-[var(--color-text-muted)]">{item.parceiro || 'Parceiro Residuum'} | {item.pontos_utilizados} pts</p>
+                </article>
+              ))}
+              {myTickets.map((item) => (
+                <article key={`ticket-${item.id}`} className="rounded-2xl border border-sky-200 bg-sky-50 p-4">
+                  <p className="text-xs font-black uppercase tracking-wider text-sky-700">Bilhete confirmado</p>
+                  <h3 className="mt-1 font-extrabold text-[var(--color-primary)]">{item.titulo || 'Sorteio Residuum'}</h3>
+                  <p className="mt-3 text-3xl font-black text-[#1F4E79]">#{String(item.numero).padStart(4, '0')}</p>
+                  <p className="mt-2 text-xs font-semibold text-[var(--color-text-muted)]">{item.premio || 'Premio informado no sorteio'}</p>
+                  <Link to={`/sorteios/${item.sorteio_id}`} className="mt-3 inline-flex text-xs font-black text-[#1F4E79]">Ver sorteio e resultado</Link>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <EmptyState title="Voce ainda nao possui recompensas." description="Seus vouchers e bilhetes aparecerao aqui apos a confirmacao." className="bg-white" />
+          )}
         </SectionCard>
       </div>
     </RoleShell>
