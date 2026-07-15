@@ -211,7 +211,7 @@ export default function Confirmation() {
             type="button"
             variant="brandPrimary"
             className="mt-6 h-14 w-full rounded-full text-lg font-semibold"
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/welcome")}
           >
             Voltar ao inicio
           </Button>
@@ -338,8 +338,11 @@ export default function Confirmation() {
               <FormField
                 id="quantidade"
                 name="quantidade"
-                label="Quantidade"
-                placeholder="Ex: 10 kg, 5 sacolas, 2 caixas"
+                label="Quantidade (kg)"
+                type="number"
+                min="0"
+                step="0.1"
+                placeholder="Ex: 10"
                 value={details.quantidade}
                 onChange={handleDetailChange}
               />
