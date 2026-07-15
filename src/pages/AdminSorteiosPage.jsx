@@ -28,6 +28,11 @@ import {
   toDateInputValue,
 } from "../utils/dates";
 
+const isRaffleEnded = (raffle) =>
+  raffle.status === "encerrado" ||
+  Boolean(raffle.resultado) ||
+  Boolean(raffle.data_fim && new Date(raffle.data_fim).getTime() <= Date.now());
+
 export default function AdminSorteiosPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -53,6 +58,8 @@ export default function AdminSorteiosPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editData, setEditData] = useState(null);
   const [feedback, setFeedback] = useState(null);
+  const sorteiosEmAndamento = sorteios.filter((sorteio) => !isRaffleEnded(sorteio));
+  const sorteiosEncerrados = sorteios.filter(isRaffleEnded);
 
   const deleteVoucherMutation = useMutation({
     mutationFn: deleteVoucher,
@@ -82,7 +89,7 @@ export default function AdminSorteiosPage() {
     onSuccess: () => {
       setFeedback({
         type: "success",
-        text: "Sorteio encerrado. Agora voce pode apurar o vencedor.",
+        text: "Sorteio encerrado. Agora você pode apurar o vencedor.",
       });
       queryClient.invalidateQueries({ queryKey: ["admin_sorteios"] });
     },
@@ -161,28 +168,28 @@ export default function AdminSorteiosPage() {
 
         <SectionCard
           title="Sorteios em Andamento"
-          description="Sorteios programados para datas específicas."
+          description="Recebendo participações ou aguardando a data de encerramento."
         >
           {isLoadingSorteios ? (
             <LoadingState title="Carregando sorteios..." />
           ) : isErrorSorteios ? (
             <ErrorState title="Não foi possível carregar os sorteios." />
-          ) : sorteios.length ? (
+          ) : sorteiosEmAndamento.length ? (
             <div className="grid gap-4 lg:grid-cols-2">
-              {sorteios.map((s) => (
+              {sorteiosEmAndamento.map((s) => (
                 <RewardCard
                   key={`sorteio-${s.id}`}
                   reward={{ ...s, type: "sorteio" }}
                   onEdit={() => handleEdit({ ...s, type: "sorteio" })}
                   onDelete={() => handleDelete({ ...s, type: "sorteio" })}
                   onEnd={() => {
-                    if (window.confirm("Encerrar as participacoes deste sorteio agora?")) {
+                    if (window.confirm("Encerrar as participações deste sorteio agora?")) {
                       setFeedback(null);
                       closeSorteioMutation.mutate(s.id);
                     }
                   }}
                   onDraw={() => {
-                    if (window.confirm("Confirmar a apuracao? O vencedor sera publicado e nao podera ser sorteado novamente.")) {
+                    if (window.confirm("Confirmar a apuração? O vencedor será publicado e não poderá ser sorteado novamente.")) {
                       setFeedback(null);
                       drawMutation.mutate(s.id);
                     }
@@ -192,11 +199,41 @@ export default function AdminSorteiosPage() {
             </div>
           ) : (
             <EmptyState
-              title="Nenhum sorteio cadastrado"
-              description="Crie sorteios de grandes prêmios."
+              title="Nenhum sorteio em andamento"
+              description="Crie um novo sorteio ou consulte os resultados encerrados abaixo."
             />
           )}
         </SectionCard>
+
+        {!isLoadingSorteios && !isErrorSorteios ? (
+          <SectionCard
+            title="Sorteios Encerrados e Resultados"
+            description="Histórico de sorteios finalizados, aguardando apuração ou com vencedor publicado."
+          >
+            {sorteiosEncerrados.length ? (
+              <div className="grid gap-4 lg:grid-cols-2">
+                {sorteiosEncerrados.map((s) => (
+                  <RewardCard
+                    key={`sorteio-encerrado-${s.id}`}
+                    reward={{ ...s, type: "sorteio" }}
+                    onDelete={() => handleDelete({ ...s, type: "sorteio" })}
+                    onDraw={() => {
+                      if (window.confirm("Confirmar a apuração? O vencedor será publicado e não poderá ser sorteado novamente.")) {
+                        setFeedback(null);
+                        drawMutation.mutate(s.id);
+                      }
+                    }}
+                  />
+                ))}
+              </div>
+            ) : (
+              <EmptyState
+                title="Nenhum sorteio encerrado"
+                description="Os sorteios finalizados e seus vencedores aparecerão aqui."
+              />
+            )}
+          </SectionCard>
+        ) : null}
       </div>
 
       {isModalOpen && (
@@ -211,21 +248,28 @@ export default function AdminSorteiosPage() {
 
 function RewardCard({ reward, onEdit, onDelete, onDraw, onEnd }) {
   const isSorteio = reward.type === "sorteio";
-  const canDraw =
-    reward.status === "encerrado" ||
-    Boolean(reward.data_fim && new Date(reward.data_fim).getTime() <= Date.now());
+  const isEnded = isSorteio && isRaffleEnded(reward);
+  const hasResult = Boolean(reward.resultado);
 
   return (
-    <article className="flex items-center justify-between rounded-2xl border border-[var(--color-border)] bg-white p-4 shadow-sm transition hover:border-[var(--color-primary)]/40">
+    <article
+      className={`flex items-center justify-between rounded-2xl border p-4 shadow-sm transition ${
+        hasResult
+          ? "border-emerald-200 bg-emerald-50/50"
+          : "border-[var(--color-border)] bg-white hover:border-[var(--color-primary)]/40"
+      }`}
+    >
       <div className="flex items-center gap-4">
         <div
           className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${
-            isSorteio
+            hasResult
+              ? "bg-emerald-100 text-emerald-700"
+              : isSorteio
               ? "bg-blue-100 text-[#1F4E79]"
               : "bg-emerald-100 text-emerald-600"
           }`}
         >
-          {isSorteio ? <Star size={24} /> : <Ticket size={24} />}
+          {hasResult ? <Trophy size={24} /> : isSorteio ? <Star size={24} /> : <Ticket size={24} />}
         </div>
         <div>
           <h3 className="text-base font-bold text-[#1a3a4a]">
@@ -238,19 +282,33 @@ function RewardCard({ reward, onEdit, onDelete, onDraw, onEnd }) {
             </strong>
           </p>
           <div className="mt-2 flex gap-2">
-            <Badge variant={isSorteio ? "primary" : "success"}>
+            <Badge variant={isSorteio ? (isEnded ? (hasResult ? "success" : "warning") : "primary") : "success"}>
               {isSorteio
-                ? `${reward.status === "encerrado" ? "Encerrado em" : "Sorteio em"}: ${formatCalendarDate(reward.data_fim || reward.date)}`
+                ? `${isEnded ? "Encerrado em" : "Sorteio em"}: ${formatCalendarDate(reward.data_fim || reward.date)}`
                 : `Disponíveis: ${
                     reward.quantidade_disponivel || reward.available
                   }`}
             </Badge>
           </div>
-          {reward.resultado ? <p className="mt-2 text-xs font-extrabold text-emerald-700">Vencedor: {reward.resultado.vencedor_nome} | #{reward.resultado.numero}</p> : null}
+          {hasResult ? (
+            <div className="mt-3 rounded-xl border border-emerald-200 bg-white px-3 py-2">
+              <p className="text-[10px] font-black uppercase tracking-wider text-emerald-700">
+                Resultado publicado
+              </p>
+              <p className="mt-1 text-sm font-extrabold text-[#0B6B53]">
+                {reward.resultado.vencedor_nome}
+                <span className="ml-2 text-xs">Bilhete #{reward.resultado.numero}</span>
+              </p>
+            </div>
+          ) : isEnded ? (
+            <p className="mt-2 text-xs font-extrabold text-amber-700">
+              Aguardando apuração do vencedor.
+            </p>
+          ) : null}
         </div>
       </div>
       <div className="flex flex-col gap-2">
-        {isSorteio && reward.status !== "encerrado" && !reward.resultado ? (
+        {isSorteio && !isEnded ? (
           <button
             onClick={onEnd}
             className="flex h-10 w-10 items-center justify-center rounded-full text-slate-400 transition hover:bg-rose-50 hover:text-rose-700"
@@ -259,7 +317,7 @@ function RewardCard({ reward, onEdit, onDelete, onDraw, onEnd }) {
             <Square size={17} />
           </button>
         ) : null}
-        {isSorteio && canDraw && !reward.resultado ? (
+        {isSorteio && isEnded && !hasResult ? (
           <button
             onClick={onDraw}
             className="flex h-10 w-10 items-center justify-center rounded-full text-slate-400 transition hover:bg-amber-50 hover:text-amber-700"
@@ -268,20 +326,24 @@ function RewardCard({ reward, onEdit, onDelete, onDraw, onEnd }) {
             <Trophy size={18} />
           </button>
         ) : null}
-        <button 
-          onClick={onEdit} 
-          className="flex h-10 w-10 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-[#1F4E79]"
-          title="Editar"
-        >
-          <Pencil size={18} />
-        </button>
-        <button 
-          onClick={onDelete} 
-          className="flex h-10 w-10 items-center justify-center rounded-full text-slate-400 transition hover:bg-red-50 hover:text-red-600"
-          title="Deletar"
-        >
-          <Trash2 size={18} />
-        </button>
+        {!isSorteio || !isEnded ? (
+          <button
+            onClick={onEdit}
+            className="flex h-10 w-10 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-[#1F4E79]"
+            title="Editar"
+          >
+            <Pencil size={18} />
+          </button>
+        ) : null}
+        {!hasResult ? (
+          <button
+            onClick={onDelete}
+            className="flex h-10 w-10 items-center justify-center rounded-full text-slate-400 transition hover:bg-red-50 hover:text-red-600"
+            title="Deletar"
+          >
+            <Trash2 size={18} />
+          </button>
+        ) : null}
       </div>
     </article>
   );
