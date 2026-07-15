@@ -83,3 +83,37 @@ export const createVoucher = async (payload) => {
     );
   }
 };
+
+export const updateRaffle = async (id, payload) => {
+  try {
+    const res = await api.put(`/sorteios/${id}`, payload);
+    return res.data;
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, "Não foi possível atualizar o sorteio."));
+  }
+};
+
+export const deleteRaffle = async (id) => {
+  try {
+    await api.delete(`/sorteios/${id}`);
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, "Não foi possível deletar o sorteio."));
+  }
+};
+
+export const updateVoucher = async (id, payload) => {
+  try {
+    const res = await api.put(`/vouchers/${id}`, payload);
+    return res.data;
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, "Não foi possível atualizar o voucher."));
+  }
+};
+
+export const deleteVoucher = async (id) => {
+  try {
+    await api.delete(`/vouchers/${id}`);
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, "Não foi possível deletar o voucher."));
+  }
+};

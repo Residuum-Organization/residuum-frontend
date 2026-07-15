@@ -15,6 +15,10 @@ import {
   listActiveRaffles,
   createVoucher,
   createRaffle,
+  updateRaffle,
+  deleteRaffle,
+  updateVoucher,
+  deleteVoucher,
 } from "../services/rewards";
 
 export default function AdminSorteiosPage() {
@@ -40,9 +44,35 @@ export default function AdminSorteiosPage() {
   });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editData, setEditData] = useState(null);
+
+  const deleteVoucherMutation = useMutation({
+    mutationFn: deleteVoucher,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["admin_vouchers"] }),
+  });
+
+  const deleteSorteioMutation = useMutation({
+    mutationFn: deleteRaffle,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["admin_sorteios"] }),
+  });
 
   const handleCreate = () => {
+    setEditData(null);
     setIsModalOpen(true);
+  };
+
+  const handleEdit = (reward) => {
+    setEditData(reward);
+    setIsModalOpen(true);
+  };
+
+  const handleDelete = (reward) => {
+    if (!window.confirm("Deseja realmente deletar esta recompensa?")) return;
+    if (reward.type === "voucher") {
+      deleteVoucherMutation.mutate(reward.id);
+    } else {
+      deleteSorteioMutation.mutate(reward.id);
+    }
   };
 
   return (
@@ -81,6 +111,8 @@ export default function AdminSorteiosPage() {
                 <RewardCard
                   key={`voucher-${v.id}`}
                   reward={{ ...v, type: "voucher" }}
+                  onEdit={() => handleEdit({ ...v, type: "voucher" })}
+                  onDelete={() => handleDelete({ ...v, type: "voucher" })}
                 />
               ))}
             </div>
@@ -106,6 +138,8 @@ export default function AdminSorteiosPage() {
                 <RewardCard
                   key={`sorteio-${s.id}`}
                   reward={{ ...s, type: "sorteio" }}
+                  onEdit={() => handleEdit({ ...s, type: "sorteio" })}
+                  onDelete={() => handleDelete({ ...s, type: "sorteio" })}
                 />
               ))}
             </div>
@@ -119,13 +153,16 @@ export default function AdminSorteiosPage() {
       </div>
 
       {isModalOpen && (
-        <NovaRecompensaModal onClose={() => setIsModalOpen(false)} />
+        <NovaRecompensaModal 
+          onClose={() => { setIsModalOpen(false); setEditData(null); }} 
+          editData={editData} 
+        />
       )}
     </AdminShell>
   );
 }
 
-function RewardCard({ reward }) {
+function RewardCard({ reward, onEdit, onDelete }) {
   const isSorteio = reward.type === "sorteio";
 
   return (
@@ -164,10 +201,18 @@ function RewardCard({ reward }) {
         </div>
       </div>
       <div className="flex flex-col gap-2">
-        <button className="flex h-10 w-10 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-[#1F4E79]">
+        <button 
+          onClick={onEdit} 
+          className="flex h-10 w-10 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-[#1F4E79]"
+          title="Editar"
+        >
           <Pencil size={18} />
         </button>
-        <button className="flex h-10 w-10 items-center justify-center rounded-full text-slate-400 transition hover:bg-red-50 hover:text-red-600">
+        <button 
+          onClick={onDelete} 
+          className="flex h-10 w-10 items-center justify-center rounded-full text-slate-400 transition hover:bg-red-50 hover:text-red-600"
+          title="Deletar"
+        >
           <Trash2 size={18} />
         </button>
       </div>
@@ -175,19 +220,19 @@ function RewardCard({ reward }) {
   );
 }
 
-function NovaRecompensaModal({ onClose }) {
-  const [tipo, setTipo] = useState("voucher");
-  const [titulo, setTitulo] = useState("");
-  const [custoPontos, setCustoPontos] = useState("");
-  const [quantidadeDisponivel, setQuantidadeDisponivel] = useState("");
-  const [dataInicio, setDataInicio] = useState(new Date().toISOString().split("T")[0]);
-  const [dataFim, setDataFim] = useState("");
-  const [parceiro, setParceiro] = useState("");
-  const [premio, setPremio] = useState("");
+function NovaRecompensaModal({ onClose, editData }) {
+  const [tipo, setTipo] = useState(editData ? editData.type : "voucher");
+  const [titulo, setTitulo] = useState(editData ? (editData.title || editData.titulo || "") : "");
+  const [custoPontos, setCustoPontos] = useState(editData ? (editData.pontos || editData.custo_pontos || "") : "");
+  const [quantidadeDisponivel, setQuantidadeDisponivel] = useState(editData ? (editData.quantidade_disponivel || editData.available || "") : "");
+  const [dataInicio, setDataInicio] = useState(editData?.data_inicio ? editData.data_inicio.split("T")[0] : new Date().toISOString().split("T")[0]);
+  const [dataFim, setDataFim] = useState(editData?.data_fim ? editData.data_fim.split("T")[0] : "");
+  const [parceiro, setParceiro] = useState(editData ? (editData.parceiro || "") : "");
+  const [premio, setPremio] = useState(editData ? (editData.premio || "") : "");
   const queryClient = useQueryClient();
 
   const voucherMutation = useMutation({
-    mutationFn: createVoucher,
+    mutationFn: (payload) => editData ? updateVoucher(editData.id, payload) : createVoucher(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin_vouchers"] });
       onClose();
@@ -195,7 +240,7 @@ function NovaRecompensaModal({ onClose }) {
   });
 
   const sorteioMutation = useMutation({
-    mutationFn: createRaffle,
+    mutationFn: (payload) => editData ? updateRaffle(editData.id, payload) : createRaffle(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin_sorteios"] });
       onClose();
@@ -230,7 +275,7 @@ function NovaRecompensaModal({ onClose }) {
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 p-4">
       <div className="w-full max-w-lg rounded-2xl bg-white shadow-xl">
         <div className="flex items-center justify-between border-b border-gray-100 p-5">
-          <h2 className="text-lg font-bold text-[#1a3a4a]">Criar Sorteio ou Voucher</h2>
+          <h2 className="text-lg font-bold text-[#1a3a4a]">{editData ? "Editar" : "Criar"} Sorteio ou Voucher</h2>
           <button
             onClick={onClose}
             className="rounded-full p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
@@ -247,24 +292,26 @@ function NovaRecompensaModal({ onClose }) {
             <div className="grid grid-cols-2 gap-3 mb-2">
               <button
                 type="button"
-                onClick={() => setTipo("voucher")}
+                onClick={() => !editData && setTipo("voucher")}
+                disabled={!!editData}
                 className={`flex items-center justify-center gap-3 rounded-2xl px-4 py-4 font-bold transition-all border-2 ${
                   tipo === "voucher"
                     ? 'border-[#1F4E79] bg-blue-50 text-[#1F4E79] shadow-sm'
                     : 'border-gray-200 bg-white text-gray-500 hover:border-[#1F4E79]/50 hover:bg-slate-50'
-                }`}
+                } ${!!editData && tipo !== "voucher" ? "opacity-50 cursor-not-allowed" : ""}`}
               >
                 <Ticket size={20} />
                 Voucher
               </button>
               <button
                 type="button"
-                onClick={() => setTipo("sorteio")}
+                onClick={() => !editData && setTipo("sorteio")}
+                disabled={!!editData}
                 className={`flex items-center justify-center gap-3 rounded-2xl px-4 py-4 font-bold transition-all border-2 ${
                   tipo === "sorteio"
                     ? 'border-[#1F4E79] bg-blue-50 text-[#1F4E79] shadow-sm'
                     : 'border-gray-200 bg-white text-gray-500 hover:border-[#1F4E79]/50 hover:bg-slate-50'
-                }`}
+                } ${!!editData && tipo !== "sorteio" ? "opacity-50 cursor-not-allowed" : ""}`}
               >
                 <Star size={20} />
                 Sorteio
