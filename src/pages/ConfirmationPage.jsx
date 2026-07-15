@@ -94,19 +94,6 @@ export default function Confirmation() {
 
   const requestMutation = useMutation({
     mutationFn: async (payload) => {
-      try {
-        await registerUser({
-          name: draft.responsavel || "Responsável do Ponto",
-          email: draft.email,
-          phone: draft.telefone || "",
-          password: draft.senha,
-        });
-      } catch (err) {
-        // Se o usuário já existir ou falhar, ignoramos para tentar apenas logar
-      }
-      
-      await login(draft.email, draft.senha);
-      
       return submitCollectionPointRequest(payload);
     },
     onSuccess: () => {
@@ -224,7 +211,7 @@ export default function Confirmation() {
             type="button"
             variant="brandPrimary"
             className="mt-6 h-14 w-full rounded-full text-lg font-semibold"
-            onClick={() => navigate("/welcome")}
+            onClick={() => navigate("/")}
           >
             Voltar ao inicio
           </Button>
