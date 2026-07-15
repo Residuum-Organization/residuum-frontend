@@ -125,7 +125,7 @@ export const rejectCollectionPoint = async (id, motivo) => {
 
 export const listCampanhas = async () => {
   try {
-    const res = await api.get("/campanhas");
+    const res = await api.get("/campanhas/admin");
     return res.data;
   } catch (error) {
     throw new Error(getApiErrorMessage(error, "Erro ao buscar campanhas"));
