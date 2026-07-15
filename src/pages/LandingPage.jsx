@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Menu, X, MapPin, QrCode, Gift, BarChart3, Truck, ArrowRight, ChevronDown, CheckCircle2, Recycle, Users, Store, User } from "lucide-react";
+import { Menu, X, MapPin, QrCode, Gift, BarChart3, Truck, ArrowRight, ChevronDown, CheckCircle2, Recycle, Users, Store, User, Navigation, Clock3, ShieldCheck, SlidersHorizontal } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { getRoleHome } from "../utils/roles";
 
@@ -232,61 +232,129 @@ export default function LandingPage() {
 
             {/* Feature 2: Map */}
             <div className="flex flex-col-reverse lg:flex-row items-center gap-12 lg:gap-20">
-              <div className="flex-1 w-full max-w-lg mx-auto">
-                <div className="relative rounded-[2rem] border-[10px] border-slate-800 bg-slate-100 shadow-2xl overflow-hidden aspect-[4/5] sm:aspect-square flex flex-col transform transition-transform hover:-translate-y-2">
-                  <div className="absolute inset-0 opacity-30" style={{ backgroundImage: 'radial-gradient(#94A3B8 2px, transparent 2px)', backgroundSize: '24px 24px' }}></div>
-                  <div className="relative z-10 flex-1 flex flex-col p-4">
-                    {/* Search bar */}
-                    <div className="bg-white p-4 rounded-2xl shadow-md flex items-center gap-3 mb-auto">
-                      <MapPin className="text-emerald-500" size={20} />
-                      <div className="flex-1">
-                        <p className="text-xs text-slate-400">Buscando perto de</p>
-                        <p className="font-bold text-[#1F4E79] text-sm">Sua localização atual</p>
+              <div className="flex-1 w-full max-w-xl mx-auto">
+                <div className="relative">
+                  <div className="absolute -inset-6 rounded-[3rem] bg-gradient-to-br from-emerald-100 via-blue-50 to-transparent blur-2xl opacity-80"></div>
+                  <div className="relative overflow-hidden rounded-[2.5rem] border-[8px] border-[#17324A] bg-[#EAF1F5] shadow-[0_32px_70px_-28px_rgba(23,50,74,0.55)]">
+                    <div className="relative min-h-[590px] overflow-hidden p-4 sm:p-5">
+                      <div className="absolute inset-0" style={{ backgroundImage: "linear-gradient(rgba(31,78,121,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(31,78,121,0.07) 1px, transparent 1px)", backgroundSize: "32px 32px" }}></div>
+                      <div className="absolute -left-16 top-28 h-24 w-[125%] rotate-[11deg] border-y-[10px] border-white/75 bg-slate-300/60"></div>
+                      <div className="absolute -right-24 top-48 h-20 w-[120%] -rotate-[32deg] border-y-[8px] border-white/65 bg-slate-300/50"></div>
+                      <div className="absolute left-16 top-16 h-[65%] w-16 rotate-[4deg] rounded-full border-x-[7px] border-white/70 bg-slate-300/45"></div>
+
+                      <div className="relative z-20 flex items-center gap-3 rounded-2xl border border-white/80 bg-white/95 p-3.5 shadow-lg shadow-slate-500/10 backdrop-blur">
+                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                          <Navigation size={20} />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-400">Próximo de você</p>
+                          <p className="truncate text-sm font-black text-[#1F4E79]">Manaus, Amazonas</p>
+                        </div>
+                        <span className="hidden rounded-full bg-emerald-50 px-3 py-1.5 text-[11px] font-black text-emerald-700 sm:inline-flex">Localização ativa</span>
                       </div>
-                    </div>
-                    {/* Pins on map */}
-                    <div className="absolute top-1/2 left-1/3 -translate-x-1/2 -translate-y-1/2">
-                      <div className="w-14 h-14 bg-emerald-600 rounded-full flex items-center justify-center text-white shadow-xl shadow-emerald-600/30 animate-pulse">
-                        <Store size={24} />
+
+                      <div className="absolute right-5 top-24 z-20 flex items-center gap-2 rounded-full border border-white bg-white/95 px-3 py-2 text-xs font-bold text-[#1F4E79] shadow-md">
+                        <SlidersHorizontal size={14} className="text-emerald-600" />
+                        Plástico +3
                       </div>
-                    </div>
-                    <div className="absolute top-1/3 right-1/4">
-                      <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-slate-400 shadow-md">
-                        <Store size={18} />
+
+                      <svg className="pointer-events-none absolute inset-0 z-10 h-full w-full" viewBox="0 0 520 590" fill="none" aria-hidden="true">
+                        <path d="M398 174C359 195 367 249 324 270C279 292 226 265 193 305C167 337 183 368 151 399" stroke="white" strokeWidth="12" strokeLinecap="round" />
+                        <path d="M398 174C359 195 367 249 324 270C279 292 226 265 193 305C167 337 183 368 151 399" stroke="#0D9F73" strokeWidth="5" strokeLinecap="round" strokeDasharray="4 11" />
+                      </svg>
+
+                      <div className="absolute left-[24%] top-[45%] z-20">
+                        <div className="relative flex h-14 w-14 rotate-45 items-center justify-center rounded-2xl rounded-bl-sm bg-emerald-600 text-white shadow-[0_14px_30px_rgba(5,150,105,0.4)]">
+                          <Store size={23} className="-rotate-45" />
+                          <span className="absolute -inset-2 -z-10 rounded-3xl bg-emerald-400/25 animate-pulse"></span>
+                        </div>
                       </div>
-                    </div>
-                    {/* Bottom Sheet */}
-                    <div className="bg-white p-5 rounded-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.1)] mt-auto">
-                      <div className="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-4"></div>
-                      <h4 className="text-lg font-black text-[#1F4E79] mb-1">EcoPonto Central</h4>
-                      <p className="text-sm text-slate-500 mb-4">A 1.2 km de distância • Aberto agora</p>
-                      <div className="flex gap-2 mb-4">
-                        <span className="px-3 py-1 bg-slate-100 text-[#1F4E79] rounded-md text-xs font-bold">Vidro</span>
-                        <span className="px-3 py-1 bg-slate-100 text-[#1F4E79] rounded-md text-xs font-bold">Papel</span>
-                        <span className="px-3 py-1 bg-slate-100 text-[#1F4E79] rounded-md text-xs font-bold">Plástico</span>
+                      <div className="absolute right-[17%] top-[28%] z-20 flex h-10 w-10 items-center justify-center rounded-full border-4 border-white bg-[#1F4E79] text-white shadow-lg">
+                        <Store size={16} />
                       </div>
-                      <button className="w-full py-3 bg-emerald-600 text-white rounded-xl font-bold">
-                        Como chegar
-                      </button>
+                      <div className="absolute left-[42%] top-[39%] z-20 flex h-9 w-9 items-center justify-center rounded-full border-4 border-white bg-sky-500 text-white shadow-lg">
+                        <Store size={14} />
+                      </div>
+                      <div className="absolute left-[27%] top-[66%] z-20 flex h-6 w-6 items-center justify-center rounded-full border-4 border-white bg-[#1F4E79] shadow-lg">
+                        <span className="h-2 w-2 rounded-full bg-white"></span>
+                      </div>
+
+                      <div className="absolute inset-x-4 bottom-4 z-30 rounded-[1.75rem] border border-white/90 bg-white/95 p-5 shadow-[0_-8px_35px_rgba(23,50,74,0.14)] backdrop-blur sm:inset-x-5">
+                        <div className="mb-3 flex items-start justify-between gap-3">
+                          <div>
+                            <p className="mb-1 text-[10px] font-black uppercase tracking-[0.18em] text-emerald-600">Ponto recomendado</p>
+                            <h4 className="text-xl font-black text-[#17324A]">Ponto Coroado</h4>
+                            <p className="mt-1 text-xs text-slate-500">Rua Paraíso do Norte, Coroado</p>
+                          </div>
+                          <span className="shrink-0 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-black text-emerald-700">Aberto</span>
+                        </div>
+                        <div className="mb-4 flex flex-wrap gap-x-4 gap-y-2 text-xs font-bold text-slate-600">
+                          <span className="flex items-center gap-1.5"><Navigation size={14} className="text-[#1F4E79]" /> 1,8 km</span>
+                          <span className="flex items-center gap-1.5"><Clock3 size={14} className="text-[#1F4E79]" /> Até 17h</span>
+                          <span className="flex items-center gap-1.5"><Recycle size={14} className="text-[#1F4E79]" /> 4 materiais</span>
+                        </div>
+                        <div className="mb-4 flex flex-wrap gap-2">
+                          {['Plástico', 'Papel', 'Vidro'].map((material) => (
+                            <span key={material} className="rounded-lg bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-[#1F4E79]">{material}</span>
+                          ))}
+                        </div>
+                        <div className="flex items-end gap-4">
+                          <div className="min-w-0 flex-1">
+                            <div className="mb-1.5 flex justify-between text-[10px] font-bold text-slate-500">
+                              <span>Capacidade utilizada</span>
+                              <span>42%</span>
+                            </div>
+                            <div className="h-2 overflow-hidden rounded-full bg-slate-100">
+                              <div className="h-full w-[42%] rounded-full bg-emerald-500"></div>
+                            </div>
+                          </div>
+                          <button type="button" onClick={() => navigate('/login')} className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#1F4E79] px-4 py-3 text-xs font-black text-white transition-colors hover:bg-[#173D60]">
+                            Ver rota <ArrowRight size={14} />
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-              <div className="flex-1 space-y-6">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 font-bold text-sm">
-                  <MapPin size={16} /> Mapa Inteligente
+
+              <div className="flex-1 space-y-7">
+                <div className="inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1.5 text-sm font-bold text-blue-700">
+                  <MapPin size={16} /> Mapa da rede
                 </div>
-                <h3 className="text-3xl lg:text-4xl font-bold text-[#1F4E79] leading-tight">
-                  Encontre o ponto de coleta ideal
-                </h3>
-                <p className="text-lg text-slate-600 leading-relaxed">
-                  Não sabe onde descartar o óleo de cozinha ou aquele vidro quebrado? Nosso mapa mostra os pontos de coleta mais próximos e filtra pelo material que você precisa descartar.
-                </p>
-                <ul className="space-y-3 pt-4">
-                  <li className="flex items-center gap-3 text-slate-700 font-medium"><CheckCircle2 className="text-blue-500" size={20} /> Filtros por tipo de resíduo</li>
-                  <li className="flex items-center gap-3 text-slate-700 font-medium"><CheckCircle2 className="text-blue-500" size={20} /> Informações de horário de funcionamento</li>
-                  <li className="flex items-center gap-3 text-slate-700 font-medium"><CheckCircle2 className="text-blue-500" size={20} /> Roteamento e distância exata</li>
-                </ul>
+                <div className="space-y-4">
+                  <h3 className="text-3xl font-bold leading-tight text-[#1F4E79] lg:text-4xl">
+                    O ponto certo, antes de você sair de casa
+                  </h3>
+                  <p className="text-lg leading-relaxed text-slate-600">
+                    Encontre pontos de coleta ativos perto de você, confira o que cada local recebe e escolha a melhor opção para o seu descarte.
+                  </p>
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
+                  <div className="flex gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600"><SlidersHorizontal size={18} /></div>
+                    <div><p className="font-black text-[#17324A]">Filtro preciso</p><p className="mt-0.5 text-sm leading-snug text-slate-500">Veja somente quem aceita o seu material.</p></div>
+                  </div>
+                  <div className="flex gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600"><Navigation size={18} /></div>
+                    <div><p className="font-black text-[#17324A]">Distância e rota</p><p className="mt-0.5 text-sm leading-snug text-slate-500">Escolha o ponto mais conveniente para você.</p></div>
+                  </div>
+                  <div className="flex gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-600"><Clock3 size={18} /></div>
+                    <div><p className="font-black text-[#17324A]">Informação útil</p><p className="mt-0.5 text-sm leading-snug text-slate-500">Consulte horário, materiais e capacidade.</p></div>
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-4 pt-1 sm:flex-row sm:items-center">
+                  <button type="button" onClick={() => navigate('/login')} className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3.5 font-bold text-white shadow-lg shadow-emerald-600/20 transition-all hover:-translate-y-0.5 hover:bg-emerald-700">
+                    Explorar pontos no mapa <ArrowRight size={18} />
+                  </button>
+                  <p className="flex items-center gap-2 text-xs leading-relaxed text-slate-500">
+                    <ShieldCheck size={17} className="shrink-0 text-emerald-600" />
+                    Sua localização é usada apenas para calcular proximidade.
+                  </p>
+                </div>
               </div>
             </div>
 
