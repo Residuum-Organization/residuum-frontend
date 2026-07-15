@@ -6,6 +6,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Loader2,
+  Coins,
   Pencil,
   Search,
   Shield,
@@ -25,7 +26,7 @@ import LoadingButton from "../components/ui/LoadingButton";
 import LoadingState from "../components/ui/LoadingState";
 import PageHeader from "../components/ui/PageHeader";
 import SectionCard from "../components/ui/SectionCard";
-import { deleteUser, listUsers, updateUser, updateUserRole } from "../services/admin";
+import { adjustUserPoints, deleteUser, listUsers, updateUser, updateUserRole } from "../services/admin";
 import { getRoleLabel } from "../utils/roles";
 
 const roles = [
@@ -52,6 +53,8 @@ export default function PageUsers() {
   const [editModal, setEditModal] = useState(null);
   const [editForm, setEditForm] = useState({ nome: "", email: "", telefone: "" });
   const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [pointsModal, setPointsModal] = useState(null);
+  const [pointsForm, setPointsForm] = useState({ delta: "", motivo: "" });
 
   const removeAccents = (str) =>
     str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
@@ -179,6 +182,28 @@ export default function PageUsers() {
     }
   };
 
+  const handlePointsSave = async () => {
+    if (!pointsModal) return;
+    const delta = Number(pointsForm.delta);
+    if (!Number.isInteger(delta) || delta === 0 || !pointsForm.motivo.trim()) {
+      setErrorMessage("Informe um valor inteiro diferente de zero e o motivo do ajuste.");
+      return;
+    }
+    clearFeedback();
+    setActionLoading(pointsModal.id);
+    try {
+      await adjustUserPoints(pointsModal.id, delta, pointsForm.motivo.trim());
+      setPointsModal(null);
+      setPointsForm({ delta: "", motivo: "" });
+      await loadUsers();
+      setSuccessMessage("Pontuacao ajustada e registrada na auditoria.");
+    } catch (error) {
+      setErrorMessage(error.message);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
   const getInitials = (name = "") =>
     name
       .split(" ")
@@ -291,6 +316,11 @@ export default function PageUsers() {
                   initials={getInitials(user.nome)}
                   loading={actionLoading === user.id}
                   onEdit={() => openEditModal(user)}
+                  onAdjustPoints={() => {
+                    clearFeedback();
+                    setPointsForm({ delta: "", motivo: "" });
+                    setPointsModal(user);
+                  }}
                   onToggleRole={() => handleRoleToggle(user)}
                   onDelete={() => setDeleteConfirm(user)}
                 />
@@ -329,6 +359,17 @@ export default function PageUsers() {
           onConfirm={() => handleDelete(deleteConfirm)}
         />
       ) : null}
+
+      {pointsModal ? (
+        <PointsDialog
+          user={pointsModal}
+          form={pointsForm}
+          setForm={setPointsForm}
+          loading={actionLoading === pointsModal.id}
+          onClose={() => setPointsModal(null)}
+          onSave={handlePointsSave}
+        />
+      ) : null}
     </AdminShell>
   );
 }
@@ -355,7 +396,7 @@ function SearchField({ label, placeholder, value, onChange }) {
   );
 }
 
-function UserCard({ user, initials, loading, onEdit, onToggleRole, onDelete }) {
+function UserCard({ user, initials, loading, onEdit, onAdjustPoints, onToggleRole, onDelete }) {
   const isAdmin = user.role === "admin";
 
   return (
@@ -385,10 +426,21 @@ function UserCard({ user, initials, loading, onEdit, onToggleRole, onDelete }) {
           <p className="mt-1 text-sm font-medium text-[var(--color-text-muted)]">
             {user.telefone || "Sem telefone"}
           </p>
+          <p className="mt-1 text-sm font-extrabold text-emerald-700">{user.pontuacao_total || 0} pontos</p>
         </div>
       </div>
 
       <div className="mt-4 flex items-center justify-end gap-1 border-t border-[var(--color-border)] pt-4">
+        <button
+          type="button"
+          onClick={onAdjustPoints}
+          disabled={loading}
+          title="Ajustar pontuacao"
+          className="flex h-9 w-9 items-center justify-center rounded-full text-[var(--color-text-muted)] transition-colors hover:bg-emerald-50 hover:text-emerald-700 disabled:opacity-50"
+        >
+          <Coins className="h-4 w-4" aria-hidden="true" />
+        </button>
+
         <button
           type="button"
           onClick={onEdit}
@@ -533,6 +585,28 @@ function DialogInput({ label, value, onChange }) {
         onChange={(event) => onChange(event.target.value)}
       />
     </label>
+  );
+}
+
+function PointsDialog({ user, form, setForm, loading, onClose, onSave }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/55 px-4 py-6">
+      <div className="w-full max-w-md rounded-2xl bg-white p-5 shadow-2xl">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h3 className="text-lg font-extrabold text-[var(--color-primary)]">Ajustar pontuacao</h3>
+            <p className="mt-1 text-sm text-[var(--color-text-muted)]">{user.nome} possui {user.pontuacao_total || 0} pontos.</p>
+          </div>
+          <button type="button" onClick={onClose} className="rounded-xl p-2 text-slate-500" aria-label="Fechar"><X className="h-5 w-5" /></button>
+        </div>
+        <div className="mt-5 space-y-4">
+          <label className="block text-sm font-bold text-[var(--color-primary)]">Valor do ajuste<input type="number" step="1" value={form.delta} onChange={(event) => setForm({ ...form, delta: event.target.value })} placeholder="Ex.: 50 ou -20" className="mt-1.5 min-h-11 w-full rounded-2xl border border-slate-200 px-4" /></label>
+          <label className="block text-sm font-bold text-[var(--color-primary)]">Motivo<textarea value={form.motivo} onChange={(event) => setForm({ ...form, motivo: event.target.value })} placeholder="Descreva por que o saldo sera alterado" className="mt-1.5 min-h-24 w-full rounded-2xl border border-slate-200 p-4" /></label>
+        </div>
+        <InlineAlert className="mt-4" variant="info" description="Valores negativos debitam pontos. O sistema nao permite saldo abaixo de zero." />
+        <div className="mt-5 grid gap-3 sm:grid-cols-2"><Button type="button" variant="secondary" onClick={onClose}>Cancelar</Button><LoadingButton type="button" onClick={onSave} isLoading={loading}>Aplicar ajuste</LoadingButton></div>
+      </div>
+    </div>
   );
 }
 

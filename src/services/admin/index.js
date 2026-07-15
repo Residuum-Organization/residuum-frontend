@@ -60,6 +60,15 @@ export const deleteUser = async (usuarioId) => {
   }
 };
 
+export const adjustUserPoints = async (usuarioId, delta, motivo) => {
+  try {
+    const res = await api.post(`/admin/usuarios/${usuarioId}/ajuste-pontuacao`, { delta, motivo });
+    return res.data;
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, "Erro ao ajustar pontuacao"));
+  }
+};
+
 export const getAdminPoints = async () => {
   try {
     const res = await api.get("/admin/metrics/ocupacao-pontos");
@@ -198,5 +207,30 @@ export const deleteAgenda = async (id) => {
     await api.delete(`/admin/agenda/${id}`);
   } catch (error) {
     throw new Error(getApiErrorMessage(error, "Erro ao deletar agendamento"));
+  }
+};
+
+export const listAuditEntries = async () => {
+  try {
+    const res = await api.get("/admin/auditoria", { params: { page_size: 50 } });
+    return res.data;
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, "Erro ao carregar auditoria"));
+  }
+};
+
+export const downloadAdminReport = async (report) => {
+  try {
+    const res = await api.get(`/admin/relatorios/${report}.csv`, { responseType: "blob" });
+    const url = window.URL.createObjectURL(res.data);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${report}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, "Erro ao gerar relatorio"));
   }
 };
