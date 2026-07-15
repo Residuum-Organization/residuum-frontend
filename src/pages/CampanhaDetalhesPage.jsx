@@ -1,15 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Award,
   CalendarDays,
-  CheckCircle2,
   Info,
-  MapPin,
-  Recycle,
   Sparkles,
   ArrowLeft,
+  Edit2,
+  Gift,
+  X
 } from "lucide-react";
 import AdminShell from "../components/admin/AdminShell";
 import Badge from "../components/ui/Badge";
@@ -19,18 +19,63 @@ import LoadingState from "../components/ui/LoadingState";
 import ErrorState from "../components/ui/ErrorState";
 import PageHeader from "../components/ui/PageHeader";
 import SectionCard from "../components/ui/SectionCard";
-import { listCampanhas } from "../services/admin";
+import FormField from "../components/forms/FormField";
+import LoadingButton from "../components/ui/LoadingButton";
+import InlineAlert from "../components/ui/InlineAlert";
+import { listCampanhas, updateCampanha } from "../services/admin";
 import { getApiErrorMessage } from "../services/http/getApiErrorMessage";
-
-
 
 export default function CampanhaDetalhesPage() {
   const navigate = useNavigate();
   const { id } = useParams();
+  const queryClient = useQueryClient();
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [formulario, setFormulario] = useState({
+    titulo: "",
+    descricao: "",
+    patrocinador: "",
+    pontos_recompensa: "",
+    data_inicio: "",
+    data_fim: "",
+  });
+  const [erro, setErro] = useState("");
+  const [sucesso, setSucesso] = useState(false);
 
   const { data: campanhas = [], isLoading, isError, error } = useQuery({
     queryKey: ["campanhas"],
     queryFn: listCampanhas,
+  });
+
+  const campanha = campanhas.find((item) => String(item.id) === String(id));
+
+  useEffect(() => {
+    if (campanha && !isEditing) {
+      setFormulario({
+        titulo: campanha.titulo || "",
+        descricao: campanha.descricao || "",
+        patrocinador: campanha.patrocinador || "",
+        pontos_recompensa: campanha.pontos_recompensa || "",
+        data_inicio: campanha.data_inicio ? campanha.data_inicio.split("T")[0] : "",
+        data_fim: campanha.data_fim ? campanha.data_fim.split("T")[0] : "",
+      });
+    }
+  }, [campanha, isEditing]);
+
+  const mutation = useMutation({
+    mutationFn: (payload) => updateCampanha(id, payload),
+    onSuccess: () => {
+      setErro("");
+      setSucesso(true);
+      queryClient.invalidateQueries(["campanhas"]);
+      setTimeout(() => {
+        setSucesso(false);
+        setIsEditing(false);
+      }, 1500);
+    },
+    onError: (err) => {
+      setErro(getApiErrorMessage(err, "Erro ao atualizar a campanha"));
+    },
   });
 
   if (isLoading) {
@@ -48,8 +93,6 @@ export default function CampanhaDetalhesPage() {
       </AdminShell>
     );
   }
-
-  const campanha = campanhas.find((item) => String(item.id) === String(id));
 
   if (!campanha) {
     return (
@@ -74,20 +117,165 @@ export default function CampanhaDetalhesPage() {
     );
   }
 
-  return (
-    <AdminShell>
-      <div className="space-y-5">
-        <div>
+  function atualizarCampo(event) {
+    const { name, value } = event.target;
+    setFormulario((dadosAtuais) => ({
+      ...dadosAtuais,
+      [name]: value,
+    }));
+  }
+
+  function salvarCampanha(event) {
+    event.preventDefault();
+    if (
+      !formulario.titulo ||
+      !formulario.patrocinador ||
+      !formulario.pontos_recompensa
+    ) {
+      setErro("Preencha título, patrocinador e pontos de recompensa antes de salvar.");
+      return;
+    }
+
+    const payload = {
+      titulo: formulario.titulo,
+      descricao: formulario.descricao || null,
+      patrocinador: formulario.patrocinador,
+      pontos_recompensa: Number(formulario.pontos_recompensa) || 0,
+      data_inicio: formulario.data_inicio ? new Date(formulario.data_inicio).toISOString() : null,
+      data_fim: formulario.data_fim ? new Date(formulario.data_fim).toISOString() : null,
+    };
+
+    mutation.mutate(payload);
+  }
+
+  if (isEditing) {
+    return (
+      <AdminShell>
+        <div className="space-y-5">
           <PageHeader
-            title={campanha.titulo}
-            description="Detalhes e regras."
+            title={`Editando: ${campanha.titulo}`}
+            description="Modifique as informações da campanha."
             action={
-              <Button type="button" variant="secondary" onClick={() => navigate("/campanhas")}>
-                <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
+              <Button type="button" variant="secondary" onClick={() => setIsEditing(false)}>
+                <X className="mr-2 h-4 w-4" /> Cancelar
               </Button>
             }
           />
+
+          {erro && <InlineAlert variant="error" description={erro} />}
+          {sucesso && <InlineAlert variant="success" description="Campanha atualizada com sucesso!" />}
+
+          <form onSubmit={salvarCampanha} className="space-y-5">
+            <SectionCard title="Dados básicos" description="Identifique a campanha e a marca responsável.">
+              <div className="grid gap-4 md:grid-cols-2">
+                <FormField
+                  id="titulo"
+                  label="Título da campanha"
+                  name="titulo"
+                  value={formulario.titulo}
+                  onChange={atualizarCampo}
+                  placeholder="Ex: Campanha Heineken"
+                />
+                <FormField
+                  id="patrocinador"
+                  label="Patrocinador"
+                  name="patrocinador"
+                  value={formulario.patrocinador}
+                  onChange={atualizarCampo}
+                  placeholder="Ex: Heineken"
+                />
+              </div>
+              <div className="mt-4">
+                <FormField
+                  id="descricao"
+                  label="Descrição"
+                  as="textarea"
+                  name="descricao"
+                  value={formulario.descricao}
+                  onChange={atualizarCampo}
+                  placeholder="Detalhes sobre a campanha"
+                />
+              </div>
+            </SectionCard>
+
+            <div className="grid gap-5 lg:grid-cols-2">
+              <SectionCard title="Período" description="Informe a janela operacional da campanha.">
+                <div className="grid gap-4">
+                  <CampoComIcone icon={CalendarDays}>
+                    <FormField
+                      id="data_inicio"
+                      type="date"
+                      label="Data de Início"
+                      name="data_inicio"
+                      value={formulario.data_inicio}
+                      onChange={atualizarCampo}
+                    />
+                  </CampoComIcone>
+
+                  <CampoComIcone icon={CalendarDays}>
+                    <FormField
+                      id="data_fim"
+                      type="date"
+                      label="Data de Fim"
+                      name="data_fim"
+                      value={formulario.data_fim}
+                      onChange={atualizarCampo}
+                    />
+                  </CampoComIcone>
+                </div>
+              </SectionCard>
+
+              <SectionCard title="Recompensa" description="Defina a pontuação.">
+                <div className="grid gap-4">
+                  <CampoComIcone icon={Gift}>
+                    <FormField
+                      id="pontos_recompensa"
+                      type="number"
+                      label="Pontos de Recompensa"
+                      name="pontos_recompensa"
+                      value={formulario.pontos_recompensa}
+                      onChange={atualizarCampo}
+                      placeholder="Ex: 30"
+                    />
+                  </CampoComIcone>
+                </div>
+              </SectionCard>
+            </div>
+
+            <div className="flex justify-end pt-5">
+              <LoadingButton
+                isLoading={mutation.isPending}
+                loadingText="Salvando..."
+                type="submit"
+                variant="brandPrimary"
+                className="w-full rounded-full text-base sm:w-auto sm:px-10"
+              >
+                Salvar Alterações
+              </LoadingButton>
+            </div>
+          </form>
         </div>
+      </AdminShell>
+    );
+  }
+
+  return (
+    <AdminShell>
+      <div className="space-y-5">
+        <PageHeader
+          title={campanha.titulo}
+          description="Detalhes e regras."
+          action={
+            <div className="flex flex-wrap items-center gap-2">
+              <Button type="button" variant="secondary" onClick={() => navigate("/campanhas")}>
+                <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
+              </Button>
+              <Button type="button" variant="brandPrimary" onClick={() => setIsEditing(true)}>
+                <Edit2 className="mr-2 h-4 w-4" /> Editar
+              </Button>
+            </div>
+          }
+        />
 
         <SectionCard>
           <CabecalhoCampanha campanha={campanha} />
@@ -205,8 +393,6 @@ function Metrica({ label, value }) {
   );
 }
 
-
-
 function DescricaoCampanha({ campanha }) {
   return (
     <div className="rounded-2xl bg-indigo-50 border border-indigo-100 p-5">
@@ -260,6 +446,17 @@ function Premios({ campanha }) {
           </p>
         </div>
       </div>
+    </div>
+  );
+}
+
+function CampoComIcone({ icon: Icon, children }) {
+  return (
+    <div className="flex items-start gap-3">
+      <div className="mt-7 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[var(--color-surface)] text-[var(--color-primary)]">
+        <Icon className="h-5 w-5" aria-hidden="true" />
+      </div>
+      <div className="min-w-0 grow">{children}</div>
     </div>
   );
 }
