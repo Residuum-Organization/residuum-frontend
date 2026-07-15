@@ -84,7 +84,7 @@ export default function WelcomePage() {
               <h3 className="text-center font-bold text-[var(--color-primary)] mb-4 text-xl">Como deseja se cadastrar?</h3>
               <Button
                 variant="brandPrimary"
-                onClick={() => navigate("/register")}
+                onClick={() => navigate("/cadastro")}
                 className="h-14 w-full rounded-full text-base font-semibold sm:h-16 sm:text-lg"
               >
                 Cadastrar como Morador
