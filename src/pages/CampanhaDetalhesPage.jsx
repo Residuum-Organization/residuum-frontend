@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Award,
@@ -30,7 +30,8 @@ export default function CampanhaDetalhesPage() {
   const { id } = useParams();
   const queryClient = useQueryClient();
 
-  const [isEditing, setIsEditing] = useState(false);
+  const location = useLocation();
+  const [isEditing, setIsEditing] = useState(location.state?.editMode || false);
   const [formulario, setFormulario] = useState({
     titulo: "",
     descricao: "",
@@ -50,7 +51,7 @@ export default function CampanhaDetalhesPage() {
   const campanha = campanhas.find((item) => String(item.id) === String(id));
 
   useEffect(() => {
-    if (campanha && !isEditing) {
+    if (campanha) {
       setFormulario({
         titulo: campanha.titulo || "",
         descricao: campanha.descricao || "",
@@ -60,7 +61,7 @@ export default function CampanhaDetalhesPage() {
         data_fim: campanha.data_fim ? campanha.data_fim.split("T")[0] : "",
       });
     }
-  }, [campanha, isEditing]);
+  }, [campanha]);
 
   const mutation = useMutation({
     mutationFn: (payload) => updateCampanha(id, payload),
@@ -69,8 +70,7 @@ export default function CampanhaDetalhesPage() {
       setSucesso(true);
       queryClient.invalidateQueries(["campanhas"]);
       setTimeout(() => {
-        setSucesso(false);
-        setIsEditing(false);
+        navigate("/campanhas");
       }, 1500);
     },
     onError: (err) => {
