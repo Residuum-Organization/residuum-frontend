@@ -21,6 +21,12 @@ import {
   deleteVoucher,
   drawRaffleWinner,
 } from "../services/rewards";
+import {
+  formatCalendarDate,
+  getTodayInputValue,
+  toBusinessDayISOString,
+  toDateInputValue,
+} from "../utils/dates";
 
 export default function AdminSorteiosPage() {
   const navigate = useNavigate();
@@ -209,9 +215,7 @@ function RewardCard({ reward, onEdit, onDelete, onDraw }) {
           <div className="mt-2 flex gap-2">
             <Badge variant={isSorteio ? "primary" : "success"}>
               {isSorteio
-                ? `Sorteio em: ${new Date(
-                    reward.data_fim || reward.date
-                  ).toLocaleDateString("pt-BR")}`
+                ? `Sorteio em: ${formatCalendarDate(reward.data_fim || reward.date)}`
                 : `Disponíveis: ${
                     reward.quantidade_disponivel || reward.available
                   }`}
@@ -248,8 +252,12 @@ function NovaRecompensaModal({ onClose, editData }) {
   const [titulo, setTitulo] = useState(editData ? (editData.title || editData.titulo || "") : "");
   const [custoPontos, setCustoPontos] = useState(editData ? (editData.pontos || editData.custo_pontos || "") : "");
   const [quantidadeDisponivel, setQuantidadeDisponivel] = useState(editData ? (editData.quantidade_disponivel || editData.available || "") : "");
-  const [dataInicio, setDataInicio] = useState(editData?.data_inicio ? editData.data_inicio.split("T")[0] : new Date().toISOString().split("T")[0]);
-  const [dataFim, setDataFim] = useState(editData?.data_fim ? editData.data_fim.split("T")[0] : "");
+  const [dataInicio, setDataInicio] = useState(
+    editData?.data_inicio ? toDateInputValue(editData.data_inicio) : getTodayInputValue()
+  );
+  const [dataFim, setDataFim] = useState(
+    editData?.data_fim ? toDateInputValue(editData.data_fim) : ""
+  );
   const [parceiro, setParceiro] = useState(editData ? (editData.parceiro || "") : "");
   const [premio, setPremio] = useState(editData ? (editData.premio || "") : "");
   const queryClient = useQueryClient();
@@ -286,8 +294,8 @@ function NovaRecompensaModal({ onClose, editData }) {
         custo_pontos: Number(custoPontos),
         premio: premio || titulo,
         status: "ativo",
-        data_inicio: dataInicio ? new Date(dataInicio).toISOString() : null,
-        data_fim: dataFim ? new Date(dataFim).toISOString() : null,
+        data_inicio: toBusinessDayISOString(dataInicio),
+        data_fim: toBusinessDayISOString(dataFim, true),
       });
     }
   };

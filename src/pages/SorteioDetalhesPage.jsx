@@ -21,6 +21,7 @@ import { getRaffleDetails, buyTicket } from "../services/rewards";
 import { getPointsStatement } from "../services/points";
 import { queryKeys } from "../services/queryKeys";
 import { getApiErrorMessage } from "../services/http/getApiErrorMessage";
+import { formatCalendarDate } from "../utils/dates";
 
 function Timeline({ etapas }) {
   return (
@@ -202,13 +203,13 @@ export default function SorteioDetalhesPage() {
               <div className="rounded-2xl bg-slate-50 p-4 border border-slate-100">
                 <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Início das participações</p>
                 <p className="mt-1 text-sm font-semibold text-[var(--color-primary)]">
-                  {sorteio.data_inicio ? new Date(sorteio.data_inicio).toLocaleDateString('pt-BR') : 'Imediato'}
+                  {sorteio.data_inicio ? formatCalendarDate(sorteio.data_inicio) : 'Imediato'}
                 </p>
               </div>
               <div className="rounded-2xl bg-slate-50 p-4 border border-slate-100">
                 <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Data do sorteio (Fim)</p>
                 <p className="mt-1 text-sm font-semibold text-[var(--color-primary)]">
-                  {sorteio.data_fim ? new Date(sorteio.data_fim).toLocaleDateString('pt-BR') : 'Indeterminada'}
+                  {sorteio.data_fim ? formatCalendarDate(sorteio.data_fim) : 'Indeterminada'}
                 </p>
               </div>
             </div>

@@ -20,6 +20,7 @@ import {
 } from '../services/rewards'
 import { queryKeys } from '../services/queryKeys'
 import { getApiErrorMessage } from '../services/http/getApiErrorMessage'
+import { formatCalendarDate } from '../utils/dates'
 
 function SorteioCard({ sorteio }) {
   const encerrado = sorteio.status === 'encerrado'
@@ -45,7 +46,7 @@ function SorteioCard({ sorteio }) {
             <span className="flex items-center gap-1.5"><Users size={14} /> {sorteio.total_bilhetes || 0} participante(s)</span>
             <span className="flex items-center gap-1.5 sm:col-span-2">
               <CalendarDays size={14} /> 
-              {sorteio.data_inicio ? `${new Date(sorteio.data_inicio).toLocaleDateString('pt-BR')} até ` : ''}{sorteio.data_fim ? new Date(sorteio.data_fim).toLocaleDateString('pt-BR') : 'Sem data limite'}
+              {sorteio.data_inicio ? `${formatCalendarDate(sorteio.data_inicio)} até ` : ''}{sorteio.data_fim ? formatCalendarDate(sorteio.data_fim) : 'Sem data limite'}
             </span>
             <span className="flex items-center gap-1.5 font-bold text-[var(--color-primary)] sm:col-span-2">
               <Ticket size={14} /> Limite de 1 bilhete por pessoa
@@ -89,8 +90,8 @@ function VoucherCard({ voucher, onRedeem, disabled }) {
             </p>
           )}
           <p className="mt-1 text-xs font-semibold text-[var(--color-text-muted)]">
-            {voucher.data_inicio ? `${new Date(voucher.data_inicio).toLocaleDateString('pt-BR')} até ` : 'Válido até: '}
-            {voucher.data_fim ? new Date(voucher.data_fim).toLocaleDateString('pt-BR') : 'Sem validade estipulada'}
+            {voucher.data_inicio ? `${formatCalendarDate(voucher.data_inicio)} até ` : 'Válido até: '}
+            {voucher.data_fim ? formatCalendarDate(voucher.data_fim) : 'Sem validade estipulada'}
           </p>
         </div>
       </div>
