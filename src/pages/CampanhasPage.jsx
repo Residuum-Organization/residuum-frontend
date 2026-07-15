@@ -121,7 +121,7 @@ export default function CampanhasPage() {
                   key={campanha.id}
                   campanha={campanha}
                   onClick={() => navigate(`/campanhas/${campanha.id}`)}
-                  onEdit={(id) => setFeedback({ tone: "warning", message: `Edição em desenvolvimento.` })}
+                  onEdit={(id) => navigate(`/campanhas/${id}`)}
                   onClose={handleEncerramento}
                   onDelete={handleDelecao}
                 />
