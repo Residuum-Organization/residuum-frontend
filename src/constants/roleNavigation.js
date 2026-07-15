@@ -9,6 +9,7 @@ import {
   User,
   Users,
   Warehouse,
+  FileBarChart,
 } from "lucide-react";
 
 export const roleNavigation = {
@@ -16,12 +17,14 @@ export const roleNavigation = {
     { to: "/inicio", label: "Início", Icon: Home },
     { to: "/mapa", label: "Mapa", Icon: MapPin },
     { to: "/meu-estoque", label: "Estoque", Icon: Warehouse },
+    { to: "/campanhas-ativas", label: "Campanhas", Icon: Megaphone },
     { to: "/sorteios", label: "Sorteios", Icon: Star },
     { to: "/perfil", label: "Perfil", Icon: User },
   ],
   operacional: [
     { to: "/dashboard", label: "Painel", Icon: LayoutDashboard },
     { to: "/schedule", label: "Agenda", Icon: CalendarDays },
+    { to: "/meus-pontos-operacionais", label: "Pontos", Icon: MapPin },
     { to: "/aprovacao", label: "Aprovação", Icon: CheckCircle2 },
     { to: "/pontuacao-usuarios", label: "Pontuação", Icon: Users },
   ],
@@ -32,5 +35,6 @@ export const roleNavigation = {
     { to: "/campanhas", label: "Campanhas", Icon: Megaphone },
     { to: "/aprovacao", label: "Validar Descartes", Icon: Warehouse },
     { to: "/admin-sorteios", label: "Sorteios", Icon: Star },
+    { to: "/admin-relatorios", label: "Relatorios", Icon: FileBarChart },
   ],
 };

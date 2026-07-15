@@ -5,7 +5,15 @@ import { LogOut } from "lucide-react";
 
 export default function RoleNav({ variant = "morador", mode = "desktop", className = "" }) {
   const items = roleNavigation[variant] || roleNavigation.morador;
-  const mobileGridClass = items.length === 3 ? 'grid-cols-3' : items.length === 4 ? 'grid-cols-4' : 'grid-cols-5'
+  const mobileGridClass = items.length === 3
+    ? 'grid-cols-3'
+    : items.length === 4
+      ? 'grid-cols-4'
+      : items.length === 6
+        ? 'grid-cols-6'
+        : items.length === 7
+          ? 'grid-cols-7'
+        : 'grid-cols-5'
 
   if (mode === "mobile") {
     return (

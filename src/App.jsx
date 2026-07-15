@@ -38,6 +38,9 @@ import Certificadodecoleta from "./pages/Certificadodecoleta";
 import LogoutPage from "./pages/LogoutPage";
 import LandingPage from "./pages/LandingPage";
 import AdminSorteiosPage from "./pages/AdminSorteiosPage";
+import CampanhasAtivasPage from "./pages/CampanhasAtivasPage";
+import AdminReportsPage from "./pages/AdminReportsPage";
+import OperationalPointsPage from "./pages/OperationalPointsPage";
 
 const moradorRoutes = [
   {
@@ -81,6 +84,12 @@ const moradorRoutes = [
     path: "/sorteios",
     label: "Sorteios",
     Component: SorteiosPage,
+    integratedApi: true,
+  },
+  {
+    path: "/campanhas-ativas",
+    label: "Campanhas",
+    Component: CampanhasAtivasPage,
     integratedApi: true,
   },
   { path: "/sorteios/:id", Component: SorteioDetalhesPage, sidebar: false },
@@ -135,6 +144,7 @@ const parceiroRoutes = [
     integratedApi: true,
   },
   { path: "/schedule", label: "Agenda", Component: ScheduleScreen },
+  { path: "/meus-pontos-operacionais", label: "Meus pontos", Component: OperationalPointsPage, integratedApi: true },
   { path: "/pontuacao-usuarios", label: "Pontuação", Component: UserPointsManagementPage, integratedApi: true },
 ];
 
@@ -148,6 +158,7 @@ const aprovacaoRoute = {
 const adminRoutes = [
   { path: "/admin", label: "Painel admin", Component: AdminPage },
   { path: "/admin-sorteios", label: "Sorteios", Component: AdminSorteiosPage },
+  { path: "/admin-relatorios", label: "Relatorios", Component: AdminReportsPage },
   {
     path: "/campanhas",
     label: "Campanhas",
