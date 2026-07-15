@@ -28,9 +28,10 @@ export const confirmPendingDiscard = async (discardId, payload) => {
   }
 };
 
-export const rejectPendingDiscard = async (discardId, payload) => {
+export const rejectPendingDiscard = async (discardId, payload, isAdmin = false) => {
   try {
-    const res = await api.post(`/admin/descartes/${discardId}/rejeitar`, payload);
+    const prefix = isAdmin ? "/admin" : "/cooperativa";
+    const res = await api.post(`${prefix}/descartes/${discardId}/rejeitar`, payload);
     return res.data;
   } catch (error) {
     throw new Error(getApiErrorMessage(error, "Não foi possível rejeitar o descarte."));

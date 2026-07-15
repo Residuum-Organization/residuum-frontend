@@ -104,7 +104,7 @@ export default function Aprovação() {
     mutationFn: (discardId) =>
       rejectPendingDiscard(discardId, {
         motivo: "Solicitação rejeitada pela operação.",
-      }),
+      }, isAdmin),
     onMutate: () => {
       setFeedback(null);
     },

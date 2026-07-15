@@ -205,7 +205,7 @@ export default function ExtratoPage() {
           ) : histórico.length ? (
             <div className="grid gap-4 lg:grid-cols-2 mt-2">
               {histórico.map((item) => (
-                <HistoricoCard key={item.id_descarte || item.id_resgate || Math.random()} item={item} />
+                <HistoricoCard key={`${item.origem}-${item.id_descarte || item.id_resgate || item.id_inscricao || item.referencia}`} item={item} />
               ))}
             </div>
           ) : (
