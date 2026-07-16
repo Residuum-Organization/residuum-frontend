@@ -12,6 +12,10 @@ export function getApiErrorMessage(error, fallbackMessage = 'Não foi possível 
       return detail
     }
 
+    if (error.request && !error.response) {
+      return 'Não foi possível conectar à API. Verifique se o servidor está disponível e tente novamente.'
+    }
+
     if (typeof error.message === 'string' && error.message.trim()) {
       return error.message
     }
