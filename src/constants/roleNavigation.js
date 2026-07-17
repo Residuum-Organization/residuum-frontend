@@ -5,6 +5,7 @@ import {
   LayoutDashboard,
   MapPin,
   Megaphone,
+  ShoppingBag,
   Star,
   User,
   Users,
@@ -17,8 +18,7 @@ export const roleNavigation = {
     { to: "/inicio", label: "Início", Icon: Home },
     { to: "/mapa", label: "Mapa", Icon: MapPin },
     { to: "/meu-estoque", label: "Estoque", Icon: Warehouse },
-    { to: "/campanhas-ativas", label: "Campanhas", Icon: Megaphone },
-    { to: "/sorteios", label: "Sorteios", Icon: Star },
+    { to: "/loja", label: "Loja", Icon: ShoppingBag },
     { to: "/perfil", label: "Perfil", Icon: User },
   ],
   operacional: [
