@@ -11,6 +11,7 @@ import DashboardScreen from "./pages/DashboardScreenPage";
 import ScheduleScreen from "./pages/ScheduleScreenPage";
 import EscanearQrCodePage from "./pages/EscanearQrCodePage";
 import ValidacaoPresencaPage from "./pages/ValidacaoPresencaPage";
+import TransferenciaConcluidaPage from "./pages/TransferenciaConcluidaPage";
 import WelcomePage from "./pages/WelcomePage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
@@ -85,6 +86,11 @@ const moradorRoutes = [
     label: "Sorteios",
     Component: SorteiosPage,
     integratedApi: true,
+  },
+  {
+    path: "/transferencia-concluida",
+    label: "Envio concluído",
+    Component: TransferenciaConcluidaPage,
   },
   {
     path: "/campanhas-ativas",

@@ -4,8 +4,7 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useZxing } from 'react-zxing'
-import { ArrowLeft, BookText, Camera, Check, CircleDot, FlaskConical, ScanLine, Wine, X } from 'lucide-react'
+import { ArrowLeft, BookText, Check, CircleDot, FlaskConical, ScanBarcode, Sticker, Wine } from 'lucide-react'
 import RoleShell from '../components/layout/RoleShell'
 import PageHeader from '../components/ui/PageHeader'
 import SectionCard from '../components/ui/SectionCard'
@@ -15,6 +14,8 @@ import Button from '../components/ui/Button'
 import { createInventoryItem, updateInventoryItem } from '../services/inventory'
 import { queryKeys } from '../services/queryKeys'
 import { getApiErrorMessage } from '../services/http/getApiErrorMessage'
+import BarcodeScanner from '../components/BarcodeScanner'
+import { buildResidueObservation, parseResidueIdentification } from '../utils/residueIdentification'
 
 const schema = z.object({
   descricao: z.string().optional(),
@@ -28,96 +29,42 @@ const tiposResiduo = [
   { id: 'vidro', label: 'Vidro', icon: <Wine size={22} /> },
 ]
 
-function identificarTipoResiduo(barcode) {
-  const prefix = barcode.substring(0, 3)
-  if (['789', '790'].includes(prefix)) return 'plastico'
-  if (barcode.startsWith('5449')) return 'metal'
-  if (barcode.startsWith('978')) return 'papel'
-  return null
-}
-
-function ScannerCamera({ onScan, onClose }) {
-  const [scanned, setScanned] = useState(false)
-  const [error, setError] = useState(null)
-
-  const { ref } = useZxing({
-    onDecodeResult(result) {
-      if (!scanned) {
-        setScanned(true)
-        onScan(result.getText())
-      }
-    },
-    onError(err) {
-      console.error('Erro no scanner:', err)
-      setError('Não foi possível acessar a câmera. Verifique as permissões.')
-    },
-    paused: scanned,
-    timeBetweenDecodingAttempts: 300,
-  })
-
-  return (
-    <div className="mt-4 aspect-[4/3] w-full overflow-hidden rounded-2xl bg-black">
-      {error ? (
-        <div className="flex h-full w-full items-center justify-center px-4 text-center text-sm text-white">
-          {error}
-        </div>
-      ) : (
-        <div className="relative h-full w-full">
-          <video ref={ref} className="h-full w-full object-cover" />
-          <button
-            type="button"
-            onClick={onClose}
-            className="absolute right-3 top-3 z-10 rounded-full bg-black/50 p-2 text-white/80 hover:text-white"
-            aria-label="Fechar camera"
-          >
-            <X size={18} />
-          </button>
-          <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-            <div className="h-48 w-48 rounded-2xl border-2 border-white/35" />
-          </div>
-          <div className="pointer-events-none absolute bottom-4 left-0 right-0 flex justify-center">
-            <div className="flex items-center gap-2 rounded-full bg-black/50 px-3 py-1.5 text-xs text-white/80">
-              <ScanLine size={14} />
-              <span>Aponte para o código</span>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
-
 export default function CadastrarResiduo() {
   const location = useLocation()
   const editItem = location.state?.item
+  const initialIdentification = parseResidueIdentification(editItem)
 
   const [tipoSelecionado, setTipoSelecionado] = useState(editItem?.tipo_residuo || null)
   const [quantidade, setQuantidade] = useState(Number(editItem?.quantidade || 1))
   const [showScanner, setShowScanner] = useState(false)
-  const [ultimoCodigo, setUltimoCodigo] = useState(editItem?.codigo_barras || null)
+  const [ultimoCodigo, setUltimoCodigo] = useState(initialIdentification.barcode)
+  const [semRotulo, setSemRotulo] = useState(initialIdentification.withoutLabel)
   const [feedback, setFeedback] = useState(null)
   const navigate = useNavigate()
   const queryClient = useQueryClient()
 
   const {
     register,
-    setValue,
     handleSubmit,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
       descricao: editItem?.descricao || '',
-      observacao: editItem?.observacao || '',
+      observacao: initialIdentification.cleanObservation,
     },
   })
 
   const handleScan = (barcode) => {
     setUltimoCodigo(barcode)
+    setSemRotulo(false)
     setShowScanner(false)
-    setValue('descricao', `Código: ${barcode}`)
-    const tipoIdentificado = identificarTipoResiduo(barcode)
-    if (tipoIdentificado) setTipoSelecionado(tipoIdentificado)
+  }
+
+  const markWithoutLabel = () => {
+    setSemRotulo(true)
+    setUltimoCodigo('')
+    setShowScanner(false)
   }
 
   const createMutation = useMutation({
@@ -174,10 +121,20 @@ export default function CadastrarResiduo() {
     }
 
     const descricao = data.descricao?.trim()
-    const observacao = data.observacao?.trim()
+    if (semRotulo && !descricao) {
+      setFeedback({ tone: 'error', message: 'Descreva a embalagem sem rótulo para que o ponto de coleta possa identificá-la.' })
+      return
+    }
+
+    const observacao = buildResidueObservation({
+      observation: data.observacao,
+      barcode: ultimoCodigo,
+      withoutLabel: semRotulo,
+    })
     if (descricao) payload.descricao = descricao
     if (observacao) payload.observacao = observacao
     if (ultimoCodigo) payload.codigo_barras = ultimoCodigo
+    payload.sem_rotulo = semRotulo
 
     if (editItem) {
       updateMutation.mutate(payload)
@@ -200,27 +157,25 @@ export default function CadastrarResiduo() {
         </div>
 
         <div className="grid gap-6 lg:grid-cols-[minmax(280px,0.9fr)_minmax(0,1.1fr)] lg:items-start">
-          <SectionCard title="Código do produto" description="Use a câmera se houver código de barras.">
-            {showScanner ? (
-              <ScannerCamera onScan={handleScan} onClose={() => setShowScanner(false)} />
-            ) : (
+          <SectionCard title="Identificação da embalagem" description="Informe se a embalagem possui código de barras ou está sem rótulo.">
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
               <button
                 type="button"
                 onClick={() => setShowScanner(true)}
-                className="relative mt-4 flex aspect-[4/3] w-full flex-col items-center justify-center gap-4 overflow-hidden rounded-2xl bg-[#1F4E79] shadow-sm transition hover:bg-[#173B5C]"
+                className={`flex min-h-32 flex-col items-start justify-between rounded-2xl border-2 p-4 text-left transition ${!semRotulo ? 'border-[#1F4E79] bg-[#eef5fb] text-[#1F4E79]' : 'border-slate-200 bg-white text-slate-500 hover:border-[#1F4E79]/40'}`}
               >
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="h-48 w-48 rounded-full border-2 border-white/10" />
-                </div>
-                <div className="relative z-10 rounded-full bg-white/20 p-5">
-                  <Camera size={40} className="text-white" />
-                </div>
-                <div className="relative z-10 text-center">
-                  <span className="block text-lg font-bold text-white">Escanear código</span>
-                  <span className="mt-1 block text-sm text-white/75">Toque para ativar a câmera</span>
-                </div>
+                <span className="rounded-xl bg-white p-2 shadow-sm"><ScanBarcode size={24} /></span>
+                <span><strong className="block text-sm">Com código de barras</strong><small className="mt-1 block">Use a câmera para registrar o produto.</small></span>
               </button>
-            )}
+              <button
+                type="button"
+                onClick={markWithoutLabel}
+                className={`flex min-h-32 flex-col items-start justify-between rounded-2xl border-2 p-4 text-left transition ${semRotulo ? 'border-amber-500 bg-amber-50 text-amber-900' : 'border-slate-200 bg-white text-slate-500 hover:border-amber-300'}`}
+              >
+                <span className="rounded-xl bg-white p-2 shadow-sm"><Sticker size={24} /></span>
+                <span><strong className="block text-sm">Embalagem sem rótulo</strong><small className="mt-1 block">O ponto fará a identificação manual.</small></span>
+              </button>
+            </div>
 
             {ultimoCodigo ? (
               <div className="mt-4 flex flex-col gap-3 rounded-2xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800 sm:flex-row sm:items-center">
@@ -233,8 +188,13 @@ export default function CadastrarResiduo() {
                   onClick={() => setShowScanner(true)}
                   className="min-h-10 rounded-full bg-green-700 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-800"
                 >
-                  Re-escanear
+                  Escanear novamente
                 </button>
+              </div>
+            ) : semRotulo ? (
+              <div className="mt-4 flex items-center gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                <Sticker size={20} className="shrink-0" />
+                <span><strong>Sem rótulo.</strong> Preencha a descrição e o tipo do material.</span>
               </div>
             ) : null}
           </SectionCard>
@@ -306,7 +266,7 @@ export default function CadastrarResiduo() {
               </div>
 
               <InlineAlert variant="info">
-                A pontuação só entra depois da confirmação e pesagem pela cooperativa.
+                A pontuação só entra depois da conferência e pesagem pelo ponto de coleta.
               </InlineAlert>
 
               <LoadingButton
@@ -321,6 +281,7 @@ export default function CadastrarResiduo() {
           </SectionCard>
         </div>
       </div>
+      {showScanner ? <BarcodeScanner onScan={handleScan} onClose={() => setShowScanner(false)} /> : null}
     </RoleShell>
   )
 }

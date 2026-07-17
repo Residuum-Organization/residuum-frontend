@@ -75,8 +75,11 @@ export default function Aprovação() {
   );
 
   const confirmMutation = useMutation({
-    mutationFn: ({ discardId, quantity }) =>
-      confirmPendingDiscard(discardId, { quantidade_confirmada: quantity }),
+    mutationFn: ({ discardId, quantity, identification }) =>
+      confirmPendingDiscard(discardId, {
+        quantidade_confirmada: quantity,
+        ...identification,
+      }),
     onMutate: () => {
       setFeedback(null);
     },
@@ -203,10 +206,11 @@ export default function Aprovação() {
                   isApproving={confirmMutation.isLoading && activeConfirmId === item.id}
                   isRejecting={rejectMutation.isLoading && activeRejectId === item.id}
                   disabled={hasPendingAction}
-                  onAprovar={() => {
+                  onAprovar={(identification) => {
                     confirmMutation.mutate({
                       discardId: item.id,
                       quantity: Number(discard?.quantidade || 0),
+                      identification,
                     });
                   }}
                   onRejeitar={() => rejectMutation.mutate(item.id)}
