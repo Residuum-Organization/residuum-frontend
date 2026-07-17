@@ -42,7 +42,7 @@ export default function WelcomePage() {
 
           <p className="mt-4 text-base font-semibold leading-relaxed text-[var(--color-welcome-muted)] sm:text-lg">
             Seu sistema inteligente de coleta. Veja pontos de coleta na sua
-            regiao e participe de uma cidade mais limpa e sustentavel.
+            região e participe de uma cidade mais limpa e sustentável.
           </p>
         </div>
 

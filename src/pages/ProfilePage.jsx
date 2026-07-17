@@ -134,7 +134,7 @@ export default function ProfilePage() {
     <RoleShell variant="morador" shellClassName="bg-[var(--color-surface)]" contentClassName="px-4 py-4 pb-28 sm:px-6 sm:py-6 lg:px-8 lg:pb-28">
       <div className="space-y-6">
         <PageHeader
-          eyebrow="Painel do morador / gerador"
+          eyebrow="Painel do Morador"
           title={profile?.nome || form.nome || 'Meu perfil'}
           description={`Acompanhando desde ${formatDate(memberSince)}`}
           action={

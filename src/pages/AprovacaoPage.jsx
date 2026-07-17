@@ -143,9 +143,9 @@ export default function Aprovação() {
     >
       <div className="space-y-5 pb-4">
         <PageHeader
-          eyebrow="Area operacional compartilhada"
+          eyebrow="Área operacional compartilhada"
           title="Descartes em confirmação"
-          description="Cooperativa ou empresa de coleta realiza a análise e validação operacional; o administrador pode acompanhar por auditoria."
+          description="O ponto de coleta realiza a conferência e validação; o administrador pode acompanhar pela auditoria."
           action={
             <div className="flex flex-wrap items-center gap-2">
               <Button type="button" variant="secondary" onClick={() => navigate(-1)}>

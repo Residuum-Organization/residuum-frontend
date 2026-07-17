@@ -185,7 +185,7 @@ export default function ExtratoPage() {
 
         {pendentes > 0 && (
           <InlineAlert variant="info">
-            Pontos pendentes ainda dependem da confirmação e pesagem real pela cooperativa.
+            Pontos pendentes ainda dependem da conferência e pesagem pelo ponto de coleta.
           </InlineAlert>
         )}
 

@@ -24,7 +24,7 @@ export const roleNavigation = {
   operacional: [
     { to: "/dashboard", label: "Painel", Icon: LayoutDashboard },
     { to: "/schedule", label: "Agenda", Icon: CalendarDays },
-    { to: "/meus-pontos-operacionais", label: "Pontos", Icon: MapPin },
+    { to: "/meus-pontos-operacionais", label: "Meus Locais", Icon: MapPin },
     { to: "/aprovacao", label: "Aprovação", Icon: CheckCircle2 },
     { to: "/pontuacao-usuarios", label: "Pontuação", Icon: Users },
   ],
@@ -35,6 +35,6 @@ export const roleNavigation = {
     { to: "/campanhas", label: "Campanhas", Icon: Megaphone },
     { to: "/aprovacao", label: "Validar Descartes", Icon: Warehouse },
     { to: "/admin-sorteios", label: "Sorteios", Icon: Star },
-    { to: "/admin-relatorios", label: "Relatorios", Icon: FileBarChart },
+    { to: "/admin-relatorios", label: "Relatórios", Icon: FileBarChart },
   ],
 };

@@ -9,7 +9,6 @@ import CadastrarResiduoPage from "./pages/CadastrarResiduoPage";
 import MeuEstoquePage from "./pages/MeuEstoquePage";
 import DashboardScreen from "./pages/DashboardScreenPage";
 import ScheduleScreen from "./pages/ScheduleScreenPage";
-import EscanearQrCodePage from "./pages/EscanearQrCodePage";
 import ValidacaoPresencaPage from "./pages/ValidacaoPresencaPage";
 import TransferenciaConcluidaPage from "./pages/TransferenciaConcluidaPage";
 import WelcomePage from "./pages/WelcomePage";
@@ -73,7 +72,6 @@ const moradorRoutes = [
     Component: ValidacaoPresencaPage,
     integratedApi: true,
   },
-  { path: "/escanear-qr", label: "QR Code", Component: EscanearQrCodePage },
   {
     path: "/extrato",
     label: "Extrato",

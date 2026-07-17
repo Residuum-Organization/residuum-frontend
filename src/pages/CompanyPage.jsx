@@ -139,7 +139,7 @@ export default function Company() {
         <form onSubmit={handleSubmit} className="space-y-5" noValidate>
           <SectionCard
             title="Endereco"
-            description="Preencha onde o ponto recebera ou organizara os residuos."
+            description="Preencha onde o ponto receberá ou organizará os resíduos."
             className="p-4 sm:p-5"
           >
             <div className="space-y-4">
@@ -195,7 +195,7 @@ export default function Company() {
 
           <SectionCard
             title="Operação do ponto"
-            description="Na proxima tela voce escolhe os residuos aceitos, volume e horario disponivel."
+            description="Na próxima tela você escolhe os resíduos aceitos, o volume e o horário disponível."
             className="p-4 sm:p-5"
           >
             <InlineAlert
