@@ -85,7 +85,7 @@ function CampaignsTab({ campaigns, subscriptions, isLoading, isError, joinMutati
         const subscribed = subscribedIds.has(Number(campaign.id));
         const joining = joinMutation.isPending && Number(joinMutation.variables) === Number(campaign.id);
         return (
-          <article key={campaign.id} className="overflow-hidden rounded-2xl border border-emerald-100 bg-gradient-to-br from-white via-white to-emerald-50 p-5 shadow-sm">
+          <article key={campaign.id} className="overflow-hidden rounded-2xl border border-emerald-100 bg-white p-5 shadow-sm">
             <div className="flex items-start gap-4">
               <span className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-[#0B6B53] text-white">{campaign.patrocinador_logo_url ? <img src={campaign.patrocinador_logo_url} alt="" className="h-full w-full object-cover" /> : <Megaphone size={26} />}</span>
               <div className="min-w-0"><p className="text-xs font-black uppercase tracking-wider text-[#0B6B53]">{campaign.patrocinador || "Parceiro Residuum"}</p><h3 className="mt-1 text-xl font-black text-[#1F4E79]">{campaign.titulo}</h3><p className="mt-2 text-sm leading-relaxed text-slate-600">{campaign.descricao || "Campanha de engajamento Residuum."}</p></div>
@@ -203,7 +203,6 @@ export default function LojaPage() {
     <RoleShell variant="morador" shellClassName="bg-[var(--color-surface)]" contentClassName="px-4 py-4 pb-32 sm:px-6 sm:py-6 lg:px-8 lg:pb-28">
       <div className="space-y-5">
         <section className="relative overflow-hidden rounded-[1.75rem] bg-[#123a5a] p-6 text-white shadow-lg sm:p-8">
-          <div className="absolute -right-16 -top-20 h-56 w-56 rounded-full bg-emerald-400/20 blur-3xl" />
           <div className="relative flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
             <PageHeader eyebrow="Benefícios Residuum" title="Loja" description="Ganhe pontos em campanhas e descartes. Use seu saldo em sorteios e vouchers." className="[&_h1]:text-white [&_p]:text-white/75 [&_span]:text-emerald-300" />
             <div className="min-w-48 rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur-sm"><p className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-white/70"><ShoppingBag size={16} /> Seu saldo</p><strong className="mt-1 block text-3xl font-black">{pointsQuery.isLoading ? "..." : balance} <span className="text-base text-emerald-300">pts</span></strong></div>
