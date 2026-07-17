@@ -206,6 +206,7 @@ export default function Aprovação() {
                   isApproving={confirmMutation.isLoading && activeConfirmId === item.id}
                   isRejecting={rejectMutation.isLoading && activeRejectId === item.id}
                   disabled={hasPendingAction}
+                  requiresIdentification={!isAdmin}
                   onAprovar={(identification) => {
                     confirmMutation.mutate({
                       discardId: item.id,

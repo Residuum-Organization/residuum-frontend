@@ -22,13 +22,14 @@ function ApprovalCard({
   isApproving = false,
   isRejecting = false,
   disabled = false,
+  requiresIdentification = true,
 }) {
   const [showScanner, setShowScanner] = useState(false);
   const [barcode, setBarcode] = useState("");
   const [withoutLabel, setWithoutLabel] = useState(false);
   const [manualIdentification, setManualIdentification] = useState("");
   const actionDisabled = disabled || isApproving || isRejecting;
-  const identificationReady = Boolean(barcode || (withoutLabel && manualIdentification.trim()));
+  const identificationReady = !requiresIdentification || Boolean(barcode || (withoutLabel && manualIdentification.trim()));
 
   return (
     <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md sm:p-6 xl:col-span-2 2xl:col-span-1 lg:flex lg:items-start lg:gap-8">
@@ -101,7 +102,9 @@ function ApprovalCard({
       </div>
 
       <div className="mt-6 shrink-0 border-t pt-5 lg:mt-0 lg:w-64 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
-        <p className="text-xs font-black uppercase tracking-wider text-slate-400">Identificação do produto</p>
+        {requiresIdentification ? <p className="text-xs font-black uppercase tracking-wider text-slate-400">Identificação do produto</p> : null}
+        {requiresIdentification ? (
+          <>
         <div className="mt-3 grid grid-cols-2 gap-2">
           <button
             type="button"
@@ -136,6 +139,10 @@ function ApprovalCard({
             />
           </label>
         ) : null}
+          </>
+        ) : (
+          <p className="rounded-xl bg-sky-50 p-3 text-xs font-semibold text-[#1F4E79]">Acesso administrativo para auditoria e apoio operacional.</p>
+        )}
         <div className="mt-4 flex flex-col gap-3">
         <LoadingButton
           type="button"
@@ -166,7 +173,7 @@ function ApprovalCard({
         {!identificationReady ? <p className="mt-2 text-center text-[11px] font-medium text-amber-700">Escaneie o código ou identifique o item sem rótulo.</p> : null}
         <p className="mt-2 text-center text-xs text-slate-400">Criado em: {item.data}</p>
       </div>
-      {showScanner ? (
+      {requiresIdentification && showScanner ? (
         <BarcodeScanner
           onClose={() => setShowScanner(false)}
           onScan={(value) => {
