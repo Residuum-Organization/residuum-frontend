@@ -25,13 +25,13 @@ export const getRoleLabel = (role) => {
 
   if (normalizedRole === "admin") return "Administrador";
   if (normalizedRole === "cooperativa" || normalizedRole === "parceiro") {
-    return "Cooperativa / Empresa de coleta";
+    return "Ponto de Coleta";
   }
   if (normalizedRole === "morador" || normalizedRole === "usuario") {
-    return "Morador / Gerador";
+    return "Morador";
   }
 
-  return "Perfil nao identificado";
+  return "Perfil não identificado";
 };
 
 export const getRoleDescription = (role) => {
@@ -41,13 +41,13 @@ export const getRoleDescription = (role) => {
     return "Gerencie usuários, pontos, campanhas e regras da plataforma.";
   }
   if (normalizedRole === "cooperativa" || normalizedRole === "parceiro") {
-    return "Acompanhe pontos, agenda, coletas e confirmacoes operacionais.";
+    return "Acompanhe locais, agenda, coletas e confirmações operacionais.";
   }
   if (normalizedRole === "usuario" || normalizedRole === "morador") {
-    return "Cadastre residuos, valide entregas e acompanhe seu extrato.";
+    return "Cadastre resíduos, valide entregas e acompanhe seu extrato.";
   }
 
-  return "Seu perfil sera direcionado para o inicio do morador ate ser revisado.";
+  return "Seu perfil será direcionado para o início do morador até ser revisado.";
 };
 
 export const canAccessRole = (role, allowedRoles = []) => {

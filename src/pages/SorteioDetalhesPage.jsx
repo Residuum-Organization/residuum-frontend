@@ -136,7 +136,7 @@ export default function SorteioDetalhesPage() {
     );
   }
 
-  if (!sorteio) return <Navigate to="/sorteios" replace />;
+  if (!sorteio) return <Navigate to="/loja?aba=sorteios" replace />;
 
   return (
     <RoleShell
@@ -147,10 +147,10 @@ export default function SorteioDetalhesPage() {
       <div className="space-y-5">
         <div className="flex items-center justify-between gap-3">
           <Link
-            to="/sorteios"
+            to="/loja?aba=sorteios"
             className="inline-flex min-h-11 items-center gap-2 rounded-full border border-[var(--color-border)] bg-white px-4 text-sm font-semibold text-[var(--color-primary)] shadow-sm hover:bg-[var(--color-surface)]"
           >
-            <ArrowLeft size={18} /> Voltar para sorteios
+            <ArrowLeft size={18} /> Voltar para a loja
           </Link>
           <div className="flex items-center gap-2 rounded-full bg-emerald-100 px-4 py-2 text-sm font-bold text-emerald-700 shadow-sm">
             <Sparkles size={16} />

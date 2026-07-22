@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Menu, X, MapPin, QrCode, Gift, BarChart3, Truck, ArrowRight, ChevronDown, CheckCircle2, Recycle, Users, Store, User, Navigation, Clock3, ShieldCheck, SlidersHorizontal } from "lucide-react";
+import { Menu, X, MapPin, ScanBarcode, Gift, BarChart3, ArrowRight, ChevronDown, CheckCircle2, Recycle, Users, Store, User, Navigation, Clock3, ShieldCheck, SlidersHorizontal } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { getRoleHome } from "../utils/roles";
 
@@ -26,7 +26,7 @@ const faqs = [
 const features = [
   {
     title: "Para Moradores",
-    description: "Descarte consciente com recompensas. Localize pontos no mapa, valide suas entregas via QR Code e acumule pontos na hora.",
+    description: "Descarte consciente com recompensas. Localize pontos no mapa, confirme sua presença por GPS e acompanhe cada entrega.",
     icon: Users,
     color: "from-emerald-500 to-emerald-600",
     bgLight: "bg-emerald-50",
@@ -35,7 +35,7 @@ const features = [
   },
   {
     title: "Para Pontos de Coleta",
-    description: "Atraia clientes e controle estoques. Use nosso painel para validar entregas de moradores rapidamente via QR Code.",
+    description: "Atraia moradores e controle estoques. Use o painel para escanear os produtos, conferir a pesagem e validar entregas.",
     icon: Store,
     color: "from-blue-500 to-blue-600",
     bgLight: "bg-blue-50",
@@ -43,13 +43,13 @@ const features = [
     benefits: ["Validação expressa", "Controle de inventário", "Mais fluxo de pessoas"]
   },
   {
-    title: "Para Cooperativas",
-    description: "Gestão completa da cadeia. Monitore os volumes disponíveis nos pontos de coleta e otimize rotas de caminhões.",
-    icon: Truck,
+    title: "Para Administradores",
+    description: "Gestão completa da rede. Acompanhe pontos de coleta, usuários, campanhas, descartes e indicadores em um só painel.",
+    icon: ShieldCheck,
     color: "from-amber-500 to-amber-600",
     bgLight: "bg-amber-50",
     iconColor: "text-amber-600",
-    benefits: ["Dashboard operacional", "Gestão de motoristas", "Previsibilidade de volume"]
+    benefits: ["Visão consolidada", "Gestão da plataforma", "Relatórios e auditoria"]
   }
 ];
 
@@ -136,7 +136,7 @@ export default function LandingPage() {
                 Seu descarte correto vale <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-500">benefícios reais.</span>
               </h1>
               <p className="text-lg text-slate-600 leading-relaxed mb-8">
-                O Residuum é a plataforma que conecta quem quer descartar com quem precisa coletar. Moradores ganham pontos, pontos de coleta atraem público e cooperativas ganham eficiência logística.
+                O Residuum conecta quem quer descartar com quem pode receber. Moradores ganham pontos e pontos de coleta atraem público enquanto organizam sua operação.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <button 
@@ -481,10 +481,10 @@ export default function LandingPage() {
           <div className="grid md:grid-cols-4 gap-8 text-center relative">
             <div className="hidden md:block absolute top-12 left-[10%] right-[10%] h-0.5 bg-gradient-to-r from-emerald-500/0 via-emerald-500 to-emerald-500/0"></div>
             {[
-              { title: "Cadastre-se", icon: MapPin, text: "Crie sua conta como morador, ponto ou cooperativa." },
-              { title: "Agrupe", icon: Recycle, text: "Separe os resíduos e gere um código no app." },
-              { title: "Entregue", icon: QrCode, text: "O ponto lê seu QR Code e valida a pesagem." },
-              { title: "Fature", icon: Gift, text: "Os pontos caem na conta na mesma hora!" }
+              { title: "Cadastre-se", icon: MapPin, text: "Crie sua conta como morador ou solicite um ponto de coleta." },
+              { title: "Prepare", icon: Recycle, text: "Separe os resíduos e informe quando uma embalagem estiver sem rótulo." },
+              { title: "Entregue", icon: ScanBarcode, text: "Confirme sua localização; o ponto escaneia os produtos e valida a pesagem." },
+              { title: "Receba", icon: Gift, text: "Os pontos entram na sua carteira após a confirmação." }
             ].map((step, i) => (
               <div key={i} className="relative z-10 flex flex-col items-center">
                 <div className="w-24 h-24 rounded-full bg-slate-800 border-4 border-slate-900 flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(16,185,129,0.2)]">
@@ -505,7 +505,7 @@ export default function LandingPage() {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-emerald-400 font-bold text-sm mb-6">
-                <Store size={16} /> Para Estabelecimentos
+                <Store size={16} /> Para Pontos de Coleta
               </div>
               <h2 className="text-4xl font-black mb-6 leading-tight">
                 Transforme sua loja em um <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400">Ponto de Coleta</span> e atraia mais clientes.
@@ -544,11 +544,11 @@ export default function LandingPage() {
               <div className="bg-slate-800 border border-slate-700 rounded-3xl p-8 relative shadow-2xl">
                 <div className="flex justify-between items-start mb-6 border-b border-slate-700 pb-6">
                   <div>
-                    <h3 className="text-2xl font-black text-white">Painel do Lojista</h3>
-                    <p className="text-slate-400 text-sm mt-1">Validação rápida em 3 segundos.</p>
+                    <h3 className="text-2xl font-black text-white">Painel do Ponto de Coleta</h3>
+                    <p className="text-slate-400 text-sm mt-1">Conferência de produto e pesagem.</p>
                   </div>
                   <div className="w-12 h-12 bg-slate-700 rounded-full flex items-center justify-center">
-                    <QrCode className="text-slate-300" size={24} />
+                    <ScanBarcode className="text-slate-300" size={24} />
                   </div>
                 </div>
                 

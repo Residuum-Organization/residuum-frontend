@@ -9,14 +9,14 @@ import CadastrarResiduoPage from "./pages/CadastrarResiduoPage";
 import MeuEstoquePage from "./pages/MeuEstoquePage";
 import DashboardScreen from "./pages/DashboardScreenPage";
 import ScheduleScreen from "./pages/ScheduleScreenPage";
-import EscanearQrCodePage from "./pages/EscanearQrCodePage";
 import ValidacaoPresencaPage from "./pages/ValidacaoPresencaPage";
+import TransferenciaConcluidaPage from "./pages/TransferenciaConcluidaPage";
 import WelcomePage from "./pages/WelcomePage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import UserPointsManagementPage from "./pages/UserPointsManagementPage";
-import SorteiosPage from "./pages/SorteiosPage";
+import LojaPage from "./pages/LojaPage";
 import SorteioDetalhesPage from "./pages/SorteioDetalhesPage";
 import ExtratoPage from "./pages/ExtratoPage";
 import CampanhaHeineken from "./pages/CampanhaHeinekenPage";
@@ -38,7 +38,6 @@ import Certificadodecoleta from "./pages/Certificadodecoleta";
 import LogoutPage from "./pages/LogoutPage";
 import LandingPage from "./pages/LandingPage";
 import AdminSorteiosPage from "./pages/AdminSorteiosPage";
-import CampanhasAtivasPage from "./pages/CampanhasAtivasPage";
 import AdminReportsPage from "./pages/AdminReportsPage";
 import OperationalPointsPage from "./pages/OperationalPointsPage";
 
@@ -73,7 +72,6 @@ const moradorRoutes = [
     Component: ValidacaoPresencaPage,
     integratedApi: true,
   },
-  { path: "/escanear-qr", label: "QR Code", Component: EscanearQrCodePage },
   {
     path: "/extrato",
     label: "Extrato",
@@ -83,13 +81,24 @@ const moradorRoutes = [
   {
     path: "/sorteios",
     label: "Sorteios",
-    Component: SorteiosPage,
+    Component: () => <Navigate to="/loja?aba=sorteios" replace />,
     integratedApi: true,
+  },
+  {
+    path: "/loja",
+    label: "Loja",
+    Component: LojaPage,
+    integratedApi: true,
+  },
+  {
+    path: "/transferencia-concluida",
+    label: "Envio concluído",
+    Component: TransferenciaConcluidaPage,
   },
   {
     path: "/campanhas-ativas",
     label: "Campanhas",
-    Component: CampanhasAtivasPage,
+    Component: () => <Navigate to="/loja?aba=campanhas" replace />,
     integratedApi: true,
   },
   { path: "/sorteios/:id", Component: SorteioDetalhesPage, sidebar: false },

@@ -1,12 +1,12 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
-import { Home, MapPin, QrCode, Recycle, User } from "lucide-react";
+import { Home, MapPin, Recycle, ShoppingBag, User } from "lucide-react";
 
 const items = [
   { to: "/inicio", label: "Inicio", Icon: Home },
   { to: "/mapa", label: "Mapa", Icon: MapPin },
   { to: "/meu-estoque", label: "Estoque", Icon: Recycle },
-  { to: "/escanear-qr", label: "QR Code", Icon: QrCode },
+  { to: "/loja", label: "Loja", Icon: ShoppingBag },
   { to: "/perfil", label: "Perfil", Icon: User },
 ];
 

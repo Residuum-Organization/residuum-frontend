@@ -75,8 +75,11 @@ export default function Aprovação() {
   );
 
   const confirmMutation = useMutation({
-    mutationFn: ({ discardId, quantity }) =>
-      confirmPendingDiscard(discardId, { quantidade_confirmada: quantity }),
+    mutationFn: ({ discardId, quantity, identification }) =>
+      confirmPendingDiscard(discardId, {
+        quantidade_confirmada: quantity,
+        ...identification,
+      }),
     onMutate: () => {
       setFeedback(null);
     },
@@ -140,9 +143,9 @@ export default function Aprovação() {
     >
       <div className="space-y-5 pb-4">
         <PageHeader
-          eyebrow="Area operacional compartilhada"
+          eyebrow="Área operacional compartilhada"
           title="Descartes em confirmação"
-          description="Cooperativa ou empresa de coleta realiza a análise e validação operacional; o administrador pode acompanhar por auditoria."
+          description="O ponto de coleta realiza a conferência e validação; o administrador pode acompanhar pela auditoria."
           action={
             <div className="flex flex-wrap items-center gap-2">
               <Button type="button" variant="secondary" onClick={() => navigate(-1)}>
@@ -203,10 +206,12 @@ export default function Aprovação() {
                   isApproving={confirmMutation.isLoading && activeConfirmId === item.id}
                   isRejecting={rejectMutation.isLoading && activeRejectId === item.id}
                   disabled={hasPendingAction}
-                  onAprovar={() => {
+                  requiresIdentification={!isAdmin}
+                  onAprovar={(identification) => {
                     confirmMutation.mutate({
                       discardId: item.id,
                       quantity: Number(discard?.quantidade || 0),
+                      identification,
                     });
                   }}
                   onRejeitar={() => rejectMutation.mutate(item.id)}

@@ -18,7 +18,13 @@ import {
 import { getApiErrorMessage } from "../services/http/getApiErrorMessage";
 import { useAuth } from "../contexts/AuthContext";
 
-const residuos = ["Plastico", "Metal", "Vidro", "Papelao"];
+const residuos = [
+  { value: "plastico", label: "Plástico" },
+  { value: "metal", label: "Metal" },
+  { value: "vidro", label: "Vidro" },
+  { value: "papelao", label: "Papelão" },
+];
+const residueLabels = Object.fromEntries(residuos.map((item) => [item.value, item.label]));
 
 const statusMap = {
   pendente: {
@@ -286,7 +292,7 @@ export default function Confirmation() {
             <div className="min-h-24 rounded-2xl border border-slate-200 bg-slate-50 p-3">
               {residuosSelecionados.length === 0 ? (
                 <p className="text-sm font-medium text-slate-500">
-                  Clique nos residuos abaixo para adicionar.
+                  Clique nos resíduos abaixo para adicionar.
                 </p>
               ) : (
                 <div className="flex flex-wrap gap-2">
@@ -297,7 +303,7 @@ export default function Confirmation() {
                       onClick={() => removerResiduo(residuo)}
                       className="inline-flex min-h-10 items-center gap-2 rounded-full bg-[var(--color-welcome-blue)] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[var(--color-primary-dark)] focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/30"
                     >
-                      {residuo}
+                      {residueLabels[residuo] || residuo}
                       <X size={14} />
                     </button>
                   ))}
@@ -308,12 +314,12 @@ export default function Confirmation() {
             <div className="mt-3 grid gap-3 sm:grid-cols-2">
               {residuos.map((residuo) => (
                 <button
-                  key={residuo}
+                  key={residuo.value}
                   type="button"
-                  onClick={() => adicionarResiduo(residuo)}
+                  onClick={() => adicionarResiduo(residuo.value)}
                   className="min-h-12 rounded-full border border-[var(--color-welcome-blue)] px-4 py-3 text-sm font-bold text-[var(--color-welcome-blue)] transition hover:bg-[var(--color-welcome-blue)] hover:text-white focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/30"
                 >
-                  {residuo}
+                  {residuo.label}
                 </button>
               ))}
             </div>

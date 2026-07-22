@@ -224,6 +224,15 @@ export default function MeuEstoquePage() {
               >
                 Adicionar resíduo
               </Button>
+              <Button
+                type="button"
+                onClick={() => navigate("/validacao-presenca?todos=1")}
+                disabled={!itens.length}
+                className="bg-emerald-600 hover:bg-emerald-700"
+              >
+                Enviar todos
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
             </div>
           }
         />
@@ -315,7 +324,7 @@ export default function MeuEstoquePage() {
                         }
                         className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-[#1F4E79] px-5 py-2 text-sm font-semibold text-white transition hover:bg-[#173B5C]"
                       >
-                        Transferir
+                        Enviar para validação
                         <ArrowRight size={16} />
                       </button>
 

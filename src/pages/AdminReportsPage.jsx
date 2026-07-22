@@ -176,8 +176,8 @@ export default function AdminReportsPage() {
       <div className="space-y-5">
         <PageHeader
           eyebrow="Governanca"
-          title="Relatorios e auditoria"
-          description="Exporte dados operacionais e acompanhe as alteracoes realizadas no painel."
+          title="Relatórios e auditoria"
+          description="Exporte dados operacionais e acompanhe as alterações realizadas no painel."
           action={
             <Button
               type="button"

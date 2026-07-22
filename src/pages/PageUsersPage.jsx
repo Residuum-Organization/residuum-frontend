@@ -32,7 +32,7 @@ import { getRoleLabel } from "../utils/roles";
 const roles = [
   { value: "", label: "Todos" },
   { value: "usuario", label: "Morador" },
-  { value: "cooperativa", label: "Empresa de coleta" },
+  { value: "cooperativa", label: "Ponto de Coleta" },
   { value: "admin", label: "Administrador" },
 ];
 
@@ -196,7 +196,7 @@ export default function PageUsers() {
       setPointsModal(null);
       setPointsForm({ delta: "", motivo: "" });
       await loadUsers();
-      setSuccessMessage("Pontuacao ajustada e registrada na auditoria.");
+      setSuccessMessage("Pontuação ajustada e registrada na auditoria.");
     } catch (error) {
       setErrorMessage(error.message);
     } finally {
@@ -435,7 +435,7 @@ function UserCard({ user, initials, loading, onEdit, onAdjustPoints, onToggleRol
           type="button"
           onClick={onAdjustPoints}
           disabled={loading}
-          title="Ajustar pontuacao"
+          title="Ajustar pontuação"
           className="flex h-9 w-9 items-center justify-center rounded-full text-[var(--color-text-muted)] transition-colors hover:bg-emerald-50 hover:text-emerald-700 disabled:opacity-50"
         >
           <Coins className="h-4 w-4" aria-hidden="true" />
@@ -594,7 +594,7 @@ function PointsDialog({ user, form, setForm, loading, onClose, onSave }) {
       <div className="w-full max-w-md rounded-2xl bg-white p-5 shadow-2xl">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <h3 className="text-lg font-extrabold text-[var(--color-primary)]">Ajustar pontuacao</h3>
+            <h3 className="text-lg font-extrabold text-[var(--color-primary)]">Ajustar pontuação</h3>
             <p className="mt-1 text-sm text-[var(--color-text-muted)]">{user.nome} possui {user.pontuacao_total || 0} pontos.</p>
           </div>
           <button type="button" onClick={onClose} className="rounded-xl p-2 text-slate-500" aria-label="Fechar"><X className="h-5 w-5" /></button>
