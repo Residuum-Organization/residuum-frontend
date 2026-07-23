@@ -172,12 +172,12 @@ export default function CadastrarResiduo() {
                       onClick={() => setTipoSelecionado(tipo.id)}
                       className={`flex flex-col items-center justify-center gap-2 rounded-2xl p-4 font-semibold text-white transition-all ${
                         tipoSelecionado === tipo.id
-                          ? `${tipo.color} ring-4 ${tipo.ringColor} ring-offset-2 shadow-lg scale-105`
-                          : `${tipo.color} hover:opacity-90 opacity-80`
+                          ? `${tipo.color} ring-2 ${tipo.ringColor} ring-offset-2 shadow-md scale-[1.02]`
+                          : 'bg-[#1A2C71] hover:bg-[#121D4D]'
                       }`}
                     >
                       {tipo.icon}
-                      <span className="text-sm drop-shadow-sm">{tipo.label}</span>
+                      <span className="text-sm">{tipo.label}</span>
                     </button>
                   ))}
                 </div>

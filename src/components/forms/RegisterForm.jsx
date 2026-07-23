@@ -61,21 +61,6 @@ export default function RegisterForm({
         {...register("confirmPassword")}
       />
 
-      <div className="flex flex-col gap-1 pt-1">
-        <div className="flex items-start gap-3">
-          <input
-            type="checkbox"
-            id="lgpd"
-            {...register("lgpd")}
-            className="mt-1 h-5 w-5 shrink-0 rounded border-slate-300 text-[var(--color-welcome-blue)] focus:ring-[var(--color-welcome-blue)]"
-          />
-          <label htmlFor="lgpd" className="text-sm font-medium leading-relaxed text-slate-600">
-            Li e aceito os <span className="font-semibold text-[var(--color-welcome-blue)] underline">Termos de Uso</span> e a <span className="font-semibold text-[var(--color-welcome-blue)] underline">Política de Privacidade</span>.
-          </label>
-        </div>
-        {errors.lgpd && <p className="text-sm font-semibold text-red-600">{errors.lgpd.message}</p>}
-      </div>
-
       <Button
         type="submit"
         variant="brandPrimary"

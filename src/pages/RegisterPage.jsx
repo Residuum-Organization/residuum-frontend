@@ -35,7 +35,6 @@ export default function RegisterPage() {
       phone: "",
       password: "",
       confirmPassword: "",
-      lgpd: false,
     },
   });
 

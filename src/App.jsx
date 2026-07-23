@@ -41,7 +41,6 @@ import LandingPage from "./pages/LandingPage";
 import AdminSorteiosPage from "./pages/AdminSorteiosPage";
 import AdminReportsPage from "./pages/AdminReportsPage";
 import OperationalPointsPage from "./pages/OperationalPointsPage";
-import EntradaPesoCooperativaPage from "./pages/EntradaPesoCooperativaPage";
 
 const moradorRoutes = [
   {
@@ -165,11 +164,6 @@ const parceiroRoutes = [
   { path: "/pontuacao-usuarios", label: "Pontuação", Component: UserPointsManagementPage, integratedApi: true },
 ];
 
-const cooperativaRoutes = [
-  { path: "/registro-coleta", label: "Registrar Coleta", Component: EntradaPesoCooperativaPage },
-  { path: "/perfil", label: "Perfil", Component: ProfilePage, integratedApi: true },
-];
-
 const aprovacaoRoute = {
   path: "/aprovacao",
   label: "Aprovação",
@@ -234,11 +228,7 @@ export default function App() {
         ))}
 
         {parceiroRoutes.map(({ path, Component }) => (
-          renderRoleRoute(path, Component, ["parceiro"])
-        ))}
-
-        {cooperativaRoutes.map(({ path, Component }) => (
-          renderRoleRoute(path, Component, ["cooperativa"])
+          renderRoleRoute(path, Component, ["cooperativa", "parceiro"])
         ))}
 
         {renderRoleRoute(aprovacaoRoute.path, aprovacaoRoute.Component, [

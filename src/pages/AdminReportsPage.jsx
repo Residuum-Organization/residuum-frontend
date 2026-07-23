@@ -193,22 +193,21 @@ export default function AdminReportsPage() {
           <InlineAlert variant={feedback.type} description={feedback.text} />
         ) : null}
 
-        <section className="grid gap-5 md:grid-cols-3">
+        <section className="grid gap-4 md:grid-cols-3">
           {reports.map((report) => (
-            <div key={report.id} className="group relative flex flex-col overflow-hidden rounded-3xl bg-white p-6 shadow-sm border border-slate-200 transition-all hover:-translate-y-1 hover:shadow-lg hover:border-[#1A2C71]/30">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#1A2C71]/10 to-[#1A2C71]/5 text-[#1A2C71] transition-transform group-hover:scale-110 group-hover:rotate-3">
-                <FileBarChart size={28} />
+            <SectionCard key={report.id} className="flex flex-col">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-50 text-[#1A2C71]">
+                <FileBarChart />
               </div>
-              <h2 className="mt-5 text-xl font-black text-[#1A2C71]">
+              <h2 className="mt-4 text-lg font-black text-[var(--color-primary)]">
                 {report.title}
               </h2>
-              <p className="mt-2 mb-6 flex-1 text-sm font-medium leading-relaxed text-slate-500">
+              <p className="mt-1 flex-1 text-sm text-[var(--color-text-muted)]">
                 {report.description}
               </p>
               <Button
                 type="button"
-                variant="outline"
-                className="w-full justify-center font-bold text-[#1A2C71] border-[#1A2C71]/20 hover:bg-[#1A2C71] hover:text-white"
+                className="mt-5 w-full"
                 disabled={downloadMutation.isPending}
                 onClick={() => {
                   setFeedback(null);
@@ -217,7 +216,7 @@ export default function AdminReportsPage() {
               >
                 <Download className="mr-2 h-4 w-4" /> Exportar CSV
               </Button>
-            </div>
+            </SectionCard>
           ))}
         </section>
 
