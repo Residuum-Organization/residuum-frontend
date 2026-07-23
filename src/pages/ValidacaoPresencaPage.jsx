@@ -3,16 +3,15 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import {
   ArrowLeft,
-  BookText,
+  Calendar,
+  CheckCircle2,
   CheckSquare,
-  CircleDot,
-  FlaskConical,
   Loader2,
   MapPin,
   Recycle,
   Send,
   Square,
-  Wine,
+  XCircle,
 } from "lucide-react";
 import RoleShell from "../components/layout/RoleShell";
 import PageHeader from "../components/ui/PageHeader";
@@ -50,12 +49,25 @@ const getAvailableQuantity = (item) =>
       )
   );
 
-const getItemIcon = (type) => {
-  const normalized = String(type || "").toLowerCase();
-  if (["metal", "aluminio"].includes(normalized)) return CircleDot;
-  if (["papel", "papelao"].includes(normalized)) return BookText;
-  if (normalized === "plastico") return FlaskConical;
-  return Wine;
+const getWasteIcon = () => {
+  return Recycle;
+};
+
+const getWasteColor = (type) => {
+  const normalized = String(type || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+  if (normalized === "plastico") return "text-red-600 bg-red-100";
+  if (["papel", "papelao"].includes(normalized))
+    return "text-blue-600 bg-blue-100";
+  if (normalized === "vidro") return "text-emerald-600 bg-emerald-100";
+  if (normalized === "metal") return "text-amber-500 bg-amber-100";
+  if (normalized === "organico") return "text-amber-800 bg-amber-100";
+  if (["eletronico", "eletronicos"].includes(normalized))
+    return "text-orange-600 bg-orange-100";
+  return "text-slate-600 bg-slate-100";
 };
 
 const geolocationMessage = (error) => {
@@ -111,13 +123,14 @@ export default function ValidacaoPresencaPage() {
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const [selectedItems, setSelectedItems] = useState({});
-  const [selectedPointId, setSelectedPointId] = useState("");
+  const [selectedPointId, setSelectedPointId] = useState(location.state?.selectedPointId ? String(location.state.selectedPointId) : "");
   const [observacao, setObservacao] = useState("");
-  const [coords, setCoords] = useState(null);
+  const [coords, setCoords] = useState(location.state?.coords || null);
   const [locationError, setLocationError] = useState("");
   const [feedback, setFeedback] = useState(null);
   const [isLocating, setIsLocating] = useState(false);
   const [isTransferring, setIsTransferring] = useState(false);
+  const [currentStep, setCurrentStep] = useState(1);
   const hasHydratedSelectionRef = useRef(false);
   const transferAttemptRef = useRef({ signature: "", key: "" });
   const navigate = useNavigate();
@@ -220,6 +233,7 @@ export default function ValidacaoPresencaPage() {
   }, [inventory]);
 
   useEffect(() => {
+    if (pointsQuery.isLoading || !pointsQuery.data) return;
     const isStillCompatible = compatiblePoints.some(
       (point) => String(point.id) === String(selectedPointId)
     );
@@ -227,7 +241,7 @@ export default function ValidacaoPresencaPage() {
       setSelectedPointId(
         compatiblePoints[0] ? String(compatiblePoints[0].id) : ""
       );
-  }, [compatiblePoints, selectedPointId]);
+  }, [compatiblePoints, selectedPointId, pointsQuery.isLoading, pointsQuery.data]);
 
   const toggleItem = (item) => {
     setSelectedItems((current) => {
@@ -239,7 +253,7 @@ export default function ValidacaoPresencaPage() {
   };
 
   const updateQuantity = (itemId, value, maximum) => {
-    const quantity = Math.min(maximum, Math.max(0.1, Number(value) || 0.1));
+    const quantity = Math.min(maximum, Math.max(1, parseInt(value, 10) || 1));
     setSelectedItems((current) => ({ ...current, [itemId]: quantity }));
   };
 
@@ -375,9 +389,9 @@ export default function ValidacaoPresencaPage() {
             <Button
               type="button"
               variant="secondary"
-              onClick={() => navigate("/meu-estoque")}
+              onClick={() => navigate(-1)}
             >
-              <ArrowLeft className="mr-2 h-4 w-4" /> Voltar ao estoque
+              <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
             </Button>
           }
         />
@@ -394,169 +408,222 @@ export default function ValidacaoPresencaPage() {
             icon={Recycle}
           />
         ) : (
-          <div className="grid gap-6 lg:grid-cols-2">
-            <SectionCard
-              title="1. Confirme sua localização"
-              description="O GPS comprova sua presença no ponto de coleta."
-            >
-              <div
-                className={`rounded-2xl border p-4 ${
-                  coords
-                    ? "border-emerald-200 bg-emerald-50"
-                    : "border-slate-200 bg-slate-50"
-                }`}
-              >
-                <div className="flex items-start gap-3">
-                  <span
-                    className={`rounded-xl p-2 ${
-                      coords
-                        ? "bg-emerald-600 text-white"
-                        : "bg-white text-slate-400"
-                    }`}
-                  >
-                    <MapPin size={22} />
-                  </span>
-                  <div>
-                    <p className="font-bold text-[#1a3a4a]">
-                      {coords
-                        ? "Localização confirmada"
-                        : "Localização pendente"}
-                    </p>
-                    <p className="mt-1 text-xs text-slate-500">
-                      {coords
-                        ? `Precisão aproximada de ${Math.round(
-                            coords.accuracy
-                          )} m.`
-                        : "Se houver falha, o sistema tentará novamente até três vezes."}
-                    </p>
-                  </div>
-                </div>
+          <div>
+            <div className="mb-8 relative">
+              {/* Barra de progresso */}
+              <div className="absolute top-5 left-10 right-10 sm:left-16 sm:right-16 h-1 bg-slate-200 z-0">
+                <div className="absolute top-0 left-0 h-full bg-[#1A2C71] transition-all duration-300" style={{ width: `${(currentStep - 1) * 50}%` }} />
               </div>
-              {locationError ? (
-                <InlineAlert variant="error" className="mt-3">
-                  {locationError}
-                </InlineAlert>
-              ) : null}
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={requestLocation}
-                disabled={isLocating}
-                className="mt-4 w-full"
-              >
-                {isLocating ? (
-                  <Loader2 size={18} className="mr-2 animate-spin" />
-                ) : (
-                  <MapPin size={18} className="mr-2" />
-                )}
-                {coords ? "Atualizar localização" : "Usar minha localização"}
-              </Button>
-            </SectionCard>
 
-            <SectionCard
-              title="2. Selecione os resíduos"
-              description="Envie um item ou todo o estoque disponível."
-              action={
-                <span className="rounded-full bg-[#1F4E79] px-3 py-1.5 text-xs font-bold text-white">
-                  {selectedCount} selecionado{selectedCount === 1 ? "" : "s"}
-                </span>
-              }
-            >
-              <div className="mb-3 flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={selectAll}
-                  className="rounded-full bg-[#eef5fb] px-3 py-2 text-xs font-bold text-[#1F4E79]"
-                >
-                  Selecionar todos
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSelectedItems({})}
-                  className="rounded-full bg-slate-100 px-3 py-2 text-xs font-bold text-slate-600"
-                >
-                  Limpar seleção
-                </button>
-              </div>
-              <div className="max-h-[390px] space-y-3 overflow-y-auto pr-1">
-                {inventory.map((item) => {
-                  const selected = selectedItems[item.id] !== undefined;
-                  const maximum = getAvailableQuantity(item);
-                  const ItemIcon = getItemIcon(item.tipo_residuo);
+              <div className="flex items-center justify-between px-4 sm:px-12 relative z-10">
+                {[1, 2, 3].map((step) => {
+                  const canClick = !isTransferring && (
+                    step === 1 ||
+                    (step === 2 && selectedCount > 0) ||
+                    (step === 3 && selectedCount > 0 && selectedPointId && coords)
+                  );
+
                   return (
-                    <article
-                      key={item.id}
-                      className={`rounded-2xl border-2 p-4 ${
-                        selected
-                          ? "border-[#1F4E79] bg-[#f4f7fa]"
-                          : "border-slate-200 bg-white"
-                      }`}
-                    >
-                      <button
-                        type="button"
-                        onClick={() => toggleItem(item)}
-                        className="flex w-full items-center gap-3 text-left"
-                      >
-                        {selected ? (
-                          <CheckSquare className="text-[#1F4E79]" size={22} />
-                        ) : (
-                          <Square className="text-slate-300" size={22} />
-                        )}
-                        <span
-                          className={`rounded-xl p-2 ${
-                            selected
-                              ? "bg-[#1F4E79] text-white"
-                              : "bg-slate-100 text-[#1F4E79]"
-                          }`}
-                        >
-                          <ItemIcon size={21} />
-                        </span>
-                        <span className="min-w-0 flex-1">
-                          <strong className="block truncate text-sm text-[#1a3a4a]">
-                            {item.descricao ||
-                              formatResidueType(item.tipo_residuo)}
-                          </strong>
-                          <small className="text-slate-500">
-                            Disponível: {formatQuantity(maximum)} kg
-                          </small>
-                        </span>
-                      </button>
-                      {selected ? (
-                        <div className="mt-3 flex items-center justify-between border-t border-slate-200 pt-3">
-                          <label
-                            htmlFor={`quantity-${item.id}`}
-                            className="text-xs font-bold text-[#1F4E79]"
-                          >
-                            Quantidade (kg)
-                          </label>
-                          <input
-                            id={`quantity-${item.id}`}
-                            type="number"
-                            min="0.1"
-                            max={maximum}
-                            step="0.1"
-                            value={selectedItems[item.id]}
-                            onChange={(event) =>
-                              updateQuantity(
-                                item.id,
-                                event.target.value,
-                                maximum
-                              )
-                            }
-                            className="h-10 w-24 rounded-xl border border-slate-200 bg-white px-2 text-center text-sm font-bold outline-none focus:border-[#1F4E79]"
-                          />
-                        </div>
-                      ) : null}
-                    </article>
+                  <button 
+                    key={step} 
+                    type="button"
+                    onClick={() => canClick && setCurrentStep(step)}
+                    className={`flex flex-col items-center focus:outline-none ${canClick ? 'cursor-pointer hover:opacity-80' : 'cursor-default'}`}
+                  >
+                    <div className={`flex h-10 w-10 items-center justify-center rounded-full font-extrabold transition-colors ${currentStep >= step ? "bg-[#1A2C71] text-white ring-4 ring-[#1A2C71]/20" : "bg-slate-200 text-slate-500"}`}>
+                      {step}
+                    </div>
+                    <span className={`mt-2 text-xs font-bold ${currentStep >= step ? "text-[#1A2C71]" : "text-slate-400"} px-1 bg-[var(--color-surface)]`}>
+                      {step === 1 ? "Resíduos" : step === 2 ? "Local e Ponto" : "Confirmação"}
+                    </span>
+                  </button>
                   );
                 })}
               </div>
-            </SectionCard>
+            </div>
 
-            <SectionCard
-              title="3. Escolha o ponto de coleta"
-              description="A lista considera todos os materiais selecionados."
-            >
+            {currentStep === 1 && (
+              <div className="space-y-6">
+                <SectionCard
+                  title="1. Selecione os resíduos"
+                  description="Envie um item ou todo o estoque disponível."
+                  action={
+                    <span className="rounded-full bg-[#1A2C71] px-3 py-1.5 text-xs font-bold text-white">
+                      {selectedCount} selecionado{selectedCount === 1 ? "" : "s"}
+                    </span>
+                  }
+                >
+                  <div className="mb-3 flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={selectAll}
+                      className="flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-2 text-xs font-bold text-emerald-700 hover:bg-emerald-200 transition-colors"
+                    >
+                      <CheckSquare size={14} />
+                      Selecionar todos
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedItems({})}
+                      className="flex items-center gap-1.5 rounded-full bg-red-100 px-3 py-2 text-xs font-bold text-red-700 hover:bg-red-200 transition-colors"
+                    >
+                      <XCircle size={14} />
+                      Limpar seleção
+                    </button>
+                  </div>
+                  <div className="max-h-[390px] space-y-3 overflow-y-auto pr-1">
+                    {inventory.map((item) => {
+                      const selected = selectedItems[item.id] !== undefined;
+                      const maximum = getAvailableQuantity(item);
+                      const ItemIcon = getWasteIcon(item.tipo_residuo);
+                      return (
+                        <article
+                          key={item.id}
+                          className={`rounded-2xl border-2 p-4 ${
+                            selected
+                              ? "border-[#1A2C71] bg-[#f4f7fa]"
+                              : "border-slate-200 bg-white"
+                          }`}
+                        >
+                          <button
+                            type="button"
+                            onClick={() => toggleItem(item)}
+                            className="flex w-full items-center gap-3 text-left"
+                          >
+                            {selected ? (
+                              <CheckSquare className="text-[#1A2C71]" size={22} />
+                            ) : (
+                              <Square className="text-slate-300" size={22} />
+                            )}
+                            <span
+                              className={`flex items-center justify-center rounded-xl p-2 h-10 w-10 ${
+                                getWasteColor(item.tipo_residuo)
+                              } ${selected ? "ring-2 ring-emerald-500 ring-offset-1" : ""}`}
+                            >
+                              <ItemIcon size={21} />
+                            </span>
+                            <span className="min-w-0 flex-1">
+                              <strong className="block truncate text-sm text-[#1a3a4a]">
+                                {item.descricao ||
+                                  formatResidueType(item.tipo_residuo)}
+                              </strong>
+                              <small className="text-slate-500">
+                                Disponível: {formatQuantity(maximum)} un.
+                              </small>
+                            </span>
+                          </button>
+                          {selected ? (
+                            <div 
+                              className="mt-3 flex items-center justify-between border-t border-slate-200 pt-3 cursor-pointer"
+                              onClick={() => toggleItem(item)}
+                            >
+                              <label
+                                className="text-xs font-bold text-[#1A2C71] cursor-pointer"
+                              >
+                                Quantidade (un.)
+                              </label>
+                              <input
+                                id={`quantity-${item.id}`}
+                                type="number"
+                                min="1"
+                                max={maximum}
+                                step="1"
+                                value={selectedItems[item.id]}
+                                onClick={(e) => e.stopPropagation()}
+                                onChange={(event) =>
+                                  updateQuantity(
+                                    item.id,
+                                    event.target.value,
+                                    maximum
+                                  )
+                                }
+                                className="h-10 w-24 rounded-xl border border-slate-200 bg-white px-2 text-center text-sm font-bold outline-none focus:border-[#1A2C71]"
+                              />
+                            </div>
+                          ) : null}
+                        </article>
+                      );
+                    })}
+                  </div>
+                </SectionCard>
+
+              <div className="flex flex-col gap-3 pt-2">
+                <Button 
+                  type="button" 
+                  onClick={() => setCurrentStep(2)} 
+                  disabled={!selectedCount}
+                  className="w-full py-4 text-base bg-[#1A2C71] hover:bg-[#1a4266]"
+                >
+                  Próximo <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
+                </Button>
+              </div>
+            </div>
+            )}
+
+            {currentStep === 2 && (
+              <div className="space-y-6">
+                <SectionCard
+                  title="2. Solicite sua localização"
+                  description="O GPS comprova sua presença no ponto de coleta."
+                >
+                  <div
+                    className={`rounded-2xl border p-4 ${
+                      coords
+                        ? "border-emerald-200 bg-emerald-50"
+                        : "border-slate-200 bg-slate-50"
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <span
+                        className={`rounded-xl p-2 ${
+                          coords
+                            ? "bg-emerald-600 text-white"
+                            : "bg-white text-slate-400"
+                        }`}
+                      >
+                        <MapPin size={22} />
+                      </span>
+                      <div>
+                        <p className="font-bold text-[#1a3a4a]">
+                          {coords
+                            ? "Localização confirmada"
+                            : "Localização pendente"}
+                        </p>
+                        <p className="mt-1 text-xs text-slate-500">
+                          {coords
+                            ? `Precisão aproximada de ${Math.round(
+                                coords.accuracy
+                              )} m.`
+                            : "Aperte o botão abaixo para confirmar onde você está."}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  {locationError ? (
+                    <InlineAlert variant="error" className="mt-3">
+                      {locationError}
+                    </InlineAlert>
+                  ) : null}
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={requestLocation}
+                    disabled={isLocating}
+                    className="mt-4 w-full"
+                  >
+                    {isLocating ? (
+                      <Loader2 size={18} className="mr-2 animate-spin" />
+                    ) : (
+                      <MapPin size={18} className="mr-2" />
+                    )}
+                    {coords ? "Atualizar localização" : "Solicitar minha localização"}
+                  </Button>
+                </SectionCard>
+
+                <SectionCard
+                  title="3. Escolha o ponto de coleta"
+                  description="A lista considera todos os materiais selecionados."
+                >
               {pointsQuery.isLoading ? (
                 <LoadingState title="Buscando pontos compatíveis..." />
               ) : null}
@@ -577,7 +644,7 @@ export default function ValidacaoPresencaPage() {
                         onClick={() => setSelectedPointId(String(point.id))}
                         className={`w-full rounded-2xl border-2 p-4 text-left ${
                           selected
-                            ? "border-[#1F4E79] bg-[#f4f7fa]"
+                            ? "border-[#1A2C71] bg-[#f4f7fa]"
                             : "border-slate-200 bg-white"
                         }`}
                       >
@@ -607,52 +674,99 @@ export default function ValidacaoPresencaPage() {
                 </InlineAlert>
               ) : null}
             </SectionCard>
-
-            <SectionCard
-              title="4. Revise o envio"
-              description="Inclua uma orientação ao ponto de coleta, se necessário."
-            >
-              <textarea
-                rows={4}
-                value={observacao}
-                onChange={(event) => setObservacao(event.target.value)}
-                placeholder="Ex.: embalagens lavadas e separadas por material"
-                className="w-full resize-none rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-[#1F4E79]"
-              />
-              <div className="mt-4 grid grid-cols-2 gap-3">
-                <div className="rounded-2xl bg-slate-50 p-3">
-                  <small className="font-bold text-slate-500">
-                    Peso enviado
-                  </small>
-                  <strong className="mt-1 block text-lg text-[#1F4E79]">
-                    {formatQuantity(totalWeight)} kg
-                  </strong>
-                </div>
-                <div className="rounded-2xl bg-emerald-50 p-3">
-                  <small className="font-bold text-emerald-700">
-                    Após confirmação
-                  </small>
-                  <strong className="mt-1 block text-lg text-emerald-700">
-                    +{totalPoints} pts
-                  </strong>
-                </div>
+              
+              <div className="flex flex-col gap-3 pt-4 border-t border-slate-200">
+                <Button 
+                  type="button" 
+                  onClick={() => setCurrentStep(3)} 
+                  disabled={!selectedPointId || !coords}
+                  className="w-full py-4 text-base bg-[#1A2C71] hover:bg-[#1a4266]"
+                >
+                  Próximo <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
+                </Button>
+                <Button 
+                  type="button" 
+                  variant="outline"
+                  onClick={() => setCurrentStep(1)} 
+                  className="w-full py-4 text-base"
+                >
+                  <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
+                </Button>
               </div>
-            </SectionCard>
-
-            <div className="lg:col-span-2 flex justify-center">
-              <LoadingButton
-                type="button"
-                onClick={handleTransfer}
-                disabled={isTransferring || !selectedCount || !selectedPointId}
-                isLoading={isTransferring}
-                loadingText="Enviando resíduos..."
-                className="w-full max-w-xl py-4 text-base"
-              >
-                <Send size={18} className="mr-2" /> Enviar{" "}
-                {selectedCount === 1 ? "item" : `${selectedCount} itens`} para
-                validação
-              </LoadingButton>
             </div>
+            )}
+
+            {currentStep === 3 && (
+            <div className="space-y-6">
+              <SectionCard
+                title="4. Confirmação de dados"
+                description="Inclua uma orientação ao ponto de coleta, se necessário."
+              >
+                <textarea
+                  rows={4}
+                  value={observacao}
+                  onChange={(event) => setObservacao(event.target.value)}
+                  placeholder="Ex.: embalagens lavadas e separadas por material"
+                  className="w-full resize-none rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-[#1A2C71]"
+                />
+                <div className="mt-6 rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+                  <div className="bg-slate-50 p-4 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#1A2C71] text-white">
+                        <Recycle size={20} />
+                      </div>
+                      <div>
+                        <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Quantidade enviada</p>
+                        <p className="text-xs font-semibold text-slate-400">{formatQuantity(totalWeight)} unidades no total</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <strong className="text-2xl font-black text-[#1A2C71] tracking-tight">{selectedCount}</strong>
+                    </div>
+                  </div>
+                  
+                  <div className="h-px w-full bg-slate-200" />
+
+                  <div className="bg-emerald-50 p-4 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-white">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
+                      </div>
+                      <div>
+                        <p className="text-[11px] font-bold text-emerald-700 uppercase tracking-wider">Pontos estimados</p>
+                        <p className="text-xs font-semibold text-emerald-600/80">Após a confirmação</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <strong className="text-2xl font-black text-emerald-600 tracking-tight">+{totalPoints}</strong>
+                    </div>
+                  </div>
+                </div>
+              </SectionCard>
+
+              <div className="flex flex-col gap-3 pt-4 border-t border-slate-200">
+                <LoadingButton
+                  type="button"
+                  onClick={handleTransfer}
+                  disabled={isTransferring || !selectedCount || !selectedPointId}
+                  isLoading={isTransferring}
+                  loadingText="Enviando resíduos..."
+                  className="w-full py-4 text-base bg-emerald-600 hover:bg-emerald-700"
+                >
+                  <Send size={18} className="mr-2" /> Enviar para validação
+                </LoadingButton>
+                <Button 
+                  type="button" 
+                  variant="outline"
+                  onClick={() => setCurrentStep(2)} 
+                  disabled={isTransferring}
+                  className="w-full py-4 text-base"
+                >
+                  <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
+                </Button>
+              </div>
+            </div>
+            )}
           </div>
         )}
       </div>

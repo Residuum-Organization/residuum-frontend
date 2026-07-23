@@ -9,6 +9,7 @@ import Button from "../components/ui/Button";
 import LoadingState from "../components/ui/LoadingState";
 import EmptyState from "../components/ui/EmptyState";
 import InlineAlert from "../components/ui/InlineAlert";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/Select";
 import {
   listOperationalCollectionPoints,
   updateOperationalCollectionPoint,
@@ -116,5 +117,25 @@ export default function OperationalPointsPage() {
 
 function Field({ label, value, onChange, type = "text", as, options = [], placeholder }) {
   const className = "min-h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 text-[var(--color-primary)] outline-none focus:border-[#0B6B53]";
-  return <label className="block text-sm font-bold text-[var(--color-primary)]">{label}{as === "select" ? <select className={`${className} mt-1.5`} value={value} onChange={(event) => onChange(event.target.value)}>{options.map((option) => <option key={option} value={option}>{option}</option>)}</select> : <input className={`${className} mt-1.5`} type={type} value={value} placeholder={placeholder} onChange={(event) => onChange(event.target.value)} />}</label>;
+  return (
+    <div className="block text-sm font-bold text-[var(--color-primary)]">
+      <label className="mb-1.5 block">{label}</label>
+      {as === "select" ? (
+        <Select value={value} onValueChange={onChange}>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder={placeholder || "Selecione..."} />
+          </SelectTrigger>
+          <SelectContent>
+            {options.map((option) => (
+              <SelectItem key={option} value={option}>
+                {option}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      ) : (
+        <input className={`${className}`} type={type} value={value} placeholder={placeholder} onChange={(event) => onChange(event.target.value)} />
+      )}
+    </div>
+  );
 }

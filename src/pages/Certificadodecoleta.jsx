@@ -9,6 +9,7 @@ import Button from "../components/ui/Button";
 import LoadingState from "../components/ui/LoadingState";
 import ErrorState from "../components/ui/ErrorState";
 import EmptyState from "../components/ui/EmptyState";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/Select";
 import { getDiscardHistory } from "../services/discards";
 import { queryKeys } from "../services/queryKeys";
 import { useAuth } from "../contexts/AuthContext";
@@ -47,17 +48,21 @@ export default function CertificadoDeColeta() {
         {selected ? (
           <>
             <SectionCard title="Escolha a coleta" description="Cada documento corresponde a uma validacao confirmada.">
-              <select
+              <Select
                 value={selectedId}
-                onChange={(event) => setSelectedId(event.target.value)}
-                className="min-h-12 w-full rounded-2xl border border-[var(--color-border)] bg-white px-4 font-semibold text-[var(--color-primary)]"
+                onValueChange={setSelectedId}
               >
-                {confirmed.map((item) => (
-                  <option key={item.id_descarte} value={item.id_descarte}>
-                    {formatDate(item.data_desc)} - {item.ponto_coleta_nome || "Ponto Residuum"} - {Number(item.quantidade_confirmada ?? item.quantidade ?? 0).toLocaleString("pt-BR")} kg
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Selecione uma coleta" />
+                </SelectTrigger>
+                <SelectContent>
+                  {confirmed.map((item) => (
+                    <SelectItem key={item.id_descarte} value={String(item.id_descarte)}>
+                      {formatDate(item.data_desc)} - {item.ponto_coleta_nome || "Ponto Residuum"} - {Number(item.quantidade_confirmada ?? item.quantidade ?? 0).toLocaleString("pt-BR")} kg
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </SectionCard>
 
             <article id="certificate" className="overflow-hidden rounded-[2rem] border border-emerald-200 bg-white shadow-xl shadow-emerald-950/10">
@@ -85,7 +90,7 @@ export default function CertificadoDeColeta() {
                   </dl>
 
                   <div className="mt-6 flex flex-col gap-4 rounded-3xl bg-emerald-50 p-5 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="flex items-center gap-3"><Recycle className="text-[#0B6B53]" /><div><p className="text-xs font-black uppercase text-emerald-700">Pontos concedidos</p><p className="text-2xl font-black text-[#0B6B53]">+{selected.pontos_recebidos || selected.pontos || 0} pts</p></div></div>
+                    <div className="flex items-center gap-3"><Recycle className="text-[#0B6B53]" /><div><p className="text-xs font-black uppercase text-emerald-700">Pontos concedidos</p><p className="text-2xl font-black text-[#0B6B53]">+{selected.pontos_recebidos || selected.pontos || 0} pontos</p></div></div>
                     <p className="font-mono text-xs font-bold text-slate-500">CERT-RSD-{String(selected.id_descarte).padStart(8, "0")}</p>
                   </div>
 

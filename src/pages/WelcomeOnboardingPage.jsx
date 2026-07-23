@@ -12,7 +12,7 @@ export default function WelcomeOnboardingPage() {
         <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-[#1FA34A]/10 text-[#1FA34A]">
           <CheckCircle2 className="h-10 w-10" />
         </div>
-        <h1 className="mb-2 text-2xl font-extrabold text-[#1F4E79]">Conta criada com sucesso!</h1>
+        <h1 className="mb-2 text-2xl font-extrabold text-[#1A2C71]">Conta criada com sucesso!</h1>
         <p className="mb-8 text-sm leading-relaxed text-[var(--color-text-muted)]">
           Bem-vindo ao Residuum. Agora você faz parte de uma rede comprometida com o meio ambiente e a reciclagem.
         </p>

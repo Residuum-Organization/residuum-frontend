@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { MapPin, Navigation, ArrowLeft } from "lucide-react";
+import { MapPin, Navigation, ArrowLeft, Recycle } from "lucide-react";
 import Map from "../components/maps/Map";
 import RoleShell from "../components/layout/RoleShell";
 import PageHeader from "../components/ui/PageHeader";
@@ -11,19 +11,21 @@ import EmptyState from "../components/ui/EmptyState";
 import LoadingState from "../components/ui/LoadingState";
 import ErrorState from "../components/ui/ErrorState";
 import Button from "../components/ui/Button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/Select";
 import { listCollectionPoints } from "../services/collectionPoints";
 import { queryKeys } from "../services/queryKeys";
 
 const initialCenter = { lat: -3.119, lng: -60.0217 };
 const wasteTypesOptions = [
-  "Todos",
-  "plastico",
-  "papel",
-  "aluminio",
-  "vidro",
-  "eletronicos",
-  "oleo",
-  "baterias",
+  { id: "Todos", label: "Todos os resíduos" },
+  { id: "plastico", label: "Plástico" },
+  { id: "papel", label: "Papel" },
+  { id: "vidro", label: "Vidro" },
+  { id: "metal", label: "Metal" },
+  { id: "organico", label: "Orgânico" },
+  { id: "eletronico", label: "Eletrônicos" },
+  { id: "oleo", label: "Óleo" },
+  { id: "baterias", label: "Baterias" },
 ];
 
 export default function MapPage() {
@@ -42,7 +44,7 @@ export default function MapPage() {
     setLocationStatus("requesting");
     navigator.geolocation.getCurrentPosition(
       ({ coords }) => {
-        setUserLocation({ lat: coords.latitude, lng: coords.longitude });
+        setUserLocation({ lat: coords.latitude, lng: coords.longitude, accuracy: coords.accuracy });
         setLocationStatus("available");
       },
       () => setLocationStatus("denied"),
@@ -111,7 +113,7 @@ export default function MapPage() {
               <Button type="button" variant="secondary" onClick={() => navigate(-1)}>
                 <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
               </Button>
-              <span className="inline-flex min-h-10 items-center rounded-full bg-[#1F4E79] px-4 text-sm font-bold text-white">
+              <span className="inline-flex min-h-10 items-center rounded-full bg-[#1A2C71] px-4 text-sm font-bold text-white">
                 {filteredPoints.length} ativos
               </span>
             </div>
@@ -139,28 +141,30 @@ export default function MapPage() {
           <div className="space-y-4">
             <SectionCard
               title="Filtrar pontos"
-              description="Selecione o tipo de resíduo que você quer entregar."
+              description="Veja apenas os locais que aceitam o tipo de resíduo que você tem."
               className="p-4 sm:p-5"
             >
               <label className="sr-only" htmlFor="waste-type-filter">
                 Filtrar por tipo de resíduo
               </label>
-              <select
-                id="waste-type-filter"
+              <Select
                 value={selectedWasteType}
-                onChange={(event) => {
-                  setSelectedWasteType(event.target.value);
+                onValueChange={(val) => {
+                  setSelectedWasteType(val);
                   setSelectedPoint(null);
                 }}
-                className="min-h-12 w-full rounded-2xl border border-[var(--color-border)] bg-white px-4 py-3 text-base font-semibold text-[var(--color-text)] outline-none transition focus:border-[#1F4E79] focus:ring-2 focus:ring-[#1F4E79]/20"
               >
-                <option value="Todos">Todos os resíduos</option>
-                {wasteTypesOptions.map((type) => (
-                  <option key={type} value={type}>
-                    {type === "Todos" ? type : type.charAt(0).toUpperCase() + type.slice(1)}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger id="waste-type-filter" className="w-full">
+                  <SelectValue placeholder="O que você quer descartar?" />
+                </SelectTrigger>
+                <SelectContent>
+                  {wasteTypesOptions.map((type) => (
+                    <SelectItem key={type.id} value={type.id}>
+                      {type.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </SectionCard>
 
             <section className="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-white p-2 shadow-sm">
@@ -180,33 +184,30 @@ export default function MapPage() {
             </section>
           </div>
 
-          <aside className="space-y-4">
-            {selected ? <PointDetails point={selected} /> : null}
-
-            <SectionCard
-              title="Pontos proximos"
-              description="Toque em um ponto para ver os detalhes no mapa."
-            >
-              {filteredPoints.length ? (
-                <div className="space-y-3">
-                  {filteredPoints.map((point) => (
-                    <PointListItem
-                      key={point.id}
-                      point={point}
-                      active={selected?.id === point.id}
-                      onClick={() => setSelectedPoint(point)}
-                    />
-                  ))}
-                </div>
-              ) : (
+          <aside className="space-y-6">
+            {filteredPoints.length ? (
+              <div className="space-y-6">
+                {filteredPoints.map((point) => (
+                  <div 
+                    key={point.id} 
+                    id={`point-${point.id}`}
+                    onClick={() => setSelectedPoint(point)}
+                    className="cursor-pointer"
+                  >
+                    <PointDetails point={point} isSelected={selected?.id === point.id} userLocation={userLocation} />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <SectionCard title="Nenhum ponto" description="Não encontramos pontos de coleta para este filtro.">
                 <EmptyState
-                  title="Nenhum ponto encontrado."
-                  description="Tente selecionar outro tipo de resíduo."
+                  title="Tente outro material"
+                  description="Ajuste o filtro acima para ver locais compatíveis."
                   icon={MapPin}
                   className="bg-white"
                 />
-              )}
-            </SectionCard>
+              </SectionCard>
+            )}
           </aside>
         </div>
       </div>
@@ -214,13 +215,19 @@ export default function MapPage() {
   );
 }
 
-function PointDetails({ point }) {
+function PointDetails({ point, isSelected, userLocation }) {
+  const navigate = useNavigate();
   const fillPercentage = point.fillPercentage ?? 0;
 
   return (
     <SectionCard
       title="Detalhes do ponto"
       description="Confira endereço, funcionamento e materiais aceitos."
+      className={`transition-all duration-300 ${
+        isSelected
+          ? "border-emerald-500 ring-2 ring-emerald-500 ring-offset-2 shadow-md shadow-emerald-500/10"
+          : "hover:border-slate-300"
+      }`}
     >
       <div className="space-y-4">
         <div className="flex items-start justify-between gap-3">
@@ -273,66 +280,40 @@ function PointDetails({ point }) {
           ))}
         </div>
 
-        <Button
-          type="button"
-          className="w-full gap-2"
-          onClick={() => {
-            window.open(
-              `https://www.google.com/maps/dir/?api=1&destination=${point.latitude},${point.longitude}`,
-              "_blank"
-            );
-          }}
-        >
-          <Navigation className="h-4 w-4" aria-hidden="true" />
-          Ver rota até o ponto
-        </Button>
+        <div className="mt-4 flex flex-col gap-2">
+          <Button
+            type="button"
+            className="w-full gap-2 bg-emerald-600 hover:bg-emerald-700"
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate('/validacao-presenca', { state: { selectedPointId: point.id, selectedItemIds: [], coords: userLocation } });
+            }}
+          >
+            <Recycle className="h-4 w-4" aria-hidden="true" />
+            Descartar resíduos neste ponto
+          </Button>
+
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full gap-2"
+            onClick={() => {
+              window.open(
+                `https://www.google.com/maps/dir/?api=1&destination=${point.latitude},${point.longitude}`,
+                "_blank"
+              );
+            }}
+          >
+            <Navigation className="h-4 w-4" aria-hidden="true" />
+            Ver rota até o ponto
+          </Button>
+        </div>
       </div>
     </SectionCard>
   );
 }
 
-function PointListItem({ point, active, onClick }) {
-  const fillPercentage = point.fillPercentage ?? 0;
-
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`w-full rounded-2xl border p-4 text-left transition focus-visible:ring-2 focus-visible:ring-[#1F4E79]/30 ${
-        active
-          ? "border-[#2EA44F] bg-emerald-50"
-          : "border-[var(--color-border)] bg-white hover:border-[#1F4E79]/40"
-      }`}
-    >
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <h3 className="break-words text-sm font-extrabold text-[var(--color-text)]">
-            {point.name}
-          </h3>
-          <p className="mt-1 text-xs font-medium leading-relaxed text-[var(--color-text-muted)]">
-            {point.address}
-          </p>
-        </div>
-        <span className="shrink-0 text-xs font-black text-[#2EA44F]">
-          {point.distanceKm == null ? "-" : `${point.distanceKm.toFixed(1).replace(".", ",")} km`}
-        </span>
-      </div>
-
-      <div className="mt-3 flex items-center justify-between gap-3 text-xs font-bold text-[var(--color-text-muted)]">
-        <span>
-          {point.currentVolumeKg ?? 0} kg de {point.capacityKg ?? 0} kg
-        </span>
-        <span className="text-[#1F4E79]">{fillPercentage}%</span>
-      </div>
-      <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100">
-        <div
-          className="h-full rounded-full bg-[#2EA44F]"
-          style={{ width: `${fillPercentage}%` }}
-        />
-      </div>
-    </button>
-  );
-}
+// PointListItem removed
 
 function InfoLine({ label, value }) {
   return (

@@ -265,7 +265,7 @@ function RewardCard({ reward, onEdit, onDelete, onDraw, onEnd }) {
             hasResult
               ? "bg-emerald-100 text-emerald-700"
               : isSorteio
-              ? "bg-blue-100 text-[#1F4E79]"
+              ? "bg-blue-100 text-[#1A2C71]"
               : "bg-emerald-100 text-emerald-600"
           }`}
         >
@@ -277,8 +277,8 @@ function RewardCard({ reward, onEdit, onDelete, onDraw, onEnd }) {
           </h3>
           <p className="mt-0.5 text-sm font-medium text-gray-500">
             Custo:{" "}
-            <strong className="text-[#1F4E79]">
-              {reward.pontos || reward.custo_pontos} pts
+            <strong className="text-[#1A2C71]">
+              {reward.pontos || reward.custo_pontos} pontos
             </strong>
           </p>
           <div className="mt-2 flex gap-2">
@@ -329,7 +329,7 @@ function RewardCard({ reward, onEdit, onDelete, onDraw, onEnd }) {
         {!isSorteio || !isEnded ? (
           <button
             onClick={onEdit}
-            className="flex h-10 w-10 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-[#1F4E79]"
+            className="flex h-10 w-10 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-[#1A2C71]"
             title="Editar"
           >
             <Pencil size={18} />
@@ -429,8 +429,8 @@ function NovaRecompensaModal({ onClose, editData }) {
                 disabled={!!editData}
                 className={`flex items-center justify-center gap-3 rounded-2xl px-4 py-4 font-bold transition-all border-2 ${
                   tipo === "voucher"
-                    ? 'border-[#1F4E79] bg-blue-50 text-[#1F4E79] shadow-sm'
-                    : 'border-gray-200 bg-white text-gray-500 hover:border-[#1F4E79]/50 hover:bg-slate-50'
+                    ? 'border-[#1A2C71] bg-blue-50 text-[#1A2C71] shadow-sm'
+                    : 'border-gray-200 bg-white text-gray-500 hover:border-[#1A2C71]/50 hover:bg-slate-50'
                 } ${!!editData && tipo !== "voucher" ? "opacity-50 cursor-not-allowed" : ""}`}
               >
                 <Ticket size={20} />
@@ -442,8 +442,8 @@ function NovaRecompensaModal({ onClose, editData }) {
                 disabled={!!editData}
                 className={`flex items-center justify-center gap-3 rounded-2xl px-4 py-4 font-bold transition-all border-2 ${
                   tipo === "sorteio"
-                    ? 'border-[#1F4E79] bg-blue-50 text-[#1F4E79] shadow-sm'
-                    : 'border-gray-200 bg-white text-gray-500 hover:border-[#1F4E79]/50 hover:bg-slate-50'
+                    ? 'border-[#1A2C71] bg-blue-50 text-[#1A2C71] shadow-sm'
+                    : 'border-gray-200 bg-white text-gray-500 hover:border-[#1A2C71]/50 hover:bg-slate-50'
                 } ${!!editData && tipo !== "sorteio" ? "opacity-50 cursor-not-allowed" : ""}`}
               >
                 <Star size={20} />
@@ -461,7 +461,7 @@ function NovaRecompensaModal({ onClose, editData }) {
               onChange={(e) => setTitulo(e.target.value)}
               placeholder={tipo === "voucher" ? "Ex: Desconto de R$ 50" : "Ex: Sorteio de Fim de Ano"}
               required
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm outline-none focus:border-[#1F4E79]"
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm outline-none focus:border-[#1A2C71]"
             />
           </div>
 
@@ -476,7 +476,7 @@ function NovaRecompensaModal({ onClose, editData }) {
                 onChange={(e) => setParceiro(e.target.value)}
                 placeholder="Ex: Mercado Livre"
                 required
-                className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm outline-none focus:border-[#1F4E79]"
+                className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm outline-none focus:border-[#1A2C71]"
               />
             </div>
           ) : (
@@ -490,7 +490,7 @@ function NovaRecompensaModal({ onClose, editData }) {
                 onChange={(e) => setPremio(e.target.value)}
                 placeholder="Ex: 01 Smart TV 55 polegadas"
                 required
-                className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm outline-none focus:border-[#1F4E79]"
+                className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm outline-none focus:border-[#1A2C71]"
               />
             </div>
           )}
@@ -506,7 +506,7 @@ function NovaRecompensaModal({ onClose, editData }) {
               onChange={(e) => setCustoPontos(e.target.value)}
               placeholder={tipo === "voucher" ? "Ex: 500" : "Ex: 50"}
               required
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm outline-none focus:border-[#1F4E79]"
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm outline-none focus:border-[#1A2C71]"
             />
           </div>
 
@@ -522,7 +522,7 @@ function NovaRecompensaModal({ onClose, editData }) {
                 onChange={(e) => setQuantidadeDisponivel(e.target.value)}
                 placeholder="Ex: 100"
                 required
-                className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm outline-none focus:border-[#1F4E79]"
+                className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm outline-none focus:border-[#1A2C71]"
               />
             </div>
           ) : (
@@ -536,7 +536,7 @@ function NovaRecompensaModal({ onClose, editData }) {
                   value={dataInicio}
                   onChange={(e) => setDataInicio(e.target.value)}
                   required
-                  className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm outline-none focus:border-[#1F4E79]"
+                  className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm outline-none focus:border-[#1A2C71]"
                 />
               </div>
               <div>
@@ -548,7 +548,7 @@ function NovaRecompensaModal({ onClose, editData }) {
                   value={dataFim}
                   onChange={(e) => setDataFim(e.target.value)}
                   required
-                  className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm outline-none focus:border-[#1F4E79]"
+                  className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm outline-none focus:border-[#1A2C71]"
                 />
               </div>
             </div>

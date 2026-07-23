@@ -196,7 +196,7 @@ export default function AdminReportsPage() {
         <section className="grid gap-4 md:grid-cols-3">
           {reports.map((report) => (
             <SectionCard key={report.id} className="flex flex-col">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-50 text-[#1F4E79]">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-50 text-[#1A2C71]">
                 <FileBarChart />
               </div>
               <h2 className="mt-4 text-lg font-black text-[var(--color-primary)]">
@@ -283,7 +283,7 @@ function AuditEntry({ entry }) {
               {presentation.category}
             </span>
             <span className="h-1 w-1 rounded-full bg-slate-300" />
-            <span className="truncate text-xs font-bold text-[#1F4E79]">
+            <span className="truncate text-xs font-bold text-[#1A2C71]">
               {targetName}
             </span>
           </div>
@@ -314,7 +314,7 @@ function AuditEntry({ entry }) {
           dateTime={entry.created_at}
           className="inline-flex w-fit items-center gap-2 rounded-xl bg-white px-3 py-2 text-xs font-bold text-slate-500 ring-1 ring-slate-200 sm:justify-self-end"
         >
-          <Clock3 size={14} className="text-[#1F4E79]" aria-hidden="true" />
+          <Clock3 size={14} className="text-[#1A2C71]" aria-hidden="true" />
           {auditDateFormatter.format(new Date(entry.created_at))}
         </time>
       </div>

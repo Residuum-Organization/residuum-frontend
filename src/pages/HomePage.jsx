@@ -6,6 +6,7 @@ import {
   Warehouse,
   TrendingUp,
   Package,
+  Gift,
 } from "lucide-react";
 import RoleShell from "../components/layout/RoleShell";
 import SectionCard from "../components/ui/SectionCard";
@@ -26,6 +27,7 @@ import {
 
 import { useQuery } from "@tanstack/react-query";
 import { getUserMetrics } from "../services/users";
+import { listInventory } from "../services/inventory";
 
 const MONTH_NAMES = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
 
@@ -38,7 +40,19 @@ export default function HomePage() {
     queryFn: () => getUserMetrics(),
   });
 
-  if (isLoading || isLoadingMetrics) {
+  const { data: inventoryItems = [], isLoading: isLoadingInventory } = useQuery({
+    queryKey: ["inventory"],
+    queryFn: () => listInventory(),
+    select: (items) =>
+      items.filter(
+        (item) =>
+          item.status !== "cancelado" &&
+          (Number(item.quantidade || 0) > 0 ||
+            Number(item.quantidade_reservada || 0) > 0)
+      ),
+  });
+
+  if (isLoading || isLoadingMetrics || isLoadingInventory) {
     return (
       <RoleShell variant="morador" shellClassName="bg-[var(--color-surface)]">
         <LoadingState title="Carregando painel..." className="mx-auto mt-10" />
@@ -64,7 +78,7 @@ export default function HomePage() {
         {/* Welcome Section */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between rounded-3xl bg-white p-6 shadow-sm border border-[var(--color-border)]">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-[#1F4E79]">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-[#1A2C71]">
               Bem-vindo(a), {firstName}! 👋
             </h1>
             <p className="mt-2 text-[var(--color-text-muted)]">
@@ -74,64 +88,51 @@ export default function HomePage() {
           <div className="flex flex-col gap-3 sm:flex-row shrink-0 mt-4 sm:mt-0">
             <Button
               type="button"
-              variant="secondary"
-              onClick={() => navigate("/mapa")}
-              className="w-full sm:w-auto font-bold border-2"
-            >
-              <MapPin className="mr-2 h-5 w-5" aria-hidden="true" />
-              Ver mapa
-            </Button>
-            <Button
-              type="button"
               variant="primary"
               onClick={() => navigate("/cadastrar-residuo")}
               className="w-full sm:w-auto font-bold"
             >
               <Recycle className="mr-2 h-5 w-5" aria-hidden="true" />
-              Reciclar
+              Adicionar resíduo
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => navigate("/loja")}
+              className="w-full sm:w-auto font-bold"
+            >
+              <Gift className="mr-2 h-5 w-5" aria-hidden="true" />
+              Sorteios
             </Button>
           </div>
         </div>
 
         {/* KPIs */}
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2">
           <Card className="flex flex-col border border-[var(--color-border)] shadow-sm bg-white p-6">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-[#1F4E79]">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-[#1A2C71]">
                 <TrendingUp className="h-5 w-5" aria-hidden="true" />
               </div>
-              <Label className="text-slate-600 text-sm font-semibold">Pontuação Total</Label>
+              <Label className="text-slate-600 text-sm font-semibold">Meus pontos</Label>
             </div>
-            <h2 className="mt-4 text-3xl font-black text-[#1F4E79]">
-              {currentPoints.toLocaleString("pt-BR")}
+            <h2 className="mt-4 text-3xl font-black text-[#1A2C71]">
+              {currentPoints.toLocaleString("pt-BR")} <span className="text-xl text-slate-400 font-bold">pontos</span>
             </h2>
-            <p className="mt-1 text-slate-500 text-sm font-medium">pts acumulados</p>
+            <p className="mt-1 text-slate-500 text-sm font-medium">pontos acumulados</p>
           </Card>
 
           <Card className="flex flex-col border border-[var(--color-border)] shadow-sm bg-white p-6">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-[#1F4E79]">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-[#1A2C71]">
                 <Warehouse className="h-5 w-5" aria-hidden="true" />
               </div>
-              <Label className="text-slate-600 text-sm font-semibold">Volume no Estoque</Label>
+              <Label className="text-slate-600 text-sm font-semibold">Meus resíduos guardados</Label>
             </div>
-            <h2 className="mt-4 text-3xl font-black text-[#1F4E79]">
-              {totalInventoryKg.toLocaleString("pt-BR")} <span className="text-xl text-slate-400 font-bold">kg</span>
+            <h2 className="mt-4 text-3xl font-black text-[#1A2C71]">
+              {inventoryItems.length} <span className="text-xl text-slate-400 font-bold">{inventoryItems.length === 1 ? 'resíduo' : 'resíduos'}</span>
             </h2>
-            <p className="mt-1 text-slate-500 text-sm font-medium">esperando descarte</p>
-          </Card>
-
-          <Card className="flex flex-col border border-[var(--color-border)] shadow-sm bg-white p-6">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-[#1F4E79]">
-                <Package className="h-5 w-5" aria-hidden="true" />
-              </div>
-              <Label className="text-slate-600 text-sm font-semibold">Entregas Pendentes</Label>
-            </div>
-            <h2 className="mt-4 text-3xl font-black text-[#1F4E79]">
-              {pendingDiscards}
-            </h2>
-            <p className="mt-1 text-slate-500 text-sm font-medium">aguardando validação</p>
+            <p className="mt-1 text-slate-500 text-sm font-medium">guardados no seu estoque</p>
           </Card>
         </div>
 
@@ -147,7 +148,7 @@ export default function HomePage() {
                   cursor={{ fill: '#F1F5F9' }} 
                   contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} 
                 />
-                <Bar dataKey="entregas" fill="#1F4E79" radius={[4, 4, 0, 0]} barSize={40} />
+                <Bar dataKey="entregas" fill="#1A2C71" radius={[4, 4, 0, 0]} barSize={40} />
               </BarChart>
             </ResponsiveContainer>
           </div>

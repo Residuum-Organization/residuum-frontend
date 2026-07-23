@@ -10,6 +10,7 @@ import {
   Medal,
   Sparkles,
   Trophy,
+  Calendar,
 } from "lucide-react";
 import RoleShell from "../components/layout/RoleShell";
 import PageHeader from "../components/ui/PageHeader";
@@ -22,6 +23,7 @@ import { getPointsStatement } from "../services/points";
 import { queryKeys } from "../services/queryKeys";
 import { getApiErrorMessage } from "../services/http/getApiErrorMessage";
 import { formatCalendarDate } from "../utils/dates";
+import TermosPrivacidadeModal from "../components/ui/TermosPrivacidadeModal";
 
 function Timeline({ etapas }) {
   return (
@@ -105,6 +107,8 @@ export default function SorteioDetalhesPage() {
   const availablePoints = pointsStatement?.pontuacao_total || 0;
 
   const [feedback, setFeedback] = useState(null);
+  const [aceitouLGPD, setAceitouLGPD] = useState(false);
+  const [isTermosModalOpen, setIsTermosModalOpen] = useState(false);
   const queryClient = useQueryClient();
 
   const buyTicketMutation = useMutation({
@@ -154,11 +158,11 @@ export default function SorteioDetalhesPage() {
           </Link>
           <div className="flex items-center gap-2 rounded-full bg-emerald-100 px-4 py-2 text-sm font-bold text-emerald-700 shadow-sm">
             <Sparkles size={16} />
-            {availablePoints} pts
+            {availablePoints} pontos
           </div>
         </div>
 
-        <section className="overflow-hidden rounded-2xl bg-[#1F4E79] text-white shadow-lg">
+        <section className="overflow-hidden rounded-2xl bg-[#1A2C71] text-white shadow-lg">
           <div className="p-5 sm:p-6">
             <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-3xl bg-white/15">
               <Trophy size={34} />
@@ -200,17 +204,27 @@ export default function SorteioDetalhesPage() {
 
             {/* Período de Participação */}
             <div className="grid grid-cols-2 gap-4">
-              <div className="rounded-2xl bg-slate-50 p-4 border border-slate-100">
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Início das participações</p>
-                <p className="mt-1 text-sm font-semibold text-[var(--color-primary)]">
-                  {sorteio.data_inicio ? formatCalendarDate(sorteio.data_inicio) : 'Imediato'}
-                </p>
+              <div className="flex items-center gap-3 rounded-2xl bg-slate-50 p-4 border border-slate-100">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-200 text-slate-600">
+                  <Calendar size={20} />
+                </div>
+                <div>
+                  <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Início</p>
+                  <p className="text-sm font-extrabold text-[var(--color-primary)]">
+                    {sorteio.data_inicio ? formatCalendarDate(sorteio.data_inicio) : 'Imediato'}
+                  </p>
+                </div>
               </div>
-              <div className="rounded-2xl bg-slate-50 p-4 border border-slate-100">
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Data do sorteio (Fim)</p>
-                <p className="mt-1 text-sm font-semibold text-[var(--color-primary)]">
-                  {sorteio.data_fim ? formatCalendarDate(sorteio.data_fim) : 'Indeterminada'}
-                </p>
+              <div className="flex items-center gap-3 rounded-2xl bg-slate-50 p-4 border border-slate-100">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-200 text-slate-600">
+                  <Calendar size={20} />
+                </div>
+                <div>
+                  <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Data do sorteio</p>
+                  <p className="text-sm font-extrabold text-[var(--color-primary)]">
+                    {sorteio.data_fim ? formatCalendarDate(sorteio.data_fim) : 'Indeterminada'}
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -231,6 +245,26 @@ export default function SorteioDetalhesPage() {
                   {feedback.text}
                 </InlineAlert>
               )}
+
+              <label className="mb-4 flex items-center gap-2 cursor-pointer px-1">
+                <input
+                  type="checkbox"
+                  checked={aceitouLGPD}
+                  onChange={(e) => setAceitouLGPD(e.target.checked)}
+                  className="h-4 w-4 shrink-0 rounded border-slate-300 text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
+                />
+                <span className="text-xs font-medium text-slate-600 leading-snug">
+                  Li e aceito os{" "}
+                  <button 
+                    type="button" 
+                    onClick={(e) => { e.preventDefault(); setIsTermosModalOpen(true); }} 
+                    className="font-bold text-[var(--color-primary)] underline"
+                  >
+                    Termos de Uso e Política de Privacidade
+                  </button>
+                </span>
+              </label>
+
               <Button
                 type="button"
                 onClick={() => {
@@ -238,20 +272,25 @@ export default function SorteioDetalhesPage() {
                   buyTicketMutation.mutate(sorteio.id);
                 }}
                 disabled={
-                  sorteio.status === "encerrado" || buyTicketMutation.isPending
+                  sorteio.status === "encerrado" || buyTicketMutation.isPending || !aceitouLGPD
                 }
-                className="w-full bg-[#1F4E79] py-4 text-sm font-bold text-white hover:bg-[#1a3a4a] disabled:bg-slate-300"
+                className="w-full bg-[#1A2C71] py-4 text-sm font-bold text-white hover:bg-[#1a3a4a] disabled:bg-slate-300"
               >
                 {buyTicketMutation.isPending
                   ? "Gerando bilhete..."
                   : sorteio.status === "encerrado"
                   ? "Sorteio encerrado"
-                  : `Garantir Bilhete por ${sorteio.custo_pontos} pontos`}
+                  : "Participar do Sorteio"}
               </Button>
             </div>
           </div>
         </SectionCard>
       </div>
+
+      <TermosPrivacidadeModal 
+        isOpen={isTermosModalOpen} 
+        onClose={() => setIsTermosModalOpen(false)} 
+      />
     </RoleShell>
   );
 }

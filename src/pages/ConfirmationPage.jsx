@@ -344,7 +344,7 @@ export default function Confirmation() {
               />
 
               <div className="space-y-3">
-                <label className="block text-sm font-semibold text-[#1F4E79]">Dias de Funcionamento</label>
+                <label className="block text-sm font-semibold text-[#1A2C71]">Dias de Funcionamento</label>
                 <div className="flex flex-wrap gap-2">
                   {['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'].map(dia => (
                     <button

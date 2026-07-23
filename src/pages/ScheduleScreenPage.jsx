@@ -11,6 +11,7 @@ import Button from "../components/ui/Button";
 import SectionCard from "../components/ui/SectionCard";
 import InlineAlert from "../components/ui/InlineAlert";
 import { TIME_SLOTS } from "../constants/schedule";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/Select";
 import { listOperationalCollectionPoints } from "../services/collectionPoints";
 import { listAgendas, createAgenda, deleteAgenda } from "../services/admin";
 
@@ -226,16 +227,19 @@ export default function ScheduleScreen() {
             <form onSubmit={handleSchedule} className="space-y-4">
               <div>
                 <label className="block text-sm font-bold text-[#1a3a4a] mb-1.5">Ponto de Coleta</label>
-                <select
+                <Select
                   value={form.pontoId}
-                  onChange={(e) => setForm({...form, pontoId: e.target.value})}
-                  className="w-full rounded-2xl border border-[var(--color-border)] bg-slate-50 px-4 py-3 text-sm text-[#1a3a4a] outline-none focus:border-[var(--color-primary)]"
+                  onValueChange={(val) => setForm({...form, pontoId: val})}
                 >
-                  <option value="">Selecione um ponto...</option>
-                  {points.map(pt => (
-                    <option key={pt.id} value={pt.id}>{pt.nome}</option>
-                  ))}
-                </select>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Selecione um ponto..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {points.map(pt => (
+                      <SelectItem key={pt.id} value={String(pt.id)}>{pt.nome}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div>
@@ -250,16 +254,19 @@ export default function ScheduleScreen() {
 
               <div>
                 <label className="block text-sm font-bold text-[#1a3a4a] mb-1.5">Turno / Janela</label>
-                <select
+                <Select
                   value={form.turnoId}
-                  onChange={(e) => setForm({...form, turnoId: e.target.value})}
-                  className="w-full rounded-2xl border border-[var(--color-border)] bg-slate-50 px-4 py-3 text-sm text-[#1a3a4a] outline-none focus:border-[var(--color-primary)]"
+                  onValueChange={(val) => setForm({...form, turnoId: val})}
                 >
-                  <option value="">Selecione uma janela...</option>
-                  {TIME_SLOTS.map(slot => (
-                    <option key={slot.id} value={slot.id}>{slot.label} ({slot.time})</option>
-                  ))}
-                </select>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Selecione uma janela..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {TIME_SLOTS.map(slot => (
+                      <SelectItem key={slot.id} value={slot.id}>{slot.label} ({slot.time})</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="mt-6 flex gap-3 pt-2">
