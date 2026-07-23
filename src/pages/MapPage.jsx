@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { MapPin, Navigation, ArrowLeft } from "lucide-react";
+import { MapPin, Navigation, ArrowLeft, Recycle } from "lucide-react";
 import Map from "../components/maps/Map";
 import RoleShell from "../components/layout/RoleShell";
 import PageHeader from "../components/ui/PageHeader";
@@ -215,6 +215,7 @@ export default function MapPage() {
 }
 
 function PointDetails({ point }) {
+  const navigate = useNavigate();
   const fillPercentage = point.fillPercentage ?? 0;
 
   return (
@@ -273,19 +274,31 @@ function PointDetails({ point }) {
           ))}
         </div>
 
-        <Button
-          type="button"
-          className="w-full gap-2"
-          onClick={() => {
-            window.open(
-              `https://www.google.com/maps/dir/?api=1&destination=${point.latitude},${point.longitude}`,
-              "_blank"
-            );
-          }}
-        >
-          <Navigation className="h-4 w-4" aria-hidden="true" />
-          Ver rota até o ponto
-        </Button>
+        <div className="mt-4 flex flex-col gap-2">
+          <Button
+            type="button"
+            className="w-full gap-2 bg-emerald-600 hover:bg-emerald-700"
+            onClick={() => navigate('/estoque')}
+          >
+            <Recycle className="h-4 w-4" aria-hidden="true" />
+            Descartar resíduos neste ponto
+          </Button>
+
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full gap-2"
+            onClick={() => {
+              window.open(
+                `https://www.google.com/maps/dir/?api=1&destination=${point.latitude},${point.longitude}`,
+                "_blank"
+              );
+            }}
+          >
+            <Navigation className="h-4 w-4" aria-hidden="true" />
+            Ver rota até o ponto
+          </Button>
+        </div>
       </div>
     </SectionCard>
   );

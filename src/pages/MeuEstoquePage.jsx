@@ -85,6 +85,8 @@ export default function MeuEstoquePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedType, setSelectedType] = useState("Todos");
   const [selectedItemIds, setSelectedItemIds] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 6;
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -123,6 +125,16 @@ export default function MeuEstoquePage() {
       formatResidueType(item.tipo_residuo) === selectedType;
     return matchesQuery && matchesType;
   });
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedType]);
+
+  const totalPages = Math.ceil(filteredItens.length / ITEMS_PER_PAGE);
+  const paginatedItens = filteredItens.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
   useEffect(() => {
     const availableIds = new Set(
@@ -379,9 +391,10 @@ export default function MeuEstoquePage() {
           ) : null}
 
           {filteredItens.length ? (
-            <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-              {filteredItens.map((item) => {
-                const ItemIcon = getItemIcon(item.tipo_residuo);
+            <>
+              <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                {paginatedItens.map((item) => {
+                  const ItemIcon = getItemIcon(item.tipo_residuo);
                 const quantityAvailable = getAvailableQuantity(item);
                 const isSelected = selectedItemIds.includes(String(item.id));
                 return (
@@ -480,7 +493,32 @@ export default function MeuEstoquePage() {
                   </article>
                 );
               })}
-            </div>
+              </div>
+
+              {filteredItens.length > ITEMS_PER_PAGE && (
+                <div className="mt-8 flex items-center justify-between gap-4 border-t border-slate-200 pt-6">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  >
+                    Anterior
+                  </Button>
+                  <span className="text-sm font-medium text-slate-600">
+                    Página {currentPage} de {totalPages}
+                  </span>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={currentPage === totalPages}
+                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  >
+                    Próxima
+                  </Button>
+                </div>
+              )}
+            </>
           ) : (
             <EmptyState
               title="Seu estoque está vazio."

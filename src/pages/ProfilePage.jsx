@@ -138,18 +138,8 @@ export default function ProfilePage() {
           title={profile?.nome || form.nome || 'Meu perfil'}
           description={`Acompanhando desde ${formatDate(memberSince)}`}
           action={
-            <div className="grid gap-2 sm:flex">
-              <Button type="button" variant="secondary" onClick={() => navigate(-1)}>
-                <ArrowLeft className="mr-2 h-4 w-4" aria-hidden="true" />
-                Voltar
-              </Button>
-              <Button type="button" variant="secondary" onClick={() => navigate('/inicio')}>
-                Início
-              </Button>
-              <Button type="button" variant="secondary" onClick={() => navigate('/meu-estoque')}>
-                Ver estoque
-              </Button>
-              <Button type="button" variant="danger" onClick={handleLogout} className="gap-2">
+            <div className="flex gap-2">
+              <Button type="button" variant="danger" onClick={handleLogout} className="gap-2 px-6">
                 <LogOut className="h-4 w-4" aria-hidden="true" />
                 Sair
               </Button>
