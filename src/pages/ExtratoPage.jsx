@@ -168,7 +168,7 @@ export default function ExtratoPage() {
             <div>
               <p className="text-sm font-bold uppercase tracking-wide text-[#1F4E79]">Saldo Atual Disponível</p>
               <h2 className="mt-2 text-6xl font-black tracking-tight text-[#1a3a4a] sm:text-7xl">
-                {total} <span className="text-2xl font-bold text-slate-400">pts</span>
+                {total} <span className="text-2xl font-bold text-slate-400">pontos</span>
               </h2>
             </div>
             <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-[#1F4E79] text-white shadow-md">

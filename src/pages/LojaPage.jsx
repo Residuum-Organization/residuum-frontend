@@ -22,6 +22,7 @@ import LoadingState from "../components/ui/LoadingState";
 import ErrorState from "../components/ui/ErrorState";
 import EmptyState from "../components/ui/EmptyState";
 import Button from "../components/ui/Button";
+import Select from "../components/ui/Select";
 import { joinCampaign, listActiveCampaigns, listMyCampaignSubscriptions } from "../services/campaigns";
 import {
   listActiveRaffles,
@@ -61,8 +62,8 @@ function ConfirmSpendModal({ item, balance, onCancel, onConfirm, isPending }) {
         </div>
         <p className="mt-3 text-sm leading-relaxed text-slate-600">O código promocional será gerado imediatamente e ficará salvo em Minhas recompensas.</p>
         <div className="mt-5 grid grid-cols-2 gap-3">
-          <div className="rounded-2xl bg-slate-50 p-4"><small className="font-bold text-slate-500">Custo</small><strong className="mt-1 block text-xl text-[#1F4E79]">{item.custo_pontos} pts</strong></div>
-          <div className={`rounded-2xl p-4 ${remaining >= 0 ? "bg-emerald-50" : "bg-red-50"}`}><small className={`font-bold ${remaining >= 0 ? "text-emerald-700" : "text-red-700"}`}>Saldo restante</small><strong className={`mt-1 block text-xl ${remaining >= 0 ? "text-emerald-700" : "text-red-700"}`}>{remaining} pts</strong></div>
+          <div className="rounded-2xl bg-slate-50 p-4"><small className="font-bold text-slate-500">Custo</small><strong className="mt-1 block text-xl text-[#1F4E79]">{item.custo_pontos} pontos</strong></div>
+          <div className={`rounded-2xl p-4 ${remaining >= 0 ? "bg-emerald-50" : "bg-red-50"}`}><small className={`font-bold ${remaining >= 0 ? "text-emerald-700" : "text-red-700"}`}>Saldo restante</small><strong className={`mt-1 block text-xl ${remaining >= 0 ? "text-emerald-700" : "text-red-700"}`}>{remaining} pontos</strong></div>
         </div>
         {remaining < 0 ? <InlineAlert variant="error" className="mt-4">Você não possui pontos suficientes para este resgate.</InlineAlert> : null}
         <div className="mt-6 grid grid-cols-2 gap-3">
@@ -95,7 +96,7 @@ function CampaignsTab({ campaigns, subscriptions, isLoading, isError, joinMutati
               <span className="flex items-center gap-2"><CalendarDays size={17} /> Até {campaign.data_fim ? formatCalendarDate(campaign.data_fim) : "sem limite"}</span>
             </div>
             <Button type="button" className="mt-4 w-full" disabled={subscribed || joinMutation.isPending} onClick={() => joinMutation.mutate(campaign.id)}>
-              {subscribed ? <><CheckCircle2 className="mr-2 h-4 w-4" /> Você já participa</> : joining ? "Confirmando participação..." : `Participe e ganhe ${campaign.pontos_recompensa} pts`}
+              {subscribed ? <><CheckCircle2 className="mr-2 h-4 w-4" /> Você já participa</> : joining ? "Confirmando participação..." : `Participe e ganhe ${campaign.pontos_recompensa} pontos`}
             </Button>
           </article>
         );
@@ -115,7 +116,7 @@ function RafflesTab({ raffles, isLoading, isError }) {
         return (
           <article key={raffle.id} className="rounded-2xl border border-sky-100 bg-white p-5 shadow-sm">
             <div className="flex items-start gap-4"><span className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl ${closed ? "bg-slate-100 text-slate-500" : "bg-sky-100 text-[#1F4E79]"}`}><Star size={27} /></span><div className="min-w-0 flex-1"><div className="flex flex-wrap items-center justify-between gap-2"><h3 className="text-lg font-black text-[#1F4E79]">{raffle.titulo}</h3><span className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase ${closed ? "bg-slate-100 text-slate-500" : "bg-emerald-100 text-emerald-700"}`}>{closed ? "encerrado" : "ativo"}</span></div><p className="mt-1 text-sm font-semibold text-slate-500">{raffle.patrocinador ? `Oferecido por ${raffle.patrocinador}` : "Sorteio Residuum"}</p></div></div>
-            <div className="mt-4 grid grid-cols-2 gap-3"><span className="rounded-xl bg-slate-50 p-3 text-xs font-bold text-slate-600"><Gift className="mb-1" size={16} />{raffle.custo_pontos} pts</span><span className="rounded-xl bg-slate-50 p-3 text-xs font-bold text-slate-600"><CalendarDays className="mb-1" size={16} />{raffle.data_fim ? formatCalendarDate(raffle.data_fim) : "Sem limite"}</span></div>
+            <div className="mt-4 grid grid-cols-2 gap-3"><span className="rounded-xl bg-slate-50 p-3 text-xs font-bold text-slate-600"><Gift className="mb-1" size={16} />{raffle.custo_pontos} pontos</span><span className="rounded-xl bg-slate-50 p-3 text-xs font-bold text-slate-600"><CalendarDays className="mb-1" size={16} />{raffle.data_fim ? formatCalendarDate(raffle.data_fim) : "Sem limite"}</span></div>
             {raffle.resultado ? <p className="mt-3 rounded-xl bg-amber-50 px-3 py-2 text-xs font-bold text-amber-800">Vencedor: {raffle.resultado.vencedor_nome} · bilhete #{raffle.resultado.numero}</p> : null}
             <Link to={`/sorteios/${raffle.id}`} className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-2xl bg-[#1F4E79] px-4 text-sm font-bold text-white hover:bg-[#173B5C]">{closed ? "Ver resultado" : "Ver detalhes e participar"}</Link>
           </article>
@@ -135,7 +136,7 @@ function VouchersTab({ vouchers, isLoading, isError, onRedeem }) {
         <article key={voucher.id} className="rounded-2xl border border-emerald-100 bg-[#ECFFF4] p-5 shadow-sm">
           <div className="flex items-start justify-between gap-3"><span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-[#0B6B53]"><Ticket size={23} /></span><span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-emerald-700">{voucher.quantidade_disponivel || 0} disponíveis</span></div>
           <p className="mt-4 text-xs font-black uppercase tracking-wider text-[#0B6B53]">{voucher.parceiro || "Parceiro Residuum"}</p><h3 className="mt-1 text-lg font-black text-[#1F4E79]">{voucher.titulo}</h3><p className="mt-2 text-sm text-slate-600">{voucher.descricao || "Benefício disponível para troca direta."}</p>
-          <Button type="button" onClick={() => onRedeem(voucher)} disabled={(voucher.quantidade_disponivel || 0) <= 0} className="mt-5 w-full bg-[#0B6B53] hover:bg-emerald-800">Resgatar por {voucher.custo_pontos} pts</Button>
+          <Button type="button" onClick={() => onRedeem(voucher)} disabled={(voucher.quantidade_disponivel || 0) <= 0} className="mt-5 w-full bg-[#0B6B53] hover:bg-emerald-800">Resgatar por {voucher.custo_pontos} pontos</Button>
         </article>
       ))}
     </div>
@@ -147,7 +148,7 @@ function RewardsTab({ redemptions, tickets, isLoading }) {
   if (!redemptions.length && !tickets.length) return <EmptyState icon={Sparkles} title="Você ainda não possui recompensas." description="Vouchers resgatados e bilhetes aparecerão aqui." />;
   return (
     <div className="grid gap-4 lg:grid-cols-2">
-      {redemptions.map((item) => <article key={`voucher-${item.id}`} className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5"><p className="text-xs font-black uppercase tracking-wider text-emerald-700">Voucher ativo</p><h3 className="mt-1 font-black text-[#1F4E79]">{item.titulo || "Voucher Residuum"}</h3><p className="mt-4 break-all rounded-xl bg-white px-3 py-3 font-mono text-lg font-black tracking-wider text-[#0B6B53]">{item.codigo}</p><p className="mt-2 text-xs font-semibold text-slate-500">{item.parceiro || "Parceiro Residuum"} · {item.pontos_utilizados} pts</p></article>)}
+      {redemptions.map((item) => <article key={`voucher-${item.id}`} className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5"><p className="text-xs font-black uppercase tracking-wider text-emerald-700">Voucher ativo</p><h3 className="mt-1 font-black text-[#1F4E79]">{item.titulo || "Voucher Residuum"}</h3><p className="mt-4 break-all rounded-xl bg-white px-3 py-3 font-mono text-lg font-black tracking-wider text-[#0B6B53]">{item.codigo}</p><p className="mt-2 text-xs font-semibold text-slate-500">{item.parceiro || "Parceiro Residuum"} · {item.pontos_utilizados} pontos</p></article>)}
       {tickets.map((item) => <article key={`ticket-${item.id}`} className="rounded-2xl border border-sky-200 bg-sky-50 p-5"><p className="text-xs font-black uppercase tracking-wider text-sky-700">Bilhete confirmado</p><h3 className="mt-1 font-black text-[#1F4E79]">{item.titulo || "Sorteio Residuum"}</h3><p className="mt-4 text-3xl font-black text-[#1F4E79]">#{String(item.numero).padStart(4, "0")}</p><p className="mt-2 text-xs font-semibold text-slate-500">{item.premio || "Prêmio informado no sorteio"}</p><Link to={`/sorteios/${item.sorteio_id}`} className="mt-3 inline-flex text-xs font-black text-[#1F4E79]">Ver sorteio e resultado</Link></article>)}
     </div>
   );
@@ -205,18 +206,24 @@ export default function LojaPage() {
         <section className="relative overflow-hidden rounded-[1.75rem] bg-[#123a5a] p-6 text-white shadow-lg sm:p-8">
           <div className="relative flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
             <PageHeader eyebrow="Benefícios Residuum" title="Loja" description="Ganhe pontos em campanhas e descartes. Use seu saldo em sorteios e vouchers." className="[&_h1]:text-white [&_p]:text-white/75 [&_span]:text-emerald-300" />
-            <div className="min-w-48 rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur-sm"><p className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-white/70"><ShoppingBag size={16} /> Seu saldo</p><strong className="mt-1 block text-3xl font-black">{pointsQuery.isLoading ? "..." : balance} <span className="text-base text-emerald-300">pts</span></strong></div>
+            <div className="min-w-48 rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur-sm"><p className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-white/70"><ShoppingBag size={16} /> Seu saldo</p><strong className="mt-1 block text-3xl font-black">{pointsQuery.isLoading ? "..." : balance} <span className="text-base text-emerald-300">pontos</span></strong></div>
           </div>
         </section>
 
-        <nav className="flex gap-2 overflow-x-auto rounded-2xl border border-slate-200 bg-white p-2 shadow-sm" aria-label="Seções da loja">
-          {tabs.map(({ id, label, Icon, emBreve }) => (
-            <button key={id} type="button" onClick={() => !emBreve && setTab(id)} disabled={emBreve} className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl px-4 text-sm font-bold transition ${activeTab === id ? "bg-[#1F4E79] text-white shadow-sm" : emBreve ? "text-slate-300 cursor-not-allowed opacity-70 bg-slate-50" : "text-slate-500 hover:bg-slate-50 hover:text-[#1F4E79]"}`} aria-current={activeTab === id ? "page" : undefined}>
-              <Icon size={17} />{label}
-              {emBreve && <span className="ml-1 rounded bg-slate-200 px-1.5 py-0.5 text-[10px] font-black uppercase text-slate-500">Em breve</span>}
-            </button>
-          ))}
-        </nav>
+        <div className="w-full">
+          <label htmlFor="loja-tabs" className="sr-only">Selecione uma seção da loja</label>
+          <Select
+            id="loja-tabs"
+            value={activeTab}
+            onChange={(e) => setTab(e.target.value)}
+          >
+            {tabs.map(({ id, label, emBreve }) => (
+              <option key={id} value={id} disabled={emBreve}>
+                {label} {emBreve ? "(Em breve)" : ""}
+              </option>
+            ))}
+          </Select>
+        </div>
 
         {feedback ? <InlineAlert variant={feedback.type} title={feedback.type === "success" ? "Tudo certo" : "Atenção"}>{feedback.text}</InlineAlert> : null}
 

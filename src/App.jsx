@@ -5,6 +5,7 @@ import ProtectedRoute from "./components/auth/ProtectedRoute";
 import RoleRoute from "./components/auth/RoleRoute";
 import MapPage from "./pages/MapPage";
 import ProfilePage from "./pages/ProfilePage";
+import ConfiguracoesPage from "./pages/ConfiguracoesPage";
 import CadastrarResiduoPage from "./pages/CadastrarResiduoPage";
 import MeuEstoquePage from "./pages/MeuEstoquePage";
 import DashboardScreen from "./pages/DashboardScreenPage";
@@ -106,6 +107,12 @@ const moradorRoutes = [
     path: "/perfil",
     label: "Perfil",
     Component: ProfilePage,
+    integratedApi: true,
+  },
+  {
+    path: "/configuracoes",
+    label: "Configurações",
+    Component: ConfiguracoesPage,
     integratedApi: true,
   },
 ];

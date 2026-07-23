@@ -393,7 +393,7 @@ export default function LandingPage() {
                           <h3 className="font-extrabold text-[#1F4E79] text-base truncate">Bicicleta Caloi</h3>
                           <p className="text-sm font-semibold text-slate-500 mt-1">EcoCorp Brasil</p>
                           <div className="grid grid-cols-2 gap-2 mt-3 text-xs font-semibold text-slate-500">
-                            <span className="flex items-center gap-1.5"><Gift size={14}/> 500 pts</span>
+                            <span className="flex items-center gap-1.5"><Gift size={14}/> 500 pontos</span>
                             <span className="flex items-center gap-1.5"><Users size={14}/> 120</span>
                             <span className="flex items-center gap-1.5 col-span-2"><Menu size={14}/> até 30/11/2026</span>
                           </div>
@@ -415,7 +415,7 @@ export default function LandingPage() {
                           <h3 className="font-extrabold text-[#1F4E79] text-base truncate">Cupom Ifood R$50</h3>
                           <p className="text-sm font-semibold text-slate-500 mt-1">Ifood</p>
                           <div className="grid grid-cols-2 gap-2 mt-3 text-xs font-semibold text-slate-500">
-                            <span className="flex items-center gap-1.5"><Gift size={14}/> 800 pts</span>
+                            <span className="flex items-center gap-1.5"><Gift size={14}/> 800 pontos</span>
                             <span className="flex items-center gap-1.5"><Users size={14}/> 45</span>
                             <span className="flex items-center gap-1.5 col-span-2"><Menu size={14}/> até 15/12/2026</span>
                           </div>

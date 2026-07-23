@@ -278,7 +278,7 @@ function RewardCard({ reward, onEdit, onDelete, onDraw, onEnd }) {
           <p className="mt-0.5 text-sm font-medium text-gray-500">
             Custo:{" "}
             <strong className="text-[#1F4E79]">
-              {reward.pontos || reward.custo_pontos} pts
+              {reward.pontos || reward.custo_pontos} pontos
             </strong>
           </p>
           <div className="mt-2 flex gap-2">

@@ -85,7 +85,7 @@ export default function CertificadoDeColeta() {
                   </dl>
 
                   <div className="mt-6 flex flex-col gap-4 rounded-3xl bg-emerald-50 p-5 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="flex items-center gap-3"><Recycle className="text-[#0B6B53]" /><div><p className="text-xs font-black uppercase text-emerald-700">Pontos concedidos</p><p className="text-2xl font-black text-[#0B6B53]">+{selected.pontos_recebidos || selected.pontos || 0} pts</p></div></div>
+                    <div className="flex items-center gap-3"><Recycle className="text-[#0B6B53]" /><div><p className="text-xs font-black uppercase text-emerald-700">Pontos concedidos</p><p className="text-2xl font-black text-[#0B6B53]">+{selected.pontos_recebidos || selected.pontos || 0} pontos</p></div></div>
                     <p className="font-mono text-xs font-bold text-slate-500">CERT-RSD-{String(selected.id_descarte).padStart(8, "0")}</p>
                   </div>
 

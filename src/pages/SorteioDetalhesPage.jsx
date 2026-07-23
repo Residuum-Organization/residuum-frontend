@@ -158,7 +158,7 @@ export default function SorteioDetalhesPage() {
           </Link>
           <div className="flex items-center gap-2 rounded-full bg-emerald-100 px-4 py-2 text-sm font-bold text-emerald-700 shadow-sm">
             <Sparkles size={16} />
-            {availablePoints} pts
+            {availablePoints} pontos
           </div>
         </div>
 
@@ -246,14 +246,14 @@ export default function SorteioDetalhesPage() {
                 </InlineAlert>
               )}
 
-              <label className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-4 cursor-pointer mb-5 shadow-sm">
+              <label className="mb-4 flex items-center gap-2 cursor-pointer px-1">
                 <input
                   type="checkbox"
                   checked={aceitouLGPD}
                   onChange={(e) => setAceitouLGPD(e.target.checked)}
-                  className="mt-0.5 h-5 w-5 shrink-0 rounded border-slate-300 text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
+                  className="h-4 w-4 shrink-0 rounded border-slate-300 text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
                 />
-                <span className="text-sm font-medium text-slate-600 leading-snug">
+                <span className="text-xs font-medium text-slate-600 leading-snug">
                   Li e aceito os{" "}
                   <button 
                     type="button" 
@@ -262,7 +262,6 @@ export default function SorteioDetalhesPage() {
                   >
                     Termos de Uso e Política de Privacidade
                   </button>
-                  .
                 </span>
               </label>
 
@@ -281,7 +280,7 @@ export default function SorteioDetalhesPage() {
                   ? "Gerando bilhete..."
                   : sorteio.status === "encerrado"
                   ? "Sorteio encerrado"
-                  : `Garantir Bilhete por ${sorteio.custo_pontos} pontos`}
+                  : "Participar do Sorteio"}
               </Button>
             </div>
           </div>

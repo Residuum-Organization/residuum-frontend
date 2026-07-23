@@ -54,7 +54,7 @@ export default function TransferenciaConcluidaPage() {
             <div className="rounded-2xl bg-emerald-50 p-4">
               <Sparkles className="text-emerald-700" size={22} />
               <small className="mt-3 block font-bold text-emerald-700">Pontos estimados</small>
-              <strong className="mt-1 block text-emerald-700">+{state?.totalPoints || 0} pts</strong>
+              <strong className="mt-1 block text-emerald-700">+{state?.totalPoints || 0} pontos</strong>
             </div>
           </div>
 
