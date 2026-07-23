@@ -14,6 +14,7 @@ import {
   Recycle,
   Trash2,
   X,
+  ChevronLeft,
 } from "lucide-react";
 import Button from "../components/ui/Button";
 import RoleShell from "../components/layout/RoleShell";
@@ -284,7 +285,7 @@ export default function MeuEstoquePage() {
     <RoleShell
       variant="morador"
       shellClassName="bg-[var(--color-surface)]"
-      contentClassName="px-4 py-4 pb-28 sm:px-6 sm:py-6 lg:px-8 lg:pb-28"
+      contentClassName="px-4 py-4 pb-40 sm:px-6 sm:py-6 lg:px-8 lg:pb-36"
     >
       <div className="space-y-5">
         <PageHeader
@@ -440,11 +441,11 @@ export default function MeuEstoquePage() {
                           </p>
                         ) : null}
                         <p className="mt-1 text-xs font-medium text-gray-500">
-                          Disponível: {formatQuantity(quantityAvailable)} kg
+                          Disponível: {formatQuantity(quantityAvailable)} un.
                           {Number(item.quantidade_reservada || 0) > 0
                             ? ` | Reservado: ${formatQuantity(
                                 item.quantidade_reservada
-                              )} kg`
+                              )} un.`
                             : ""}
                         </p>
                       </div>
@@ -495,9 +496,9 @@ export default function MeuEstoquePage() {
                     disabled={currentPage === 1}
                     onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                   >
-                    Anterior
+                    <ChevronLeft className="mr-1 h-4 w-4" /> Anterior
                   </Button>
-                  <span className="text-sm font-medium text-slate-600">
+                  <span className="text-xs font-semibold text-slate-500">
                     Página {currentPage} de {totalPages}
                   </span>
                   <Button
@@ -506,7 +507,7 @@ export default function MeuEstoquePage() {
                     disabled={currentPage === totalPages}
                     onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                   >
-                    Próxima
+                    Próxima <ChevronRight className="ml-1 h-4 w-4" />
                   </Button>
                 </div>
               )}

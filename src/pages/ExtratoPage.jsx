@@ -92,7 +92,7 @@ function HistoricoCard({ item }) {
           <div className="min-w-0">
             <h3 className="break-words text-base font-bold text-[#1a3a4a]">{title}</h3>
             <p className="mt-1 text-sm font-semibold text-slate-500">
-              {hasQuantity ? `${quantityLabel} kg | ` : ''}
+              {hasQuantity ? `${quantityLabel} un. | ` : ''}
               {formatHistoryDate(dataEvento)}
             </p>
             <p className="mt-1 text-sm font-medium text-slate-500 line-clamp-1">
