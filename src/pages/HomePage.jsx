@@ -27,6 +27,7 @@ import {
 
 import { useQuery } from "@tanstack/react-query";
 import { getUserMetrics } from "../services/users";
+import { listInventory } from "../services/inventory";
 
 const MONTH_NAMES = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
 
@@ -39,7 +40,19 @@ export default function HomePage() {
     queryFn: () => getUserMetrics(),
   });
 
-  if (isLoading || isLoadingMetrics) {
+  const { data: inventoryItems = [], isLoading: isLoadingInventory } = useQuery({
+    queryKey: ["inventory"],
+    queryFn: () => listInventory(),
+    select: (items) =>
+      items.filter(
+        (item) =>
+          item.status !== "cancelado" &&
+          (Number(item.quantidade || 0) > 0 ||
+            Number(item.quantidade_reservada || 0) > 0)
+      ),
+  });
+
+  if (isLoading || isLoadingMetrics || isLoadingInventory) {
     return (
       <RoleShell variant="morador" shellClassName="bg-[var(--color-surface)]">
         <LoadingState title="Carregando painel..." className="mx-auto mt-10" />
@@ -117,9 +130,9 @@ export default function HomePage() {
               <Label className="text-slate-600 text-sm font-semibold">Meus resíduos guardados</Label>
             </div>
             <h2 className="mt-4 text-3xl font-black text-[#1F4E79]">
-              {totalInventoryKg.toLocaleString("pt-BR")} <span className="text-xl text-slate-400 font-bold">unid.</span>
+              {inventoryItems.length} <span className="text-xl text-slate-400 font-bold">{inventoryItems.length === 1 ? 'resíduo' : 'resíduos'}</span>
             </h2>
-            <p className="mt-1 text-slate-500 text-sm font-medium">esperando descarte</p>
+            <p className="mt-1 text-slate-500 text-sm font-medium">guardados no seu estoque</p>
           </Card>
         </div>
 

@@ -142,7 +142,7 @@ export default function CadastrarResiduo() {
             title={editItem ? "Editar resíduo" : "Adicionar resíduo"}
             description={editItem ? "Atualize as informações do seu item no estoque." : "Preencha os dados do resíduo e decida se quer descartar agora ou guardar para depois."}
           />
-          <Button type="button" variant="secondary" onClick={() => navigate('/inicio')} className="w-full sm:w-auto">
+          <Button type="button" variant="secondary" onClick={() => navigate(-1)} className="w-full sm:w-auto">
             <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
           </Button>
         </div>

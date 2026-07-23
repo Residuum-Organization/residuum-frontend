@@ -301,18 +301,12 @@ export default function MeuEstoquePage() {
               </Button>
               <Button
                 type="button"
-                onClick={() => navigate("/cadastrar-residuo")}
-              >
-                Adicionar resíduo
-              </Button>
-              <Button
-                type="button"
                 onClick={transferFullInventory}
-                disabled={!availableItemIds.length}
-                className="bg-emerald-600 hover:bg-emerald-700"
+                disabled={!availableItemIds.length || isSubmitting}
+                className="bg-emerald-600 hover:bg-emerald-700 flex-1 sm:flex-none"
               >
                 <Layers3 className="mr-2 h-4 w-4" />
-                Enviar estoque completo
+                Descartar todos
               </Button>
             </div>
           }
@@ -527,6 +521,15 @@ export default function MeuEstoquePage() {
           )}
         </SectionCard>
       </div>
+
+      <button
+        onClick={() => navigate("/cadastrar-residuo")}
+        className="fixed bottom-24 right-6 z-50 flex h-12 items-center justify-center rounded-full bg-[#1F4E79] px-5 text-white shadow-lg transition-transform hover:scale-105 active:scale-95 sm:bottom-8 sm:right-8 lg:bottom-12 lg:right-12"
+        aria-label="Novo resíduo"
+      >
+        <Plus size={20} className="mr-2" />
+        <span className="font-bold text-sm">Novo resíduo</span>
+      </button>
     </RoleShell>
   );
 }
