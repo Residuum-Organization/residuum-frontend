@@ -61,19 +61,7 @@ export default function DashboardScreen() {
       iconColor: "text-white",
       icon: "Truck",
     },
-    {
-      id: "status",
-      title: "Status do Sistema",
-      value: (metrics.criticalPoints || 0) > 0 ? "Atenção" : "Ativo",
-      trend:
-        (metrics.criticalPoints || 0) > 0
-          ? `${metrics.criticalPoints} ponto(s) crítico(s)`
-          : "Operação estável",
-      iconBg: "bg-yellow-100",
-      iconColor: "text-yellow-500",
-      icon: "Activity",
-      valueClass: (metrics.criticalPoints || 0) > 0 ? "text-amber-500" : "text-green-500",
-    },
+
   ];
 
   return (

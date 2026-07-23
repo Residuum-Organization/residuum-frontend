@@ -87,7 +87,7 @@ export default function WelcomePage() {
                 onClick={() => navigate("/cadastro")}
                 className="h-14 w-full rounded-full text-base font-semibold sm:h-16 sm:text-lg"
               >
-                Cadastrar como Morador
+                Quero reciclar e pontuar
               </Button>
 
               <Button
@@ -95,7 +95,7 @@ export default function WelcomePage() {
                 onClick={() => navigate("/cadastro-ponto-coleta")}
                 className="h-14 w-full rounded-full border-2 text-base font-semibold sm:h-16 sm:text-lg mt-3"
               >
-                Cadastrar como Ponto de Coleta
+                Quero ter um ponto de coleta
               </Button>
             </>
           )}
