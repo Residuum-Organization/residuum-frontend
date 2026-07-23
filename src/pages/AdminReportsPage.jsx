@@ -30,18 +30,18 @@ import { downloadAdminReport, listAuditEntries } from "../services/admin";
 const reports = [
   {
     id: "descartes",
-    title: "Descartes",
-    description: "Movimentacoes, quantidades, pontos e locais de entrega.",
+    title: "Descartes e Coletas",
+    description: "Histórico de unidades descartadas por moradores e o peso real (kg) recolhido pelas cooperativas em cada ponto.",
   },
   {
     id: "usuarios",
-    title: "Usuarios",
-    description: "Cadastros, perfis de acesso e saldos de pontos.",
+    title: "Usuários",
+    description: "Lista de todos os moradores, cooperativas e ecopontos com seus respectivos saldos de pontuação.",
   },
   {
     id: "auditoria",
-    title: "Auditoria",
-    description: "Acoes administrativas registradas pela plataforma.",
+    title: "Auditoria de Segurança",
+    description: "Registro das ações críticas: aprovações, edições e alterações feitas pelos administradores.",
   },
 ];
 

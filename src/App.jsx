@@ -1,5 +1,6 @@
 import React from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
+import { Toaster } from "sonner";
 
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import RoleRoute from "./components/auth/RoleRoute";
@@ -9,7 +10,6 @@ import ConfiguracoesPage from "./pages/ConfiguracoesPage";
 import CadastrarResiduoPage from "./pages/CadastrarResiduoPage";
 import MeuEstoquePage from "./pages/MeuEstoquePage";
 import DashboardScreen from "./pages/DashboardScreenPage";
-import ScheduleScreen from "./pages/ScheduleScreenPage";
 import ValidacaoPresencaPage from "./pages/ValidacaoPresencaPage";
 import TransferenciaConcluidaPage from "./pages/TransferenciaConcluidaPage";
 import WelcomePage from "./pages/WelcomePage";
@@ -41,6 +41,7 @@ import LandingPage from "./pages/LandingPage";
 import AdminSorteiosPage from "./pages/AdminSorteiosPage";
 import AdminReportsPage from "./pages/AdminReportsPage";
 import OperationalPointsPage from "./pages/OperationalPointsPage";
+import EntradaPesoCooperativaPage from "./pages/EntradaPesoCooperativaPage";
 
 const moradorRoutes = [
   {
@@ -159,9 +160,9 @@ const parceiroRoutes = [
     Component: DashboardScreen,
     integratedApi: true,
   },
-  { path: "/schedule", label: "Agenda", Component: ScheduleScreen },
-  { path: "/meus-pontos-operacionais", label: "Meus pontos", Component: OperationalPointsPage, integratedApi: true },
+  { path: "/meus-pontos-operacionais", label: "Meus locais", Component: OperationalPointsPage, integratedApi: true },
   { path: "/pontuacao-usuarios", label: "Pontuação", Component: UserPointsManagementPage, integratedApi: true },
+  { path: "/entrada-peso", label: "Lançar Peso", Component: EntradaPesoCooperativaPage, integratedApi: true },
 ];
 
 const aprovacaoRoute = {
@@ -218,6 +219,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-100">
+      <Toaster position="top-right" richColors />
       <Routes>
         {authRoutes.map(({ path, Component }) => (
           <Route key={path} path={path} element={<Component />} />

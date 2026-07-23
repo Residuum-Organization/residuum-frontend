@@ -27,3 +27,21 @@ export const updateOperationalCollectionPoint = async (pointId, payload) => {
     throw new Error(getApiErrorMessage(error, "Nao foi possivel atualizar o ponto."))
   }
 }
+
+export const updatePointHours = async (pointId, payload) => {
+  try {
+    const res = await api.put(`/pontos-coleta/${pointId}/horarios`, payload)
+    return res.data
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, "Não foi possível atualizar os horários."))
+  }
+}
+
+export const registrarPesagemAvulsa = async (payload) => {
+  try {
+    const res = await api.post('/cooperativa/lancamento-avulso', payload)
+    return res.data
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, "Não foi possível registrar a pesagem."))
+  }
+}
