@@ -87,21 +87,16 @@ export default function ProfilePage() {
         </section>
 
         <div className="max-w-2xl">
-          <SectionCard title="Dados pessoais" description="Informações vinculadas à sua conta.">
-            <div className="grid gap-5 sm:grid-cols-2">
-              <InfoField label="Nome" value={profile?.nome || profile?.usuario?.nome} />
-              <InfoField label="E-mail" value={profile?.email || profile?.usuario?.email} />
-              <InfoField label="Telefone" value={profile?.telefone || profile?.usuario?.telefone} />
-            </div>
-
-            <div className="mt-8 border-t border-slate-100 pt-6">
-              <h3 className="font-extrabold text-[#1F4E79]">Endereço residencial</h3>
-            </div>
-            <div className="mt-5 grid gap-5 sm:grid-cols-2">
-              <InfoField label="Rua" value={profile?.endereco?.rua} />
-              <InfoField label="Número" value={profile?.endereco?.numero} />
-              <InfoField label="Bairro" value={profile?.endereco?.bairro} />
-              <InfoField label="Cidade" value={profile?.endereco?.cidade} />
+          <SectionCard title="Meus dados" description="Informações vinculadas à sua conta.">
+            <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#1F4E79]/10 text-2xl font-black text-[#1F4E79]">
+                {profile?.nome?.charAt(0) || profile?.usuario?.nome?.charAt(0) || 'U'}
+              </div>
+              <div className="flex-1 grid gap-4 sm:grid-cols-2">
+                <InfoField label="Nome" value={profile?.nome || profile?.usuario?.nome} />
+                <InfoField label="E-mail" value={profile?.email || profile?.usuario?.email} />
+                <InfoField label="Telefone" value={profile?.telefone || profile?.usuario?.telefone} />
+              </div>
             </div>
           </SectionCard>
         </div>

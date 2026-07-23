@@ -28,6 +28,10 @@ export const roleNavigation = {
     { to: "/aprovacao", label: "Aprovação", Icon: CheckCircle2 },
     { to: "/pontuacao-usuarios", label: "Pontuação", Icon: Users },
   ],
+  cooperativa: [
+    { to: "/registro-coleta", label: "Registrar Coleta", Icon: Warehouse },
+    { to: "/perfil", label: "Perfil", Icon: User },
+  ],
   admin: [
     { to: "/admin", label: "Painel", Icon: LayoutDashboard },
     { to: "/admin-pontos", label: "Pontos de Coleta", Icon: MapPin },

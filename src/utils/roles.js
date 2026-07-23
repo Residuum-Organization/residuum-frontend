@@ -1,6 +1,7 @@
 export const ROLE_GROUPS = {
   MORADOR: ["usuario", "morador"],
-  OPERACIONAL: ["cooperativa", "parceiro"],
+  OPERACIONAL: ["parceiro"],
+  COOPERATIVA: ["cooperativa"],
   ADMIN: ["admin"],
 };
 
@@ -10,8 +11,11 @@ export const getRoleHome = (role) => {
   const normalizedRole = normalizeRole(role);
 
   if (normalizedRole === "admin") return "/admin";
-  if (normalizedRole === "cooperativa" || normalizedRole === "parceiro") {
+  if (normalizedRole === "parceiro") {
     return "/dashboard";
+  }
+  if (normalizedRole === "cooperativa") {
+    return "/registro-coleta";
   }
   if (normalizedRole === "usuario" || normalizedRole === "morador") {
     return "/inicio";
@@ -24,8 +28,11 @@ export const getRoleLabel = (role) => {
   const normalizedRole = normalizeRole(role);
 
   if (normalizedRole === "admin") return "Administrador";
-  if (normalizedRole === "cooperativa" || normalizedRole === "parceiro") {
+  if (normalizedRole === "parceiro") {
     return "Ponto de Coleta";
+  }
+  if (normalizedRole === "cooperativa") {
+    return "Cooperativa";
   }
   if (normalizedRole === "morador" || normalizedRole === "usuario") {
     return "Morador";
@@ -40,8 +47,11 @@ export const getRoleDescription = (role) => {
   if (normalizedRole === "admin") {
     return "Gerencie usuários, pontos, campanhas e regras da plataforma.";
   }
-  if (normalizedRole === "cooperativa" || normalizedRole === "parceiro") {
+  if (normalizedRole === "parceiro") {
     return "Acompanhe locais, agenda, coletas e confirmações operacionais.";
+  }
+  if (normalizedRole === "cooperativa") {
+    return "Registre a entrada de peso dos materiais coletados nos pontos parceiros.";
   }
   if (normalizedRole === "usuario" || normalizedRole === "morador") {
     return "Cadastre resíduos, valide entregas e acompanhe seu extrato.";

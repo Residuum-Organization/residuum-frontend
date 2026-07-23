@@ -36,6 +36,9 @@ export const registerSchema = z
     confirmPassword: requiredString("Confirmação").min(6, {
       message: "Confirmação necessária",
     }),
+    lgpd: z.literal(true, {
+      errorMap: () => ({ message: "Você precisa aceitar os Termos de Uso e a Política de Privacidade" }),
+    }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     path: ["confirmPassword"],
