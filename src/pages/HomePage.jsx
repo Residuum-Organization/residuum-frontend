@@ -74,33 +74,24 @@ export default function HomePage() {
           <div className="flex flex-col gap-3 sm:flex-row shrink-0 mt-4 sm:mt-0">
             <Button
               type="button"
-              variant="secondary"
-              onClick={() => navigate("/mapa")}
-              className="w-full sm:w-auto font-bold border-2"
-            >
-              <MapPin className="mr-2 h-5 w-5" aria-hidden="true" />
-              Ver mapa
-            </Button>
-            <Button
-              type="button"
               variant="primary"
               onClick={() => navigate("/cadastrar-residuo")}
               className="w-full sm:w-auto font-bold"
             >
               <Recycle className="mr-2 h-5 w-5" aria-hidden="true" />
-              Reciclar
+              Adicionar resíduo
             </Button>
           </div>
         </div>
 
         {/* KPIs */}
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2">
           <Card className="flex flex-col border border-[var(--color-border)] shadow-sm bg-white p-6">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-[#1F4E79]">
                 <TrendingUp className="h-5 w-5" aria-hidden="true" />
               </div>
-              <Label className="text-slate-600 text-sm font-semibold">Pontuação Total</Label>
+              <Label className="text-slate-600 text-sm font-semibold">Meus pontos</Label>
             </div>
             <h2 className="mt-4 text-3xl font-black text-[#1F4E79]">
               {currentPoints.toLocaleString("pt-BR")}
@@ -113,25 +104,12 @@ export default function HomePage() {
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-[#1F4E79]">
                 <Warehouse className="h-5 w-5" aria-hidden="true" />
               </div>
-              <Label className="text-slate-600 text-sm font-semibold">Volume no Estoque</Label>
+              <Label className="text-slate-600 text-sm font-semibold">Meus resíduos guardados</Label>
             </div>
             <h2 className="mt-4 text-3xl font-black text-[#1F4E79]">
-              {totalInventoryKg.toLocaleString("pt-BR")} <span className="text-xl text-slate-400 font-bold">kg</span>
+              {totalInventoryKg.toLocaleString("pt-BR")} <span className="text-xl text-slate-400 font-bold">unid.</span>
             </h2>
             <p className="mt-1 text-slate-500 text-sm font-medium">esperando descarte</p>
-          </Card>
-
-          <Card className="flex flex-col border border-[var(--color-border)] shadow-sm bg-white p-6">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-[#1F4E79]">
-                <Package className="h-5 w-5" aria-hidden="true" />
-              </div>
-              <Label className="text-slate-600 text-sm font-semibold">Entregas Pendentes</Label>
-            </div>
-            <h2 className="mt-4 text-3xl font-black text-[#1F4E79]">
-              {pendingDiscards}
-            </h2>
-            <p className="mt-1 text-slate-500 text-sm font-medium">aguardando validação</p>
           </Card>
         </div>
 

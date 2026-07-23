@@ -36,10 +36,10 @@ import { getApiErrorMessage } from "../services/http/getApiErrorMessage";
 import { formatCalendarDate } from "../utils/dates";
 
 const tabs = [
-  { id: "campanhas", label: "Campanhas", Icon: Megaphone },
   { id: "sorteios", label: "Sorteios", Icon: Star },
-  { id: "vouchers", label: "Vouchers", Icon: Ticket },
   { id: "recompensas", label: "Minhas recompensas", Icon: WalletCards },
+  { id: "campanhas", label: "Campanhas", Icon: Megaphone, emBreve: true },
+  { id: "vouchers", label: "Vouchers", Icon: Ticket, emBreve: true },
 ];
 
 const normalizeStatus = (status) => String(status || "").toLowerCase();
@@ -156,7 +156,7 @@ function RewardsTab({ redemptions, tickets, isLoading }) {
 export default function LojaPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const requestedTab = searchParams.get("aba");
-  const activeTab = tabs.some((tab) => tab.id === requestedTab) ? requestedTab : "campanhas";
+  const activeTab = tabs.some((tab) => tab.id === requestedTab && !tab.emBreve) ? requestedTab : "sorteios";
   const [feedback, setFeedback] = useState(null);
   const [voucherToRedeem, setVoucherToRedeem] = useState(null);
   const queryClient = useQueryClient();
@@ -210,7 +210,12 @@ export default function LojaPage() {
         </section>
 
         <nav className="flex gap-2 overflow-x-auto rounded-2xl border border-slate-200 bg-white p-2 shadow-sm" aria-label="Seções da loja">
-          {tabs.map(({ id, label, Icon }) => <button key={id} type="button" onClick={() => setTab(id)} className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl px-4 text-sm font-bold transition ${activeTab === id ? "bg-[#1F4E79] text-white shadow-sm" : "text-slate-500 hover:bg-slate-50 hover:text-[#1F4E79]"}`} aria-current={activeTab === id ? "page" : undefined}><Icon size={17} />{label}</button>)}
+          {tabs.map(({ id, label, Icon, emBreve }) => (
+            <button key={id} type="button" onClick={() => !emBreve && setTab(id)} disabled={emBreve} className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl px-4 text-sm font-bold transition ${activeTab === id ? "bg-[#1F4E79] text-white shadow-sm" : emBreve ? "text-slate-300 cursor-not-allowed opacity-70 bg-slate-50" : "text-slate-500 hover:bg-slate-50 hover:text-[#1F4E79]"}`} aria-current={activeTab === id ? "page" : undefined}>
+              <Icon size={17} />{label}
+              {emBreve && <span className="ml-1 rounded bg-slate-200 px-1.5 py-0.5 text-[10px] font-black uppercase text-slate-500">Em breve</span>}
+            </button>
+          ))}
         </nav>
 
         {feedback ? <InlineAlert variant={feedback.type} title={feedback.type === "success" ? "Tudo certo" : "Atenção"}>{feedback.text}</InlineAlert> : null}

@@ -34,10 +34,10 @@ export default function TransferenciaConcluidaPage() {
           <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-emerald-600 text-white shadow-lg shadow-emerald-200">
             <Check size={48} strokeWidth={3} />
           </div>
-          <p className="mt-6 text-xs font-black uppercase tracking-[0.2em] text-emerald-700">Envio concluído</p>
-          <h1 className="mt-2 text-3xl font-black text-[#1F4E79] sm:text-4xl">Parabéns, seus resíduos estão a caminho.</h1>
+          <p className="mt-6 text-xs font-black uppercase tracking-[0.2em] text-emerald-700">Descarte validado</p>
+          <h1 className="mt-2 text-3xl font-black text-[#1F4E79] sm:text-4xl">Parabéns, você salvou o planeta!</h1>
           <p className="mx-auto mt-3 max-w-xl text-sm font-medium leading-relaxed text-slate-600 sm:text-base">
-            O ponto de coleta fará a conferência dos produtos e da pesagem. Os pontos serão liberados após a aprovação.
+            O seu resíduo foi descartado no ponto de coleta e seus pontos já foram creditados na sua conta.
           </p>
 
           <div className="mt-7 grid gap-3 text-left sm:grid-cols-3">
@@ -58,11 +58,16 @@ export default function TransferenciaConcluidaPage() {
             </div>
           </div>
 
-          <Button type="button" onClick={() => navigate("/inicio", { replace: true })} className="mt-7 w-full sm:w-auto sm:min-w-64">
-            <Home className="mr-2 h-4 w-4" /> Voltar ao início
-          </Button>
+          <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:justify-center">
+            <Button type="button" variant="primary" onClick={() => navigate("/admin/sorteios", { replace: true })} className="w-full sm:w-auto sm:min-w-64 bg-emerald-600 hover:bg-emerald-700">
+              <Sparkles className="mr-2 h-4 w-4" /> Usar meus pontos em Sorteios
+            </Button>
+            <Button type="button" variant="secondary" onClick={() => navigate("/inicio", { replace: true })} className="w-full sm:w-auto">
+              <Home className="mr-2 h-4 w-4" /> Voltar ao início
+            </Button>
+          </div>
           <p className="mt-4 text-xs font-semibold text-slate-400" aria-live="polite">
-            Retorno automático em {countdown} segundo{countdown === 1 ? "" : "s"}.
+            Retorno automático para o início em {countdown} segundo{countdown === 1 ? "" : "s"}.
           </p>
         </div>
       </main>
