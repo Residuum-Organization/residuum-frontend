@@ -104,9 +104,9 @@ export default function HomePage() {
               <Label className="text-slate-600 text-sm font-semibold">Meus pontos</Label>
             </div>
             <h2 className="mt-4 text-3xl font-black text-[#1F4E79]">
-              {currentPoints.toLocaleString("pt-BR")}
+              {currentPoints.toLocaleString("pt-BR")} <span className="text-xl text-slate-400 font-bold">pontos</span>
             </h2>
-            <p className="mt-1 text-slate-500 text-sm font-medium">pts acumulados</p>
+            <p className="mt-1 text-slate-500 text-sm font-medium">pontos acumulados</p>
           </Card>
 
           <Card className="flex flex-col border border-[var(--color-border)] shadow-sm bg-white p-6">
