@@ -186,33 +186,30 @@ export default function MapPage() {
             </section>
           </div>
 
-          <aside className="space-y-4">
-            {selected ? <PointDetails point={selected} /> : null}
-
-            <SectionCard
-              title="Pontos proximos"
-              description="Toque em um ponto para ver os detalhes no mapa."
-            >
-              {filteredPoints.length ? (
-                <div className="space-y-3">
-                  {filteredPoints.map((point) => (
-                    <PointListItem
-                      key={point.id}
-                      point={point}
-                      active={selected?.id === point.id}
-                      onClick={() => setSelectedPoint(point)}
-                    />
-                  ))}
-                </div>
-              ) : (
+          <aside className="space-y-6">
+            {filteredPoints.length ? (
+              <div className="space-y-6">
+                {filteredPoints.map((point) => (
+                  <div 
+                    key={point.id} 
+                    id={`point-${point.id}`}
+                    onClick={() => setSelectedPoint(point)}
+                    className="cursor-pointer"
+                  >
+                    <PointDetails point={point} isSelected={selected?.id === point.id} />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <SectionCard title="Nenhum ponto" description="Não encontramos pontos de coleta para este filtro.">
                 <EmptyState
-                  title="Nenhum ponto encontrado."
-                  description="Tente selecionar outro tipo de resíduo."
+                  title="Tente outro material"
+                  description="Ajuste o filtro acima para ver locais compatíveis."
                   icon={MapPin}
                   className="bg-white"
                 />
-              )}
-            </SectionCard>
+              </SectionCard>
+            )}
           </aside>
         </div>
       </div>
@@ -220,7 +217,7 @@ export default function MapPage() {
   );
 }
 
-function PointDetails({ point }) {
+function PointDetails({ point, isSelected }) {
   const navigate = useNavigate();
   const fillPercentage = point.fillPercentage ?? 0;
 
@@ -228,6 +225,11 @@ function PointDetails({ point }) {
     <SectionCard
       title="Detalhes do ponto"
       description="Confira endereço, funcionamento e materiais aceitos."
+      className={`transition-all duration-300 ${
+        isSelected
+          ? "border-emerald-500 ring-2 ring-emerald-500 ring-offset-2 shadow-md shadow-emerald-500/10"
+          : "hover:border-slate-300"
+      }`}
     >
       <div className="space-y-4">
         <div className="flex items-start justify-between gap-3">
@@ -310,48 +312,7 @@ function PointDetails({ point }) {
   );
 }
 
-function PointListItem({ point, active, onClick }) {
-  const fillPercentage = point.fillPercentage ?? 0;
-
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`w-full rounded-2xl border p-4 text-left transition focus-visible:ring-2 focus-visible:ring-[#1F4E79]/30 ${
-        active
-          ? "border-[#2EA44F] bg-emerald-50"
-          : "border-[var(--color-border)] bg-white hover:border-[#1F4E79]/40"
-      }`}
-    >
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <h3 className="break-words text-sm font-extrabold text-[var(--color-text)]">
-            {point.name}
-          </h3>
-          <p className="mt-1 text-xs font-medium leading-relaxed text-[var(--color-text-muted)]">
-            {point.address}
-          </p>
-        </div>
-        <span className="shrink-0 text-xs font-black text-[#2EA44F]">
-          {point.distanceKm == null ? "-" : `${point.distanceKm.toFixed(1).replace(".", ",")} km`}
-        </span>
-      </div>
-
-      <div className="mt-3 flex items-center justify-between gap-3 text-xs font-bold text-[var(--color-text-muted)]">
-        <span>
-          {point.currentVolumeKg ?? 0} kg de {point.capacityKg ?? 0} kg
-        </span>
-        <span className="text-[#1F4E79]">{fillPercentage}%</span>
-      </div>
-      <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100">
-        <div
-          className="h-full rounded-full bg-[#2EA44F]"
-          style={{ width: `${fillPercentage}%` }}
-        />
-      </div>
-    </button>
-  );
-}
+// PointListItem removed
 
 function InfoLine({ label, value }) {
   return (
