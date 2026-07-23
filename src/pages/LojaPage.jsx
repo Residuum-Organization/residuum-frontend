@@ -22,7 +22,7 @@ import LoadingState from "../components/ui/LoadingState";
 import ErrorState from "../components/ui/ErrorState";
 import EmptyState from "../components/ui/EmptyState";
 import Button from "../components/ui/Button";
-import Select from "../components/ui/Select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/Select";
 import { joinCampaign, listActiveCampaigns, listMyCampaignSubscriptions } from "../services/campaigns";
 import {
   listActiveRaffles,
@@ -160,6 +160,7 @@ export default function LojaPage() {
   const activeTab = tabs.some((tab) => tab.id === requestedTab && !tab.emBreve) ? requestedTab : "sorteios";
   const [feedback, setFeedback] = useState(null);
   const [voucherToRedeem, setVoucherToRedeem] = useState(null);
+  const [isSelectOpen, setIsSelectOpen] = useState(false);
   const queryClient = useQueryClient();
 
   const pointsQuery = useQuery({ queryKey: queryKeys.pointsStatement, queryFn: getPointsStatement });
@@ -213,15 +214,29 @@ export default function LojaPage() {
         <div className="w-full">
           <label htmlFor="loja-tabs" className="sr-only">Selecione uma seção da loja</label>
           <Select
-            id="loja-tabs"
             value={activeTab}
-            onChange={(e) => setTab(e.target.value)}
+            onValueChange={setTab}
+            open={isSelectOpen}
+            onOpenChange={setIsSelectOpen}
           >
-            {tabs.map(({ id, label, emBreve }) => (
-              <option key={id} value={id} disabled={emBreve}>
-                {label} {emBreve ? "(Em breve)" : ""}
-              </option>
-            ))}
+            <SelectTrigger 
+              id="loja-tabs"
+              onClick={(e) => {
+                if (isSelectOpen) {
+                  e.preventDefault();
+                  setIsSelectOpen(false);
+                }
+              }}
+            >
+              <SelectValue placeholder="Selecione uma seção" />
+            </SelectTrigger>
+            <SelectContent>
+              {tabs.map(({ id, label, emBreve }) => (
+                <SelectItem key={id} value={id} disabled={emBreve}>
+                  {label} {emBreve ? "(Em breve)" : ""}
+                </SelectItem>
+              ))}
+            </SelectContent>
           </Select>
         </div>
 

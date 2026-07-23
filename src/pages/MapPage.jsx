@@ -11,6 +11,7 @@ import EmptyState from "../components/ui/EmptyState";
 import LoadingState from "../components/ui/LoadingState";
 import ErrorState from "../components/ui/ErrorState";
 import Button from "../components/ui/Button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/Select";
 import { listCollectionPoints } from "../services/collectionPoints";
 import { queryKeys } from "../services/queryKeys";
 
@@ -145,22 +146,27 @@ export default function MapPage() {
               <label className="sr-only" htmlFor="waste-type-filter">
                 Filtrar por tipo de resíduo
               </label>
-              <select
-                id="waste-type-filter"
+              <Select
                 value={selectedWasteType}
-                onChange={(event) => {
-                  setSelectedWasteType(event.target.value);
+                onValueChange={(val) => {
+                  setSelectedWasteType(val);
                   setSelectedPoint(null);
                 }}
-                className="min-h-12 w-full rounded-2xl border border-[var(--color-border)] bg-white px-4 py-3 text-base font-semibold text-[var(--color-text)] outline-none transition focus:border-[#1F4E79] focus:ring-2 focus:ring-[#1F4E79]/20"
               >
-                <option value="Todos">Todos os resíduos</option>
-                {wasteTypesOptions.map((type) => (
-                  <option key={type} value={type}>
-                    {type === "Todos" ? type : type.charAt(0).toUpperCase() + type.slice(1)}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger id="waste-type-filter" className="w-full">
+                  <SelectValue placeholder="Filtrar por tipo de resíduo" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Todos">Todos os resíduos</SelectItem>
+                  {wasteTypesOptions.map((type) => (
+                    type !== "Todos" && (
+                      <SelectItem key={type} value={type}>
+                        {type.charAt(0).toUpperCase() + type.slice(1)}
+                      </SelectItem>
+                    )
+                  ))}
+                </SelectContent>
+              </Select>
             </SectionCard>
 
             <section className="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-white p-2 shadow-sm">
