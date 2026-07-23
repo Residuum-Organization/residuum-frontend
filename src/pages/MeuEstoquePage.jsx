@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import {
@@ -11,6 +11,9 @@ import {
   ArrowLeft,
   Search,
   Pencil,
+  Check,
+  Layers3,
+  X,
 } from "lucide-react";
 import Button from "../components/ui/Button";
 import RoleShell from "../components/layout/RoleShell";
@@ -68,10 +71,20 @@ const formatQuantity = (value) => {
 const getEstimatedPoints = (quantity) =>
   Math.round(Number(quantity || 0) * POINTS_PER_KG);
 
+const getAvailableQuantity = (item) =>
+  Number(
+    item.quantidade_disponivel ??
+      Math.max(
+        Number(item.quantidade || 0) - Number(item.quantidade_reservada || 0),
+        0
+      )
+  );
+
 export default function MeuEstoquePage() {
   const [feedback, setFeedback] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedType, setSelectedType] = useState("Todos");
+  const [selectedItemIds, setSelectedItemIds] = useState([]);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -111,6 +124,48 @@ export default function MeuEstoquePage() {
     return matchesQuery && matchesType;
   });
 
+  useEffect(() => {
+    const availableIds = new Set(
+      itens
+        .filter((item) => getAvailableQuantity(item) > 0)
+        .map((item) => String(item.id))
+    );
+    setSelectedItemIds((current) => {
+      const next = current.filter((id) => availableIds.has(String(id)));
+      return next.length === current.length ? current : next;
+    });
+  }, [itens]);
+
+  const selectedCount = selectedItemIds.length;
+  const availableItemIds = itens
+    .filter((item) => getAvailableQuantity(item) > 0)
+    .map((item) => String(item.id));
+
+  const toggleItemSelection = (item) => {
+    if (getAvailableQuantity(item) <= 0) return;
+    const itemId = String(item.id);
+    setFeedback(null);
+    setSelectedItemIds((current) =>
+      current.includes(itemId)
+        ? current.filter((id) => id !== itemId)
+        : [...current, itemId]
+    );
+  };
+
+  const continueWithSelection = () => {
+    if (!selectedCount) return;
+    navigate("/validacao-presenca", {
+      state: { selectedItemIds },
+    });
+  };
+
+  const transferFullInventory = () => {
+    if (!availableItemIds.length) return;
+    navigate("/validacao-presenca", {
+      state: { selectedItemIds: availableItemIds },
+    });
+  };
+
   const updateMutation = useMutation({
     mutationFn: ({ itemId, payload }) => updateInventoryItem(itemId, payload),
     onSuccess: () => {
@@ -133,8 +188,11 @@ export default function MeuEstoquePage() {
 
   const removeMutation = useMutation({
     mutationFn: removeInventoryItem,
-    onSuccess: () => {
+    onSuccess: (_, removedItemId) => {
       setFeedback({ tone: "success", message: "Item removido do estoque." });
+      setSelectedItemIds((current) =>
+        current.filter((id) => id !== String(removedItemId))
+      );
       queryClient.invalidateQueries({ queryKey: queryKeys.inventory });
     },
     onError: (mutationError) => {
@@ -226,12 +284,12 @@ export default function MeuEstoquePage() {
               </Button>
               <Button
                 type="button"
-                onClick={() => navigate("/validacao-presenca?todos=1")}
-                disabled={!itens.length}
+                onClick={transferFullInventory}
+                disabled={!availableItemIds.length}
                 className="bg-emerald-600 hover:bg-emerald-700"
               >
-                Enviar todos
-                <ArrowRight className="ml-2 h-4 w-4" />
+                <Layers3 className="mr-2 h-4 w-4" />
+                Enviar estoque completo
               </Button>
             </div>
           }
@@ -283,21 +341,78 @@ export default function MeuEstoquePage() {
             </div>
           </div>
 
+          {selectedCount ? (
+            <div className="mb-5 flex flex-col gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 shadow-[0_10px_28px_rgba(5,150,105,0.08)] sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex min-w-0 items-center gap-3">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white">
+                  <Layers3 size={18} />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-sm font-extrabold text-emerald-900">
+                    {selectedCount} resíduo{selectedCount === 1 ? "" : "s"}{" "}
+                    selecionado{selectedCount === 1 ? "" : "s"}
+                  </p>
+                  <p className="text-xs font-medium text-emerald-700">
+                    Continue escolhendo ou avance para definir o ponto de
+                    coleta.
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 sm:shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setSelectedItemIds([])}
+                  className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-xl px-3 text-xs font-bold text-emerald-800 transition hover:bg-emerald-100"
+                >
+                  <X size={15} /> Limpar
+                </button>
+                <Button
+                  type="button"
+                  onClick={continueWithSelection}
+                  className="min-h-10 flex-1 rounded-xl bg-emerald-600 px-4 py-2 text-xs hover:bg-emerald-700 sm:flex-none"
+                >
+                  Enviar selecionados
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          ) : null}
+
           {filteredItens.length ? (
             <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {filteredItens.map((item) => {
                 const ItemIcon = getItemIcon(item.tipo_residuo);
-                const quantityAvailable = Number(item.quantidade || 0);
+                const quantityAvailable = getAvailableQuantity(item);
+                const isSelected = selectedItemIds.includes(String(item.id));
                 return (
                   <article
                     key={item.id}
-                    className="rounded-2xl border border-[#dde1ef] bg-[#f7f9fc] p-4 shadow-sm"
+                    onClick={() => toggleItemSelection(item)}
+                    className={`relative rounded-2xl border p-4 shadow-sm transition-all duration-200 ${
+                      quantityAvailable <= 0
+                        ? "cursor-not-allowed border-[#dde1ef] bg-slate-100 opacity-70"
+                        : isSelected
+                        ? "cursor-pointer border-emerald-500 bg-emerald-50 shadow-[0_10px_24px_rgba(5,150,105,0.12)]"
+                        : "cursor-pointer border-[#dde1ef] bg-[#f7f9fc] hover:-translate-y-0.5 hover:border-emerald-300 hover:shadow-md"
+                    }`}
                   >
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onClick={(event) => event.stopPropagation()}
+                      onChange={() => toggleItemSelection(item)}
+                      disabled={quantityAvailable <= 0}
+                      aria-label={`Selecionar ${
+                        item.descricao || formatResidueType(item.tipo_residuo)
+                      } para transferência`}
+                      className="absolute right-4 top-4 h-6 w-6 cursor-pointer accent-emerald-600 disabled:cursor-not-allowed"
+                    />
+
                     <div className="mb-4 flex items-start gap-3">
                       <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#1F4E79] text-white">
                         <ItemIcon size={24} />
                       </div>
-                      <div className="min-w-0">
+                      <div className="min-w-0 pr-8">
                         <p className="break-words text-base font-bold leading-tight text-[#1a3a4a]">
                           {item.descricao ||
                             formatResidueType(item.tipo_residuo)}
@@ -316,28 +431,33 @@ export default function MeuEstoquePage() {
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-200">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          navigate(`/validacao-presenca?itemId=${item.id}`)
-                        }
-                        className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-[#1F4E79] px-5 py-2 text-sm font-semibold text-white transition hover:bg-[#173B5C]"
+                    <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-slate-200 pt-4">
+                      <span
+                        className={`inline-flex min-h-9 items-center gap-1.5 text-xs font-bold ${
+                          isSelected ? "text-emerald-700" : "text-[#1F4E79]"
+                        }`}
                       >
-                        Enviar para validação
-                        <ArrowRight size={16} />
-                      </button>
+                        {isSelected
+                          ? "Selecionado para transferência"
+                          : "Clique para transferir"}
+                        {isSelected ? (
+                          <Check size={15} />
+                        ) : (
+                          <ArrowRight size={15} />
+                        )}
+                      </span>
 
-                      <div className="flex items-center gap-1">
-                        <span className="mr-3 text-sm font-bold text-green-700">
+                      <div className="ml-auto flex items-center gap-1">
+                        <span className="mr-1 text-xs font-extrabold text-green-700">
                           +{getEstimatedPoints(quantityAvailable)} pts
                         </span>
                         <button
                           type="button"
                           aria-label="Editar item"
-                          onClick={() =>
-                            navigate("/cadastrar-residuo", { state: { item } })
-                          }
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            navigate("/cadastrar-residuo", { state: { item } });
+                          }}
                           disabled={isSubmitting}
                           className="flex h-10 w-10 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-[#1F4E79] disabled:opacity-50"
                         >
@@ -346,7 +466,10 @@ export default function MeuEstoquePage() {
                         <button
                           type="button"
                           aria-label="Remover item"
-                          onClick={() => remover(item.id)}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            remover(item.id);
+                          }}
                           disabled={isSubmitting}
                           className="flex h-10 w-10 items-center justify-center rounded-full text-slate-400 transition hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
                         >
