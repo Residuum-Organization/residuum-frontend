@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { ArrowLeft, BookText, CircleDot, FlaskConical, Wine, Send } from 'lucide-react'
+import { ArrowLeft, Recycle, Send } from 'lucide-react'
 import RoleShell from '../components/layout/RoleShell'
 import PageHeader from '../components/ui/PageHeader'
 import SectionCard from '../components/ui/SectionCard'
@@ -21,10 +21,12 @@ const schema = z.object({
 })
 
 const tiposResiduo = [
-  { id: 'plastico', label: 'Plástico', icon: <FlaskConical size={22} />, color: 'bg-red-600', ringColor: 'ring-red-500' },
-  { id: 'metal', label: 'Metal', icon: <CircleDot size={22} />, color: 'bg-yellow-500', ringColor: 'ring-yellow-400' },
-  { id: 'papel', label: 'Papel', icon: <BookText size={22} />, color: 'bg-blue-600', ringColor: 'ring-blue-500' },
-  { id: 'vidro', label: 'Vidro', icon: <Wine size={22} />, color: 'bg-green-600', ringColor: 'ring-green-500' },
+  { id: 'plastico', label: 'Plástico', icon: <Recycle size={22} />, color: 'bg-red-500', ringColor: 'ring-red-500' },
+  { id: 'papel', label: 'Papel', icon: <Recycle size={22} />, color: 'bg-blue-600', ringColor: 'ring-blue-500' },
+  { id: 'vidro', label: 'Vidro', icon: <Recycle size={22} />, color: 'bg-emerald-500', ringColor: 'ring-emerald-500' },
+  { id: 'metal', label: 'Metal', icon: <Recycle size={22} />, color: 'bg-amber-400', ringColor: 'ring-amber-400' },
+  { id: 'organico', label: 'Orgânico', icon: <Recycle size={22} />, color: 'bg-amber-800', ringColor: 'ring-amber-800' },
+  { id: 'eletronico', label: 'Eletrônicos', icon: <Recycle size={22} />, color: 'bg-orange-500', ringColor: 'ring-orange-500' },
 ]
 
 export default function CadastrarResiduo() {

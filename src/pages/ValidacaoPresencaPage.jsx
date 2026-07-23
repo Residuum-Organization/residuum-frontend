@@ -3,16 +3,15 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import {
   ArrowLeft,
-  BookText,
+  Calendar,
+  CheckCircle2,
   CheckSquare,
-  CircleDot,
-  FlaskConical,
   Loader2,
   MapPin,
   Recycle,
   Send,
   Square,
-  Wine,
+  XCircle,
 } from "lucide-react";
 import RoleShell from "../components/layout/RoleShell";
 import PageHeader from "../components/ui/PageHeader";
@@ -50,12 +49,25 @@ const getAvailableQuantity = (item) =>
       )
   );
 
-const getItemIcon = (type) => {
-  const normalized = String(type || "").toLowerCase();
-  if (["metal", "aluminio"].includes(normalized)) return CircleDot;
-  if (["papel", "papelao"].includes(normalized)) return BookText;
-  if (normalized === "plastico") return FlaskConical;
-  return Wine;
+const getWasteIcon = () => {
+  return Recycle;
+};
+
+const getWasteColor = (type) => {
+  const normalized = String(type || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+  if (normalized === "plastico") return "text-red-600 bg-red-100";
+  if (["papel", "papelao"].includes(normalized))
+    return "text-blue-600 bg-blue-100";
+  if (normalized === "vidro") return "text-emerald-600 bg-emerald-100";
+  if (normalized === "metal") return "text-amber-500 bg-amber-100";
+  if (normalized === "organico") return "text-amber-800 bg-amber-100";
+  if (["eletronico", "eletronicos"].includes(normalized))
+    return "text-orange-600 bg-orange-100";
+  return "text-slate-600 bg-slate-100";
 };
 
 const geolocationMessage = (error) => {
@@ -482,7 +494,7 @@ export default function ValidacaoPresencaPage() {
                 {inventory.map((item) => {
                   const selected = selectedItems[item.id] !== undefined;
                   const maximum = getAvailableQuantity(item);
-                  const ItemIcon = getItemIcon(item.tipo_residuo);
+                  const ItemIcon = getWasteIcon(item.tipo_residuo);
                   return (
                     <article
                       key={item.id}
@@ -503,10 +515,10 @@ export default function ValidacaoPresencaPage() {
                           <Square className="text-slate-300" size={22} />
                         )}
                         <span
-                          className={`rounded-xl p-2 ${
+                          className={`flex items-center justify-center rounded-xl p-2 h-10 w-10 ${
                             selected
                               ? "bg-[#1F4E79] text-white"
-                              : "bg-slate-100 text-[#1F4E79]"
+                              : getWasteColor(item.tipo_residuo)
                           }`}
                         >
                           <ItemIcon size={21} />
@@ -633,7 +645,7 @@ export default function ValidacaoPresencaPage() {
                     Após confirmação
                   </small>
                   <strong className="mt-1 block text-lg text-emerald-700">
-                    +{totalPoints} pts
+                    +{totalPoints} pontos
                   </strong>
                 </div>
               </div>

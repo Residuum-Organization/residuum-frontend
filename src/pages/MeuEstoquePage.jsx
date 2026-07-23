@@ -2,17 +2,17 @@ import React, { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import {
-  ArrowRight,
-  BookText,
-  CircleDot,
-  FlaskConical,
-  Trash2,
-  Wine,
   ArrowLeft,
-  Search,
-  Pencil,
+  ArrowRight,
   Check,
+  ChevronRight,
+  Filter,
   Layers3,
+  Pencil,
+  Plus,
+  Search,
+  Recycle,
+  Trash2,
   X,
 } from "lucide-react";
 import Button from "../components/ui/Button";
@@ -33,14 +33,25 @@ import { getApiErrorMessage } from "../services/http/getApiErrorMessage";
 
 const POINTS_PER_KG = 10;
 
-const getItemIcon = (tipo) => {
-  const normalizedType = String(tipo || "").toLowerCase();
-  if (normalizedType === "metal" || normalizedType === "aluminio")
-    return CircleDot;
+const getWasteIcon = () => {
+  return Recycle;
+};
+
+const getWasteColor = (type) => {
+  const normalizedType = String(type || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+  if (normalizedType === "plastico") return "text-red-600 bg-red-100";
   if (normalizedType === "papel" || normalizedType === "papelao")
-    return BookText;
-  if (normalizedType === "plastico") return FlaskConical;
-  return Wine;
+    return "text-blue-600 bg-blue-100";
+  if (normalizedType === "vidro") return "text-emerald-600 bg-emerald-100";
+  if (normalizedType === "metal") return "text-amber-500 bg-amber-100";
+  if (normalizedType === "organico") return "text-amber-800 bg-amber-100";
+  if (normalizedType === "eletronico" || normalizedType === "eletronicos")
+    return "text-orange-600 bg-orange-100";
+  return "text-slate-600 bg-slate-100";
 };
 
 const typeLabels = {
@@ -312,11 +323,11 @@ export default function MeuEstoquePage() {
         ) : null}
 
         <SectionCard
-          title="Itens no estoque"
+          title="Meus resíduos guardados"
           description="Gerencie a quantidade disponível e siga para a validação presencial quando estiver pronto."
           action={
             <span className="inline-flex min-h-10 items-center rounded-full bg-[#1F4E79] px-4 text-sm font-bold text-white">
-              {filteredItens.length} itens
+              {filteredItens.length} {filteredItens.length === 1 ? "resíduo" : "resíduos"}
             </span>
           }
         >
@@ -394,7 +405,7 @@ export default function MeuEstoquePage() {
             <>
               <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                 {paginatedItens.map((item) => {
-                  const ItemIcon = getItemIcon(item.tipo_residuo);
+                  const ItemIcon = getWasteIcon(item.tipo_residuo);
                 const quantityAvailable = getAvailableQuantity(item);
                 const isSelected = selectedItemIds.includes(String(item.id));
                 return (
@@ -422,17 +433,18 @@ export default function MeuEstoquePage() {
                     />
 
                     <div className="mb-4 flex items-start gap-3">
-                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#1F4E79] text-white">
+                      <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${getWasteColor(item.tipo_residuo)}`}>
                         <ItemIcon size={24} />
                       </div>
                       <div className="min-w-0 pr-8">
-                        <p className="break-words text-base font-bold leading-tight text-[#1a3a4a]">
-                          {item.descricao ||
-                            formatResidueType(item.tipo_residuo)}
+                        <p className="text-xs font-black uppercase tracking-wider text-slate-500">
+                          {formatResidueType(item.tipo_residuo)}
                         </p>
-                        <p className="mt-1 text-sm text-gray-500">
-                          Tipo: {formatResidueType(item.tipo_residuo)}
-                        </p>
+                        {item.descricao ? (
+                          <p className="mt-1 break-words text-base font-bold leading-tight text-[#1a3a4a]">
+                            {item.descricao}
+                          </p>
+                        ) : null}
                         <p className="mt-1 text-xs font-medium text-gray-500">
                           Disponível: {formatQuantity(quantityAvailable)} kg
                           {Number(item.quantidade_reservada || 0) > 0
@@ -444,26 +456,12 @@ export default function MeuEstoquePage() {
                       </div>
                     </div>
 
-                    <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-slate-200 pt-4">
-                      <span
-                        className={`inline-flex min-h-9 items-center gap-1.5 text-xs font-bold ${
-                          isSelected ? "text-emerald-700" : "text-[#1F4E79]"
-                        }`}
-                      >
-                        {isSelected
-                          ? "Selecionado para transferência"
-                          : "Clique para transferir"}
-                        {isSelected ? (
-                          <Check size={15} />
-                        ) : (
-                          <ArrowRight size={15} />
-                        )}
+                    <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3">
+                      <span className="text-sm font-extrabold text-emerald-600">
+                        +{getEstimatedPoints(quantityAvailable)} pontos
                       </span>
 
-                      <div className="ml-auto flex items-center gap-1">
-                        <span className="mr-1 text-xs font-extrabold text-green-700">
-                          +{getEstimatedPoints(quantityAvailable)} pts
-                        </span>
+                      <div className="flex items-center gap-2">
                         <button
                           type="button"
                           aria-label="Editar item"
@@ -472,9 +470,9 @@ export default function MeuEstoquePage() {
                             navigate("/cadastrar-residuo", { state: { item } });
                           }}
                           disabled={isSubmitting}
-                          className="flex h-10 w-10 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-[#1F4E79] disabled:opacity-50"
+                          className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-emerald-600 disabled:opacity-50"
                         >
-                          <Pencil size={18} />
+                          <Pencil size={16} />
                         </button>
                         <button
                           type="button"
@@ -484,9 +482,9 @@ export default function MeuEstoquePage() {
                             remover(item.id);
                           }}
                           disabled={isSubmitting}
-                          className="flex h-10 w-10 items-center justify-center rounded-full text-slate-400 transition hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
+                          className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 transition hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
                         >
-                          <Trash2 size={18} />
+                          <Trash2 size={16} />
                         </button>
                       </div>
                     </div>
