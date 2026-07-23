@@ -412,7 +412,7 @@ export default function ValidacaoPresencaPage() {
             <div className="mb-8 relative">
               {/* Barra de progresso */}
               <div className="absolute top-5 left-10 right-10 sm:left-16 sm:right-16 h-1 bg-slate-200 z-0">
-                <div className="absolute top-0 left-0 h-full bg-[#1F4E79] transition-all duration-300" style={{ width: `${(currentStep - 1) * 50}%` }} />
+                <div className="absolute top-0 left-0 h-full bg-[#1A2C71] transition-all duration-300" style={{ width: `${(currentStep - 1) * 50}%` }} />
               </div>
 
               <div className="flex items-center justify-between px-4 sm:px-12 relative z-10">
@@ -430,10 +430,10 @@ export default function ValidacaoPresencaPage() {
                     onClick={() => canClick && setCurrentStep(step)}
                     className={`flex flex-col items-center focus:outline-none ${canClick ? 'cursor-pointer hover:opacity-80' : 'cursor-default'}`}
                   >
-                    <div className={`flex h-10 w-10 items-center justify-center rounded-full font-extrabold transition-colors ${currentStep >= step ? "bg-[#1F4E79] text-white ring-4 ring-[#1F4E79]/20" : "bg-slate-200 text-slate-500"}`}>
+                    <div className={`flex h-10 w-10 items-center justify-center rounded-full font-extrabold transition-colors ${currentStep >= step ? "bg-[#1A2C71] text-white ring-4 ring-[#1A2C71]/20" : "bg-slate-200 text-slate-500"}`}>
                       {step}
                     </div>
-                    <span className={`mt-2 text-xs font-bold ${currentStep >= step ? "text-[#1F4E79]" : "text-slate-400"} px-1 bg-[var(--color-surface)]`}>
+                    <span className={`mt-2 text-xs font-bold ${currentStep >= step ? "text-[#1A2C71]" : "text-slate-400"} px-1 bg-[var(--color-surface)]`}>
                       {step === 1 ? "Resíduos" : step === 2 ? "Local e Ponto" : "Confirmação"}
                     </span>
                   </button>
@@ -448,7 +448,7 @@ export default function ValidacaoPresencaPage() {
                   title="1. Selecione os resíduos"
                   description="Envie um item ou todo o estoque disponível."
                   action={
-                    <span className="rounded-full bg-[#1F4E79] px-3 py-1.5 text-xs font-bold text-white">
+                    <span className="rounded-full bg-[#1A2C71] px-3 py-1.5 text-xs font-bold text-white">
                       {selectedCount} selecionado{selectedCount === 1 ? "" : "s"}
                     </span>
                   }
@@ -481,7 +481,7 @@ export default function ValidacaoPresencaPage() {
                           key={item.id}
                           className={`rounded-2xl border-2 p-4 ${
                             selected
-                              ? "border-[#1F4E79] bg-[#f4f7fa]"
+                              ? "border-[#1A2C71] bg-[#f4f7fa]"
                               : "border-slate-200 bg-white"
                           }`}
                         >
@@ -491,7 +491,7 @@ export default function ValidacaoPresencaPage() {
                             className="flex w-full items-center gap-3 text-left"
                           >
                             {selected ? (
-                              <CheckSquare className="text-[#1F4E79]" size={22} />
+                              <CheckSquare className="text-[#1A2C71]" size={22} />
                             ) : (
                               <Square className="text-slate-300" size={22} />
                             )}
@@ -518,7 +518,7 @@ export default function ValidacaoPresencaPage() {
                               onClick={() => toggleItem(item)}
                             >
                               <label
-                                className="text-xs font-bold text-[#1F4E79] cursor-pointer"
+                                className="text-xs font-bold text-[#1A2C71] cursor-pointer"
                               >
                                 Quantidade (un.)
                               </label>
@@ -537,7 +537,7 @@ export default function ValidacaoPresencaPage() {
                                     maximum
                                   )
                                 }
-                                className="h-10 w-24 rounded-xl border border-slate-200 bg-white px-2 text-center text-sm font-bold outline-none focus:border-[#1F4E79]"
+                                className="h-10 w-24 rounded-xl border border-slate-200 bg-white px-2 text-center text-sm font-bold outline-none focus:border-[#1A2C71]"
                               />
                             </div>
                           ) : null}
@@ -552,7 +552,7 @@ export default function ValidacaoPresencaPage() {
                   type="button" 
                   onClick={() => setCurrentStep(2)} 
                   disabled={!selectedCount}
-                  className="w-full py-4 text-base bg-[#1F4E79] hover:bg-[#1a4266]"
+                  className="w-full py-4 text-base bg-[#1A2C71] hover:bg-[#1a4266]"
                 >
                   Próximo <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
                 </Button>
@@ -644,7 +644,7 @@ export default function ValidacaoPresencaPage() {
                         onClick={() => setSelectedPointId(String(point.id))}
                         className={`w-full rounded-2xl border-2 p-4 text-left ${
                           selected
-                            ? "border-[#1F4E79] bg-[#f4f7fa]"
+                            ? "border-[#1A2C71] bg-[#f4f7fa]"
                             : "border-slate-200 bg-white"
                         }`}
                       >
@@ -680,7 +680,7 @@ export default function ValidacaoPresencaPage() {
                   type="button" 
                   onClick={() => setCurrentStep(3)} 
                   disabled={!selectedPointId || !coords}
-                  className="w-full py-4 text-base bg-[#1F4E79] hover:bg-[#1a4266]"
+                  className="w-full py-4 text-base bg-[#1A2C71] hover:bg-[#1a4266]"
                 >
                   Próximo <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
                 </Button>
@@ -707,12 +707,12 @@ export default function ValidacaoPresencaPage() {
                   value={observacao}
                   onChange={(event) => setObservacao(event.target.value)}
                   placeholder="Ex.: embalagens lavadas e separadas por material"
-                  className="w-full resize-none rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-[#1F4E79]"
+                  className="w-full resize-none rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-[#1A2C71]"
                 />
                 <div className="mt-6 rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
                   <div className="bg-slate-50 p-4 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#1F4E79] text-white">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#1A2C71] text-white">
                         <Recycle size={20} />
                       </div>
                       <div>
@@ -721,7 +721,7 @@ export default function ValidacaoPresencaPage() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <strong className="text-2xl font-black text-[#1F4E79] tracking-tight">{selectedCount}</strong>
+                      <strong className="text-2xl font-black text-[#1A2C71] tracking-tight">{selectedCount}</strong>
                     </div>
                   </div>
                   

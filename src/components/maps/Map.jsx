@@ -101,7 +101,7 @@ export default function Map({
         {userLocation ? (
           <Marker
             position={[Number(userLocation.lat), Number(userLocation.lng)]}
-            icon={createMarkerIcon('#1F4E79')}
+            icon={createMarkerIcon('#1A2C71')}
           >
             <Popup>Sua localizacao aproximada</Popup>
           </Marker>

@@ -9,7 +9,7 @@ export default function TermosPrivacidadeModal({ isOpen, onClose }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
       <div className="w-full max-w-sm rounded-3xl bg-white p-6 shadow-xl">
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2 text-[#1F4E79]">
+          <div className="flex items-center gap-2 text-[#1A2C71]">
             <ShieldAlert size={24} />
             <h2 className="text-lg font-black">Política de Privacidade</h2>
           </div>

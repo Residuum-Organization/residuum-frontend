@@ -98,7 +98,7 @@ export default function MeuEstoquePage() {
   const [selectedType, setSelectedType] = useState("Todos");
   const [selectedItemIds, setSelectedItemIds] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const ITEMS_PER_PAGE = 6;
+  const ITEMS_PER_PAGE = 10;
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -321,7 +321,7 @@ export default function MeuEstoquePage() {
           title="Meus resíduos guardados"
           description="Gerencie a quantidade disponível e siga para a validação presencial quando estiver pronto."
           action={
-            <span className="inline-flex min-h-10 items-center rounded-full bg-[#1F4E79] px-4 text-sm font-bold text-white">
+            <span className="inline-flex min-h-10 items-center rounded-full bg-[#1A2C71] px-4 text-sm font-bold text-white">
               {filteredItens.length} {filteredItens.length === 1 ? "resíduo" : "resíduos"}
             </span>
           }
@@ -337,7 +337,7 @@ export default function MeuEstoquePage() {
                 placeholder="Buscar pelo nome do resíduo..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-2xl border border-gray-300 bg-white py-3 pl-10 pr-4 text-sm outline-none transition focus:border-[#1F4E79] focus:ring-1 focus:ring-[#1F4E79]"
+                className="w-full rounded-2xl border border-gray-300 bg-white py-3 pl-10 pr-4 text-sm outline-none transition focus:border-[#1A2C71] focus:ring-1 focus:ring-[#1A2C71]"
               />
             </div>
 
@@ -349,7 +349,7 @@ export default function MeuEstoquePage() {
                   onClick={() => setSelectedType(type)}
                   className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
                     selectedType === type
-                      ? "bg-[#1F4E79] text-white"
+                      ? "bg-[#1A2C71] text-white"
                       : "border border-gray-300 bg-white text-gray-600 hover:bg-gray-50"
                   }`}
                 >
@@ -525,7 +525,7 @@ export default function MeuEstoquePage() {
 
       <button
         onClick={() => navigate("/cadastrar-residuo")}
-        className="fixed bottom-24 right-6 z-50 flex h-12 items-center justify-center rounded-full bg-[#1F4E79] px-5 text-white shadow-lg transition-transform hover:scale-105 active:scale-95 sm:bottom-8 sm:right-8 lg:bottom-12 lg:right-12"
+        className="fixed bottom-24 right-6 z-50 flex h-12 items-center justify-center rounded-full bg-[#1A2C71] px-5 text-white shadow-lg transition-transform hover:scale-105 active:scale-95 sm:bottom-8 sm:right-8 lg:bottom-12 lg:right-12"
         aria-label="Novo resíduo"
       >
         <Plus size={20} className="mr-2" />

@@ -119,7 +119,7 @@ export default function ConfiguracoesPage() {
               <Field label="Telefone" value={form.telefone} onChange={(val) => setForm((curr) => ({ ...curr, telefone: val }))} />
 
               <div className="border-t border-slate-100 pt-4">
-                <h3 className="font-extrabold text-[#1F4E79]">Endereço residencial</h3>
+                <h3 className="font-extrabold text-[#1A2C71]">Endereço residencial</h3>
                 <p className="mt-1 text-sm text-slate-500">Usado para manter seu cadastro completo.</p>
               </div>
               <Field label="Rua" value={form.rua} onChange={(val) => setForm((curr) => ({ ...curr, rua: val }))} />
@@ -165,12 +165,12 @@ export default function ConfiguracoesPage() {
 function Field({ label, value, onChange, type = "text" }) {
   return (
     <div>
-      <Label className="mb-1.5 block text-sm font-semibold text-[#1F4E79]">{label}</Label>
+      <Label className="mb-1.5 block text-sm font-semibold text-[#1A2C71]">{label}</Label>
       <input
         value={value}
         type={type}
         onChange={(event) => onChange(event.target.value)}
-        className="min-h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-800 outline-none transition focus:border-[#1F4E79] focus:ring-2 focus:ring-[#1F4E79]/20"
+        className="min-h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-800 outline-none transition focus:border-[#1A2C71] focus:ring-2 focus:ring-[#1A2C71]/20"
       />
     </div>
   );

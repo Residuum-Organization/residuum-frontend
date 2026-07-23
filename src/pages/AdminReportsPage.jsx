@@ -195,11 +195,11 @@ export default function AdminReportsPage() {
 
         <section className="grid gap-5 md:grid-cols-3">
           {reports.map((report) => (
-            <div key={report.id} className="group relative flex flex-col overflow-hidden rounded-3xl bg-white p-6 shadow-sm border border-slate-200 transition-all hover:-translate-y-1 hover:shadow-lg hover:border-[#1F4E79]/30">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#1F4E79]/10 to-[#1F4E79]/5 text-[#1F4E79] transition-transform group-hover:scale-110 group-hover:rotate-3">
+            <div key={report.id} className="group relative flex flex-col overflow-hidden rounded-3xl bg-white p-6 shadow-sm border border-slate-200 transition-all hover:-translate-y-1 hover:shadow-lg hover:border-[#1A2C71]/30">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#1A2C71]/10 to-[#1A2C71]/5 text-[#1A2C71] transition-transform group-hover:scale-110 group-hover:rotate-3">
                 <FileBarChart size={28} />
               </div>
-              <h2 className="mt-5 text-xl font-black text-[#1F4E79]">
+              <h2 className="mt-5 text-xl font-black text-[#1A2C71]">
                 {report.title}
               </h2>
               <p className="mt-2 mb-6 flex-1 text-sm font-medium leading-relaxed text-slate-500">
@@ -208,7 +208,7 @@ export default function AdminReportsPage() {
               <Button
                 type="button"
                 variant="outline"
-                className="w-full justify-center font-bold text-[#1F4E79] border-[#1F4E79]/20 hover:bg-[#1F4E79] hover:text-white"
+                className="w-full justify-center font-bold text-[#1A2C71] border-[#1A2C71]/20 hover:bg-[#1A2C71] hover:text-white"
                 disabled={downloadMutation.isPending}
                 onClick={() => {
                   setFeedback(null);
@@ -284,7 +284,7 @@ function AuditEntry({ entry }) {
               {presentation.category}
             </span>
             <span className="h-1 w-1 rounded-full bg-slate-300" />
-            <span className="truncate text-xs font-bold text-[#1F4E79]">
+            <span className="truncate text-xs font-bold text-[#1A2C71]">
               {targetName}
             </span>
           </div>
@@ -315,7 +315,7 @@ function AuditEntry({ entry }) {
           dateTime={entry.created_at}
           className="inline-flex w-fit items-center gap-2 rounded-xl bg-white px-3 py-2 text-xs font-bold text-slate-500 ring-1 ring-slate-200 sm:justify-self-end"
         >
-          <Clock3 size={14} className="text-[#1F4E79]" aria-hidden="true" />
+          <Clock3 size={14} className="text-[#1A2C71]" aria-hidden="true" />
           {auditDateFormatter.format(new Date(entry.created_at))}
         </time>
       </div>

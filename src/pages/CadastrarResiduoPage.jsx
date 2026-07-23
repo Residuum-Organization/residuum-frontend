@@ -157,7 +157,7 @@ export default function CadastrarResiduo() {
                 <input
                   {...register('descricao')}
                   placeholder="Ex: Garrafa PET 2L, Lata de alumínio 350ml"
-                  className="min-h-12 w-full rounded-2xl border border-gray-300 px-4 py-3 text-base text-gray-700 outline-none transition-colors placeholder:text-gray-400 focus:border-[#1F4E79]"
+                  className="min-h-12 w-full rounded-2xl border border-gray-300 px-4 py-3 text-base text-gray-700 outline-none transition-colors placeholder:text-gray-400 focus:border-[#1A2C71]"
                 />
                 {errors.descricao ? <p className="mt-1 text-xs text-red-600">{errors.descricao.message}</p> : null}
               </div>
@@ -189,7 +189,7 @@ export default function CadastrarResiduo() {
                   <button
                     type="button"
                     onClick={() => setQuantidade((q) => Math.max(1, q - 1))}
-                    className="flex h-12 w-12 items-center justify-center rounded-xl border-2 border-[#1F4E79] text-2xl font-bold text-[#1F4E79] transition-colors hover:bg-white"
+                    className="flex h-12 w-12 items-center justify-center rounded-xl border-2 border-[#1A2C71] text-2xl font-bold text-[#1A2C71] transition-colors hover:bg-white"
                   >
                     -
                   </button>
@@ -197,7 +197,7 @@ export default function CadastrarResiduo() {
                   <button
                     type="button"
                     onClick={() => setQuantidade((q) => q + 1)}
-                    className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#1F4E79] text-2xl font-bold text-white transition-colors hover:bg-[#173B5C]"
+                    className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#1A2C71] text-2xl font-bold text-white transition-colors hover:bg-[#121D4D]"
                   >
                     +
                   </button>

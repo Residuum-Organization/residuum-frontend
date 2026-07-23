@@ -162,7 +162,7 @@ export default function SorteioDetalhesPage() {
           </div>
         </div>
 
-        <section className="overflow-hidden rounded-2xl bg-[#1F4E79] text-white shadow-lg">
+        <section className="overflow-hidden rounded-2xl bg-[#1A2C71] text-white shadow-lg">
           <div className="p-5 sm:p-6">
             <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-3xl bg-white/15">
               <Trophy size={34} />
@@ -274,7 +274,7 @@ export default function SorteioDetalhesPage() {
                 disabled={
                   sorteio.status === "encerrado" || buyTicketMutation.isPending || !aceitouLGPD
                 }
-                className="w-full bg-[#1F4E79] py-4 text-sm font-bold text-white hover:bg-[#1a3a4a] disabled:bg-slate-300"
+                className="w-full bg-[#1A2C71] py-4 text-sm font-bold text-white hover:bg-[#1a3a4a] disabled:bg-slate-300"
               >
                 {buyTicketMutation.isPending
                   ? "Gerando bilhete..."

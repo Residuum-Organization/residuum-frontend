@@ -336,7 +336,7 @@ export default function AdminPoints() {
                   <div className="flex-1 space-y-5">
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                       <div>
-                        <h2 className="text-xl font-extrabold text-[#1F4E79]">{item.nomePonto}</h2>
+                        <h2 className="text-xl font-extrabold text-[#1A2C71]">{item.nomePonto}</h2>
                         <p className="text-sm font-semibold text-slate-500">Solicitante: <span className="text-slate-700">{item.documento}</span></p>
                       </div>
                       <span className="w-fit rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-800">

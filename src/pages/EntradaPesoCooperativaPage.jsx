@@ -65,7 +65,7 @@ export default function EntradaPesoCooperativaPage() {
           <SectionCard title="Dados da Pesagem" description="Informe a origem, o material e o peso exato em kg (quilogramas) que chegou na cooperativa.">
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label className="mb-1.5 block text-sm font-semibold text-[#1F4E79]">
+                <label className="mb-1.5 block text-sm font-semibold text-[#1A2C71]">
                   Ponto de Coleta (Origem)
                 </label>
                 <Select value={form.ponto_origem} onValueChange={(val) => setForm(f => ({ ...f, ponto_origem: val }))}>
@@ -81,7 +81,7 @@ export default function EntradaPesoCooperativaPage() {
               </div>
 
               <div>
-                <label className="mb-1.5 block text-sm font-semibold text-[#1F4E79]">
+                <label className="mb-1.5 block text-sm font-semibold text-[#1A2C71]">
                   Material recolhido
                 </label>
                 <Select value={form.material} onValueChange={(val) => setForm(f => ({ ...f, material: val }))}>
@@ -97,7 +97,7 @@ export default function EntradaPesoCooperativaPage() {
               </div>
 
               <div>
-                <label className="mb-1.5 block text-sm font-semibold text-[#1F4E79]">
+                <label className="mb-1.5 block text-sm font-semibold text-[#1A2C71]">
                   Peso Total (kg)
                 </label>
                 <div className="relative">
@@ -110,7 +110,7 @@ export default function EntradaPesoCooperativaPage() {
                     min="0.1"
                     value={form.peso_kg}
                     onChange={(e) => setForm(f => ({ ...f, peso_kg: e.target.value }))}
-                    className="block w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 pl-12 text-slate-900 transition focus:border-[#1F4E79] focus:outline-none focus:ring-2 focus:ring-[#1F4E79]/20"
+                    className="block w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 pl-12 text-slate-900 transition focus:border-[#1A2C71] focus:outline-none focus:ring-2 focus:ring-[#1A2C71]/20"
                     placeholder="Ex: 15.5"
                   />
                   <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4">

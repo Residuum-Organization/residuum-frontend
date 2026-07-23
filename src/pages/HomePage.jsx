@@ -78,7 +78,7 @@ export default function HomePage() {
         {/* Welcome Section */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between rounded-3xl bg-white p-6 shadow-sm border border-[var(--color-border)]">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-[#1F4E79]">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-[#1A2C71]">
               Bem-vindo(a), {firstName}! 👋
             </h1>
             <p className="mt-2 text-[var(--color-text-muted)]">
@@ -111,12 +111,12 @@ export default function HomePage() {
         <div className="grid gap-4 sm:grid-cols-2">
           <Card className="flex flex-col border border-[var(--color-border)] shadow-sm bg-white p-6">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-[#1F4E79]">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-[#1A2C71]">
                 <TrendingUp className="h-5 w-5" aria-hidden="true" />
               </div>
               <Label className="text-slate-600 text-sm font-semibold">Meus pontos</Label>
             </div>
-            <h2 className="mt-4 text-3xl font-black text-[#1F4E79]">
+            <h2 className="mt-4 text-3xl font-black text-[#1A2C71]">
               {currentPoints.toLocaleString("pt-BR")} <span className="text-xl text-slate-400 font-bold">pontos</span>
             </h2>
             <p className="mt-1 text-slate-500 text-sm font-medium">pontos acumulados</p>
@@ -124,12 +124,12 @@ export default function HomePage() {
 
           <Card className="flex flex-col border border-[var(--color-border)] shadow-sm bg-white p-6">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-[#1F4E79]">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-[#1A2C71]">
                 <Warehouse className="h-5 w-5" aria-hidden="true" />
               </div>
               <Label className="text-slate-600 text-sm font-semibold">Meus resíduos guardados</Label>
             </div>
-            <h2 className="mt-4 text-3xl font-black text-[#1F4E79]">
+            <h2 className="mt-4 text-3xl font-black text-[#1A2C71]">
               {inventoryItems.length} <span className="text-xl text-slate-400 font-bold">{inventoryItems.length === 1 ? 'resíduo' : 'resíduos'}</span>
             </h2>
             <p className="mt-1 text-slate-500 text-sm font-medium">guardados no seu estoque</p>
@@ -148,7 +148,7 @@ export default function HomePage() {
                   cursor={{ fill: '#F1F5F9' }} 
                   contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} 
                 />
-                <Bar dataKey="entregas" fill="#1F4E79" radius={[4, 4, 0, 0]} barSize={40} />
+                <Bar dataKey="entregas" fill="#1A2C71" radius={[4, 4, 0, 0]} barSize={40} />
               </BarChart>
             </ResponsiveContainer>
           </div>

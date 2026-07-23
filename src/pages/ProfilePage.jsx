@@ -55,19 +55,19 @@ export default function ProfilePage() {
       <div className="space-y-6">
         <div className="flex items-center justify-between gap-4">
           <div className="min-w-0">
-            <h1 className="text-2xl font-extrabold text-[#1F4E79]">Perfil</h1>
+            <h1 className="text-2xl font-extrabold text-[#1A2C71]">Perfil</h1>
           </div>
           <button
             type="button"
             onClick={() => navigate('/configuracoes')}
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-slate-200 text-[#1F4E79] transition hover:bg-slate-300"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-slate-200 text-[#1A2C71] transition hover:bg-slate-300"
             aria-label="Configurações da conta"
           >
             <Settings className="h-5 w-5" />
           </button>
         </div>
 
-        <section className="rounded-2xl bg-[#1F4E79] p-5 text-white shadow-sm sm:p-6 lg:p-8">
+        <section className="rounded-2xl bg-[#1A2C71] p-5 text-white shadow-sm sm:p-6 lg:p-8">
           <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
             <div className="flex-1">
               <Label className="text-white opacity-80">Nível sustentável</Label>
@@ -89,7 +89,7 @@ export default function ProfilePage() {
         <div className="max-w-2xl">
           <SectionCard title="Meus dados" description="Informações vinculadas à sua conta.">
             <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#1F4E79]/10 text-2xl font-black text-[#1F4E79]">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#1A2C71]/10 text-2xl font-black text-[#1A2C71]">
                 {profile?.nome?.charAt(0) || profile?.usuario?.nome?.charAt(0) || 'U'}
               </div>
               <div className="flex-1 grid gap-4 sm:grid-cols-2">
@@ -108,7 +108,7 @@ export default function ProfilePage() {
 function InfoField({ label, value }) {
   return (
     <div>
-      <Label className="mb-1 block text-sm font-semibold text-[#1F4E79]">{label}</Label>
+      <Label className="mb-1 block text-sm font-semibold text-[#1A2C71]">{label}</Label>
       <p className="text-base font-medium text-slate-700">{value || '-'}</p>
     </div>
   )

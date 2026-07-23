@@ -56,13 +56,13 @@ function ConfirmSpendModal({ item, balance, onCancel, onConfirm, isPending }) {
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.16em] text-emerald-700">Confirmar resgate</p>
-            <h2 id="confirm-spend-title" className="mt-1 text-2xl font-black text-[#1F4E79]">{item.titulo}</h2>
+            <h2 id="confirm-spend-title" className="mt-1 text-2xl font-black text-[#1A2C71]">{item.titulo}</h2>
           </div>
           <button type="button" onClick={onCancel} className="rounded-full p-2 text-slate-400 hover:bg-slate-100" aria-label="Fechar confirmação"><X size={21} /></button>
         </div>
         <p className="mt-3 text-sm leading-relaxed text-slate-600">O código promocional será gerado imediatamente e ficará salvo em Minhas recompensas.</p>
         <div className="mt-5 grid grid-cols-2 gap-3">
-          <div className="rounded-2xl bg-slate-50 p-4"><small className="font-bold text-slate-500">Custo</small><strong className="mt-1 block text-xl text-[#1F4E79]">{item.custo_pontos} pontos</strong></div>
+          <div className="rounded-2xl bg-slate-50 p-4"><small className="font-bold text-slate-500">Custo</small><strong className="mt-1 block text-xl text-[#1A2C71]">{item.custo_pontos} pontos</strong></div>
           <div className={`rounded-2xl p-4 ${remaining >= 0 ? "bg-emerald-50" : "bg-red-50"}`}><small className={`font-bold ${remaining >= 0 ? "text-emerald-700" : "text-red-700"}`}>Saldo restante</small><strong className={`mt-1 block text-xl ${remaining >= 0 ? "text-emerald-700" : "text-red-700"}`}>{remaining} pontos</strong></div>
         </div>
         {remaining < 0 ? <InlineAlert variant="error" className="mt-4">Você não possui pontos suficientes para este resgate.</InlineAlert> : null}
@@ -89,7 +89,7 @@ function CampaignsTab({ campaigns, subscriptions, isLoading, isError, joinMutati
           <article key={campaign.id} className="overflow-hidden rounded-2xl border border-emerald-100 bg-white p-5 shadow-sm">
             <div className="flex items-start gap-4">
               <span className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-[#0B6B53] text-white">{campaign.patrocinador_logo_url ? <img src={campaign.patrocinador_logo_url} alt="" className="h-full w-full object-cover" /> : <Megaphone size={26} />}</span>
-              <div className="min-w-0"><p className="text-xs font-black uppercase tracking-wider text-[#0B6B53]">{campaign.patrocinador || "Parceiro Residuum"}</p><h3 className="mt-1 text-xl font-black text-[#1F4E79]">{campaign.titulo}</h3><p className="mt-2 text-sm leading-relaxed text-slate-600">{campaign.descricao || "Campanha de engajamento Residuum."}</p></div>
+              <div className="min-w-0"><p className="text-xs font-black uppercase tracking-wider text-[#0B6B53]">{campaign.patrocinador || "Parceiro Residuum"}</p><h3 className="mt-1 text-xl font-black text-[#1A2C71]">{campaign.titulo}</h3><p className="mt-2 text-sm leading-relaxed text-slate-600">{campaign.descricao || "Campanha de engajamento Residuum."}</p></div>
             </div>
             <div className="mt-5 grid gap-2 rounded-2xl bg-white/80 p-4 text-sm font-semibold text-slate-600 sm:grid-cols-2">
               <span className="flex items-center gap-2"><Gift size={17} /> +{campaign.pontos_recompensa} pontos</span>
@@ -115,10 +115,10 @@ function RafflesTab({ raffles, isLoading, isError }) {
         const closed = isRaffleClosed(raffle);
         return (
           <article key={raffle.id} className="rounded-2xl border border-sky-100 bg-white p-5 shadow-sm">
-            <div className="flex items-start gap-4"><span className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl ${closed ? "bg-slate-100 text-slate-500" : "bg-sky-100 text-[#1F4E79]"}`}><Star size={27} /></span><div className="min-w-0 flex-1"><div className="flex flex-wrap items-center justify-between gap-2"><h3 className="text-lg font-black text-[#1F4E79]">{raffle.titulo}</h3><span className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase ${closed ? "bg-slate-100 text-slate-500" : "bg-emerald-100 text-emerald-700"}`}>{closed ? "encerrado" : "ativo"}</span></div><p className="mt-1 text-sm font-semibold text-slate-500">{raffle.patrocinador ? `Oferecido por ${raffle.patrocinador}` : "Sorteio Residuum"}</p></div></div>
+            <div className="flex items-start gap-4"><span className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl ${closed ? "bg-slate-100 text-slate-500" : "bg-sky-100 text-[#1A2C71]"}`}><Star size={27} /></span><div className="min-w-0 flex-1"><div className="flex flex-wrap items-center justify-between gap-2"><h3 className="text-lg font-black text-[#1A2C71]">{raffle.titulo}</h3><span className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase ${closed ? "bg-slate-100 text-slate-500" : "bg-emerald-100 text-emerald-700"}`}>{closed ? "encerrado" : "ativo"}</span></div><p className="mt-1 text-sm font-semibold text-slate-500">{raffle.patrocinador ? `Oferecido por ${raffle.patrocinador}` : "Sorteio Residuum"}</p></div></div>
             <div className="mt-4 grid grid-cols-2 gap-3"><span className="rounded-xl bg-slate-50 p-3 text-xs font-bold text-slate-600"><Gift className="mb-1" size={16} />{raffle.custo_pontos} pontos</span><span className="rounded-xl bg-slate-50 p-3 text-xs font-bold text-slate-600"><CalendarDays className="mb-1" size={16} />{raffle.data_fim ? formatCalendarDate(raffle.data_fim) : "Sem limite"}</span></div>
             {raffle.resultado ? <p className="mt-3 rounded-xl bg-amber-50 px-3 py-2 text-xs font-bold text-amber-800">Vencedor: {raffle.resultado.vencedor_nome} · bilhete #{raffle.resultado.numero}</p> : null}
-            <Link to={`/sorteios/${raffle.id}`} className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-2xl bg-[#1F4E79] px-4 text-sm font-bold text-white hover:bg-[#173B5C]">{closed ? "Ver resultado" : "Ver detalhes e participar"}</Link>
+            <Link to={`/sorteios/${raffle.id}`} className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-2xl bg-[#1A2C71] px-4 text-sm font-bold text-white hover:bg-[#121D4D]">{closed ? "Ver resultado" : "Ver detalhes e participar"}</Link>
           </article>
         );
       })}
@@ -135,7 +135,7 @@ function VouchersTab({ vouchers, isLoading, isError, onRedeem }) {
       {vouchers.map((voucher) => (
         <article key={voucher.id} className="rounded-2xl border border-emerald-100 bg-[#ECFFF4] p-5 shadow-sm">
           <div className="flex items-start justify-between gap-3"><span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-[#0B6B53]"><Ticket size={23} /></span><span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-emerald-700">{voucher.quantidade_disponivel || 0} disponíveis</span></div>
-          <p className="mt-4 text-xs font-black uppercase tracking-wider text-[#0B6B53]">{voucher.parceiro || "Parceiro Residuum"}</p><h3 className="mt-1 text-lg font-black text-[#1F4E79]">{voucher.titulo}</h3><p className="mt-2 text-sm text-slate-600">{voucher.descricao || "Benefício disponível para troca direta."}</p>
+          <p className="mt-4 text-xs font-black uppercase tracking-wider text-[#0B6B53]">{voucher.parceiro || "Parceiro Residuum"}</p><h3 className="mt-1 text-lg font-black text-[#1A2C71]">{voucher.titulo}</h3><p className="mt-2 text-sm text-slate-600">{voucher.descricao || "Benefício disponível para troca direta."}</p>
           <Button type="button" onClick={() => onRedeem(voucher)} disabled={(voucher.quantidade_disponivel || 0) <= 0} className="mt-5 w-full bg-[#0B6B53] hover:bg-emerald-800">Resgatar por {voucher.custo_pontos} pontos</Button>
         </article>
       ))}
@@ -148,8 +148,8 @@ function RewardsTab({ redemptions, tickets, isLoading }) {
   if (!redemptions.length && !tickets.length) return <EmptyState icon={Sparkles} title="Você ainda não possui recompensas." description="Vouchers resgatados e bilhetes aparecerão aqui." />;
   return (
     <div className="grid gap-4 lg:grid-cols-2">
-      {redemptions.map((item) => <article key={`voucher-${item.id}`} className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5"><p className="text-xs font-black uppercase tracking-wider text-emerald-700">Voucher ativo</p><h3 className="mt-1 font-black text-[#1F4E79]">{item.titulo || "Voucher Residuum"}</h3><p className="mt-4 break-all rounded-xl bg-white px-3 py-3 font-mono text-lg font-black tracking-wider text-[#0B6B53]">{item.codigo}</p><p className="mt-2 text-xs font-semibold text-slate-500">{item.parceiro || "Parceiro Residuum"} · {item.pontos_utilizados} pontos</p></article>)}
-      {tickets.map((item) => <article key={`ticket-${item.id}`} className="rounded-2xl border border-sky-200 bg-sky-50 p-5"><p className="text-xs font-black uppercase tracking-wider text-sky-700">Bilhete confirmado</p><h3 className="mt-1 font-black text-[#1F4E79]">{item.titulo || "Sorteio Residuum"}</h3><p className="mt-4 text-3xl font-black text-[#1F4E79]">#{String(item.numero).padStart(4, "0")}</p><p className="mt-2 text-xs font-semibold text-slate-500">{item.premio || "Prêmio informado no sorteio"}</p><Link to={`/sorteios/${item.sorteio_id}`} className="mt-3 inline-flex text-xs font-black text-[#1F4E79]">Ver sorteio e resultado</Link></article>)}
+      {redemptions.map((item) => <article key={`voucher-${item.id}`} className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5"><p className="text-xs font-black uppercase tracking-wider text-emerald-700">Voucher ativo</p><h3 className="mt-1 font-black text-[#1A2C71]">{item.titulo || "Voucher Residuum"}</h3><p className="mt-4 break-all rounded-xl bg-white px-3 py-3 font-mono text-lg font-black tracking-wider text-[#0B6B53]">{item.codigo}</p><p className="mt-2 text-xs font-semibold text-slate-500">{item.parceiro || "Parceiro Residuum"} · {item.pontos_utilizados} pontos</p></article>)}
+      {tickets.map((item) => <article key={`ticket-${item.id}`} className="rounded-2xl border border-sky-200 bg-sky-50 p-5"><p className="text-xs font-black uppercase tracking-wider text-sky-700">Bilhete confirmado</p><h3 className="mt-1 font-black text-[#1A2C71]">{item.titulo || "Sorteio Residuum"}</h3><p className="mt-4 text-3xl font-black text-[#1A2C71]">#{String(item.numero).padStart(4, "0")}</p><p className="mt-2 text-xs font-semibold text-slate-500">{item.premio || "Prêmio informado no sorteio"}</p><Link to={`/sorteios/${item.sorteio_id}`} className="mt-3 inline-flex text-xs font-black text-[#1A2C71]">Ver sorteio e resultado</Link></article>)}
     </div>
   );
 }

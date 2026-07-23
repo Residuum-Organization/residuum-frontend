@@ -113,7 +113,7 @@ export default function MapPage() {
               <Button type="button" variant="secondary" onClick={() => navigate(-1)}>
                 <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
               </Button>
-              <span className="inline-flex min-h-10 items-center rounded-full bg-[#1F4E79] px-4 text-sm font-bold text-white">
+              <span className="inline-flex min-h-10 items-center rounded-full bg-[#1A2C71] px-4 text-sm font-bold text-white">
                 {filteredPoints.length} ativos
               </span>
             </div>

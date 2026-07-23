@@ -83,7 +83,7 @@ function HistoricoCard({ item }) {
   const dataEvento = item.data_desc || item.data_evento
 
   return (
-    <article className={`rounded-2xl border p-5 shadow-sm transition-colors hover:border-[#1F4E79]/40 ${config.border}`}>
+    <article className={`rounded-2xl border p-5 shadow-sm transition-colors hover:border-[#1A2C71]/40 ${config.border}`}>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex min-w-0 items-start gap-4">
           <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl ${config.icon}`}>
@@ -163,15 +163,15 @@ export default function ExtratoPage() {
           }
         />
 
-        <SectionCard className="p-5 sm:p-8 bg-[#f4f7fa] border-[#1F4E79]/20">
+        <SectionCard className="p-5 sm:p-8 bg-[#f4f7fa] border-[#1A2C71]/20">
           <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm font-bold uppercase tracking-wide text-[#1F4E79]">Saldo Atual Disponível</p>
+              <p className="text-sm font-bold uppercase tracking-wide text-[#1A2C71]">Saldo Atual Disponível</p>
               <h2 className="mt-2 text-6xl font-black tracking-tight text-[#1a3a4a] sm:text-7xl">
                 {total} <span className="text-2xl font-bold text-slate-400">pontos</span>
               </h2>
             </div>
-            <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-[#1F4E79] text-white shadow-md">
+            <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-[#1A2C71] text-white shadow-md">
               <Wallet size={40} />
             </div>
           </div>
@@ -193,7 +193,7 @@ export default function ExtratoPage() {
           title="Histórico de Transações"
           description="Consulte todas as suas movimentações de pontos."
           action={
-            <span className="inline-flex min-h-10 items-center rounded-full bg-[#1F4E79] px-4 text-sm font-bold text-white">
+            <span className="inline-flex min-h-10 items-center rounded-full bg-[#1A2C71] px-4 text-sm font-bold text-white">
               {histórico.length} registros
             </span>
           }

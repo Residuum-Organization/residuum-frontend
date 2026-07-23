@@ -44,7 +44,7 @@ export default function TransferenciaConcluidaPage() {
         numberOfPieces={120}
         gravity={0.15}
         initialVelocityY={20}
-        colors={['#059669', '#10b981', '#34d399', '#0284c7', '#38bdf8', '#1F4E79']}
+        colors={['#059669', '#10b981', '#34d399', '#0284c7', '#38bdf8', '#1A2C71']}
         style={{ position: 'fixed', top: 0, left: 0, zIndex: 50, pointerEvents: 'none' }}
       />
       <RoleShell variant="morador" shellClassName="bg-[var(--color-surface)]" contentClassName="flex min-h-[calc(100vh-5rem)] items-center justify-center px-4 py-8 pb-28 sm:px-6 lg:pb-8">
@@ -67,7 +67,7 @@ export default function TransferenciaConcluidaPage() {
             <Check size={40} strokeWidth={3} />
           </div>
           <p className="mt-4 text-xs font-black uppercase tracking-[0.2em] text-emerald-700">Descarte validado</p>
-          <h1 className="mt-1 text-2xl font-black text-[#1F4E79] sm:text-3xl leading-tight">{phrase}</h1>
+          <h1 className="mt-1 text-2xl font-black text-[#1A2C71] sm:text-3xl leading-tight">{phrase}</h1>
           <p className="mx-auto mt-2 max-w-xl text-xs font-medium leading-relaxed text-slate-600 sm:text-sm">
             O resíduo foi descartado e os pontos creditados na sua conta.
           </p>
@@ -75,11 +75,11 @@ export default function TransferenciaConcluidaPage() {
           <div className="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-3">
             <div className="flex items-center gap-3 rounded-2xl bg-slate-50 p-3 text-left">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-200/50">
-                <PackageCheck className="text-[#1F4E79]" size={20} />
+                <PackageCheck className="text-[#1A2C71]" size={20} />
               </div>
               <div className="min-w-0">
                 <small className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Materiais</small>
-                <strong className="block truncate text-sm text-[#1F4E79]">{state?.itemCount || 1} tipo(s) · {formatQuantity(state?.totalWeight)} un.</strong>
+                <strong className="block truncate text-sm text-[#1A2C71]">{state?.itemCount || 1} tipo(s) · {formatQuantity(state?.totalWeight)} un.</strong>
               </div>
             </div>
             
@@ -89,7 +89,7 @@ export default function TransferenciaConcluidaPage() {
               </div>
               <div className="min-w-0">
                 <small className="block text-[10px] font-bold text-sky-700/70 uppercase tracking-wider">Destino</small>
-                <strong className="block truncate text-sm text-[#1F4E79]">{state?.pointName || "Ponto parceiro"}</strong>
+                <strong className="block truncate text-sm text-[#1A2C71]">{state?.pointName || "Ponto parceiro"}</strong>
               </div>
             </div>
 

@@ -34,7 +34,7 @@ function ApprovalCard({
   return (
     <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md sm:p-6 xl:col-span-2 2xl:col-span-1 lg:flex lg:items-start lg:gap-8">
       {/* Visual Icon */}
-      <div className="hidden h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-[#1F4E79]/10 text-[#1F4E79] lg:flex">
+      <div className="hidden h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-[#1A2C71]/10 text-[#1A2C71] lg:flex">
         <Recycle size={28} />
       </div>
       
@@ -42,7 +42,7 @@ function ApprovalCard({
       <div className="flex-1 space-y-5">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <h2 className="text-xl font-extrabold text-[#1F4E79]">{item.empresa || "Ponto de Coleta"}</h2>
+            <h2 className="text-xl font-extrabold text-[#1A2C71]">{item.empresa || "Ponto de Coleta"}</h2>
             <p className="text-sm font-semibold text-slate-500">
               Solicitante: <span className="text-slate-700">{item.cnpj || "-"}</span>
             </p>
@@ -109,7 +109,7 @@ function ApprovalCard({
           <button
             type="button"
             onClick={() => setShowScanner(true)}
-            className={`rounded-xl border p-3 text-left text-xs font-bold transition ${barcode ? "border-emerald-300 bg-emerald-50 text-emerald-800" : "border-slate-200 text-[#1F4E79] hover:border-[#1F4E79]"}`}
+            className={`rounded-xl border p-3 text-left text-xs font-bold transition ${barcode ? "border-emerald-300 bg-emerald-50 text-emerald-800" : "border-slate-200 text-[#1A2C71] hover:border-[#1A2C71]"}`}
           >
             <ScanBarcode className="mb-2" size={20} />
             {barcode ? "Código lido" : "Escanear"}
@@ -135,13 +135,13 @@ function ApprovalCard({
               value={manualIdentification}
               onChange={(event) => setManualIdentification(event.target.value)}
               placeholder="Ex.: garrafa PET transparente"
-              className="mt-1 min-h-10 w-full rounded-xl border border-slate-200 px-3 text-xs font-medium outline-none focus:border-[#1F4E79]"
+              className="mt-1 min-h-10 w-full rounded-xl border border-slate-200 px-3 text-xs font-medium outline-none focus:border-[#1A2C71]"
             />
           </label>
         ) : null}
           </>
         ) : (
-          <p className="rounded-xl bg-sky-50 p-3 text-xs font-semibold text-[#1F4E79]">Acesso administrativo para auditoria e apoio operacional.</p>
+          <p className="rounded-xl bg-sky-50 p-3 text-xs font-semibold text-[#1A2C71]">Acesso administrativo para auditoria e apoio operacional.</p>
         )}
         <div className="mt-4 flex flex-col gap-3">
         <LoadingButton
