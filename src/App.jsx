@@ -42,6 +42,7 @@ import AdminSorteiosPage from "./pages/AdminSorteiosPage";
 import AdminReportsPage from "./pages/AdminReportsPage";
 import OperationalPointsPage from "./pages/OperationalPointsPage";
 import EntradaPesoCooperativaPage from "./pages/EntradaPesoCooperativaPage";
+import CooperativaReportsPage from "./pages/CooperativaReportsPage";
 
 const moradorRoutes = [
   {
@@ -224,6 +225,15 @@ export default function App() {
         {authRoutes.map(({ path, Component }) => (
           <Route key={path} path={path} element={<Component />} />
         ))}
+        
+        <Route
+          path="/cooperativa-relatorios"
+          element={
+            <RoleRoute allowedRoles={["cooperativa", "parceiro", "admin"]}>
+              <CooperativaReportsPage />
+            </RoleRoute>
+          }
+        />
 
         {moradorRoutes.map(({ path, Component }) => (
           renderRoleRoute(path, Component, ["usuario", "morador"])

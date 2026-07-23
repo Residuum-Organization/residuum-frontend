@@ -1,17 +1,25 @@
-import React from "react";
-import { ChevronDown } from "lucide-react";
+import React, { useId } from "react";
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+
+const formatKg = (value) =>
+  `${Number(value || 0).toLocaleString("pt-BR", {
+    maximumFractionDigits: 1,
+  })} kg`;
 
 export default function LineChart({ data = [], embedded = false }) {
-  const W = 520;
-  const H = 200;
-  const padL = 40;
-  const padR = 16;
-  const padT = 10;
-  const padB = 40;
-  const maxVal = 1500;
-  const chartW = W - padL - padR;
-  const chartH = H - padT - padB;
-  const chartData = data;
+  const gradientId = `collection-area-${useId().replace(/:/g, "")}`;
+  const chartData = data.map((item) => ({
+    ...item,
+    val: Number(item.val || 0),
+  }));
 
   if (!chartData.length) {
     return (
@@ -27,103 +35,95 @@ export default function LineChart({ data = [], embedded = false }) {
     );
   }
 
-  const toX = (i) => padL + (i / Math.max(chartData.length - 1, 1)) * chartW;
-  const toY = (v) => padT + chartH - (v / maxVal) * chartH;
-
-  const points = chartData.map((d, i) => ({ x: toX(i), y: toY(d.val) }));
-  const polyline = points.map((p) => `${p.x},${p.y}`).join(" ");
-  const areaPath =
-    `M${points[0].x},${toY(0)} ` +
-    points.map((p) => `L${p.x},${p.y}`).join(" ") +
-    ` L${points[points.length - 1].x},${toY(0)} Z`;
-
-  const yLabels = [0, 300, 600, 900, 1200, 1500];
-
   return (
-    <div className={embedded ? "min-w-0" : "rounded-2xl bg-white p-4 shadow-sm"}>
-      <div className="mb-3 flex items-center justify-between gap-3">
-        <span className="text-sm font-extrabold text-slate-800">
-          Volume de Resíduos Coletados
-        </span>
-        <button
-          type="button"
-          className="flex shrink-0 items-center gap-1 text-xs font-bold text-green-600"
-        >
-          Últimos 6 meses
-          <ChevronDown size={14} aria-hidden="true" />
-        </button>
-      </div>
+    <div
+      className={
+        embedded
+          ? "min-w-0"
+          : "rounded-2xl border border-[var(--color-border)] bg-white p-5 shadow-sm"
+      }
+    >
+      <div
+        className="mt-4 h-[300px] w-full"
+        role="img"
+        aria-label="Evolução mensal do volume de resíduos coletados"
+      >
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart
+            data={chartData}
+            margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+          >
+            <defs>
+              <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#1A2C71" stopOpacity={0.24} />
+                <stop offset="100%" stopColor="#1A2C71" stopOpacity={0.02} />
+              </linearGradient>
+            </defs>
 
-      <div className="overflow-x-auto pb-1">
-        <svg
-          width="100%"
-          viewBox={`0 0 ${W} ${H}`}
-          className="min-w-[420px] overflow-visible"
-          role="img"
-          aria-label="Volume de resíduos coletados"
-        >
-          <defs>
-            <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#22c55e" stopOpacity="0.25" />
-              <stop offset="100%" stopColor="#22c55e" stopOpacity="0.02" />
-            </linearGradient>
-          </defs>
-
-          {yLabels.map((v) => (
-            <g key={v}>
-              <line
-                x1={padL}
-                x2={W - padR}
-                y1={toY(v)}
-                y2={toY(v)}
-                stroke="#e2e8f0"
-                strokeWidth="1"
-              />
-              <text
-                x={padL - 6}
-                y={toY(v)}
-                textAnchor="end"
-                dominantBaseline="middle"
-                fontSize="11"
-                fill="#94a3b8"
-              >
-                {v}
-              </text>
-            </g>
-          ))}
-
-          <path d={areaPath} fill="url(#areaGrad)" />
-          <polyline
-            points={polyline}
-            fill="none"
-            stroke="#22c55e"
-            strokeWidth="2.5"
-            strokeLinejoin="round"
-          />
-          {points.map((p, i) => (
-            <circle
-              key={i}
-              cx={p.x}
-              cy={p.y}
-              r="5"
-              fill="#22c55e"
-              stroke="#fff"
-              strokeWidth="2"
+            <CartesianGrid
+              strokeDasharray="3 3"
+              vertical={false}
+              stroke="#E2E8F0"
             />
-          ))}
-          {chartData.map((d, i) => (
-            <text
-              key={i}
-              x={toX(i)}
-              y={H - 6}
-              textAnchor="middle"
-              fontSize="12"
-              fill="#64748b"
-            >
-              {d.month}
-            </text>
-          ))}
-        </svg>
+            <XAxis
+              dataKey="month"
+              axisLine={false}
+              tickLine={false}
+              tick={{ fill: "#64748B", fontSize: 14 }}
+              dy={10}
+            />
+            <YAxis
+              axisLine={false}
+              tickLine={false}
+              tick={{ fill: "#64748B", fontSize: 14 }}
+              tickFormatter={(value) =>
+                Number(value).toLocaleString("pt-BR", {
+                  maximumFractionDigits: 0,
+                })
+              }
+              width={58}
+              allowDecimals={false}
+              domain={[0, "auto"]}
+            />
+            <Tooltip
+              formatter={(value) => [formatKg(value), "Volume coletado"]}
+              labelFormatter={(label) => `Mês: ${label}`}
+              cursor={{
+                stroke: "#CBD5E1",
+                strokeWidth: 1,
+                strokeDasharray: "3 3",
+              }}
+              contentStyle={{
+                borderRadius: "12px",
+                border: "none",
+                boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
+              }}
+              labelStyle={{ color: "#64748B", fontWeight: 600 }}
+              itemStyle={{ color: "#1A2C71", fontWeight: 700 }}
+            />
+            <Area
+              type="monotone"
+              dataKey="val"
+              name="Volume coletado"
+              stroke="#1A2C71"
+              strokeWidth={3}
+              fill={`url(#${gradientId})`}
+              dot={{
+                r: 4,
+                fill: "#FFFFFF",
+                stroke: "#1A2C71",
+                strokeWidth: 2,
+              }}
+              activeDot={{
+                r: 6,
+                fill: "#1A2C71",
+                stroke: "#FFFFFF",
+                strokeWidth: 2,
+              }}
+              animationDuration={700}
+            />
+          </AreaChart>
+        </ResponsiveContainer>
       </div>
     </div>
   );

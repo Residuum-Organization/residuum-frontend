@@ -28,6 +28,7 @@ export const roleNavigation = {
     { to: "/aprovacao", label: "Aprovação", Icon: CheckCircle2 },
     { to: "/pontuacao-usuarios", label: "Pontuação", Icon: Users },
     { to: "/entrada-peso", label: "Lançar Peso", Icon: Weight },
+    { to: "/cooperativa-relatorios", label: "Relatórios", Icon: FileBarChart },
   ],
   admin: [
     { to: "/admin", label: "Painel", Icon: LayoutDashboard },
