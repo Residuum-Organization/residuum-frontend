@@ -17,14 +17,15 @@ import { queryKeys } from "../services/queryKeys";
 
 const initialCenter = { lat: -3.119, lng: -60.0217 };
 const wasteTypesOptions = [
-  "Todos",
-  "plastico",
-  "papel",
-  "aluminio",
-  "vidro",
-  "eletronicos",
-  "oleo",
-  "baterias",
+  { id: "Todos", label: "Todos os resíduos" },
+  { id: "plastico", label: "Plástico" },
+  { id: "papel", label: "Papel" },
+  { id: "vidro", label: "Vidro" },
+  { id: "metal", label: "Metal" },
+  { id: "organico", label: "Orgânico" },
+  { id: "eletronico", label: "Eletrônicos" },
+  { id: "oleo", label: "Óleo" },
+  { id: "baterias", label: "Baterias" },
 ];
 
 export default function MapPage() {
@@ -43,7 +44,7 @@ export default function MapPage() {
     setLocationStatus("requesting");
     navigator.geolocation.getCurrentPosition(
       ({ coords }) => {
-        setUserLocation({ lat: coords.latitude, lng: coords.longitude });
+        setUserLocation({ lat: coords.latitude, lng: coords.longitude, accuracy: coords.accuracy });
         setLocationStatus("available");
       },
       () => setLocationStatus("denied"),
@@ -140,7 +141,7 @@ export default function MapPage() {
           <div className="space-y-4">
             <SectionCard
               title="Filtrar pontos"
-              description="Selecione o tipo de resíduo que você quer entregar."
+              description="Veja apenas os locais que aceitam o tipo de resíduo que você tem."
               className="p-4 sm:p-5"
             >
               <label className="sr-only" htmlFor="waste-type-filter">
@@ -154,16 +155,13 @@ export default function MapPage() {
                 }}
               >
                 <SelectTrigger id="waste-type-filter" className="w-full">
-                  <SelectValue placeholder="Filtrar por tipo de resíduo" />
+                  <SelectValue placeholder="O que você quer descartar?" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Todos">Todos os resíduos</SelectItem>
                   {wasteTypesOptions.map((type) => (
-                    type !== "Todos" && (
-                      <SelectItem key={type} value={type}>
-                        {type.charAt(0).toUpperCase() + type.slice(1)}
-                      </SelectItem>
-                    )
+                    <SelectItem key={type.id} value={type.id}>
+                      {type.label}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -196,7 +194,7 @@ export default function MapPage() {
                     onClick={() => setSelectedPoint(point)}
                     className="cursor-pointer"
                   >
-                    <PointDetails point={point} isSelected={selected?.id === point.id} />
+                    <PointDetails point={point} isSelected={selected?.id === point.id} userLocation={userLocation} />
                   </div>
                 ))}
               </div>
@@ -217,7 +215,7 @@ export default function MapPage() {
   );
 }
 
-function PointDetails({ point, isSelected }) {
+function PointDetails({ point, isSelected, userLocation }) {
   const navigate = useNavigate();
   const fillPercentage = point.fillPercentage ?? 0;
 
@@ -286,7 +284,10 @@ function PointDetails({ point, isSelected }) {
           <Button
             type="button"
             className="w-full gap-2 bg-emerald-600 hover:bg-emerald-700"
-            onClick={() => navigate('/estoque')}
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate('/validacao-presenca', { state: { selectedPointId: point.id, selectedItemIds: [], coords: userLocation } });
+            }}
           >
             <Recycle className="h-4 w-4" aria-hidden="true" />
             Descartar resíduos neste ponto
