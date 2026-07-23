@@ -6,6 +6,7 @@ import {
   Warehouse,
   TrendingUp,
   Package,
+  Gift,
 } from "lucide-react";
 import RoleShell from "../components/layout/RoleShell";
 import SectionCard from "../components/ui/SectionCard";
@@ -80,6 +81,15 @@ export default function HomePage() {
             >
               <Recycle className="mr-2 h-5 w-5" aria-hidden="true" />
               Adicionar resíduo
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => navigate("/loja")}
+              className="w-full sm:w-auto font-bold"
+            >
+              <Gift className="mr-2 h-5 w-5" aria-hidden="true" />
+              Sorteios
             </Button>
           </div>
         </div>
