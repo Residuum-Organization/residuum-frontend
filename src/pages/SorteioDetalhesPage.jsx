@@ -10,6 +10,7 @@ import {
   Medal,
   Sparkles,
   Trophy,
+  Calendar,
 } from "lucide-react";
 import RoleShell from "../components/layout/RoleShell";
 import PageHeader from "../components/ui/PageHeader";
@@ -22,6 +23,7 @@ import { getPointsStatement } from "../services/points";
 import { queryKeys } from "../services/queryKeys";
 import { getApiErrorMessage } from "../services/http/getApiErrorMessage";
 import { formatCalendarDate } from "../utils/dates";
+import TermosPrivacidadeModal from "../components/ui/TermosPrivacidadeModal";
 
 function Timeline({ etapas }) {
   return (
@@ -105,6 +107,8 @@ export default function SorteioDetalhesPage() {
   const availablePoints = pointsStatement?.pontuacao_total || 0;
 
   const [feedback, setFeedback] = useState(null);
+  const [aceitouLGPD, setAceitouLGPD] = useState(false);
+  const [isTermosModalOpen, setIsTermosModalOpen] = useState(false);
   const queryClient = useQueryClient();
 
   const buyTicketMutation = useMutation({
@@ -200,17 +204,27 @@ export default function SorteioDetalhesPage() {
 
             {/* Período de Participação */}
             <div className="grid grid-cols-2 gap-4">
-              <div className="rounded-2xl bg-slate-50 p-4 border border-slate-100">
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Início das participações</p>
-                <p className="mt-1 text-sm font-semibold text-[var(--color-primary)]">
-                  {sorteio.data_inicio ? formatCalendarDate(sorteio.data_inicio) : 'Imediato'}
-                </p>
+              <div className="flex items-center gap-3 rounded-2xl bg-slate-50 p-4 border border-slate-100">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-200 text-slate-600">
+                  <Calendar size={20} />
+                </div>
+                <div>
+                  <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Início</p>
+                  <p className="text-sm font-extrabold text-[var(--color-primary)]">
+                    {sorteio.data_inicio ? formatCalendarDate(sorteio.data_inicio) : 'Imediato'}
+                  </p>
+                </div>
               </div>
-              <div className="rounded-2xl bg-slate-50 p-4 border border-slate-100">
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Data do sorteio (Fim)</p>
-                <p className="mt-1 text-sm font-semibold text-[var(--color-primary)]">
-                  {sorteio.data_fim ? formatCalendarDate(sorteio.data_fim) : 'Indeterminada'}
-                </p>
+              <div className="flex items-center gap-3 rounded-2xl bg-slate-50 p-4 border border-slate-100">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-200 text-slate-600">
+                  <Calendar size={20} />
+                </div>
+                <div>
+                  <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Data do sorteio</p>
+                  <p className="text-sm font-extrabold text-[var(--color-primary)]">
+                    {sorteio.data_fim ? formatCalendarDate(sorteio.data_fim) : 'Indeterminada'}
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -231,6 +245,27 @@ export default function SorteioDetalhesPage() {
                   {feedback.text}
                 </InlineAlert>
               )}
+
+              <label className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-4 cursor-pointer mb-5 shadow-sm">
+                <input
+                  type="checkbox"
+                  checked={aceitouLGPD}
+                  onChange={(e) => setAceitouLGPD(e.target.checked)}
+                  className="mt-0.5 h-5 w-5 shrink-0 rounded border-slate-300 text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
+                />
+                <span className="text-sm font-medium text-slate-600 leading-snug">
+                  Li e aceito os{" "}
+                  <button 
+                    type="button" 
+                    onClick={(e) => { e.preventDefault(); setIsTermosModalOpen(true); }} 
+                    className="font-bold text-[var(--color-primary)] underline"
+                  >
+                    Termos de Uso e Política de Privacidade
+                  </button>
+                  .
+                </span>
+              </label>
+
               <Button
                 type="button"
                 onClick={() => {
@@ -238,7 +273,7 @@ export default function SorteioDetalhesPage() {
                   buyTicketMutation.mutate(sorteio.id);
                 }}
                 disabled={
-                  sorteio.status === "encerrado" || buyTicketMutation.isPending
+                  sorteio.status === "encerrado" || buyTicketMutation.isPending || !aceitouLGPD
                 }
                 className="w-full bg-[#1F4E79] py-4 text-sm font-bold text-white hover:bg-[#1a3a4a] disabled:bg-slate-300"
               >
@@ -252,6 +287,11 @@ export default function SorteioDetalhesPage() {
           </div>
         </SectionCard>
       </div>
+
+      <TermosPrivacidadeModal 
+        isOpen={isTermosModalOpen} 
+        onClose={() => setIsTermosModalOpen(false)} 
+      />
     </RoleShell>
   );
 }
