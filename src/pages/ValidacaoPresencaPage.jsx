@@ -130,7 +130,7 @@ export default function ValidacaoPresencaPage() {
   const [feedback, setFeedback] = useState(null);
   const [isLocating, setIsLocating] = useState(false);
   const [isTransferring, setIsTransferring] = useState(false);
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(location.state?.selectedItemIds ? 2 : 1);
   const hasHydratedSelectionRef = useRef(false);
   const transferAttemptRef = useRef({ signature: "", key: "" });
   const navigate = useNavigate();
@@ -327,6 +327,9 @@ export default function ValidacaoPresencaPage() {
         queryClient.invalidateQueries({ queryKey: queryKeys.discardHistory }),
       ]);
       transferAttemptRef.current = { signature: "", key: "" };
+      const firstItem = inventory.find(i => String(i.id) === String(itemIds[0]));
+      const resolvedDesc = firstItem?.descricao || location.state?.preloadedDesc || formatResidueType(firstItem?.tipo_residuo || location.state?.preloadedType);
+      const resolvedType = formatResidueType(firstItem?.tipo_residuo || location.state?.preloadedType);
       navigate("/transferencia-concluida", {
         replace: true,
         state: {
@@ -335,6 +338,8 @@ export default function ValidacaoPresencaPage() {
           pointName: transfer.ponto_coleta_nome || "Ponto de coleta",
           totalPoints: transfer.pontos_estimados ?? totalPoints,
           totalWeight: transfer.peso_total ?? totalWeight,
+          firstItemDesc: resolvedDesc,
+          firstItemType: resolvedType,
         },
       });
     } catch (error) {
@@ -434,7 +439,7 @@ export default function ValidacaoPresencaPage() {
                       {step}
                     </div>
                     <span className={`mt-2 text-xs font-bold ${currentStep >= step ? "text-[#1A2C71]" : "text-slate-400"} px-1 bg-[var(--color-surface)]`}>
-                      {step === 1 ? "Resíduos" : step === 2 ? "Local e Ponto" : "Confirmação"}
+                      {step === 1 ? "Resíduos" : step === 2 ? "Ponto de coleta" : "Confirmação"}
                     </span>
                   </button>
                   );
@@ -503,11 +508,13 @@ export default function ValidacaoPresencaPage() {
                               <ItemIcon size={21} />
                             </span>
                             <span className="min-w-0 flex-1">
-                              <strong className="block truncate text-sm text-[#1a3a4a]">
-                                {item.descricao ||
-                                  formatResidueType(item.tipo_residuo)}
+                              <p className="text-[10px] font-black uppercase tracking-wider text-slate-500">
+                                {formatResidueType(item.tipo_residuo)}
+                              </p>
+                              <strong className="mt-0.5 block truncate text-sm text-[#1a3a4a]">
+                                {item.descricao || formatResidueType(item.tipo_residuo)}
                               </strong>
-                              <small className="text-slate-500">
+                              <small className="mt-1 block text-slate-500">
                                 Disponível: {formatQuantity(maximum)} un.
                               </small>
                             </span>
@@ -563,66 +570,8 @@ export default function ValidacaoPresencaPage() {
             {currentStep === 2 && (
               <div className="space-y-6">
                 <SectionCard
-                  title="2. Solicite sua localização"
-                  description="O GPS comprova sua presença no ponto de coleta."
-                >
-                  <div
-                    className={`rounded-2xl border p-4 ${
-                      coords
-                        ? "border-emerald-200 bg-emerald-50"
-                        : "border-slate-200 bg-slate-50"
-                    }`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <span
-                        className={`rounded-xl p-2 ${
-                          coords
-                            ? "bg-emerald-600 text-white"
-                            : "bg-white text-slate-400"
-                        }`}
-                      >
-                        <MapPin size={22} />
-                      </span>
-                      <div>
-                        <p className="font-bold text-[#1a3a4a]">
-                          {coords
-                            ? "Localização confirmada"
-                            : "Localização pendente"}
-                        </p>
-                        <p className="mt-1 text-xs text-slate-500">
-                          {coords
-                            ? `Precisão aproximada de ${Math.round(
-                                coords.accuracy
-                              )} m.`
-                            : "Aperte o botão abaixo para confirmar onde você está."}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                  {locationError ? (
-                    <InlineAlert variant="error" className="mt-3">
-                      {locationError}
-                    </InlineAlert>
-                  ) : null}
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    onClick={requestLocation}
-                    disabled={isLocating}
-                    className="mt-4 w-full"
-                  >
-                    {isLocating ? (
-                      <Loader2 size={18} className="mr-2 animate-spin" />
-                    ) : (
-                      <MapPin size={18} className="mr-2" />
-                    )}
-                    {coords ? "Atualizar localização" : "Solicitar minha localização"}
-                  </Button>
-                </SectionCard>
-
-                <SectionCard
-                  title="3. Escolha o ponto de coleta"
-                  description="A lista considera todos os materiais selecionados."
+                  title="2. Escolha o ponto de coleta"
+                  description="A lista considera todos os materiais selecionados e exibe os pontos mais próximos da sua localização."
                 >
               {pointsQuery.isLoading ? (
                 <LoadingState title="Buscando pontos compatíveis..." />
