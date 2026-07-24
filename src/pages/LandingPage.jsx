@@ -26,7 +26,7 @@ const faqs = [
 const features = [
   {
     title: "Para Moradores",
-    description: "Descarte consciente com recompensas. Localize pontos no mapa, confirme sua presença por GPS e acompanhe cada entrega.",
+    description: "Descarte consciente com recompensas. Localize pontos no mapa e acompanhe cada entrega.",
     icon: Users,
     color: "from-emerald-500 to-emerald-600",
     bgLight: "bg-emerald-50",
@@ -43,7 +43,7 @@ const features = [
     benefits: ["Validação expressa", "Controle de inventário", "Mais fluxo de pessoas"]
   },
   {
-    title: "Para Administradores",
+    title: "Para Empresas",
     description: "Gestão completa da rede. Acompanhe pontos de coleta, usuários, campanhas, descartes e indicadores em um só painel.",
     icon: ShieldCheck,
     color: "from-amber-500 to-amber-600",

@@ -25,23 +25,23 @@ import LoadingState from "../components/ui/LoadingState";
 import EmptyState from "../components/ui/EmptyState";
 import ErrorState from "../components/ui/ErrorState";
 import Badge from "../components/ui/Badge";
-import { downloadAdminReport, listAuditEntries } from "../services/admin";
+import { downloadAdminReport, downloadAdminReportPDF, listAuditEntries } from "../services/admin";
 
 const reports = [
   {
     id: "descartes",
-    title: "Descartes",
-    description: "Movimentacoes, quantidades, pontos e locais de entrega.",
+    title: "Descartes e Coletas",
+    description: "Histórico de unidades descartadas por moradores e o peso real (kg) recolhido pelas cooperativas em cada ponto.",
   },
   {
     id: "usuarios",
-    title: "Usuarios",
-    description: "Cadastros, perfis de acesso e saldos de pontos.",
+    title: "Usuários",
+    description: "Lista de todos os moradores, cooperativas e ecopontos com seus respectivos saldos de pontuação.",
   },
   {
     id: "auditoria",
-    title: "Auditoria",
-    description: "Acoes administrativas registradas pela plataforma.",
+    title: "Auditoria de Segurança",
+    description: "Registro das ações críticas: aprovações, edições e alterações feitas pelos administradores.",
   },
 ];
 
@@ -165,7 +165,14 @@ export default function AdminReportsPage() {
   const downloadMutation = useMutation({
     mutationFn: downloadAdminReport,
     onSuccess: () =>
-      setFeedback({ type: "success", text: "Relatorio gerado com sucesso." }),
+      setFeedback({ type: "success", text: "Relatorio gerado com sucesso em CSV." }),
+    onError: (error) => setFeedback({ type: "error", text: error.message }),
+  });
+
+  const downloadPdfMutation = useMutation({
+    mutationFn: ({ id, title }) => downloadAdminReportPDF(id, title),
+    onSuccess: () =>
+      setFeedback({ type: "success", text: "Relatorio gerado com sucesso em PDF." }),
     onError: (error) => setFeedback({ type: "error", text: error.message }),
   });
 
@@ -205,17 +212,16 @@ export default function AdminReportsPage() {
               <p className="mt-1 flex-1 text-sm text-[var(--color-text-muted)]">
                 {report.description}
               </p>
-              <Button
-                type="button"
-                className="mt-5 w-full"
-                disabled={downloadMutation.isPending}
-                onClick={() => {
-                  setFeedback(null);
-                  downloadMutation.mutate(report.id);
-                }}
-              >
-                <Download className="mr-2 h-4 w-4" /> Exportar CSV
-              </Button>
+              <div className="mt-5 w-full">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  disabled
+                  className="w-full opacity-60 cursor-not-allowed"
+                >
+                  <Clock3 className="mr-2 h-4 w-4" /> Em breve
+                </Button>
+              </div>
             </SectionCard>
           ))}
         </section>

@@ -84,6 +84,7 @@ export function useCepAddress() {
 
   return {
     address,
+    setAddress,
     cepStatus,
     handleFieldChange,
     validateCep,

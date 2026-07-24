@@ -5,14 +5,13 @@ import SectionCard from "../components/ui/SectionCard";
 import Button from "../components/ui/Button";
 import InlineAlert from "../components/ui/InlineAlert";
 import FormField from "../components/forms/FormField";
-import { Send, Weight } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { listOperationalCollectionPoints, registrarPesagemAvulsa } from "../services/collectionPoints";
+import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/Select";
+import { Send, Weight } from "lucide-react";
+import LoadingState from "../components/ui/LoadingState";
 
-const MOCK_PONTOS = [
-  { id: "1", label: "Ecoponto Centro" },
-  { id: "2", label: "Coleta Vizinhança - Sul" },
-  { id: "3", label: "Associação de Moradores" },
-];
 
 const MATERIAIS = [
   { id: "plastico", label: "Plástico" },
@@ -31,35 +30,50 @@ export default function EntradaPesoCooperativaPage() {
   const [feedback, setFeedback] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const queryClient = useQueryClient();
+
+  const { data: pontos = [], isLoading: isLoadingPontos } = useQuery({
+    queryKey: ["operational-points"],
+    queryFn: listOperationalCollectionPoints,
+  });
+
+  const mutation = useMutation({
+    mutationFn: registrarPesagemAvulsa,
+    onSuccess: () => {
+      toast.success("Registro salvo! O relatório de volume foi atualizado.");
+      setForm({ ponto_origem: "", material: "", peso_kg: "" });
+      queryClient.invalidateQueries({ queryKey: ["operational-points"] });
+    },
+    onError: (error) => {
+      toast.error(error.message || "Erro ao registrar a pesagem.");
+    }
+  });
+
+  const selectedPonto = pontos.find((p) => String(p.id) === form.ponto_origem);
+  const unidadesNoInventario = selectedPonto?.inventario?.[form.material] || 0;
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!form.ponto_origem || !form.material || !form.peso_kg) {
-      setFeedback({ type: "error", message: "Preencha todos os campos para registrar a coleta." });
+      toast.error("Preencha todos os campos para registrar a coleta.");
       return;
     }
 
-    setIsSubmitting(true);
-    setFeedback(null);
-
-    // Mock API call
-    setTimeout(() => {
-      setFeedback({ type: "success", message: "Registro de coleta salvo com sucesso! O relatório de volume foi atualizado." });
-      setForm({ ponto_origem: "", material: "", peso_kg: "" });
-      setIsSubmitting(false);
-    }, 800);
+    mutation.mutate({
+      ponto_coleta_id: Number(form.ponto_origem),
+      material: form.material,
+      peso_kg: Number(form.peso_kg),
+    });
   };
 
   return (
-    <RoleShell variant="cooperativa">
+    <RoleShell variant="operacional">
       <div className="space-y-6">
         <PageHeader 
           title="Registrar Coleta" 
           description="Lance a pesagem oficial dos resíduos recolhidos nos pontos de coleta parceiros."
         />
 
-        {feedback && (
-          <InlineAlert variant={feedback.type} description={feedback.message} />
-        )}
 
         <div className="max-w-2xl">
           <SectionCard title="Dados da Pesagem" description="Informe a origem, o material e o peso exato em kg (quilogramas) que chegou na cooperativa.">
@@ -68,13 +82,13 @@ export default function EntradaPesoCooperativaPage() {
                 <label className="mb-1.5 block text-sm font-semibold text-[#1A2C71]">
                   Ponto de Coleta (Origem)
                 </label>
-                <Select value={form.ponto_origem} onValueChange={(val) => setForm(f => ({ ...f, ponto_origem: val }))}>
+                <Select value={form.ponto_origem} onValueChange={(val) => setForm(f => ({ ...f, ponto_origem: val }))} disabled={isLoadingPontos}>
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Selecione o ponto de coleta" />
+                    <SelectValue placeholder={isLoadingPontos ? "Carregando..." : "Selecione o ponto de coleta"} />
                   </SelectTrigger>
                   <SelectContent>
-                    {MOCK_PONTOS.map(p => (
-                      <SelectItem key={p.id} value={p.id}>{p.label}</SelectItem>
+                    {pontos.map(p => (
+                      <SelectItem key={p.id} value={String(p.id)}>{p.nome}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -95,6 +109,14 @@ export default function EntradaPesoCooperativaPage() {
                   </SelectContent>
                 </Select>
               </div>
+
+              {form.ponto_origem && form.material && (
+                <div className="rounded-xl bg-sky-50 border border-sky-100 p-4">
+                  <p className="text-sm font-medium text-sky-800">
+                    📦 Inventário aguardando coleta no local selecionado: <strong className="text-lg">{unidadesNoInventario}</strong> unidades de {MATERIAIS.find(m => m.id === form.material)?.label}.
+                  </p>
+                </div>
+              )}
 
               <div>
                 <label className="mb-1.5 block text-sm font-semibold text-[#1A2C71]">
@@ -123,10 +145,10 @@ export default function EntradaPesoCooperativaPage() {
                 <Button 
                   type="submit" 
                   className="w-full h-14 text-lg" 
-                  disabled={isSubmitting}
+                  disabled={mutation.isPending}
                 >
                   <Send className="mr-2 h-5 w-5" />
-                  {isSubmitting ? "Registrando..." : "Registrar Pesagem"}
+                  {mutation.isPending ? "Registrando..." : "Registrar Pesagem"}
                 </Button>
               </div>
             </form>

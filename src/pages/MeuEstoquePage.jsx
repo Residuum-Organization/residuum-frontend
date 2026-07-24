@@ -176,17 +176,53 @@ export default function MeuEstoquePage() {
     );
   };
 
-  const continueWithSelection = () => {
+  const continueWithSelection = async () => {
     if (!selectedCount) return;
+    
+    setFeedback(null);
+    let coords = null;
+    if (!navigator.geolocation) {
+      setFeedback({ tone: "error", message: "Geolocalização não suportada neste dispositivo." });
+      return;
+    }
+    
+    try {
+      const position = await new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: true, timeout: 8000 });
+      });
+      coords = { lat: position.coords.latitude, lng: position.coords.longitude, accuracy: position.coords.accuracy };
+    } catch (error) {
+      setFeedback({ tone: "error", message: "Precisamos da sua localização para validar o descarte." });
+      return;
+    }
+
     navigate("/validacao-presenca", {
-      state: { selectedItemIds },
+      state: { selectedItemIds, coords },
     });
   };
 
-  const transferFullInventory = () => {
+  const transferFullInventory = async () => {
     if (!availableItemIds.length) return;
+
+    setFeedback(null);
+    let coords = null;
+    if (!navigator.geolocation) {
+      setFeedback({ tone: "error", message: "Geolocalização não suportada neste dispositivo." });
+      return;
+    }
+    
+    try {
+      const position = await new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: true, timeout: 8000 });
+      });
+      coords = { lat: position.coords.latitude, lng: position.coords.longitude, accuracy: position.coords.accuracy };
+    } catch (error) {
+      setFeedback({ tone: "error", message: "Precisamos da sua localização para validar o descarte." });
+      return;
+    }
+
     navigate("/validacao-presenca", {
-      state: { selectedItemIds: availableItemIds },
+      state: { selectedItemIds: availableItemIds, coords },
     });
   };
 

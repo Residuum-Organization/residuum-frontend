@@ -61,19 +61,7 @@ export default function DashboardScreen() {
       iconColor: "text-white",
       icon: "Truck",
     },
-    {
-      id: "status",
-      title: "Status do Sistema",
-      value: (metrics.criticalPoints || 0) > 0 ? "Atenção" : "Ativo",
-      trend:
-        (metrics.criticalPoints || 0) > 0
-          ? `${metrics.criticalPoints} ponto(s) crítico(s)`
-          : "Operação estável",
-      iconBg: "bg-yellow-100",
-      iconColor: "text-yellow-500",
-      icon: "Activity",
-      valueClass: (metrics.criticalPoints || 0) > 0 ? "text-amber-500" : "text-green-500",
-    },
+
   ];
 
   return (
@@ -135,6 +123,30 @@ export default function DashboardScreen() {
               ))}
             </section>
 
+            <section className="mt-8 grid gap-4 lg:grid-cols-3">
+              <div className="lg:col-span-2">
+                <SectionCard
+                  title="Evolução de Coleta"
+                  description="Acompanhe o volume de resíduos recebidos nos últimos meses."
+                >
+                  <LineChart
+                    embedded
+                    data={data?.volumeHistoryChartData || []}
+                  />
+                </SectionCard>
+              </div>
+              <div className="lg:col-span-1">
+                <SectionCard
+                  title="Inventário Atual"
+                  description="Composição de materiais estocados."
+                >
+                  <PieChart
+                    embedded
+                    data={data?.inventoryChartData || []}
+                  />
+                </SectionCard>
+              </div>
+            </section>
           </>
         ) : null}
       </div>
