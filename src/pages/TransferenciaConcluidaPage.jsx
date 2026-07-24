@@ -79,7 +79,13 @@ export default function TransferenciaConcluidaPage() {
               </div>
               <div className="min-w-0">
                 <small className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Materiais</small>
-                <strong className="block truncate text-sm text-[#1A2C71]">{state?.itemCount || 1} tipo(s) · {formatQuantity(state?.totalWeight)} un.</strong>
+                <strong className="block truncate text-sm text-[#1A2C71]" title={state?.firstItemDesc || "Resíduos variados"}>
+                  {state?.firstItemDesc || "Resíduos variados"}
+                  {state?.itemCount > 1 ? ` (+${state.itemCount - 1})` : ""}
+                </strong>
+                <span className="block text-xs font-medium text-slate-500 mt-0.5">
+                  {state?.firstItemType ? `${state.firstItemType} · ` : ""}{formatQuantity(state?.totalWeight)} un.
+                </span>
               </div>
             </div>
             
@@ -105,7 +111,7 @@ export default function TransferenciaConcluidaPage() {
           </div>
 
           <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-center">
-            <Button type="button" variant="primary" onClick={() => navigate("/admin/sorteios", { replace: true })} className="w-full sm:w-auto py-3 bg-emerald-600 hover:bg-emerald-700">
+            <Button type="button" variant="primary" onClick={() => navigate("/loja", { replace: true })} className="w-full sm:w-auto py-3 bg-emerald-600 hover:bg-emerald-700">
               <Sparkles className="mr-2 h-4 w-4" /> Usar meus pontos
             </Button>
             <Button type="button" variant="secondary" onClick={() => navigate("/inicio", { replace: true })} className="w-full sm:w-auto py-3">
