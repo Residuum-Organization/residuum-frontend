@@ -11,7 +11,9 @@ import SectionCard from '../components/ui/SectionCard'
 import InlineAlert from '../components/ui/InlineAlert'
 import LoadingButton from '../components/ui/LoadingButton'
 import Button from '../components/ui/Button'
+import { Combobox } from '../components/ui/Combobox'
 import { createInventoryItem, updateInventoryItem } from '../services/inventory'
+import { RESIDUE_OPTIONS } from '../constants/residueItems'
 import { queryKeys } from '../services/queryKeys'
 import { getApiErrorMessage } from '../services/http/getApiErrorMessage'
 
@@ -43,6 +45,8 @@ export default function CadastrarResiduo() {
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(schema),
@@ -51,14 +55,26 @@ export default function CadastrarResiduo() {
       observacao: editItem?.observacao || '',
     },
   })
+  
+  const descricaoWatch = watch('descricao')
 
   const createMutation = useMutation({
-    mutationFn: createInventoryItem,
+    mutationFn: ({ payload }) => createInventoryItem(payload),
     onSuccess: async (createdItem, variables) => {
+      queryClient.setQueryData(queryKeys.inventory, (old) => {
+        if (!old) return [createdItem]
+        return [createdItem, ...old.filter(i => i.id !== createdItem.id)]
+      })
       await queryClient.invalidateQueries({ queryKey: queryKeys.inventory })
+      
       if (variables.isImmediateDiscard) {
         navigate('/validacao-presenca', {
-          state: { selectedItemIds: [String(createdItem?.id || '')].filter(Boolean) }
+          state: { 
+            selectedItemIds: [String(createdItem?.id || '')].filter(Boolean),
+            preloadedDesc: variables.payload.descricao,
+            preloadedType: variables.payload.tipo_residuo,
+            coords: variables.coords
+          }
         })
       } else {
         setFeedback({ tone: 'success', message: 'Resíduo adicionado ao estoque.' })
@@ -77,12 +93,22 @@ export default function CadastrarResiduo() {
   })
 
   const updateMutation = useMutation({
-    mutationFn: (payload) => updateInventoryItem(editItem?.id, payload),
+    mutationFn: ({ payload }) => updateInventoryItem(editItem?.id, payload),
     onSuccess: async (updatedItem, variables) => {
+      queryClient.setQueryData(queryKeys.inventory, (old) => {
+        if (!old) return [updatedItem]
+        return old.map(i => i.id === updatedItem.id ? updatedItem : i)
+      })
       await queryClient.invalidateQueries({ queryKey: queryKeys.inventory })
+
       if (variables.isImmediateDiscard) {
         navigate('/validacao-presenca', {
-          state: { selectedItemIds: [String(editItem.id)] }
+          state: { 
+            selectedItemIds: [String(editItem.id)],
+            preloadedDesc: variables.payload.descricao,
+            preloadedType: variables.payload.tipo_residuo,
+            coords: variables.coords
+          }
         })
       } else {
         setFeedback({ tone: 'success', message: 'Resíduo atualizado com sucesso.' })
@@ -100,7 +126,7 @@ export default function CadastrarResiduo() {
     },
   })
 
-  const onSubmit = (data, isImmediateDiscard = false) => {
+  const onSubmit = async (data, isImmediateDiscard = false) => {
     setFeedback(null)
     setActionType(isImmediateDiscard ? 'discard' : 'store')
 
@@ -117,10 +143,29 @@ export default function CadastrarResiduo() {
       return
     }
 
+    let coords = null;
+    if (isImmediateDiscard) {
+      if (!navigator.geolocation) {
+        setFeedback({ tone: 'error', message: 'Geolocalização não suportada.' })
+        setActionType(null)
+        return
+      }
+      try {
+        const position = await new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: true, timeout: 8000 })
+        });
+        coords = { lat: position.coords.latitude, lng: position.coords.longitude, accuracy: position.coords.accuracy };
+      } catch (error) {
+        setFeedback({ tone: 'error', message: 'Precisamos da sua localização para exibir os pontos próximos.' })
+        setActionType(null)
+        return
+      }
+    }
+
     const payload = {
       tipo_residuo: tipoSelecionado,
       quantidade: quantidadeNumerica,
-      isImmediateDiscard // to pass to onSuccess
+      sem_rotulo: true
     }
 
     const descricao = data.descricao?.trim()
@@ -128,9 +173,9 @@ export default function CadastrarResiduo() {
     if (data.observacao) payload.observacao = data.observacao
 
     if (editItem) {
-      updateMutation.mutate(payload)
+      updateMutation.mutate({ payload, isImmediateDiscard, coords })
     } else {
-      createMutation.mutate(payload)
+      createMutation.mutate({ payload, isImmediateDiscard, coords })
     }
   }
 
@@ -153,23 +198,16 @@ export default function CadastrarResiduo() {
               {feedback ? <InlineAlert variant={feedback.tone}>{feedback.message}</InlineAlert> : null}
 
               <div>
-                <label className="mb-2 block text-sm font-bold text-[#1a3a4a]">Descrição do item (Opcional)</label>
-                <input
-                  {...register('descricao')}
-                  placeholder="Ex: Garrafa PET 2L, Lata de alumínio 350ml"
-                  className="min-h-12 w-full rounded-2xl border border-gray-300 px-4 py-3 text-base text-gray-700 outline-none transition-colors placeholder:text-gray-400 focus:border-[#1A2C71]"
-                />
-                {errors.descricao ? <p className="mt-1 text-xs text-red-600">{errors.descricao.message}</p> : null}
-              </div>
-
-              <div>
                 <label className="mb-3 block text-sm font-bold text-[#1a3a4a]">Tipo de resíduo</label>
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                   {tiposResiduo.map((tipo) => (
                     <button
                       key={tipo.id}
                       type="button"
-                      onClick={() => setTipoSelecionado(tipo.id)}
+                      onClick={() => {
+                        setTipoSelecionado(tipo.id)
+                        setValue('descricao', '')
+                      }}
                       className={`flex flex-col items-center justify-center gap-2 rounded-2xl p-4 font-semibold text-white transition-all ${
                         tipoSelecionado === tipo.id
                           ? `${tipo.color} ring-2 ${tipo.ringColor} ring-offset-2 shadow-md scale-[1.02]`
@@ -181,6 +219,26 @@ export default function CadastrarResiduo() {
                     </button>
                   ))}
                 </div>
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-bold text-[#1a3a4a]">Descrição do resíduo (Opcional)</label>
+                {tipoSelecionado && RESIDUE_OPTIONS[tipoSelecionado] ? (
+                  <Combobox
+                    options={RESIDUE_OPTIONS[tipoSelecionado].map(opt => ({ value: opt.label, label: opt.label }))}
+                    value={descricaoWatch}
+                    onValueChange={(val) => setValue('descricao', val)}
+                    placeholder={`Selecione a descrição para ${tiposResiduo.find(t => t.id === tipoSelecionado)?.label.toLowerCase()}...`}
+                  />
+                ) : (
+                  <input
+                    {...register('descricao')}
+                    placeholder="Selecione um tipo de resíduo primeiro"
+                    disabled
+                    className="min-h-12 w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 text-base text-gray-500 outline-none transition-colors"
+                  />
+                )}
+                {errors.descricao ? <p className="mt-1 text-xs text-red-600">{errors.descricao.message}</p> : null}
               </div>
 
               <div>
