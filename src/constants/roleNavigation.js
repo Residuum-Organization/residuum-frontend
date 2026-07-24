@@ -25,9 +25,7 @@ export const roleNavigation = {
   operacional: [
     { to: "/dashboard", label: "Painel", Icon: LayoutDashboard },
     { to: "/meus-pontos-operacionais", label: "Meus Locais", Icon: MapPin },
-    { to: "/aprovacao", label: "Aprovação", Icon: CheckCircle2 },
     { to: "/pontuacao-usuarios", label: "Pontuação", Icon: Users },
-    { to: "/entrada-peso", label: "Lançar Peso", Icon: Weight },
     { to: "/cooperativa-relatorios", label: "Relatórios", Icon: FileBarChart },
   ],
   admin: [

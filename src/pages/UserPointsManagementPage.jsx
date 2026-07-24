@@ -86,7 +86,7 @@ export default function UserPointsManagementPage() {
 
         <SectionCard
           title="Usuários na fila de pontuação"
-          description="Baseado nos descartes pendentes já retornados pela API operacional."
+          description="Baseado nos descartes pendentes vinculados aos seus pontos de coleta."
         >
           {isLoading ? <LoadingState title="Carregando pontuação dos usuários..." /> : null}
           {isError ? <ErrorState title={getApiErrorMessage(error, 'Não foi possível carregar a fila de pontuação.')} /> : null}
