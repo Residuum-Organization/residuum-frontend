@@ -41,7 +41,7 @@ export default function TransferenciaConcluidaPage() {
         width={windowDimension.width}
         height={windowDimension.height}
         recycle={false}
-        numberOfPieces={120}
+        numberOfPieces={200}
         gravity={0.15}
         initialVelocityY={20}
         colors={['#059669', '#10b981', '#34d399', '#0284c7', '#38bdf8', '#1A2C71']}
@@ -72,7 +72,7 @@ export default function TransferenciaConcluidaPage() {
             O resíduo foi descartado e os pontos creditados na sua conta.
           </p>
 
-          <div className="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-3">
+{/*           <div className="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-3">
             <div className="flex items-center gap-3 rounded-2xl bg-slate-50 p-3 text-left">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-200/50">
                 <PackageCheck className="text-[#1A2C71]" size={20} />
@@ -108,7 +108,7 @@ export default function TransferenciaConcluidaPage() {
                 <strong className="block truncate text-sm text-emerald-700">+{state?.totalPoints || 0} pontos</strong>
               </div>
             </div>
-          </div>
+          </div> */}
 
           <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-center">
             <Button type="button" variant="primary" onClick={() => navigate("/loja", { replace: true })} className="w-full sm:w-auto py-3 bg-emerald-600 hover:bg-emerald-700">
