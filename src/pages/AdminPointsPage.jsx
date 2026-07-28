@@ -3,8 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { 
   AlertTriangle, MapPin, SlidersHorizontal, ArrowLeft, Loader2, PowerOff,
-  Building2, User, Phone, Mail, Clock, Box, Recycle 
+  Building2, User, Phone, Mail, Clock, Box, Recycle, Plus, X 
 } from "lucide-react";
+import * as Dialog from "@radix-ui/react-dialog";
+import LoadingButton from "../components/ui/LoadingButton";
 
 import AdminShell from "../components/admin/AdminShell";
 import Button from "../components/ui/Button";
@@ -20,7 +22,7 @@ import {
   getAdminPoints, deactivateCollectionPoint,
   listPendingCollectionPoints, approveCollectionPoint, rejectCollectionPoint
 } from "../services/admin";
-import { listCollectionPoints } from "../services/collectionPoints";
+import { listCollectionPoints, createCollectionPoint } from "../services/collectionPoints";
 import { queryKeys } from "../services/queryKeys";
 import { getApiErrorMessage } from "../services/http/getApiErrorMessage";
 
@@ -44,6 +46,46 @@ export default function AdminPoints() {
   const [filter, setFilter] = useState("all");
   const [feedback, setFeedback] = useState(null);
   const [activeTab, setActiveTab] = useState("ativos"); // "ativos" | "pendentes"
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [createForm, setCreateForm] = useState({
+    nome: "",
+    endereco: "",
+    capacidade_maxima: "1000",
+    horario_funcionamento: "Segunda a Sexta, 08:00 - 17:00",
+    tipos_residuos_aceitos: ["plastico", "papel", "vidro", "metal"],
+  });
+
+  const createPointMutation = useMutation({
+    mutationFn: (payload) => createCollectionPoint(payload),
+    onSuccess: () => {
+      setFeedback({ tone: "success", message: "Novo ponto de coleta criado com sucesso!" });
+      setIsCreateModalOpen(false);
+      setCreateForm({
+        nome: "",
+        endereco: "",
+        capacidade_maxima: "1000",
+        horario_funcionamento: "Segunda a Sexta, 08:00 - 17:00",
+        tipos_residuos_aceitos: ["plastico", "papel", "vidro", "metal"],
+      });
+      queryClient.invalidateQueries({ queryKey: ["adminPointsOcupacao"] });
+      queryClient.invalidateQueries({ queryKey: ["adminPointsDetails"] });
+    },
+    onError: (err) => {
+      setFeedback({ tone: "error", message: getApiErrorMessage(err, "Não foi possível criar o ponto de coleta.") });
+    },
+  });
+
+  const handleCreateSubmit = (e) => {
+    e.preventDefault();
+    if (!createForm.nome || !createForm.endereco) {
+      setFeedback({ tone: "error", message: "Informe o nome e o endereço do ponto de coleta." });
+      return;
+    }
+    createPointMutation.mutate({
+      ...createForm,
+      capacidade_maxima: Number(createForm.capacidade_maxima) || 1000,
+    });
+  };
 
   // 1. Queries for Active Points
   const { data: ocupacaoData, isLoading: ocupacaoLoading, isError: ocupacaoError, refetch: refetchOcupacao } = useQuery({
@@ -188,9 +230,19 @@ export default function AdminPoints() {
         title="Pontos de coleta"
         description="Gerencie os pontos ativos e aprove novas solicitações em um só lugar."
         action={
-          <Button type="button" variant="secondary" onClick={() => navigate(-1)}>
-            <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
-          </Button>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              type="button"
+              variant="primary"
+              onClick={() => setIsCreateModalOpen(true)}
+              className="bg-[#1A2C71] hover:bg-[#1a4266] text-white font-extrabold"
+            >
+              <Plus className="mr-1.5 h-4 w-4" /> Criar Ponto de Coleta
+            </Button>
+            <Button type="button" variant="secondary" onClick={() => navigate(-1)}>
+              <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
+            </Button>
+          </div>
         }
       />
 
@@ -421,6 +473,119 @@ export default function AdminPoints() {
           )}
         </div>
       )}
+
+      {/* Modal de Criação de Ponto de Coleta pelo Admin */}
+      <Dialog.Root open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 z-[9998] bg-slate-900/40 backdrop-blur-sm transition-opacity" />
+          <Dialog.Content className="fixed left-1/2 top-1/2 z-[9999] w-full max-w-lg -translate-x-1/2 -translate-y-1/2 transform p-4 sm:p-6 outline-none">
+            <div className="relative overflow-hidden rounded-[2rem] bg-white shadow-2xl">
+              <div className="flex items-center justify-between border-b border-slate-100 px-6 sm:px-8 py-5">
+                <Dialog.Title className="text-lg font-black text-[#1A2C71]">Novo Ponto de Coleta</Dialog.Title>
+                <Dialog.Close className="rounded-full p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors">
+                  <X size={20} />
+                </Dialog.Close>
+              </div>
+
+              <form onSubmit={handleCreateSubmit} className="p-6 sm:p-8 space-y-4">
+                <div>
+                  <label className="mb-1 block text-xs font-bold uppercase text-slate-500">Nome do Ponto</label>
+                  <input
+                    type="text"
+                    required
+                    value={createForm.nome}
+                    onChange={(e) => setCreateForm({ ...createForm, nome: e.target.value })}
+                    placeholder="Ex: Ecoponto Coroado"
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm font-semibold focus:border-[#1A2C71] focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-xs font-bold uppercase text-slate-500">Endereço Completo</label>
+                  <input
+                    type="text"
+                    required
+                    value={createForm.endereco}
+                    onChange={(e) => setCreateForm({ ...createForm, endereco: e.target.value })}
+                    placeholder="Ex: Rua Paraíso do Norte, 845 - Coroado, Manaus - AM"
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm font-semibold focus:border-[#1A2C71] focus:outline-none"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="mb-1 block text-xs font-bold uppercase text-slate-500">Capacidade Máxima (kg)</label>
+                    <input
+                      type="number"
+                      required
+                      min="1"
+                      value={createForm.capacidade_maxima}
+                      onChange={(e) => setCreateForm({ ...createForm, capacidade_maxima: e.target.value })}
+                      placeholder="Ex: 1000"
+                      className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm font-semibold focus:border-[#1A2C71] focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-1 block text-xs font-bold uppercase text-slate-500">Horário Funcionamento</label>
+                    <input
+                      type="text"
+                      value={createForm.horario_funcionamento}
+                      onChange={(e) => setCreateForm({ ...createForm, horario_funcionamento: e.target.value })}
+                      placeholder="Ex: Seg a Sex, 08:00 - 17:00"
+                      className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm font-semibold focus:border-[#1A2C71] focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="mb-1.5 block text-xs font-bold uppercase text-slate-500">Materiais Aceitos</label>
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    {["plastico", "papel", "vidro", "metal", "organico", "eletronico"].map((tipo) => {
+                      const selected = createForm.tipos_residuos_aceitos.includes(tipo);
+                      return (
+                        <button
+                          key={tipo}
+                          type="button"
+                          onClick={() => {
+                            setCreateForm((prev) => ({
+                              ...prev,
+                              tipos_residuos_aceitos: selected
+                                ? prev.tipos_residuos_aceitos.filter((t) => t !== tipo)
+                                : [...prev.tipos_residuos_aceitos, tipo],
+                            }));
+                          }}
+                          className={`rounded-full px-3 py-1.5 text-xs font-bold border transition-colors uppercase ${
+                            selected
+                              ? "bg-[#1A2C71] text-white border-[#1A2C71]"
+                              : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
+                          }`}
+                        >
+                          {formatResidueType(tipo)}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="pt-4 flex items-center justify-end gap-3">
+                  <Button type="button" variant="secondary" onClick={() => setIsCreateModalOpen(false)}>
+                    Cancelar
+                  </Button>
+                  <LoadingButton
+                    type="submit"
+                    isLoading={createPointMutation.isPending}
+                    loadingText="Criando..."
+                    className="bg-[#1A2C71] hover:bg-[#1a4266] text-white font-extrabold px-6 py-3"
+                  >
+                    Salvar Ponto
+                  </LoadingButton>
+                </div>
+              </form>
+            </div>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
     </AdminShell>
   );
 }

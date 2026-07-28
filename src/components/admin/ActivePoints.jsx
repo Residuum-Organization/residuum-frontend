@@ -22,7 +22,7 @@ export default function ActivePoints() {
       .map((ponto, index) => ({
         id: ponto.ponto_coleta_id,
         name: ponto.nome,
-        deliveries: `${ponto.total_inventario} kg arrecadados`,
+        deliveries: `${Number(ponto.total_inventario || 0).toLocaleString("pt-BR", { maximumFractionDigits: 1 })} kg arrecadados`,
         rank: `#${index + 1}`,
       }));
   }, [ocupacaoData]);
