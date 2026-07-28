@@ -5,32 +5,45 @@ import { LogOut } from "lucide-react";
 
 export default function RoleNav({ variant = "morador", mode = "desktop", className = "" }) {
   const items = roleNavigation[variant] || roleNavigation.morador;
-  const mobileGridClass = items.length === 3
-    ? 'grid-cols-3'
-    : items.length === 4
-      ? 'grid-cols-4'
-      : items.length === 6
-        ? 'grid-cols-6'
-        : items.length === 7
-          ? 'grid-cols-7'
-        : 'grid-cols-5'
 
   if (mode === "mobile") {
+    const navItemsWithLogout = [
+      ...items,
+      { to: "/logout", label: "Sair", Icon: LogOut, isLogout: true },
+    ];
+    const totalCount = navItemsWithLogout.length;
+    const mobileGridClass =
+      totalCount === 3
+        ? "grid-cols-3"
+        : totalCount === 4
+          ? "grid-cols-4"
+          : totalCount === 5
+            ? "grid-cols-5"
+            : totalCount === 6
+              ? "grid-cols-6"
+              : totalCount === 7
+                ? "grid-cols-7"
+                : totalCount === 8
+                  ? "grid-cols-8"
+                  : "grid-cols-5";
+
     return (
       <nav
         aria-label={`Navegação ${variant}`}
-        className={`fixed inset-x-0 bottom-0 z-[1200] grid border-t border-[var(--color-border)] bg-white px-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 shadow-lg shadow-slate-900/10 lg:hidden ${mobileGridClass} ${className}`}
+        className={`fixed inset-x-0 bottom-0 z-[1200] grid border-t border-[var(--color-border)] bg-white px-1 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 shadow-lg shadow-slate-900/10 lg:hidden ${mobileGridClass} ${className}`}
       >
-        {items.map(({ to, label, Icon }) => (
+        {navItemsWithLogout.map(({ to, label, Icon, isLogout }) => (
           <NavLink
             key={to}
             to={to}
             aria-label={label}
             className={({ isActive }) =>
               `flex min-h-12 min-w-0 flex-col items-center justify-center gap-1 rounded-xl px-1 text-[11px] font-bold transition focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/30 ${
-                isActive
-                  ? "bg-[var(--color-primary)] text-white"
-                  : "text-[var(--color-text-muted)] hover:text-[var(--color-primary)]"
+                isLogout
+                  ? "text-rose-600 hover:bg-rose-50"
+                  : isActive
+                    ? "bg-[var(--color-primary)] text-white"
+                    : "text-[var(--color-text-muted)] hover:text-[var(--color-primary)]"
               }`
             }
           >

@@ -30,9 +30,10 @@ import { adjustUserPoints, deleteUser, listUsers, updateUser, updateUserRole } f
 import { getRoleLabel } from "../utils/roles";
 
 const roles = [
-  { value: "", label: "Todos" },
-  { value: "usuario", label: "Morador" },
-  { value: "cooperativa", label: "Ponto de Coleta" },
+  { value: "", label: "Todos os perfis" },
+  { value: "usuario", label: "Cidadão" },
+  { value: "cooperativa", label: "Cooperativa" },
+  { value: "ponto_coleta", label: "Ponto de Coleta" },
   { value: "admin", label: "Administrador" },
 ];
 
@@ -416,7 +417,7 @@ function UserCard({ user, initials, loading, onEdit, onAdjustPoints, onToggleRol
             <h3 className="min-w-0 truncate text-base font-extrabold text-[var(--color-text)]">
               {user.nome}
             </h3>
-            <Badge variant={isAdmin ? "primary" : "neutral"}>
+            <Badge variant={user.role === "admin" ? "primary" : user.role === "cooperativa" ? "warning" : user.role === "ponto_coleta" ? "success" : "neutral"}>
               {getRoleLabel(user.role)}
             </Badge>
           </div>
