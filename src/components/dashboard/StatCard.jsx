@@ -4,9 +4,11 @@ import {
   User,
   Truck,
   Activity,
+  Clock,
+  Package,
 } from "lucide-react";
 
-const ICON_MAP = { Recycle, User, Truck, Activity };
+const ICON_MAP = { Recycle, User, Truck, Activity, Clock, Package };
 
 export default function StatCard({ title, value, trend, iconBg, iconColor, icon, valueClass }) {
   const Icon = ICON_MAP[icon];

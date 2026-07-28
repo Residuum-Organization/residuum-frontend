@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { ArrowLeft, Recycle, Send } from 'lucide-react'
+import { ArrowLeft, Recycle, Send, Package, Check } from 'lucide-react'
 import RoleShell from '../components/layout/RoleShell'
 import PageHeader from '../components/ui/PageHeader'
 import SectionCard from '../components/ui/SectionCard'
@@ -23,12 +23,12 @@ const schema = z.object({
 })
 
 const tiposResiduo = [
-  { id: 'plastico', label: 'Plástico', icon: <Recycle size={22} />, color: 'bg-red-500', ringColor: 'ring-red-500' },
-  { id: 'papel', label: 'Papel', icon: <Recycle size={22} />, color: 'bg-blue-600', ringColor: 'ring-blue-500' },
-  { id: 'vidro', label: 'Vidro', icon: <Recycle size={22} />, color: 'bg-emerald-500', ringColor: 'ring-emerald-500' },
-  { id: 'metal', label: 'Metal', icon: <Recycle size={22} />, color: 'bg-amber-400', ringColor: 'ring-amber-400' },
-  { id: 'organico', label: 'Orgânico', icon: <Recycle size={22} />, color: 'bg-amber-800', ringColor: 'ring-amber-800' },
-  { id: 'eletronico', label: 'Eletrônicos', icon: <Recycle size={22} />, color: 'bg-orange-500', ringColor: 'ring-orange-500' },
+  { id: 'plastico', label: 'Plástico', icon: <Recycle size={22} />, color: 'bg-red-600', ringColor: 'ring-red-500', shadow: 'shadow-red-500/40' },
+  { id: 'papel', label: 'Papel', icon: <Recycle size={22} />, color: 'bg-blue-600', ringColor: 'ring-blue-500', shadow: 'shadow-blue-500/40' },
+  { id: 'vidro', label: 'Vidro', icon: <Recycle size={22} />, color: 'bg-emerald-600', ringColor: 'ring-emerald-500', shadow: 'shadow-emerald-500/40' },
+  { id: 'metal', label: 'Metal', icon: <Recycle size={22} />, color: 'bg-amber-500', ringColor: 'ring-amber-400', shadow: 'shadow-amber-500/40' },
+  { id: 'organico', label: 'Orgânico', icon: <Recycle size={22} />, color: 'bg-amber-900', ringColor: 'ring-amber-800', shadow: 'shadow-amber-900/40' },
+  { id: 'eletronico', label: 'Eletrônicos', icon: <Recycle size={22} />, color: 'bg-orange-500', ringColor: 'ring-orange-400', shadow: 'shadow-orange-500/40' },
 ]
 
 export default function CadastrarResiduo() {
@@ -200,24 +200,38 @@ export default function CadastrarResiduo() {
               <div>
                 <label className="mb-3 block text-sm font-bold text-[#1a3a4a]">Tipo de resíduo</label>
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                  {tiposResiduo.map((tipo) => (
-                    <button
-                      key={tipo.id}
-                      type="button"
-                      onClick={() => {
-                        setTipoSelecionado(tipo.id)
-                        setValue('descricao', '')
-                      }}
-                      className={`flex flex-col items-center justify-center gap-2 rounded-2xl p-4 font-semibold text-white transition-all ${
-                        tipoSelecionado === tipo.id
-                          ? `${tipo.color} ring-2 ${tipo.ringColor} ring-offset-2 shadow-md scale-[1.02]`
-                          : 'bg-[#1A2C71] hover:bg-[#121D4D]'
-                      }`}
-                    >
-                      {tipo.icon}
-                      <span className="text-sm">{tipo.label}</span>
-                    </button>
-                  ))}
+                  {tiposResiduo.map((tipo) => {
+                    const isSelected = tipoSelecionado === tipo.id;
+                    return (
+                      <button
+                        key={tipo.id}
+                        type="button"
+                        onClick={() => {
+                          setTipoSelecionado(tipo.id);
+                          setValue('descricao', '');
+                        }}
+                        className={`relative flex flex-col items-center justify-center gap-2 rounded-2xl p-4 font-bold text-white transition-all duration-200 ${
+                          tipo.color
+                        } ${
+                          isSelected
+                            ? `scale-105 ${tipo.ringColor} ring-4 ring-offset-2 shadow-xl ${tipo.shadow} opacity-100 z-10 font-black`
+                            : tipoSelecionado
+                              ? 'opacity-60 hover:opacity-90 hover:scale-100'
+                              : 'opacity-95 hover:opacity-100 hover:scale-[1.02] shadow-sm'
+                        }`}
+                      >
+                        {isSelected && (
+                          <span className="absolute -right-1.5 -top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-white text-emerald-600 shadow-md ring-2 ring-emerald-500">
+                            <Check size={14} className="stroke-[3]" />
+                          </span>
+                        )}
+                        <div className={`transition-transform duration-200 ${isSelected ? 'scale-110' : ''}`}>
+                          {tipo.icon}
+                        </div>
+                        <span className="text-sm tracking-wide">{tipo.label}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -267,22 +281,23 @@ export default function CadastrarResiduo() {
                   type="button"
                   variant="secondary"
                   onClick={handleSubmit((data) => onSubmit(data, false))}
-                  isLoading={actionType === 'store' && (createMutation.isPending || updateMutation.isPending)}
-                  disabled={actionType === 'discard' && (createMutation.isPending || updateMutation.isPending)}
+                  isLoading={actionType === 'store'}
+                  disabled={actionType === 'discard'}
                   loadingText="Guardando..."
-                  className="w-full py-4 border-2"
+                  className="w-full py-4 border-2 font-bold flex items-center justify-center"
                 >
-                  Guardar para depois
+                  <Package className="mr-2 h-5 w-5" />
+                  Guardar no estoque
                 </LoadingButton>
 
                 <LoadingButton
                   type="button"
                   variant="primary"
                   onClick={handleSubmit((data) => onSubmit(data, true))}
-                  isLoading={actionType === 'discard' && (createMutation.isPending || updateMutation.isPending)}
-                  disabled={actionType === 'store' && (createMutation.isPending || updateMutation.isPending)}
-                  loadingText="Processando..."
-                  className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 focus:ring-emerald-500"
+                  isLoading={actionType === 'discard'}
+                  disabled={actionType === 'store'}
+                  loadingText="Preparando descarte..."
+                  className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 focus:ring-emerald-500 font-bold"
                 >
                   <Send className="mr-2 h-5 w-5" />
                   Descartar agora

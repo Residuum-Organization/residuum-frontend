@@ -21,6 +21,21 @@ const formatKg = (value) =>
     maximumFractionDigits: 1,
   })} kg`;
 
+const CustomTooltip = ({ active, payload }) => {
+  if (active && payload && payload.length) {
+    const data = payload[0];
+    return (
+      <div className="rounded-xl border border-slate-200 bg-white/95 px-3 py-2 shadow-lg backdrop-blur-md">
+        <p className="text-xs font-black text-[#1A2C71]">{data.name}</p>
+        <p className="text-xs font-bold text-emerald-700">
+          {formatKg(data.value)} ({Number(data.payload.pct || 0).toFixed(0)}%)
+        </p>
+      </div>
+    );
+  }
+  return null;
+};
+
 export default function PieChart({ data = [], embedded = false }) {
   const sourceData = data
     .map((item) => ({ ...item, val: Number(item.val || 0) }))
@@ -80,13 +95,8 @@ export default function PieChart({ data = [], embedded = false }) {
                 ))}
               </Pie>
               <Tooltip
-                formatter={(value, name) => [formatKg(value), name]}
-                contentStyle={{
-                  borderRadius: "12px",
-                  border: "none",
-                  boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
-                }}
-                itemStyle={{ color: "#1A2C71", fontWeight: 700 }}
+                content={<CustomTooltip />}
+                wrapperStyle={{ zIndex: 100, pointerEvents: "none" }}
               />
             </RechartsPieChart>
           </ResponsiveContainer>

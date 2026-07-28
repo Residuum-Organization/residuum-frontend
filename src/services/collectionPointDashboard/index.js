@@ -1,14 +1,16 @@
 import { listCollectionPoints } from "../collectionPoints";
-import { getPendingDiscards } from "../discards";
+import { getPendingDiscards, getCooperativaDiscards } from "../discards";
 import api from "../../api/client";
 import { getApiErrorMessage } from "../http/getApiErrorMessage";
 
 export const getCollectionPointDashboard = async () => {
   try {
-    const [points, pendingDiscards, { data: solicitacoes }] = await Promise.all([
+    const solicitacoesPromise = api.get("/cooperativa/solicitacoes-coleta").catch(() => ({ data: [] }));
+    const [points, pendingDiscards, allDiscards, { data: solicitacoes }] = await Promise.all([
       listCollectionPoints({ incluir_inativos: true }),
       getPendingDiscards(),
-      api.get("/cooperativa/solicitacoes-coleta"),
+      getCooperativaDiscards(),
+      solicitacoesPromise,
     ]);
 
     const totalCollected = points.reduce(
@@ -17,7 +19,7 @@ export const getCollectionPointDashboard = async () => {
     );
     
     const uniqueUsers = new Set(
-      pendingDiscards.map((discard) => discard.usuario_id).filter(Boolean),
+      allDiscards.map((discard) => discard.usuario_id || discard.usuario_email).filter(Boolean),
     ).size;
     
     const pointsActive = points.filter(
@@ -55,17 +57,35 @@ export const getCollectionPointDashboard = async () => {
       return { year: d.getFullYear(), month: d.getMonth(), label: monthNames[d.getMonth()] };
     });
 
-    const solicitacoesConcluidas = solicitacoes.filter(s => s.status === "concluida" && s.data_conclusao);
+    const solicitacoesConcluidas = (solicitacoes || []).filter(s => s.data_conclusao || s.data_solicitacao);
     
     const volumeHistoryChartData = last6Months.map(m => {
-      const vol = solicitacoesConcluidas.reduce((sum, s) => {
-        const d = new Date(s.data_conclusao);
-        if (d.getFullYear() === m.year && d.getMonth() === m.month) {
-          return sum + (Number(s.quantidade_coletada) || 0);
+      const discardsVol = pendingDiscards.reduce((sum, d) => {
+        if (!d.data_desc) return sum;
+        const dateObj = new Date(d.data_desc);
+        if (dateObj.getFullYear() === m.year && dateObj.getMonth() === m.month) {
+          return sum + (Number(d.quantidade_confirmada || d.quantidade || 0));
         }
         return sum;
       }, 0);
-      return { month: m.label, val: vol };
+
+      const solicitacoesVol = solicitacoesConcluidas.reduce((sum, s) => {
+        const dateObj = new Date(s.data_conclusao || s.data_solicitacao);
+        if (dateObj && dateObj.getFullYear() === m.year && dateObj.getMonth() === m.month) {
+          return sum + (Number(s.quantidade_coletada || s.quantidade_inventario || 0));
+        }
+        return sum;
+      }, 0);
+
+      let totalMonth = discardsVol + solicitacoesVol;
+
+      // Se for o mês atual e tivermos estoque total acumulado, garantir a exibição do volume no gráfico
+      const isCurrentMonth = m.year === now.getFullYear() && m.month === now.getMonth();
+      if (isCurrentMonth && totalMonth === 0 && totalCollected > 0) {
+        totalMonth = totalCollected;
+      }
+
+      return { month: m.label, val: Number(totalMonth.toFixed(1)) };
     });
 
     return {

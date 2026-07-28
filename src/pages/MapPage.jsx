@@ -286,7 +286,7 @@ function PointDetails({ point, isSelected, userLocation }) {
             className="w-full gap-2 bg-emerald-600 hover:bg-emerald-700"
             onClick={(e) => {
               e.stopPropagation();
-              navigate('/validacao-presenca', { state: { selectedPointId: point.id, selectedItemIds: [], coords: userLocation } });
+              navigate('/validacao-presenca', { state: { selectedPointId: point.id, coords: userLocation } });
             }}
           >
             <Recycle className="h-4 w-4" aria-hidden="true" />

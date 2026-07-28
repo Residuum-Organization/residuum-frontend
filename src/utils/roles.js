@@ -1,15 +1,19 @@
 export const ROLE_GROUPS = {
   MORADOR: ["usuario", "morador"],
-  OPERACIONAL: ["cooperativa", "parceiro"],
+  OPERACIONAL: ["cooperativa", "ponto_coleta", "parceiro"],
   ADMIN: ["admin"],
 };
 
-export const normalizeRole = (role) => String(role || "").trim().toLowerCase();
+export const normalizeRole = (role) =>
+  String(role || "")
+    .trim()
+    .toLowerCase();
 
 export const getRoleHome = (role) => {
   const normalizedRole = normalizeRole(role);
 
   if (normalizedRole === "admin") return "/admin";
+  if (normalizedRole === "ponto_coleta") return "/dashboard";
   if (normalizedRole === "cooperativa" || normalizedRole === "parceiro") {
     return "/dashboard";
   }
@@ -24,11 +28,12 @@ export const getRoleLabel = (role) => {
   const normalizedRole = normalizeRole(role);
 
   if (normalizedRole === "admin") return "Administrador";
-  if (normalizedRole === "cooperativa" || normalizedRole === "parceiro") {
+  if (normalizedRole === "cooperativa") return "Cooperativa";
+  if (normalizedRole === "ponto_coleta" || normalizedRole === "parceiro") {
     return "Ponto de Coleta";
   }
   if (normalizedRole === "morador" || normalizedRole === "usuario") {
-    return "Morador";
+    return "Cidadão";
   }
 
   return "Perfil não identificado";
@@ -39,6 +44,9 @@ export const getRoleDescription = (role) => {
 
   if (normalizedRole === "admin") {
     return "Gerencie usuários, pontos, campanhas e regras da plataforma.";
+  }
+  if (normalizedRole === "ponto_coleta") {
+    return "Valide o recebimento físico dos resíduos descartados pelos cidadãos.";
   }
   if (normalizedRole === "cooperativa" || normalizedRole === "parceiro") {
     return "Acompanhe locais, agenda, coletas e confirmações operacionais.";
@@ -52,5 +60,6 @@ export const getRoleDescription = (role) => {
 
 export const canAccessRole = (role, allowedRoles = []) => {
   const normalizedRole = normalizeRole(role);
-  return allowedRoles.map(normalizeRole).includes(normalizedRole);
+  const normalizedAllowed = allowedRoles.map(normalizeRole);
+  return normalizedAllowed.includes(normalizedRole);
 };

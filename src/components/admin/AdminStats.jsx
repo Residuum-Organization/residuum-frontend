@@ -20,11 +20,18 @@ export default function AdminStats() {
     return <ErrorState title="Falha ao carregar indicadores" actionLabel="Tentar novamente" onAction={() => refetch()} />;
   }
 
+  const formatValue = (val) => {
+    if (val === undefined || val === null || val === "N/A") return "N/A";
+    const num = Number(val);
+    if (isNaN(num)) return String(val);
+    return num.toLocaleString("pt-BR", { maximumFractionDigits: 1 });
+  };
+
   const stats = [
-    { label: "Usuários", value: data?.usuarios?.total ?? "N/A", Icon: Users },
-    { label: "Pontos", value: data?.pontos_coleta?.total ?? "N/A", Icon: MapPin },
-    { label: "Volume (kg)", value: data?.descartes?.kg_confirmados ?? "N/A", Icon: Recycle },
-    { label: "Pontos Distribuídos", value: data?.gamificacao?.pontos_distribuidos ?? "N/A", Icon: Gift },
+    { label: "Usuários", value: formatValue(data?.usuarios?.total), Icon: Users },
+    { label: "Pontos", value: formatValue(data?.pontos_coleta?.total), Icon: MapPin },
+    { label: "Volume (kg)", value: formatValue(data?.descartes?.kg_confirmados), Icon: Recycle },
+    { label: "Pontos Distribuídos", value: formatValue(data?.gamificacao?.pontos_distribuidos), Icon: Gift },
   ];
 
   return (

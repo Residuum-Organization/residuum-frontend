@@ -22,12 +22,22 @@ export const roleNavigation = {
     { to: "/loja", label: "Loja", Icon: ShoppingBag },
     { to: "/perfil", label: "Perfil", Icon: User },
   ],
+  ponto_coleta: [
+    { to: "/dashboard", label: "Painel", Icon: LayoutDashboard },
+    { to: "/ponto-coleta-recepcao", label: "Recepção de Descartes", Icon: CheckCircle2 },
+    { to: "/pontuacao-usuarios", label: "Pontuação", Icon: Users },
+    { to: "/ponto-coleta-relatorios", label: "Relatórios", Icon: FileBarChart },
+  ],
   operacional: [
     { to: "/dashboard", label: "Painel", Icon: LayoutDashboard },
     { to: "/meus-pontos-operacionais", label: "Meus Locais", Icon: MapPin },
-    { to: "/aprovacao", label: "Aprovação", Icon: CheckCircle2 },
     { to: "/pontuacao-usuarios", label: "Pontuação", Icon: Users },
-    { to: "/entrada-peso", label: "Lançar Peso", Icon: Weight },
+    { to: "/cooperativa-relatorios", label: "Relatórios", Icon: FileBarChart },
+  ],
+  cooperativa: [
+    { to: "/dashboard", label: "Painel", Icon: LayoutDashboard },
+    { to: "/meus-pontos-operacionais", label: "Meus Locais", Icon: MapPin },
+    { to: "/pontuacao-usuarios", label: "Pontuação", Icon: Users },
     { to: "/cooperativa-relatorios", label: "Relatórios", Icon: FileBarChart },
   ],
   admin: [

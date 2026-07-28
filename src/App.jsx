@@ -41,8 +41,10 @@ import LandingPage from "./pages/LandingPage";
 import AdminSorteiosPage from "./pages/AdminSorteiosPage";
 import AdminReportsPage from "./pages/AdminReportsPage";
 import OperationalPointsPage from "./pages/OperationalPointsPage";
+import PontoColetaRecepcaoPage from "./pages/PontoColetaRecepcaoPage";
 import EntradaPesoCooperativaPage from "./pages/EntradaPesoCooperativaPage";
 import CooperativaReportsPage from "./pages/CooperativaReportsPage";
+import PontoColetaReportsPage from "./pages/PontoColetaReportsPage";
 
 const moradorRoutes = [
   {
@@ -155,14 +157,8 @@ const authRoutes = [
 ];
 
 const parceiroRoutes = [
-  {
-    path: "/dashboard",
-    label: "Dashboard",
-    Component: DashboardScreen,
-    integratedApi: true,
-  },
   { path: "/meus-pontos-operacionais", label: "Meus locais", Component: OperationalPointsPage, integratedApi: true },
-  { path: "/pontuacao-usuarios", label: "Pontuação", Component: UserPointsManagementPage, integratedApi: true },
+  { path: "/meus-pontos-operacionais/:pontoId", label: "Descartes do Ponto", Component: OperationalPointsPage, integratedApi: true },
   { path: "/entrada-peso", label: "Lançar Peso", Component: EntradaPesoCooperativaPage, integratedApi: true },
 ];
 
@@ -227,10 +223,37 @@ export default function App() {
         ))}
         
         <Route
+          path="/dashboard"
+          element={
+            <RoleRoute allowedRoles={["ponto_coleta", "cooperativa", "parceiro", "admin"]}>
+              <DashboardScreen />
+            </RoleRoute>
+          }
+        />
+
+        <Route
+          path="/pontuacao-usuarios"
+          element={
+            <RoleRoute allowedRoles={["ponto_coleta", "cooperativa", "parceiro", "admin"]}>
+              <UserPointsManagementPage />
+            </RoleRoute>
+          }
+        />
+
+        <Route
           path="/cooperativa-relatorios"
           element={
-            <RoleRoute allowedRoles={["cooperativa", "parceiro", "admin"]}>
+            <RoleRoute allowedRoles={["cooperativa", "ponto_coleta", "parceiro", "admin"]}>
               <CooperativaReportsPage />
+            </RoleRoute>
+          }
+        />
+
+        <Route
+          path="/ponto-coleta-relatorios"
+          element={
+            <RoleRoute allowedRoles={["ponto_coleta", "cooperativa", "parceiro", "admin"]}>
+              <PontoColetaReportsPage />
             </RoleRoute>
           }
         />
@@ -239,12 +262,22 @@ export default function App() {
           renderRoleRoute(path, Component, ["usuario", "morador"])
         ))}
 
+        <Route
+          path="/ponto-coleta-recepcao"
+          element={
+            <RoleRoute allowedRoles={["ponto_coleta", "cooperativa", "admin"]}>
+              <PontoColetaRecepcaoPage />
+            </RoleRoute>
+          }
+        />
+
         {parceiroRoutes.map(({ path, Component }) => (
           renderRoleRoute(path, Component, ["cooperativa", "parceiro"])
         ))}
 
         {renderRoleRoute(aprovacaoRoute.path, aprovacaoRoute.Component, [
           "cooperativa",
+          "ponto_coleta",
           "parceiro",
           "admin",
         ])}

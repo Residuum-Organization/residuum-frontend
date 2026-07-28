@@ -17,6 +17,7 @@ import {
   ChevronLeft,
 } from "lucide-react";
 import Button from "../components/ui/Button";
+import LoadingButton from "../components/ui/LoadingButton";
 import RoleShell from "../components/layout/RoleShell";
 import PageHeader from "../components/ui/PageHeader";
 import SectionCard from "../components/ui/SectionCard";
@@ -88,8 +89,8 @@ const getAvailableQuantity = (item) =>
     item.quantidade_disponivel ??
       Math.max(
         Number(item.quantidade || 0) - Number(item.quantidade_reservada || 0),
-        0
-      )
+        0,
+      ),
   );
 
 export default function MeuEstoquePage() {
@@ -115,14 +116,14 @@ export default function MeuEstoquePage() {
         (item) =>
           item.status !== "cancelado" &&
           (Number(item.quantidade || 0) > 0 ||
-            Number(item.quantidade_reservada || 0) > 0)
+            Number(item.quantidade_reservada || 0) > 0),
       ),
   });
 
   const availableTypes = [
     "Todos",
     ...Array.from(
-      new Set(itens.map((item) => formatResidueType(item.tipo_residuo)))
+      new Set(itens.map((item) => formatResidueType(item.tipo_residuo))),
     ).sort(),
   ];
 
@@ -145,14 +146,14 @@ export default function MeuEstoquePage() {
   const totalPages = Math.ceil(filteredItens.length / ITEMS_PER_PAGE);
   const paginatedItens = filteredItens.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
+    currentPage * ITEMS_PER_PAGE,
   );
 
   useEffect(() => {
     const availableIds = new Set(
       itens
         .filter((item) => getAvailableQuantity(item) > 0)
-        .map((item) => String(item.id))
+        .map((item) => String(item.id)),
     );
     setSelectedItemIds((current) => {
       const next = current.filter((id) => availableIds.has(String(id)));
@@ -172,27 +173,45 @@ export default function MeuEstoquePage() {
     setSelectedItemIds((current) =>
       current.includes(itemId)
         ? current.filter((id) => id !== itemId)
-        : [...current, itemId]
+        : [...current, itemId],
     );
   };
 
+  const [isSendingSelected, setIsSendingSelected] = useState(false);
+  const [isSendingAll, setIsSendingAll] = useState(false);
+
   const continueWithSelection = async () => {
     if (!selectedCount) return;
-    
+    setIsSendingSelected(true);
     setFeedback(null);
     let coords = null;
     if (!navigator.geolocation) {
-      setFeedback({ tone: "error", message: "Geolocalização não suportada neste dispositivo." });
+      setFeedback({
+        tone: "error",
+        message: "Geolocalização não suportada neste dispositivo.",
+      });
+      setIsSendingSelected(false);
       return;
     }
-    
+
     try {
       const position = await new Promise((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: true, timeout: 8000 });
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: true,
+          timeout: 8000,
+        });
       });
-      coords = { lat: position.coords.latitude, lng: position.coords.longitude, accuracy: position.coords.accuracy };
+      coords = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+        accuracy: position.coords.accuracy,
+      };
     } catch (error) {
-      setFeedback({ tone: "error", message: "Precisamos da sua localização para validar o descarte." });
+      setFeedback({
+        tone: "error",
+        message: "Precisamos da sua localização para validar o descarte.",
+      });
+      setIsSendingSelected(false);
       return;
     }
 
@@ -203,21 +222,36 @@ export default function MeuEstoquePage() {
 
   const transferFullInventory = async () => {
     if (!availableItemIds.length) return;
-
+    setIsSendingAll(true);
     setFeedback(null);
     let coords = null;
     if (!navigator.geolocation) {
-      setFeedback({ tone: "error", message: "Geolocalização não suportada neste dispositivo." });
+      setFeedback({
+        tone: "error",
+        message: "Geolocalização não suportada neste dispositivo.",
+      });
+      setIsSendingAll(false);
       return;
     }
-    
+
     try {
       const position = await new Promise((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: true, timeout: 8000 });
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: true,
+          timeout: 8000,
+        });
       });
-      coords = { lat: position.coords.latitude, lng: position.coords.longitude, accuracy: position.coords.accuracy };
+      coords = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+        accuracy: position.coords.accuracy,
+      };
     } catch (error) {
-      setFeedback({ tone: "error", message: "Precisamos da sua localização para validar o descarte." });
+      setFeedback({
+        tone: "error",
+        message: "Precisamos da sua localização para validar o descarte.",
+      });
+      setIsSendingAll(false);
       return;
     }
 
@@ -240,7 +274,7 @@ export default function MeuEstoquePage() {
         tone: "error",
         message: getApiErrorMessage(
           mutationError,
-          "Não foi possível atualizar o item."
+          "Não foi possível atualizar o item.",
         ),
       });
     },
@@ -251,7 +285,7 @@ export default function MeuEstoquePage() {
     onSuccess: (_, removedItemId) => {
       setFeedback({ tone: "success", message: "Item removido do estoque." });
       setSelectedItemIds((current) =>
-        current.filter((id) => id !== String(removedItemId))
+        current.filter((id) => id !== String(removedItemId)),
       );
       queryClient.invalidateQueries({ queryKey: queryKeys.inventory });
     },
@@ -260,7 +294,7 @@ export default function MeuEstoquePage() {
         tone: "error",
         message: getApiErrorMessage(
           mutationError,
-          "Não foi possível remover o item."
+          "Não foi possível remover o item.",
         ),
       });
     },
@@ -271,7 +305,7 @@ export default function MeuEstoquePage() {
   const remover = (id) => {
     if (
       window.confirm(
-        "Tem certeza que deseja remover este resíduo do seu estoque?"
+        "Tem certeza que deseja remover este resíduo do seu estoque?",
       )
     ) {
       setFeedback(null);
@@ -309,7 +343,7 @@ export default function MeuEstoquePage() {
           <ErrorState
             title={getApiErrorMessage(
               error,
-              "Não foi possível carregar o estoque."
+              "Não foi possível carregar o estoque.",
             )}
           />
         </div>
@@ -336,15 +370,22 @@ export default function MeuEstoquePage() {
               >
                 <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
               </Button>
-              <Button
+              <LoadingButton
                 type="button"
                 onClick={transferFullInventory}
-                disabled={!availableItemIds.length || isSubmitting}
-                className="bg-emerald-600 hover:bg-emerald-700 flex-1 sm:flex-none"
+                isLoading={isSendingAll}
+                loadingText="Preparando..."
+                disabled={
+                  !availableItemIds.length ||
+                  isSubmitting ||
+                  isSendingSelected ||
+                  isSendingAll
+                }
+                className="bg-emerald-600 hover:bg-emerald-700 flex-1 sm:flex-none text-white font-bold"
               >
                 <Layers3 className="mr-2 h-4 w-4" />
                 Descartar todos
-              </Button>
+              </LoadingButton>
             </div>
           }
         />
@@ -355,10 +396,11 @@ export default function MeuEstoquePage() {
 
         <SectionCard
           title="Meus resíduos guardados"
-          description="Gerencie a quantidade disponível e siga para a validação presencial quando estiver pronto."
+          description="Gerencie a quantidade dos seus resíduos para descarte"
           action={
             <span className="inline-flex min-h-10 items-center rounded-full bg-[#1A2C71] px-4 text-sm font-bold text-white">
-              {filteredItens.length} {filteredItens.length === 1 ? "resíduo" : "resíduos"}
+              {filteredItens.length}{" "}
+              {filteredItens.length === 1 ? "resíduo" : "resíduos"}
             </span>
           }
         >
@@ -420,14 +462,17 @@ export default function MeuEstoquePage() {
                 >
                   <X size={15} /> Limpar
                 </button>
-                <Button
+                <LoadingButton
                   type="button"
                   onClick={continueWithSelection}
-                  className="min-h-10 flex-1 rounded-xl bg-emerald-600 px-4 py-2 text-xs hover:bg-emerald-700 sm:flex-none"
+                  isLoading={isSendingSelected}
+                  loadingText="Preparando..."
+                  disabled={isSendingSelected || isSendingAll}
+                  className="min-h-10 flex-1 rounded-xl bg-emerald-600 px-4 py-2 text-xs hover:bg-emerald-700 sm:flex-none font-bold text-white"
                 >
                   Enviar selecionados
                   <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
+                </LoadingButton>
               </div>
             </div>
           ) : null}
@@ -437,91 +482,97 @@ export default function MeuEstoquePage() {
               <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                 {paginatedItens.map((item) => {
                   const ItemIcon = getWasteIcon(item.tipo_residuo);
-                const quantityAvailable = getAvailableQuantity(item);
-                const isSelected = selectedItemIds.includes(String(item.id));
-                return (
-                  <article
-                    key={item.id}
-                    onClick={() => toggleItemSelection(item)}
-                    className={`relative rounded-2xl border p-4 shadow-sm transition-all duration-200 ${
-                      quantityAvailable <= 0
-                        ? "cursor-not-allowed border-[#dde1ef] bg-slate-100 opacity-70"
-                        : isSelected
-                        ? "cursor-pointer border-emerald-500 bg-emerald-50 shadow-[0_10px_24px_rgba(5,150,105,0.12)]"
-                        : "cursor-pointer border-[#dde1ef] bg-[#f7f9fc] hover:-translate-y-0.5 hover:border-emerald-300 hover:shadow-md"
-                    }`}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={isSelected}
-                      onClick={(event) => event.stopPropagation()}
-                      onChange={() => toggleItemSelection(item)}
-                      disabled={quantityAvailable <= 0}
-                      aria-label={`Selecionar ${
-                        item.descricao || formatResidueType(item.tipo_residuo)
-                      } para transferência`}
-                      className="absolute right-4 top-4 h-6 w-6 cursor-pointer accent-emerald-600 disabled:cursor-not-allowed"
-                    />
+                  const quantityAvailable = getAvailableQuantity(item);
+                  const isSelected = selectedItemIds.includes(String(item.id));
+                  return (
+                    <article
+                      key={item.id}
+                      onClick={() => toggleItemSelection(item)}
+                      className={`relative rounded-2xl border p-4 shadow-sm transition-all duration-200 ${
+                        quantityAvailable <= 0
+                          ? "cursor-not-allowed border-[#dde1ef] bg-slate-100 opacity-70"
+                          : isSelected
+                          ? "cursor-pointer border-emerald-500 bg-emerald-50 shadow-[0_10px_24px_rgba(5,150,105,0.12)]"
+                          : "cursor-pointer border-[#dde1ef] bg-[#f7f9fc] hover:-translate-y-0.5 hover:border-emerald-300 hover:shadow-md"
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onClick={(event) => event.stopPropagation()}
+                        onChange={() => toggleItemSelection(item)}
+                        disabled={quantityAvailable <= 0}
+                        aria-label={`Selecionar ${
+                          item.descricao || formatResidueType(item.tipo_residuo)
+                        } para transferência`}
+                        className="absolute right-4 top-4 h-6 w-6 cursor-pointer accent-emerald-600 disabled:cursor-not-allowed"
+                      />
 
-                    <div className="mb-4 flex items-start gap-3">
-                      <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${getWasteColor(item.tipo_residuo)}`}>
-                        <ItemIcon size={24} />
-                      </div>
-                      <div className="min-w-0 pr-8">
-                        <p className="text-xs font-black uppercase tracking-wider text-slate-500">
-                          {formatResidueType(item.tipo_residuo)}
-                        </p>
-                        {item.descricao ? (
-                          <p className="mt-1 break-words text-base font-bold leading-tight text-[#1a3a4a]">
-                            {item.descricao}
+                      <div className="mb-4 flex items-start gap-3">
+                        <div
+                          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${getWasteColor(
+                            item.tipo_residuo,
+                          )}`}
+                        >
+                          <ItemIcon size={24} />
+                        </div>
+                        <div className="min-w-0 pr-8">
+                          <p className="text-xs font-black uppercase tracking-wider text-slate-500">
+                            {formatResidueType(item.tipo_residuo)}
                           </p>
-                        ) : null}
-                        <p className="mt-1 text-xs font-medium text-gray-500">
-                          Disponível: {formatQuantity(quantityAvailable)} un.
-                          {Number(item.quantidade_reservada || 0) > 0
-                            ? ` | Reservado: ${formatQuantity(
-                                item.quantidade_reservada
-                              )} un.`
-                            : ""}
-                        </p>
+                          {item.descricao ? (
+                            <p className="mt-1 break-words text-base font-bold leading-tight text-[#1a3a4a]">
+                              {item.descricao}
+                            </p>
+                          ) : null}
+                          <p className="mt-1 text-xs font-medium text-gray-500">
+                            Disponível: {formatQuantity(quantityAvailable)} un.
+                            {Number(item.quantidade_reservada || 0) > 0
+                              ? ` | Reservado: ${formatQuantity(
+                                  item.quantidade_reservada,
+                                )} un.`
+                              : ""}
+                          </p>
+                        </div>
                       </div>
-                    </div>
 
-                    <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3">
-                      <span className="text-sm font-extrabold text-emerald-600">
-                        +{getEstimatedPoints(quantityAvailable)} pontos
-                      </span>
+                      <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3">
+                        <span className="text-sm font-extrabold text-emerald-600">
+                          +{getEstimatedPoints(quantityAvailable)} pontos
+                        </span>
 
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          aria-label="Editar item"
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            navigate("/cadastrar-residuo", { state: { item } });
-                          }}
-                          disabled={isSubmitting}
-                          className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-emerald-600 disabled:opacity-50"
-                        >
-                          <Pencil size={16} />
-                        </button>
-                        <button
-                          type="button"
-                          aria-label="Remover item"
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            remover(item.id);
-                          }}
-                          disabled={isSubmitting}
-                          className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 transition hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
-                        >
-                          <Trash2 size={16} />
-                        </button>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            aria-label="Editar item"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              navigate("/cadastrar-residuo", {
+                                state: { item },
+                              });
+                            }}
+                            disabled={isSubmitting}
+                            className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-emerald-600 disabled:opacity-50"
+                          >
+                            <Pencil size={16} />
+                          </button>
+                          <button
+                            type="button"
+                            aria-label="Remover item"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              remover(item.id);
+                            }}
+                            disabled={isSubmitting}
+                            className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 transition hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  </article>
-                );
-              })}
+                    </article>
+                  );
+                })}
               </div>
 
               {filteredItens.length > ITEMS_PER_PAGE && (
@@ -541,7 +592,9 @@ export default function MeuEstoquePage() {
                     type="button"
                     variant="outline"
                     disabled={currentPage === totalPages}
-                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                    onClick={() =>
+                      setCurrentPage((p) => Math.min(totalPages, p + 1))
+                    }
                   >
                     Próxima <ChevronRight className="ml-1 h-4 w-4" />
                   </Button>
@@ -551,8 +604,7 @@ export default function MeuEstoquePage() {
           ) : (
             <EmptyState
               title="Seu estoque está vazio."
-              description="Cadastre um resíduo para começar a organizar sua próxima entrega."
-              actionLabel="Cadastrar resíduo"
+              description="Registre um novo resíduo para começar a organizar seu inventário."
               onAction={() => navigate("/cadastrar-residuo")}
             />
           )}

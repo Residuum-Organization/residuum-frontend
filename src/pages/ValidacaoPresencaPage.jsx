@@ -6,6 +6,7 @@ import {
   Calendar,
   CheckCircle2,
   CheckSquare,
+  Coins,
   Loader2,
   MapPin,
   Recycle,
@@ -130,7 +131,8 @@ export default function ValidacaoPresencaPage() {
   const [feedback, setFeedback] = useState(null);
   const [isLocating, setIsLocating] = useState(false);
   const [isTransferring, setIsTransferring] = useState(false);
-  const [currentStep, setCurrentStep] = useState(location.state?.selectedItemIds ? 2 : 1);
+  const hasPreselectedItems = Array.isArray(location.state?.selectedItemIds) && location.state.selectedItemIds.length > 0;
+  const [currentStep, setCurrentStep] = useState(hasPreselectedItems ? 2 : 1);
   const hasHydratedSelectionRef = useRef(false);
   const transferAttemptRef = useRef({ signature: "", key: "" });
   const navigate = useNavigate();
@@ -168,6 +170,17 @@ export default function ValidacaoPresencaPage() {
     0
   );
   const totalPoints = Math.round(totalWeight * POINTS_PER_KG);
+
+  const selectedPoint = (pointsQuery.data || []).find(
+    (p) => String(p.id) === String(selectedPointId)
+  );
+
+  const selectedItemsList = Object.entries(selectedItems)
+    .map(([id, qty]) => {
+      const item = inventory.find((i) => String(i.id) === String(id));
+      return { item, quantity: qty };
+    })
+    .filter((entry) => entry.item);
 
   const selectAll = () => {
     setSelectedItems(
@@ -387,9 +400,6 @@ export default function ValidacaoPresencaPage() {
     >
       <div className="space-y-6">
         <PageHeader
-          eyebrow="Entrega presencial"
-          title="Enviar para validação"
-          description="Escolha os materiais, confirme sua localização e indique o ponto de coleta."
           action={
             <Button
               type="button"
@@ -519,33 +529,50 @@ export default function ValidacaoPresencaPage() {
                               </small>
                             </span>
                           </button>
-                          {selected ? (
+                          {selected && maximum > 1 ? (
                             <div 
-                              className="mt-3 flex items-center justify-between border-t border-slate-200 pt-3 cursor-pointer"
-                              onClick={() => toggleItem(item)}
+                              className="mt-3 flex items-center justify-between border-t border-slate-200/80 pt-3"
+                              onClick={(e) => e.stopPropagation()}
                             >
-                              <label
-                                className="text-xs font-bold text-[#1A2C71] cursor-pointer"
-                              >
-                                Quantidade (un.)
-                              </label>
-                              <input
-                                id={`quantity-${item.id}`}
-                                type="number"
-                                min="1"
-                                max={maximum}
-                                step="1"
-                                value={selectedItems[item.id]}
-                                onClick={(e) => e.stopPropagation()}
-                                onChange={(event) =>
-                                  updateQuantity(
-                                    item.id,
-                                    event.target.value,
-                                    maximum
-                                  )
-                                }
-                                className="h-10 w-24 rounded-xl border border-slate-200 bg-white px-2 text-center text-sm font-bold outline-none focus:border-[#1A2C71]"
-                              />
+                              <span className="text-xs font-bold text-[#1A2C71]">
+                                Quantidade a enviar
+                              </span>
+
+                              <div className="flex items-center gap-3">
+                                <button
+                                  type="button"
+                                  disabled={Number(selectedItems[item.id] || 1) <= 1}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    const currentVal = Number(selectedItems[item.id] || 1);
+                                    if (currentVal > 1) {
+                                      updateQuantity(item.id, currentVal - 1, maximum);
+                                    }
+                                  }}
+                                  className="flex h-9 w-9 items-center justify-center rounded-xl border-2 border-[#1A2C71] text-lg font-black text-[#1A2C71] transition-all hover:bg-[#1A2C71] hover:text-white disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-[#1A2C71] active:scale-95"
+                                >
+                                  -
+                                </button>
+
+                                <span className="min-w-[2rem] text-center text-base font-black text-[#1A2C71]">
+                                  {selectedItems[item.id] || 1}
+                                </span>
+
+                                <button
+                                  type="button"
+                                  disabled={Number(selectedItems[item.id] || 1) >= maximum}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    const currentVal = Number(selectedItems[item.id] || 1);
+                                    if (currentVal < maximum) {
+                                      updateQuantity(item.id, currentVal + 1, maximum);
+                                    }
+                                  }}
+                                  className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#1A2C71] text-lg font-black text-white transition-all hover:bg-[#121D4D] disabled:opacity-30 active:scale-95"
+                                >
+                                  +
+                                </button>
+                              </div>
                             </div>
                           ) : null}
                         </article>
@@ -648,46 +675,82 @@ export default function ValidacaoPresencaPage() {
             {currentStep === 3 && (
             <div className="space-y-6">
               <SectionCard
-                title="4. Confirmação de dados"
-                description="Inclua uma orientação ao ponto de coleta, se necessário."
+                title="3. Confirmar descarte"
+                description="Confira o resumo da operação e confirme o envio dos resíduos para o ponto de coleta."
               >
-                <textarea
-                  rows={4}
-                  value={observacao}
-                  onChange={(event) => setObservacao(event.target.value)}
-                  placeholder="Ex.: embalagens lavadas e separadas por material"
-                  className="w-full resize-none rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-[#1A2C71]"
-                />
-                <div className="mt-6 rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
-                  <div className="bg-slate-50 p-4 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#1A2C71] text-white">
-                        <Recycle size={20} />
+                <div className="space-y-4">
+                  {/* Ponto de Coleta Selecionado */}
+                  {selectedPoint && (
+                    <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4 shadow-2xs">
+                      <div className="flex items-center gap-2 text-xs font-bold text-slate-500 mb-1">
+                        <MapPin size={14} className="text-[#1A2C71]" />
+                        <span>PONTO DE COLETA SELECIONADO</span>
                       </div>
-                      <div>
-                        <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Quantidade enviada</p>
-                        <p className="text-xs font-semibold text-slate-400">{formatQuantity(totalWeight)} unidades no total</p>
-                      </div>
+                      <h4 className="text-base font-extrabold text-[#1A2C71]">
+                        {selectedPoint.nome}
+                      </h4>
+                      <p className="text-xs font-medium text-slate-500 mt-0.5">
+                        {selectedPoint.endereco || "Endereço não informado"}
+                      </p>
                     </div>
-                    <div className="text-right">
-                      <strong className="text-2xl font-black text-[#1A2C71] tracking-tight">{selectedCount}</strong>
+                  )}
+
+                  {/* Resíduos Selecionados */}
+                  <div className="space-y-2">
+                    <div className="max-h-[240px] space-y-2 overflow-y-auto pr-1">
+                      {selectedItemsList.map(({ item, quantity }) => {
+                        const ItemIcon = getWasteIcon(item.tipo_residuo);
+                        return (
+                          <div
+                            key={item.id}
+                            className="rounded-2xl border border-slate-200 bg-white p-3.5 shadow-2xs"
+                          >
+                            <div className="flex items-start gap-3">
+                              <span className={`flex items-center justify-center rounded-xl p-2.5 h-10 w-10 shrink-0 ${getWasteColor(item.tipo_residuo)}`}>
+                                <ItemIcon size={20} />
+                              </span>
+                              <div className="min-w-0 flex-1 space-y-1">
+                                <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">
+                                  {formatResidueType(item.tipo_residuo)}
+                                </p>
+                                <h5 className="text-sm font-extrabold text-[#1A2C71] truncate">
+                                  {item.descricao || formatResidueType(item.tipo_residuo)}
+                                </h5>
+                                <p className="text-xs font-bold text-slate-500 pt-0.5">
+                                  Quantidade: <strong className="text-[#1A2C71] font-black">{quantity} un.</strong>
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
-                  
-                  <div className="h-px w-full bg-slate-200" />
 
-                  <div className="bg-emerald-50 p-4 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-white">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
-                      </div>
-                      <div>
-                        <p className="text-[11px] font-bold text-emerald-700 uppercase tracking-wider">Pontos estimados</p>
-                        <p className="text-xs font-semibold text-emerald-600/80">Após a confirmação</p>
+                  {/* Mini Cards Embaixo: Quantidade e Pontos */}
+                  <div className="grid grid-cols-2 gap-3 pt-2">
+                    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#1A2C71] text-white">
+                          <Recycle size={20} />
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">Quantidade</p>
+                          <strong className="text-xl font-black text-[#1A2C71]">{totalWeight} un.</strong>
+                        </div>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <strong className="text-2xl font-black text-emerald-600 tracking-tight">+{totalPoints}</strong>
+
+                    <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-emerald-600 text-white">
+                          <Coins size={20} />
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-black uppercase tracking-wider text-emerald-700">Pontos</p>
+                          <strong className="text-xl font-black text-emerald-700">+{totalPoints}</strong>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -699,10 +762,10 @@ export default function ValidacaoPresencaPage() {
                   onClick={handleTransfer}
                   disabled={isTransferring || !selectedCount || !selectedPointId}
                   isLoading={isTransferring}
-                  loadingText="Enviando resíduos..."
-                  className="w-full py-4 text-base bg-emerald-600 hover:bg-emerald-700"
+                  loadingText="Enviando descarte..."
+                  className="w-full py-4 text-base bg-emerald-600 hover:bg-emerald-700 font-bold"
                 >
-                  <Send size={18} className="mr-2" /> Enviar para validação
+                  <Send size={18} className="mr-2" /> Enviar descarte
                 </LoadingButton>
                 <Button 
                   type="button" 

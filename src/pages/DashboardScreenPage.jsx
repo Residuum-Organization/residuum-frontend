@@ -16,8 +16,11 @@ import Button from "../components/ui/Button";
 import { getCollectionPointDashboard } from "../services/collectionPointDashboard";
 import { queryKeys } from "../services/queryKeys";
 
+import { useAuth } from "../contexts/AuthContext";
+
 export default function DashboardScreen() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { data, isLoading, isError, refetch, isFetching } = useQuery({
     queryKey: queryKeys.collectionPointDashboard,
     queryFn: getCollectionPointDashboard,
@@ -27,6 +30,8 @@ export default function DashboardScreen() {
   const points = data?.points || [];
   const hasLoaded = !isLoading && !isError;
   const hasOperationalData = Boolean(data?.hasOperationalData);
+  const isPontoColeta = user?.role === "ponto_coleta";
+  const myPoint = points[0] || {};
 
   const formatKg = (value) =>
     `${Number(value || 0).toLocaleString("pt-BR", {
@@ -38,56 +43,65 @@ export default function DashboardScreen() {
       id: "total",
       title: "Total Coletado",
       value: formatKg(metrics.totalCollected),
-      trend: `${metrics.totalPoints || 0} ponto(s) monitorado(s)`,
+      trend: isPontoColeta ? "Volume estocado no ponto" : `${metrics.totalPoints || 0} ponto(s) monitorado(s)`,
       iconBg: "bg-green-100",
       iconColor: "text-green-500",
       icon: "Recycle",
     },
     {
       id: "users",
-      title: "Usuários Atendidos",
+      title: "Cidadãos Atendidos",
       value: String(metrics.uniqueUsers || 0),
-      trend: `${metrics.pendingDiscards || 0} coleta(s) pendente(s)`,
+      trend: "Total de cidadãos atendidos neste ponto",
       iconBg: "bg-blue-100",
       iconColor: "text-blue-400",
       icon: "User",
     },
     {
-      id: "coletas",
-      title: "Pontos Vinculados",
-      value: String(metrics.totalPoints || 0),
-      trend: `${metrics.pointsActive || 0} ativo(s) agora`,
-      iconBg: "bg-slate-800",
-      iconColor: "text-white",
-      icon: "Truck",
+      id: "pending",
+      title: "Descartes Pendentes",
+      value: String(metrics.pendingDiscards || 0),
+      trend: "Aguardando conferência e pesagem",
+      iconBg: "bg-amber-100",
+      iconColor: "text-amber-600",
+      icon: "Clock",
     },
-
+    isPontoColeta
+      ? {
+          id: "ponto_info",
+          title: "Capacidade & Ocupação",
+          value: `${myPoint.percentual_ocupacao || 0}%`,
+          trend: `${myPoint.nome || "Ponto de Coleta"} (Máx ${myPoint.capacidade_maxima || 1000}kg)`,
+          iconBg: "bg-[#1A2C71]",
+          iconColor: "text-white",
+          icon: "Package",
+        }
+      : {
+          id: "coletas",
+          title: "Pontos Vinculados",
+          value: String(metrics.totalPoints || 0),
+          trend: `${metrics.pointsActive || 0} ativo(s) agora`,
+          iconBg: "bg-slate-800",
+          iconColor: "text-white",
+          icon: "Truck",
+        },
   ];
 
   return (
     <RoleShell variant="operacional" shellClassName="bg-[var(--color-surface)]">
       <div className="space-y-5 rounded-2xl bg-[var(--color-surface-soft)] p-4 shadow-sm sm:p-6 lg:min-h-[calc(100vh-4rem)]">
         <PageHeader
-          eyebrow="Ponto de Coleta"
-          title="Dashboard operacional"
-          description="Acompanhe pontos vinculados, descartes pendentes e volume operacional disponível pela API."
+          eyebrow={isPontoColeta ? "Ponto de Coleta" : "Cooperativa"}
+          title={isPontoColeta ? `Painel - ${myPoint.nome || "Ponto de Coleta"}` : "Dashboard operacional"}
+          description={
+            isPontoColeta
+              ? "Acompanhe em tempo real os descartes, volume estocado e capacidade do seu ponto."
+              : "Acompanhe pontos vinculados, descartes pendentes e volume operacional."
+          }
           action={
             <div className="flex flex-wrap items-center gap-2">
               <Button type="button" variant="secondary" onClick={() => navigate(-1)}>
                 <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
-              </Button>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => refetch()}
-                disabled={isFetching}
-                className="w-full gap-2 sm:w-auto"
-              >
-                <RefreshCw
-                  className={`h-4 w-4 ${isFetching ? "animate-spin" : ""}`}
-                  aria-hidden="true"
-                />
-                Atualizar
               </Button>
             </div>
           }

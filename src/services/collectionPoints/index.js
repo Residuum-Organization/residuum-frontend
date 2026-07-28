@@ -45,3 +45,12 @@ export const registrarPesagemAvulsa = async (payload) => {
     throw new Error(getApiErrorMessage(error, "Não foi possível registrar a pesagem."))
   }
 }
+
+export const createCollectionPoint = async (payload) => {
+  try {
+    const res = await api.post('/pontos-coleta', payload)
+    return res.data
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, "Não foi possível criar o ponto de coleta."))
+  }
+}
