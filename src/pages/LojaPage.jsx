@@ -39,8 +39,8 @@ import { formatCalendarDate } from "../utils/dates";
 const tabs = [
   { id: "sorteios", label: "Sorteios", Icon: Star },
   { id: "recompensas", label: "Minhas recompensas", Icon: WalletCards },
-  { id: "campanhas", label: "Campanhas", Icon: Megaphone, emBreve: true },
-  { id: "vouchers", label: "Vouchers", Icon: Ticket, emBreve: true },
+  { id: "campanhas", label: "Campanhas", Icon: Megaphone },
+  { id: "vouchers", label: "Vouchers", Icon: Ticket },
 ];
 
 const normalizeStatus = (status) => String(status || "").toLowerCase();
@@ -75,7 +75,60 @@ function ConfirmSpendModal({ item, balance, onCancel, onConfirm, isPending }) {
   );
 }
 
-function CampaignsTab({ campaigns, subscriptions, isLoading, isError, joinMutation }) {
+const formatPeriod = (start, end) => {
+  if (start && end) return `${formatCalendarDate(start)} a ${formatCalendarDate(end)}`;
+  if (end) return `Até ${formatCalendarDate(end)}`;
+  if (start) return `A partir de ${formatCalendarDate(start)}`;
+  return "Sem prazo definido";
+};
+
+function OfferDetailModal({ detail, subscribed, isPending, onCancel, onAction }) {
+  if (!detail) return null;
+  const { type, item } = detail;
+  const isCampaign = type === "campanha";
+  const rows = isCampaign
+    ? [
+        ["Parceiro", item.patrocinador || "Parceiro Residuum"],
+        ["Recompensa", `+${item.pontos_recompensa || 0} pontos`],
+        ["Vigência", formatPeriod(item.data_inicio, item.data_fim)],
+      ]
+    : [
+        ["Parceiro", item.parceiro || "Parceiro Residuum"],
+        ["Custo", `${item.custo_pontos} pontos`],
+        ["Disponíveis", String(item.quantidade_disponivel || 0)],
+        ["Vigência", formatPeriod(item.data_inicio, item.data_fim)],
+      ];
+  const unavailable = isCampaign ? subscribed : (item.quantidade_disponivel || 0) <= 0;
+  const actionLabel = isCampaign
+    ? subscribed ? "Você já participa" : isPending ? "Confirmando participação..." : "Participar da campanha"
+    : `Resgatar por ${item.custo_pontos} pontos`;
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/55 p-4 backdrop-blur-sm sm:items-center" role="dialog" aria-modal="true" aria-labelledby="offer-detail-title">
+      <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-[1.75rem] bg-white p-6 shadow-2xl">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.16em] text-emerald-700">{isCampaign ? "Campanha" : "Voucher"}</p>
+            <h2 id="offer-detail-title" className="mt-1 text-2xl font-black text-[#1A2C71]">{item.titulo}</h2>
+          </div>
+          <button type="button" onClick={onCancel} className="rounded-full p-2 text-slate-400 hover:bg-slate-100" aria-label="Fechar detalhes"><X size={21} /></button>
+        </div>
+        <p className="mt-3 text-sm leading-relaxed text-slate-600">{item.descricao || "Nenhuma descrição publicada para esta oferta."}</p>
+        <dl className="mt-5 grid gap-2">
+          {rows.map(([label, value]) => (
+            <div key={label} className="flex items-center justify-between gap-4 rounded-2xl bg-slate-50 px-4 py-3 text-sm"><dt className="font-bold text-slate-500">{label}</dt><dd className="text-right font-black text-[#1A2C71]">{value}</dd></div>
+          ))}
+        </dl>
+        <p className="mt-4 text-xs font-semibold text-slate-500">Pontos são benefícios da plataforma e não podem ser trocados por dinheiro.</p>
+        <div className="mt-6 grid grid-cols-2 gap-3">
+          <Button type="button" variant="secondary" onClick={onCancel}>Fechar</Button>
+          <Button type="button" onClick={() => onAction(detail)} disabled={unavailable || isPending}>{actionLabel}</Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CampaignsTab({ campaigns, subscriptions, isLoading, isError, joinMutation, onDetails }) {
   if (isLoading) return <LoadingState title="Carregando campanhas..." />;
   if (isError) return <ErrorState title="Não foi possível carregar as campanhas." />;
   if (!campaigns.length) return <EmptyState icon={Megaphone} title="Nenhuma campanha ativa." description="Novas ações de marcas parceiras aparecerão aqui." />;
@@ -95,9 +148,12 @@ function CampaignsTab({ campaigns, subscriptions, isLoading, isError, joinMutati
               <span className="flex items-center gap-2"><Gift size={17} /> +{campaign.pontos_recompensa} pontos</span>
               <span className="flex items-center gap-2"><CalendarDays size={17} /> Até {campaign.data_fim ? formatCalendarDate(campaign.data_fim) : "sem limite"}</span>
             </div>
-            <Button type="button" className="mt-4 w-full" disabled={subscribed || joinMutation.isPending} onClick={() => joinMutation.mutate(campaign.id)}>
-              {subscribed ? <><CheckCircle2 className="mr-2 h-4 w-4" /> Você já participa</> : joining ? "Confirmando participação..." : `Participe e ganhe ${campaign.pontos_recompensa} pontos`}
-            </Button>
+            <div className="mt-4 grid gap-2 sm:grid-cols-2">
+              <Button type="button" variant="secondary" onClick={() => onDetails({ type: "campanha", item: campaign })}>Ver detalhes</Button>
+              <Button type="button" disabled={subscribed || joinMutation.isPending} onClick={() => joinMutation.mutate(campaign.id)}>
+                {subscribed ? <><CheckCircle2 className="mr-2 h-4 w-4" /> Você já participa</> : joining ? "Confirmando participação..." : `Participe e ganhe ${campaign.pontos_recompensa} pontos`}
+              </Button>
+            </div>
           </article>
         );
       })}
@@ -126,7 +182,7 @@ function RafflesTab({ raffles, isLoading, isError }) {
   );
 }
 
-function VouchersTab({ vouchers, isLoading, isError, onRedeem }) {
+function VouchersTab({ vouchers, isLoading, isError, onRedeem, onDetails }) {
   if (isLoading) return <LoadingState title="Carregando vouchers..." />;
   if (isError) return <ErrorState title="Não foi possível carregar os vouchers." />;
   if (!vouchers.length) return <EmptyState icon={Ticket} title="Nenhum voucher disponível." description="Novos benefícios aparecerão aqui quando forem publicados." />;
@@ -136,7 +192,10 @@ function VouchersTab({ vouchers, isLoading, isError, onRedeem }) {
         <article key={voucher.id} className="rounded-2xl border border-emerald-100 bg-[#ECFFF4] p-5 shadow-sm">
           <div className="flex items-start justify-between gap-3"><span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-[#0B6B53]"><Ticket size={23} /></span><span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-emerald-700">{voucher.quantidade_disponivel || 0} disponíveis</span></div>
           <p className="mt-4 text-xs font-black uppercase tracking-wider text-[#0B6B53]">{voucher.parceiro || "Parceiro Residuum"}</p><h3 className="mt-1 text-lg font-black text-[#1A2C71]">{voucher.titulo}</h3><p className="mt-2 text-sm text-slate-600">{voucher.descricao || "Benefício disponível para troca direta."}</p>
-          <Button type="button" onClick={() => onRedeem(voucher)} disabled={(voucher.quantidade_disponivel || 0) <= 0} className="mt-5 w-full bg-[#0B6B53] hover:bg-emerald-800">Resgatar por {voucher.custo_pontos} pontos</Button>
+          <div className="mt-5 grid gap-2 sm:grid-cols-2">
+            <Button type="button" variant="secondary" onClick={() => onDetails({ type: "voucher", item: voucher })}>Ver detalhes</Button>
+            <Button type="button" onClick={() => onRedeem(voucher)} disabled={(voucher.quantidade_disponivel || 0) <= 0} className="bg-[#0B6B53] hover:bg-emerald-800">Resgatar por {voucher.custo_pontos} pontos</Button>
+          </div>
         </article>
       ))}
     </div>
@@ -157,9 +216,10 @@ function RewardsTab({ redemptions, tickets, isLoading }) {
 export default function LojaPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const requestedTab = searchParams.get("aba");
-  const activeTab = tabs.some((tab) => tab.id === requestedTab && !tab.emBreve) ? requestedTab : "sorteios";
+  const activeTab = tabs.some((tab) => tab.id === requestedTab) ? requestedTab : "sorteios";
   const [feedback, setFeedback] = useState(null);
   const [voucherToRedeem, setVoucherToRedeem] = useState(null);
+  const [offerDetail, setOfferDetail] = useState(null);
   const [isSelectOpen, setIsSelectOpen] = useState(false);
   const queryClient = useQueryClient();
 
@@ -231,9 +291,9 @@ export default function LojaPage() {
               <SelectValue placeholder="Selecione uma seção" />
             </SelectTrigger>
             <SelectContent>
-              {tabs.map(({ id, label, emBreve }) => (
-                <SelectItem key={id} value={id} disabled={emBreve}>
-                  {label} {emBreve ? "(Em breve)" : ""}
+              {tabs.map(({ id, label }) => (
+                <SelectItem key={id} value={id}>
+                  {label}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -243,12 +303,24 @@ export default function LojaPage() {
         {feedback ? <InlineAlert variant={feedback.type} title={feedback.type === "success" ? "Tudo certo" : "Atenção"}>{feedback.text}</InlineAlert> : null}
 
         <SectionCard title={tabs.find((tab) => tab.id === activeTab)?.label} description={activeTab === "campanhas" ? "Participe de ações e aumente seu saldo." : activeTab === "sorteios" ? "Use pontos para concorrer a grandes prêmios." : activeTab === "vouchers" ? "Troque pontos por benefícios imediatos." : "Consulte códigos e bilhetes vinculados à sua conta."}>
-          {activeTab === "campanhas" ? <CampaignsTab campaigns={campaignsQuery.data || []} subscriptions={subscriptionsQuery.data || []} isLoading={campaignsQuery.isLoading || subscriptionsQuery.isLoading} isError={campaignsQuery.isError || subscriptionsQuery.isError} joinMutation={joinMutation} /> : null}
+          {activeTab === "campanhas" ? <CampaignsTab campaigns={campaignsQuery.data || []} subscriptions={subscriptionsQuery.data || []} isLoading={campaignsQuery.isLoading || subscriptionsQuery.isLoading} isError={campaignsQuery.isError || subscriptionsQuery.isError} joinMutation={joinMutation} onDetails={setOfferDetail} /> : null}
           {activeTab === "sorteios" ? <RafflesTab raffles={rafflesQuery.data || []} isLoading={rafflesQuery.isLoading} isError={rafflesQuery.isError} /> : null}
-          {activeTab === "vouchers" ? <VouchersTab vouchers={vouchersQuery.data || []} isLoading={vouchersQuery.isLoading} isError={vouchersQuery.isError} onRedeem={setVoucherToRedeem} /> : null}
+          {activeTab === "vouchers" ? <VouchersTab vouchers={vouchersQuery.data || []} isLoading={vouchersQuery.isLoading} isError={vouchersQuery.isError} onRedeem={setVoucherToRedeem} onDetails={setOfferDetail} /> : null}
           {activeTab === "recompensas" ? <RewardsTab redemptions={redemptionsQuery.data || []} tickets={ticketsQuery.data || []} isLoading={redemptionsQuery.isLoading || ticketsQuery.isLoading} /> : null}
         </SectionCard>
       </div>
+
+      <OfferDetailModal
+        detail={offerDetail}
+        subscribed={offerDetail?.type === "campanha" && (subscriptionsQuery.data || []).some((s) => Number(s.campanha_id) === Number(offerDetail.item.id))}
+        isPending={joinMutation.isPending}
+        onCancel={() => setOfferDetail(null)}
+        onAction={({ type, item }) => {
+          setOfferDetail(null);
+          if (type === "campanha") joinMutation.mutate(item.id);
+          else setVoucherToRedeem(item);
+        }}
+      />
 
       <ConfirmSpendModal item={voucherToRedeem} balance={balance} isPending={redeemMutation.isPending} onCancel={() => setVoucherToRedeem(null)} onConfirm={() => redeemMutation.mutate(voucherToRedeem)} />
     </RoleShell>
