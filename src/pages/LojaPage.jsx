@@ -141,7 +141,7 @@ function CampaignsTab({ campaigns, subscriptions, isLoading, isError, joinMutati
             <div className="mt-4 grid gap-2 sm:grid-cols-2">
               <Link to={`/loja/campanhas/${campaign.id}`} className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-[var(--color-border)] bg-white px-4 py-2.5 text-center text-sm font-bold text-[var(--color-primary)] shadow-sm transition hover:border-[var(--color-primary)]/40 hover:bg-[var(--color-surface)]">Ver detalhes</Link>
               <Button type="button" disabled={subscribed || joinMutation.isPending} onClick={() => joinMutation.mutate(campaign.id)}>
-                {subscribed ? <><CheckCircle2 className="mr-2 h-4 w-4" /> Você já participa</> : joining ? "Confirmando participação..." : "Participar (grátis)"}
+                {subscribed ? <><CheckCircle2 className="mr-2 h-4 w-4" /> Você já participa</> : joining ? "Confirmando participação..." : "Participar"}
               </Button>
             </div>
           </article>

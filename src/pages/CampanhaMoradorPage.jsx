@@ -158,7 +158,7 @@ export default function CampanhaMoradorPage() {
                         {item.concedida ? <p className="text-sm font-semibold text-slate-600">Bônus já recebido.</p> : null}
                         {item.disponivel ? (
                           <Button type="button" disabled={bonusMutation.isPending} onClick={() => bonusMutation.mutate({ campaignId: campaign.id, mechanic: item.tipo })}>
-                            {bonusMutation.isPending ? "Recebendo..." : `Receber +${item.pontos} pontos`}
+                            {bonusMutation.isPending ? "Recebendo..." : "Receber pontos"}
                           </Button>
                         ) : null}
                       </li>
@@ -178,7 +178,7 @@ export default function CampanhaMoradorPage() {
                 {!progress.participando ? (
                   <>
                     <Button type="button" className="w-full sm:w-auto sm:px-10" disabled={joinMutation.isPending} onClick={() => joinMutation.mutate(campaign.id)}>
-                      {joinMutation.isPending ? "Confirmando participação..." : "Participar da campanha (grátis)"}
+                      {joinMutation.isPending ? "Confirmando participação..." : "Participar"}
                     </Button>
                     <p className="text-sm font-semibold text-slate-600">Seus descartes só contam para esta campanha depois que você participar.{isPrivate ? " Depois, cumpra os requisitos de entrada para liberar os bônus." : ""}</p>
                   </>
@@ -188,7 +188,7 @@ export default function CampanhaMoradorPage() {
                     {progress.recompensa_concedida ? <p className="text-sm font-semibold text-slate-600">Recompensa já recebida.</p> : null}
                     {isPrivate && !progress.acesso_liberado ? <p className="text-sm font-semibold text-slate-600">Cumpra os requisitos de entrada para liberar os bônus desta campanha.</p> : null}
                     {progress.recompensa_disponivel ? (
-                      <div><Button type="button" className="w-full sm:w-auto sm:px-10" disabled={claimMutation.isPending} onClick={() => claimMutation.mutate(campaign.id)}>{claimMutation.isPending ? "Recebendo..." : `Receber ${progress.recompensa_pontos} pontos`}</Button></div>
+                      <div><Button type="button" className="w-full sm:w-auto sm:px-10" disabled={claimMutation.isPending} onClick={() => claimMutation.mutate(campaign.id)}>{claimMutation.isPending ? "Recebendo..." : "Receber pontos"}</Button></div>
                     ) : null}
                     {!progress.recompensa_concedida && !progress.recompensa_disponivel && progress.acesso_liberado && hasMissions ? <p className="text-sm font-semibold text-slate-600">Conclua todas as missões para liberar a recompensa.</p> : null}
                   </>
