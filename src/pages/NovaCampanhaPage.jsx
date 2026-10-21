@@ -19,6 +19,9 @@ const estadoInicial = {
   descricao: "",
   patrocinador: "",
   pontos_recompensa: "",
+  produto_elegivel: "",
+  meta_quantidade: "",
+  condicoes: "",
   data_inicio: today,
   data_fim: "",
 };
@@ -72,6 +75,9 @@ export default function NovaCampanhaPage() {
       descricao: formulario.descricao || null,
       patrocinador: formulario.patrocinador,
       pontos_recompensa: Number(formulario.pontos_recompensa) || 0,
+      produto_elegivel: formulario.produto_elegivel.trim() || null,
+      meta_quantidade: Number(formulario.meta_quantidade) > 0 ? Number(formulario.meta_quantidade) : null,
+      condicoes: formulario.condicoes.trim() || null,
       status: "ativa",
       data_inicio: formulario.data_inicio ? new Date(formulario.data_inicio).toISOString() : null,
       data_fim: formulario.data_fim ? new Date(formulario.data_fim).toISOString() : null,
@@ -137,6 +143,43 @@ export default function NovaCampanhaPage() {
                 value={formulario.descricao}
                 onChange={atualizarCampo}
                 placeholder="Detalhes sobre a campanha"
+              />
+            </div>
+          </SectionCard>
+
+          <SectionCard
+            title="Condições para o morador"
+            description="Informativo: aparece na página da campanha antes da adesão. Não altera a regra de pontos."
+          >
+            <div className="grid gap-4 md:grid-cols-2">
+              <FormField
+                id="produto_elegivel"
+                label="Produto ou material (opcional)"
+                name="produto_elegivel"
+                value={formulario.produto_elegivel}
+                onChange={atualizarCampo}
+                placeholder="Ex: Lata de alumínio"
+              />
+              <FormField
+                id="meta_quantidade"
+                type="number"
+                min="1"
+                label="Meta em unidades (opcional)"
+                name="meta_quantidade"
+                value={formulario.meta_quantidade}
+                onChange={atualizarCampo}
+                placeholder="Ex: 20"
+              />
+            </div>
+            <div className="mt-4">
+              <FormField
+                id="condicoes"
+                label="Condições de participação (opcional)"
+                as="textarea"
+                name="condicoes"
+                value={formulario.condicoes}
+                onChange={atualizarCampo}
+                placeholder="O que o morador precisa fazer para participar"
               />
             </div>
           </SectionCard>

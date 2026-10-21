@@ -10,6 +10,15 @@ export const listActiveCampaigns = async () => {
   }
 };
 
+export const getCampaign = async (campaignId) => {
+  try {
+    const res = await api.get(`/campanhas/${campaignId}`);
+    return res.data;
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, "Nao foi possivel carregar a campanha."));
+  }
+};
+
 export const listMyCampaignSubscriptions = async () => {
   try {
     const res = await api.get("/campanhas/minhas-inscricoes");

@@ -37,6 +37,9 @@ export default function CampanhaDetalhesPage() {
     descricao: "",
     patrocinador: "",
     pontos_recompensa: "",
+    produto_elegivel: "",
+    meta_quantidade: "",
+    condicoes: "",
     data_inicio: "",
     data_fim: "",
   });
@@ -57,6 +60,9 @@ export default function CampanhaDetalhesPage() {
         descricao: campanha.descricao || "",
         patrocinador: campanha.patrocinador || "",
         pontos_recompensa: campanha.pontos_recompensa || "",
+        produto_elegivel: campanha.produto_elegivel || "",
+        meta_quantidade: campanha.meta_quantidade || "",
+        condicoes: campanha.condicoes || "",
         data_inicio: campanha.data_inicio ? campanha.data_inicio.split("T")[0] : "",
         data_fim: campanha.data_fim ? campanha.data_fim.split("T")[0] : "",
       });
@@ -141,6 +147,9 @@ export default function CampanhaDetalhesPage() {
       descricao: formulario.descricao || null,
       patrocinador: formulario.patrocinador,
       pontos_recompensa: Number(formulario.pontos_recompensa) || 0,
+      produto_elegivel: String(formulario.produto_elegivel).trim() || null,
+      meta_quantidade: Number(formulario.meta_quantidade) > 0 ? Number(formulario.meta_quantidade) : null,
+      condicoes: String(formulario.condicoes).trim() || null,
       data_inicio: formulario.data_inicio ? new Date(formulario.data_inicio).toISOString() : null,
       data_fim: formulario.data_fim ? new Date(formulario.data_fim).toISOString() : null,
     };
@@ -194,6 +203,40 @@ export default function CampanhaDetalhesPage() {
                   value={formulario.descricao}
                   onChange={atualizarCampo}
                   placeholder="Detalhes sobre a campanha"
+                />
+              </div>
+            </SectionCard>
+
+            <SectionCard title="Condições para o morador" description="Informativo: aparece na página da campanha antes da adesão. Não altera a regra de pontos.">
+              <div className="grid gap-4 md:grid-cols-2">
+                <FormField
+                  id="produto_elegivel"
+                  label="Produto ou material (opcional)"
+                  name="produto_elegivel"
+                  value={formulario.produto_elegivel}
+                  onChange={atualizarCampo}
+                  placeholder="Ex: Lata de alumínio"
+                />
+                <FormField
+                  id="meta_quantidade"
+                  type="number"
+                  min="1"
+                  label="Meta em unidades (opcional)"
+                  name="meta_quantidade"
+                  value={formulario.meta_quantidade}
+                  onChange={atualizarCampo}
+                  placeholder="Ex: 20"
+                />
+              </div>
+              <div className="mt-4">
+                <FormField
+                  id="condicoes"
+                  label="Condições de participação (opcional)"
+                  as="textarea"
+                  name="condicoes"
+                  value={formulario.condicoes}
+                  onChange={atualizarCampo}
+                  placeholder="O que o morador precisa fazer para participar"
                 />
               </div>
             </SectionCard>
@@ -296,6 +339,17 @@ export default function CampanhaDetalhesPage() {
                 Descrição
               </h3>
               <DescricaoCampanha campanha={campanha} />
+            </div>
+
+            <div>
+              <h3 className="mb-4 text-base font-extrabold uppercase tracking-wider text-[var(--color-text-muted)]">
+                Condições para o morador
+              </h3>
+              <div className="rounded-2xl border border-[var(--color-border)] bg-white p-5 text-sm font-medium leading-relaxed text-[var(--color-text)]">
+                <p><strong>Produto ou material:</strong> {campanha.produto_elegivel || "não informado"}</p>
+                <p className="mt-1"><strong>Meta:</strong> {campanha.meta_quantidade ? `${campanha.meta_quantidade} unidades` : "não informada"}</p>
+                <p className="mt-1 whitespace-pre-wrap"><strong>Condições:</strong> {campanha.condicoes || "não informadas"}</p>
+              </div>
             </div>
 
             <div>

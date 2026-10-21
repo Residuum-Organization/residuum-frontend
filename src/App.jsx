@@ -35,6 +35,7 @@ import AcessoNegadoPage from "./pages/AcessoNegadoPage";
 import CampanhasPage from "./pages/CampanhasPage";
 import NovaCampanhaPage from "./pages/NovaCampanhaPage";
 import CampanhaDetalhesPage from "./pages/CampanhaDetalhesPage";
+import CampanhaMoradorPage from "./pages/CampanhaMoradorPage";
 import Certificadodecoleta from "./pages/Certificadodecoleta";
 import LogoutPage from "./pages/LogoutPage";
 import LandingPage from "./pages/LandingPage";
@@ -107,6 +108,7 @@ const moradorRoutes = [
     integratedApi: true,
   },
   { path: "/sorteios/:id", Component: SorteioDetalhesPage, sidebar: false },
+  { path: "/loja/campanhas/:id", Component: CampanhaMoradorPage, sidebar: false, integratedApi: true },
   {
     path: "/perfil",
     label: "Perfil",
