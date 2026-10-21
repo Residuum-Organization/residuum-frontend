@@ -28,6 +28,12 @@ import CampaignRequirementsEditor, {
   requisitosParaPayload,
   validarRequisitos,
 } from "../components/Campanhas/CampaignRequirementsEditor";
+import CampaignMechanicsEditor, {
+  MECHANICS,
+  mecanicasDaApi,
+  mecanicasParaPayload,
+  validarMecanicas,
+} from "../components/Campanhas/CampaignMechanicsEditor";
 import { listCampanhas, updateCampanha } from "../services/admin";
 import { getApiErrorMessage } from "../services/http/getApiErrorMessage";
 
@@ -49,6 +55,7 @@ export default function CampanhaDetalhesPage() {
     data_fim: "",
   });
   const [requisitos, setRequisitos] = useState([]);
+  const [mecanicas, setMecanicas] = useState([]);
   const [erro, setErro] = useState("");
   const [sucesso, setSucesso] = useState(false);
 
@@ -72,6 +79,7 @@ export default function CampanhaDetalhesPage() {
         data_fim: campanha.data_fim ? campanha.data_fim.split("T")[0] : "",
       });
       setRequisitos(requisitosDaApi(campanha.requisitos));
+      setMecanicas(mecanicasDaApi(campanha.mecanicas));
     }
   }, [campanha]);
 
@@ -153,6 +161,11 @@ export default function CampanhaDetalhesPage() {
       setErro(erroRequisitos);
       return;
     }
+    const erroMecanicas = validarMecanicas(mecanicas);
+    if (erroMecanicas) {
+      setErro(erroMecanicas);
+      return;
+    }
 
     const payload = {
       titulo: formulario.titulo,
@@ -162,6 +175,7 @@ export default function CampanhaDetalhesPage() {
       acesso: formulario.acesso,
       condicoes: String(formulario.condicoes).trim() || null,
       requisitos: requisitosParaPayload(requisitos),
+      mecanicas: mecanicasParaPayload(mecanicas),
       data_inicio: formulario.data_inicio ? new Date(formulario.data_inicio).toISOString() : null,
       data_fim: formulario.data_fim ? new Date(formulario.data_fim).toISOString() : null,
     };
@@ -246,6 +260,10 @@ export default function CampanhaDetalhesPage() {
               <div className="mt-4">
                 <CampaignRequirementsEditor acesso={formulario.acesso} requisitos={requisitos} onChange={setRequisitos} />
               </div>
+            </SectionCard>
+
+            <SectionCard title="Mecânicas de bônus" description="Cada campanha tem as mecânicas que você ligar. Valem só para quem participa e para descartes feitos depois da adesão.">
+              <CampaignMechanicsEditor mecanicas={mecanicas} onChange={setMecanicas} />
             </SectionCard>
 
             <div className="grid gap-5 lg:grid-cols-2">
@@ -369,6 +387,14 @@ export default function CampanhaDetalhesPage() {
                     ))}
                   </ul>
                 )}
+                {(campanha.mecanicas || []).map((mecanica) => (
+                  <p key={mecanica.id} className="mt-2">
+                    <strong>{MECHANICS[mecanica.tipo]?.label || mecanica.tipo} ({mecanica.ativa ? "ligada" : "desligada"}):</strong>{" "}
+                    {mecanica.config?.quantidade} unidade(s)
+                    {mecanica.config?.tipo_residuo ? ` · ${MATERIAL_LABELS[mecanica.config.tipo_residuo] || mecanica.config.tipo_residuo}` : ""}
+                    {(mecanica.config?.codigos_barras || []).length ? ` · EAN ${mecanica.config.codigos_barras.join(", ")}` : ""}
+                  </p>
+                ))}
                 <p className="mt-2 whitespace-pre-wrap"><strong>Condições:</strong> {campanha.condicoes || "não informadas"}</p>
               </div>
             </div>

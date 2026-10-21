@@ -135,7 +135,7 @@ function CampaignsTab({ campaigns, subscriptions, isLoading, isError, joinMutati
               <div className="min-w-0"><p className="text-xs font-black uppercase tracking-wider text-[#0B6B53]">{campaign.patrocinador || "Parceiro Residuum"}{campaign.acesso === "privada" ? <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-black text-slate-600"><Lock size={11} aria-hidden="true" /> PRIVADA</span> : null}</p><h3 className="mt-1 text-xl font-black text-[#1A2C71]">{campaign.titulo}</h3><p className="mt-2 text-sm leading-relaxed text-slate-600">{campaign.descricao || "Campanha de engajamento Residuum."}</p></div>
             </div>
             <div className="mt-5 grid gap-2 rounded-2xl bg-white/80 p-4 text-sm font-semibold text-slate-600 sm:grid-cols-2">
-              <span className="flex items-center gap-2"><Gift size={17} /> {campaign.pontos_recompensa > 0 ? `+${campaign.pontos_recompensa} pontos ao concluir as missões` : "Sem pontos de recompensa"}</span>
+              <span className="flex items-center gap-2"><Gift size={17} /> {campaign.pontos_recompensa > 0 ? `+${campaign.pontos_recompensa} pontos ao concluir as missões` : (campaign.mecanicas || []).some((m) => m.ativa && m.tipo === "dobro_pontos") ? "Bônus: dobro de pontos" : "Sem pontos de recompensa"}</span>
               <span className="flex items-center gap-2"><CalendarDays size={17} /> Até {campaign.data_fim ? formatCalendarDate(campaign.data_fim) : "sem limite"}</span>
             </div>
             <div className="mt-4 grid gap-2 sm:grid-cols-2">

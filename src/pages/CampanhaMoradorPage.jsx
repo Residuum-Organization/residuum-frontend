@@ -10,7 +10,8 @@ import LoadingState from "../components/ui/LoadingState";
 import EmptyState from "../components/ui/EmptyState";
 import Button from "../components/ui/Button";
 import { MATERIAL_LABELS } from "../components/Campanhas/CampaignRequirementsEditor";
-import { claimCampaignReward, getCampaign, getCampaignProgress, joinCampaign } from "../services/campaigns";
+import { MECHANICS } from "../components/Campanhas/CampaignMechanicsEditor";
+import { claimCampaignReward, claimMechanicBonus, getCampaign, getCampaignProgress, joinCampaign } from "../services/campaigns";
 import { queryKeys } from "../services/queryKeys";
 import { getApiErrorMessage } from "../services/http/getApiErrorMessage";
 import { formatCalendarDate } from "../utils/dates";
@@ -89,6 +90,16 @@ export default function CampanhaMoradorPage() {
     onError: (error) => setFeedback({ type: "error", text: getApiErrorMessage(error, "Não foi possível receber a recompensa.") }),
   });
 
+  const bonusMutation = useMutation({
+    mutationFn: claimMechanicBonus,
+    onMutate: () => setFeedback(null),
+    onSuccess: (result) => {
+      setFeedback({ type: "success", text: `Bônus recebido: ${result.pontos} pontos foram adicionados à carteira.` });
+      refresh();
+    },
+    onError: (error) => setFeedback({ type: "error", text: getApiErrorMessage(error, "Não foi possível receber o bônus.") }),
+  });
+
   const campaign = campaignQuery.data;
   const progress = progressQuery.data;
   const isPrivate = campaign?.acesso === "privada";
@@ -131,6 +142,29 @@ export default function CampanhaMoradorPage() {
             {progress && hasMissions ? (
               <SectionCard title="Missões" description="Contam a partir da sua participação. Conclua todas para receber a recompensa.">
                 <ul className="grid gap-3">{progress.missoes.map((item) => <RequirementProgress key={item.id} item={item} />)}</ul>
+              </SectionCard>
+            ) : null}
+
+            {progress && progress.mecanicas.length ? (
+              <SectionCard title="Bônus da campanha" description="Contam a partir da sua participação.">
+                <ul className="grid gap-3">
+                  {progress.mecanicas.map((item) => {
+                    const material = item.tipo_residuo ? MATERIAL_LABELS[item.tipo_residuo] || item.tipo_residuo : "o resíduo da campanha";
+                    return (
+                      <li key={item.tipo} className="space-y-3">
+                        <RequirementProgress
+                          item={{ ...item, descricao: `${MECHANICS[item.tipo]?.label || item.tipo}: recicle ${item.quantidade} unidade(s) de ${material} e ganhe +${item.pontos} pontos`, cumprido: item.cumprida }}
+                        />
+                        {item.concedida ? <p className="text-sm font-semibold text-slate-600">Bônus já recebido.</p> : null}
+                        {item.disponivel ? (
+                          <Button type="button" disabled={bonusMutation.isPending} onClick={() => bonusMutation.mutate({ campaignId: campaign.id, mechanic: item.tipo })}>
+                            {bonusMutation.isPending ? "Recebendo..." : `Receber +${item.pontos} pontos`}
+                          </Button>
+                        ) : null}
+                      </li>
+                    );
+                  })}
+                </ul>
               </SectionCard>
             ) : null}
 

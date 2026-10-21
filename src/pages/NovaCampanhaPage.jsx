@@ -13,6 +13,10 @@ import CampaignRequirementsEditor, {
   requisitosParaPayload,
   validarRequisitos,
 } from "../components/Campanhas/CampaignRequirementsEditor";
+import CampaignMechanicsEditor, {
+  mecanicasParaPayload,
+  validarMecanicas,
+} from "../components/Campanhas/CampaignMechanicsEditor";
 import { createCampanha } from "../services/admin";
 import { getApiErrorMessage } from "../services/http/getApiErrorMessage";
 
@@ -34,6 +38,7 @@ export default function NovaCampanhaPage() {
   const queryClient = useQueryClient();
   const [formulario, setFormulario] = useState(estadoInicial);
   const [requisitos, setRequisitos] = useState([]);
+  const [mecanicas, setMecanicas] = useState([]);
   const [erro, setErro] = useState("");
   const [sucesso, setSucesso] = useState(false);
 
@@ -44,6 +49,7 @@ export default function NovaCampanhaPage() {
       setSucesso(true);
       setFormulario(estadoInicial);
       setRequisitos([]);
+      setMecanicas([]);
       queryClient.invalidateQueries(["campanhas"]);
       setTimeout(() => {
         navigate("/campanhas");
@@ -80,6 +86,11 @@ export default function NovaCampanhaPage() {
       setErro(erroRequisitos);
       return;
     }
+    const erroMecanicas = validarMecanicas(mecanicas);
+    if (erroMecanicas) {
+      setErro(erroMecanicas);
+      return;
+    }
 
     const payload = {
       titulo: formulario.titulo,
@@ -89,6 +100,7 @@ export default function NovaCampanhaPage() {
       acesso: formulario.acesso,
       condicoes: formulario.condicoes.trim() || null,
       requisitos: requisitosParaPayload(requisitos),
+      mecanicas: mecanicasParaPayload(mecanicas),
       status: "ativa",
       data_inicio: formulario.data_inicio ? new Date(formulario.data_inicio).toISOString() : null,
       data_fim: formulario.data_fim ? new Date(formulario.data_fim).toISOString() : null,
@@ -188,6 +200,13 @@ export default function NovaCampanhaPage() {
             <div className="mt-4">
               <CampaignRequirementsEditor acesso={formulario.acesso} requisitos={requisitos} onChange={setRequisitos} />
             </div>
+          </SectionCard>
+
+          <SectionCard
+            title="Mecânicas de bônus"
+            description="Cada campanha tem as mecânicas que você ligar. Valem só para quem participa e para descartes feitos depois da adesão."
+          >
+            <CampaignMechanicsEditor mecanicas={mecanicas} onChange={setMecanicas} />
           </SectionCard>
 
           <div className="grid gap-5 lg:grid-cols-2">

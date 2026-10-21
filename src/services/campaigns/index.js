@@ -37,6 +37,15 @@ export const claimCampaignReward = async (campaignId) => {
   }
 };
 
+export const claimMechanicBonus = async ({ campaignId, mechanic }) => {
+  try {
+    const res = await api.post(`/campanhas/${campaignId}/mecanicas/${mechanic}/bonus`);
+    return res.data;
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, "Nao foi possivel receber o bonus."));
+  }
+};
+
 export const listMyCampaignSubscriptions = async () => {
   try {
     const res = await api.get("/campanhas/minhas-inscricoes");
