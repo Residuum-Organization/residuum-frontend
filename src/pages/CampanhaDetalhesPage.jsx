@@ -22,6 +22,12 @@ import SectionCard from "../components/ui/SectionCard";
 import FormField from "../components/forms/FormField";
 import LoadingButton from "../components/ui/LoadingButton";
 import InlineAlert from "../components/ui/InlineAlert";
+import CampaignRequirementsEditor, {
+  MATERIAL_LABELS,
+  requisitosDaApi,
+  requisitosParaPayload,
+  validarRequisitos,
+} from "../components/Campanhas/CampaignRequirementsEditor";
 import { listCampanhas, updateCampanha } from "../services/admin";
 import { getApiErrorMessage } from "../services/http/getApiErrorMessage";
 
@@ -37,12 +43,12 @@ export default function CampanhaDetalhesPage() {
     descricao: "",
     patrocinador: "",
     pontos_recompensa: "",
-    produto_elegivel: "",
-    meta_quantidade: "",
+    acesso: "publica",
     condicoes: "",
     data_inicio: "",
     data_fim: "",
   });
+  const [requisitos, setRequisitos] = useState([]);
   const [erro, setErro] = useState("");
   const [sucesso, setSucesso] = useState(false);
 
@@ -60,12 +66,12 @@ export default function CampanhaDetalhesPage() {
         descricao: campanha.descricao || "",
         patrocinador: campanha.patrocinador || "",
         pontos_recompensa: campanha.pontos_recompensa || "",
-        produto_elegivel: campanha.produto_elegivel || "",
-        meta_quantidade: campanha.meta_quantidade || "",
+        acesso: campanha.acesso || "publica",
         condicoes: campanha.condicoes || "",
         data_inicio: campanha.data_inicio ? campanha.data_inicio.split("T")[0] : "",
         data_fim: campanha.data_fim ? campanha.data_fim.split("T")[0] : "",
       });
+      setRequisitos(requisitosDaApi(campanha.requisitos));
     }
   }, [campanha]);
 
@@ -129,16 +135,22 @@ export default function CampanhaDetalhesPage() {
       ...dadosAtuais,
       [name]: value,
     }));
+    // Campanha pública não tem requisito de entrada.
+    if (name === "acesso" && value === "publica") {
+      setRequisitos((atuais) => atuais.filter((item) => item.papel !== "entrada"));
+    }
   }
 
   function salvarCampanha(event) {
     event.preventDefault();
-    if (
-      !formulario.titulo ||
-      !formulario.patrocinador ||
-      !formulario.pontos_recompensa
-    ) {
-      setErro("Preencha título, patrocinador e pontos de recompensa antes de salvar.");
+    if (!formulario.titulo || !formulario.patrocinador) {
+      setErro("Preencha título e patrocinador antes de salvar.");
+      return;
+    }
+
+    const erroRequisitos = validarRequisitos(formulario.acesso, requisitos, formulario.pontos_recompensa);
+    if (erroRequisitos) {
+      setErro(erroRequisitos);
       return;
     }
 
@@ -147,9 +159,9 @@ export default function CampanhaDetalhesPage() {
       descricao: formulario.descricao || null,
       patrocinador: formulario.patrocinador,
       pontos_recompensa: Number(formulario.pontos_recompensa) || 0,
-      produto_elegivel: String(formulario.produto_elegivel).trim() || null,
-      meta_quantidade: Number(formulario.meta_quantidade) > 0 ? Number(formulario.meta_quantidade) : null,
+      acesso: formulario.acesso,
       condicoes: String(formulario.condicoes).trim() || null,
+      requisitos: requisitosParaPayload(requisitos),
       data_inicio: formulario.data_inicio ? new Date(formulario.data_inicio).toISOString() : null,
       data_fim: formulario.data_fim ? new Date(formulario.data_fim).toISOString() : null,
     };
@@ -207,37 +219,32 @@ export default function CampanhaDetalhesPage() {
               </div>
             </SectionCard>
 
-            <SectionCard title="Condições para o morador" description="Informativo: aparece na página da campanha antes da adesão. Não altera a regra de pontos.">
-              <div className="grid gap-4 md:grid-cols-2">
-                <FormField
-                  id="produto_elegivel"
-                  label="Produto ou material (opcional)"
-                  name="produto_elegivel"
-                  value={formulario.produto_elegivel}
+            <SectionCard title="Acesso, requisitos e missões" description="Participar é gratuito, mas só quem participa recebe o bônus. Campanha privada exige cumprir os requisitos de entrada antes de participar.">
+              <label className="block text-sm font-semibold text-[var(--color-primary)]">
+                Acesso
+                <select
+                  name="acesso"
+                  value={formulario.acesso}
                   onChange={atualizarCampo}
-                  placeholder="Ex: Lata de alumínio"
-                />
-                <FormField
-                  id="meta_quantidade"
-                  type="number"
-                  min="1"
-                  label="Meta em unidades (opcional)"
-                  name="meta_quantidade"
-                  value={formulario.meta_quantidade}
-                  onChange={atualizarCampo}
-                  placeholder="Ex: 20"
-                />
-              </div>
+                  className="mt-1.5 min-h-12 w-full rounded-2xl border border-[var(--color-border)] bg-white px-4 py-3 text-base text-[var(--color-text)] outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20"
+                >
+                  <option value="publica">Pública: qualquer morador pode participar</option>
+                  <option value="privada">Privada: exige requisitos de entrada</option>
+                </select>
+              </label>
               <div className="mt-4">
                 <FormField
                   id="condicoes"
-                  label="Condições de participação (opcional)"
+                  label="Texto das condições (opcional)"
                   as="textarea"
                   name="condicoes"
                   value={formulario.condicoes}
                   onChange={atualizarCampo}
-                  placeholder="O que o morador precisa fazer para participar"
+                  placeholder="Explique ao morador como funciona a campanha"
                 />
+              </div>
+              <div className="mt-4">
+                <CampaignRequirementsEditor acesso={formulario.acesso} requisitos={requisitos} onChange={setRequisitos} />
               </div>
             </SectionCard>
 
@@ -268,7 +275,7 @@ export default function CampanhaDetalhesPage() {
                 </div>
               </SectionCard>
 
-              <SectionCard title="Recompensa" description="Defina a pontuação.">
+              <SectionCard title="Recompensa" description="Pontos pagos uma vez a quem participa e conclui todas as missões.">
                 <div className="grid gap-4">
                   <CampoComIcone icon={Gift}>
                     <FormField
@@ -346,9 +353,23 @@ export default function CampanhaDetalhesPage() {
                 Condições para o morador
               </h3>
               <div className="rounded-2xl border border-[var(--color-border)] bg-white p-5 text-sm font-medium leading-relaxed text-[var(--color-text)]">
-                <p><strong>Produto ou material:</strong> {campanha.produto_elegivel || "não informado"}</p>
-                <p className="mt-1"><strong>Meta:</strong> {campanha.meta_quantidade ? `${campanha.meta_quantidade} unidades` : "não informada"}</p>
-                <p className="mt-1 whitespace-pre-wrap"><strong>Condições:</strong> {campanha.condicoes || "não informadas"}</p>
+                <p><strong>Acesso:</strong> {campanha.acesso === "privada" ? "Privada (exige requisitos de entrada)" : "Pública"}</p>
+                {(campanha.requisitos || []).length === 0 ? (
+                  <p className="mt-1">Nenhum requisito ou missão cadastrado.</p>
+                ) : (
+                  <ul className="mt-2 list-disc space-y-1 pl-5">
+                    {campanha.requisitos.map((item) => (
+                      <li key={item.id}>
+                        <strong>{item.papel === "entrada" ? "Entrada" : "Missão"}:</strong>{" "}
+                        {item.descricao || `${item.quantidade} unidade(s)`}
+                        {item.tipo_residuo ? ` · ${MATERIAL_LABELS[item.tipo_residuo] || item.tipo_residuo}` : ""}
+                        {(item.codigos_barras || []).length ? ` · EAN ${item.codigos_barras.join(", ")}` : ""}
+                        {` · meta ${item.quantidade}`}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <p className="mt-2 whitespace-pre-wrap"><strong>Condições:</strong> {campanha.condicoes || "não informadas"}</p>
               </div>
             </div>
 

@@ -5,6 +5,7 @@ import {
   CalendarDays,
   CheckCircle2,
   Gift,
+  Lock,
   Megaphone,
   ShoppingBag,
   Sparkles,
@@ -134,14 +135,18 @@ function CampaignsTab({ campaigns, subscriptions, isLoading, isError, joinMutati
               <div className="min-w-0"><p className="text-xs font-black uppercase tracking-wider text-[#0B6B53]">{campaign.patrocinador || "Parceiro Residuum"}</p><h3 className="mt-1 text-xl font-black text-[#1A2C71]">{campaign.titulo}</h3><p className="mt-2 text-sm leading-relaxed text-slate-600">{campaign.descricao || "Campanha de engajamento Residuum."}</p></div>
             </div>
             <div className="mt-5 grid gap-2 rounded-2xl bg-white/80 p-4 text-sm font-semibold text-slate-600 sm:grid-cols-2">
-              <span className="flex items-center gap-2"><Gift size={17} /> +{campaign.pontos_recompensa} pontos</span>
+              <span className="flex items-center gap-2"><Gift size={17} /> {campaign.pontos_recompensa > 0 ? `+${campaign.pontos_recompensa} pontos ao concluir as missões` : "Sem pontos de recompensa"}</span>
               <span className="flex items-center gap-2"><CalendarDays size={17} /> Até {campaign.data_fim ? formatCalendarDate(campaign.data_fim) : "sem limite"}</span>
             </div>
             <div className="mt-4 grid gap-2 sm:grid-cols-2">
               <Link to={`/loja/campanhas/${campaign.id}`} className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-[var(--color-border)] bg-white px-4 py-2.5 text-center text-sm font-bold text-[var(--color-primary)] shadow-sm transition hover:border-[var(--color-primary)]/40 hover:bg-[var(--color-surface)]">Ver detalhes</Link>
-              <Button type="button" disabled={subscribed || joinMutation.isPending} onClick={() => joinMutation.mutate(campaign.id)}>
-                {subscribed ? <><CheckCircle2 className="mr-2 h-4 w-4" /> Você já participa</> : joining ? "Confirmando participação..." : `Participe e ganhe ${campaign.pontos_recompensa} pontos`}
-              </Button>
+              {campaign.acesso === "privada" && !subscribed ? (
+                <span className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-slate-100 px-4 text-sm font-bold text-slate-600"><Lock className="h-4 w-4" aria-hidden="true" /> Campanha privada</span>
+              ) : (
+                <Button type="button" disabled={subscribed || joinMutation.isPending} onClick={() => joinMutation.mutate(campaign.id)}>
+                  {subscribed ? <><CheckCircle2 className="mr-2 h-4 w-4" /> Você já participa</> : joining ? "Confirmando participação..." : "Participar (grátis)"}
+                </Button>
+              )}
             </div>
           </article>
         );
@@ -224,11 +229,8 @@ export default function LojaPage() {
     mutationFn: joinCampaign,
     onMutate: () => setFeedback(null),
     onSuccess: (subscription) => {
-      const points = subscription.pontos_concedidos || 0;
-      setFeedback({ type: "success", text: points > 0 ? `Participação confirmada. ${points} pontos foram adicionados à carteira.` : "Participação confirmada." });
+      setFeedback({ type: "success", text: "Participação confirmada. Os bônus da campanha valem a partir de agora." });
       queryClient.invalidateQueries({ queryKey: queryKeys.campaignSubscriptions });
-      queryClient.invalidateQueries({ queryKey: queryKeys.pointsStatement });
-      queryClient.invalidateQueries({ queryKey: queryKeys.currentUser });
     },
     onError: (error) => setFeedback({ type: "error", text: getApiErrorMessage(error, "Não foi possível participar desta campanha.") }),
   });

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, CalendarDays, CheckCircle2, Gift, Megaphone, Package, Target } from "lucide-react";
+import { ArrowLeft, CalendarDays, CheckCircle2, Gift, Lock, Megaphone, Users } from "lucide-react";
 import RoleShell from "../components/layout/RoleShell";
 import PageHeader from "../components/ui/PageHeader";
 import SectionCard from "../components/ui/SectionCard";
@@ -9,7 +9,8 @@ import InlineAlert from "../components/ui/InlineAlert";
 import LoadingState from "../components/ui/LoadingState";
 import EmptyState from "../components/ui/EmptyState";
 import Button from "../components/ui/Button";
-import { getCampaign, joinCampaign, listMyCampaignSubscriptions } from "../services/campaigns";
+import { MATERIAL_LABELS } from "../components/Campanhas/CampaignRequirementsEditor";
+import { claimCampaignReward, getCampaign, getCampaignProgress, joinCampaign } from "../services/campaigns";
 import { queryKeys } from "../services/queryKeys";
 import { getApiErrorMessage } from "../services/http/getApiErrorMessage";
 import { formatCalendarDate } from "../utils/dates";
@@ -21,12 +22,34 @@ const formatPeriod = (start, end) => {
   return "Sem prazo definido";
 };
 
+const describeRequirement = (item) => {
+  if (item.descricao) return item.descricao;
+  const material = item.tipo_residuo ? MATERIAL_LABELS[item.tipo_residuo] || item.tipo_residuo : "qualquer material";
+  return `${item.quantidade} unidade(s) de ${material}`;
+};
+
 function InfoItem({ icon: Icon, label, value }) {
   return (
     <div className="flex items-start gap-3 rounded-2xl bg-slate-50 p-4">
       <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white text-[#0B6B53]"><Icon size={20} aria-hidden="true" /></span>
       <div className="min-w-0"><p className="text-xs font-bold uppercase tracking-wider text-slate-500">{label}</p><p className="mt-1 break-words text-sm font-black text-[#1A2C71]">{value}</p></div>
     </div>
+  );
+}
+
+function RequirementProgress({ item }) {
+  const percent = Math.min(100, Math.round((item.atual / item.quantidade) * 100));
+  return (
+    <li className="rounded-2xl bg-slate-50 p-4">
+      <div className="flex items-center justify-between gap-3 text-sm">
+        <span className="font-bold text-[#1A2C71]">{describeRequirement(item)}</span>
+        <span className={`shrink-0 font-black ${item.cumprido ? "text-emerald-700" : "text-slate-600"}`}>{item.cumprido ? "Cumprido" : `${item.atual}/${item.quantidade}`}</span>
+      </div>
+      <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-slate-200" role="progressbar" aria-valuenow={item.atual} aria-valuemin={0} aria-valuemax={item.quantidade} aria-label={describeRequirement(item)}>
+        <div className={`h-full rounded-full ${item.cumprido ? "bg-emerald-600" : "bg-[#1A2C71]"}`} style={{ width: `${percent}%` }} />
+      </div>
+      {(item.codigos_barras || []).length ? <p className="mt-2 text-xs font-semibold text-slate-500">Produto com código de barras {item.codigos_barras.join(", ")}</p> : null}
+    </li>
   );
 }
 
@@ -37,23 +60,39 @@ export default function CampanhaMoradorPage() {
   const [feedback, setFeedback] = useState(null);
 
   const campaignQuery = useQuery({ queryKey: queryKeys.campaignDetails(id), queryFn: () => getCampaign(id), retry: false });
-  const subscriptionsQuery = useQuery({ queryKey: queryKeys.campaignSubscriptions, queryFn: listMyCampaignSubscriptions });
+  const progressQuery = useQuery({ queryKey: queryKeys.campaignProgress(id), queryFn: () => getCampaignProgress(id), enabled: campaignQuery.isSuccess });
+
+  const refresh = () => {
+    queryClient.invalidateQueries({ queryKey: queryKeys.campaignProgress(id) });
+    queryClient.invalidateQueries({ queryKey: queryKeys.campaignSubscriptions });
+    queryClient.invalidateQueries({ queryKey: queryKeys.pointsStatement });
+    queryClient.invalidateQueries({ queryKey: queryKeys.currentUser });
+  };
 
   const joinMutation = useMutation({
     mutationFn: joinCampaign,
     onMutate: () => setFeedback(null),
-    onSuccess: (subscription) => {
-      const points = subscription.pontos_concedidos || 0;
-      setFeedback({ type: "success", text: points > 0 ? `Participação confirmada. ${points} pontos foram adicionados à carteira.` : "Participação confirmada." });
-      queryClient.invalidateQueries({ queryKey: queryKeys.campaignSubscriptions });
-      queryClient.invalidateQueries({ queryKey: queryKeys.pointsStatement });
-      queryClient.invalidateQueries({ queryKey: queryKeys.currentUser });
+    onSuccess: () => {
+      setFeedback({ type: "success", text: "Você está participando. Os bônus da campanha valem a partir de agora." });
+      refresh();
     },
     onError: (error) => setFeedback({ type: "error", text: getApiErrorMessage(error, "Não foi possível participar desta campanha.") }),
   });
 
+  const claimMutation = useMutation({
+    mutationFn: claimCampaignReward,
+    onMutate: () => setFeedback(null),
+    onSuccess: (result) => {
+      setFeedback({ type: "success", text: `Recompensa recebida: ${result.pontos_concedidos} pontos foram adicionados à carteira.` });
+      refresh();
+    },
+    onError: (error) => setFeedback({ type: "error", text: getApiErrorMessage(error, "Não foi possível receber a recompensa.") }),
+  });
+
   const campaign = campaignQuery.data;
-  const subscribed = (subscriptionsQuery.data || []).some((item) => Number(item.campanha_id) === Number(id));
+  const progress = progressQuery.data;
+  const isPrivate = campaign?.acesso === "privada";
+  const hasMissions = (progress?.missoes || []).length > 0;
 
   return (
     <RoleShell variant="morador" shellClassName="bg-[var(--color-surface)]" contentClassName="px-4 py-4 pb-32 sm:px-6 sm:py-6 lg:px-8 lg:pb-28">
@@ -68,27 +107,59 @@ export default function CampanhaMoradorPage() {
 
         {campaign ? (
           <>
-            <PageHeader eyebrow={campaign.patrocinador || "Parceiro Residuum"} title={campaign.titulo} description={campaign.descricao || "Nenhuma descrição publicada para esta campanha."} />
+            <PageHeader eyebrow={`${campaign.patrocinador || "Parceiro Residuum"} · ${isPrivate ? "Campanha privada" : "Campanha pública"}`} title={campaign.titulo} description={campaign.descricao || "Nenhuma descrição publicada para esta campanha."} />
 
             {feedback ? <InlineAlert variant={feedback.type} title={feedback.type === "success" ? "Tudo certo" : "Atenção"}>{feedback.text}</InlineAlert> : null}
 
             <SectionCard title="Resumo" description="O que você ganha e por quanto tempo a campanha vale.">
               <div className="grid gap-3 sm:grid-cols-2">
-                <InfoItem icon={Gift} label="Recompensa" value={`+${campaign.pontos_recompensa || 0} pontos`} />
+                <InfoItem icon={Gift} label="Recompensa" value={campaign.pontos_recompensa > 0 ? `+${campaign.pontos_recompensa} pontos ao concluir as missões` : "Sem pontos de recompensa"} />
                 <InfoItem icon={CalendarDays} label="Vigência" value={formatPeriod(campaign.data_inicio, campaign.data_fim)} />
-                {campaign.produto_elegivel ? <InfoItem icon={Package} label="Produto ou material" value={campaign.produto_elegivel} /> : null}
-                {campaign.meta_quantidade ? <InfoItem icon={Target} label="Meta" value={`${campaign.meta_quantidade} unidades`} /> : null}
+                <InfoItem icon={isPrivate ? Lock : Users} label="Acesso" value={isPrivate ? "Privada: exige requisitos de entrada" : "Pública: qualquer morador pode participar"} />
               </div>
             </SectionCard>
 
+            {progressQuery.isLoading ? <LoadingState title="Carregando o seu progresso..." /> : null}
+            {progressQuery.isError ? <InlineAlert variant="error" title="Atenção">Não foi possível carregar o seu progresso.</InlineAlert> : null}
+
+            {progress && progress.entrada.length ? (
+              <SectionCard title="Requisitos de entrada" description="Cumpra todos para poder participar desta campanha privada.">
+                <ul className="grid gap-3">{progress.entrada.map((item) => <RequirementProgress key={item.id} item={item} />)}</ul>
+              </SectionCard>
+            ) : null}
+
+            {progress && hasMissions ? (
+              <SectionCard title="Missões" description="Contam a partir da sua participação. Conclua todas para receber a recompensa.">
+                <ul className="grid gap-3">{progress.missoes.map((item) => <RequirementProgress key={item.id} item={item} />)}</ul>
+              </SectionCard>
+            ) : null}
+
             <SectionCard title="Condições de participação" description="Leia antes de participar.">
               <p className="whitespace-pre-line text-sm leading-relaxed text-slate-700">{campaign.condicoes || "Esta campanha não publicou condições adicionais."}</p>
-              <p className="mt-4 text-xs font-semibold text-slate-500">Pontos são benefícios da plataforma e não podem ser trocados por dinheiro. Participar não gera nenhuma cobrança.</p>
+              <p className="mt-4 text-xs font-semibold text-slate-500">Participar é gratuito, mas só quem participa recebe os bônus da campanha. Pontos são benefícios da plataforma e não podem ser trocados por dinheiro.</p>
             </SectionCard>
 
-            <Button type="button" className="w-full sm:w-auto sm:px-10" disabled={subscribed || joinMutation.isPending || subscriptionsQuery.isLoading} onClick={() => joinMutation.mutate(campaign.id)}>
-              {subscribed ? <><CheckCircle2 className="mr-2 h-4 w-4" /> Você já participa</> : joinMutation.isPending ? "Confirmando participação..." : "Participar da campanha"}
-            </Button>
+            {progress ? (
+              <div className="space-y-3">
+                {!progress.participando ? (
+                  <>
+                    <Button type="button" className="w-full sm:w-auto sm:px-10" disabled={!progress.pode_participar || joinMutation.isPending} onClick={() => joinMutation.mutate(campaign.id)}>
+                      {joinMutation.isPending ? "Confirmando participação..." : "Participar da campanha (grátis)"}
+                    </Button>
+                    {!progress.pode_participar ? <p className="text-sm font-semibold text-slate-600">Cumpra os requisitos de entrada para liberar a participação.</p> : null}
+                  </>
+                ) : (
+                  <>
+                    <p className="inline-flex items-center gap-2 text-sm font-black text-emerald-700"><CheckCircle2 size={18} aria-hidden="true" /> Você participa desta campanha</p>
+                    {progress.recompensa_concedida ? <p className="text-sm font-semibold text-slate-600">Recompensa já recebida.</p> : null}
+                    {progress.recompensa_disponivel ? (
+                      <div><Button type="button" className="w-full sm:w-auto sm:px-10" disabled={claimMutation.isPending} onClick={() => claimMutation.mutate(campaign.id)}>{claimMutation.isPending ? "Recebendo..." : `Receber ${progress.recompensa_pontos} pontos`}</Button></div>
+                    ) : null}
+                    {!progress.recompensa_concedida && !progress.recompensa_disponivel && hasMissions ? <p className="text-sm font-semibold text-slate-600">Conclua todas as missões para liberar a recompensa.</p> : null}
+                  </>
+                )}
+              </div>
+            ) : null}
           </>
         ) : null}
       </div>

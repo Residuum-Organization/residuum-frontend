@@ -9,6 +9,10 @@ import InlineAlert from "../components/ui/InlineAlert";
 import LoadingButton from "../components/ui/LoadingButton";
 import PageHeader from "../components/ui/PageHeader";
 import SectionCard from "../components/ui/SectionCard";
+import CampaignRequirementsEditor, {
+  requisitosParaPayload,
+  validarRequisitos,
+} from "../components/Campanhas/CampaignRequirementsEditor";
 import { createCampanha } from "../services/admin";
 import { getApiErrorMessage } from "../services/http/getApiErrorMessage";
 
@@ -19,8 +23,7 @@ const estadoInicial = {
   descricao: "",
   patrocinador: "",
   pontos_recompensa: "",
-  produto_elegivel: "",
-  meta_quantidade: "",
+  acesso: "publica",
   condicoes: "",
   data_inicio: today,
   data_fim: "",
@@ -30,6 +33,7 @@ export default function NovaCampanhaPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [formulario, setFormulario] = useState(estadoInicial);
+  const [requisitos, setRequisitos] = useState([]);
   const [erro, setErro] = useState("");
   const [sucesso, setSucesso] = useState(false);
 
@@ -39,6 +43,7 @@ export default function NovaCampanhaPage() {
       setErro("");
       setSucesso(true);
       setFormulario(estadoInicial);
+      setRequisitos([]);
       queryClient.invalidateQueries(["campanhas"]);
       setTimeout(() => {
         navigate("/campanhas");
@@ -55,18 +60,24 @@ export default function NovaCampanhaPage() {
       ...dadosAtuais,
       [name]: value,
     }));
+    // Campanha pública não tem requisito de entrada.
+    if (name === "acesso" && value === "publica") {
+      setRequisitos((atuais) => atuais.filter((item) => item.papel !== "entrada"));
+    }
   }
 
 
 
   function salvarCampanha(event) {
     event.preventDefault();
-    if (
-      !formulario.titulo ||
-      !formulario.patrocinador ||
-      !formulario.pontos_recompensa
-    ) {
-      setErro("Preencha título, patrocinador e pontos de recompensa antes de salvar.");
+    if (!formulario.titulo || !formulario.patrocinador) {
+      setErro("Preencha título e patrocinador antes de salvar.");
+      return;
+    }
+
+    const erroRequisitos = validarRequisitos(formulario.acesso, requisitos, formulario.pontos_recompensa);
+    if (erroRequisitos) {
+      setErro(erroRequisitos);
       return;
     }
 
@@ -75,9 +86,9 @@ export default function NovaCampanhaPage() {
       descricao: formulario.descricao || null,
       patrocinador: formulario.patrocinador,
       pontos_recompensa: Number(formulario.pontos_recompensa) || 0,
-      produto_elegivel: formulario.produto_elegivel.trim() || null,
-      meta_quantidade: Number(formulario.meta_quantidade) > 0 ? Number(formulario.meta_quantidade) : null,
+      acesso: formulario.acesso,
       condicoes: formulario.condicoes.trim() || null,
+      requisitos: requisitosParaPayload(requisitos),
       status: "ativa",
       data_inicio: formulario.data_inicio ? new Date(formulario.data_inicio).toISOString() : null,
       data_fim: formulario.data_fim ? new Date(formulario.data_fim).toISOString() : null,
@@ -148,39 +159,34 @@ export default function NovaCampanhaPage() {
           </SectionCard>
 
           <SectionCard
-            title="Condições para o morador"
-            description="Informativo: aparece na página da campanha antes da adesão. Não altera a regra de pontos."
+            title="Acesso, requisitos e missões"
+            description="Participar é gratuito, mas só quem participa recebe o bônus. Campanha privada exige cumprir os requisitos de entrada antes de participar."
           >
-            <div className="grid gap-4 md:grid-cols-2">
-              <FormField
-                id="produto_elegivel"
-                label="Produto ou material (opcional)"
-                name="produto_elegivel"
-                value={formulario.produto_elegivel}
+            <label className="block text-sm font-semibold text-[var(--color-primary)]">
+              Acesso
+              <select
+                name="acesso"
+                value={formulario.acesso}
                 onChange={atualizarCampo}
-                placeholder="Ex: Lata de alumínio"
-              />
-              <FormField
-                id="meta_quantidade"
-                type="number"
-                min="1"
-                label="Meta em unidades (opcional)"
-                name="meta_quantidade"
-                value={formulario.meta_quantidade}
-                onChange={atualizarCampo}
-                placeholder="Ex: 20"
-              />
-            </div>
+                className="mt-1.5 min-h-12 w-full rounded-2xl border border-[var(--color-border)] bg-white px-4 py-3 text-base text-[var(--color-text)] outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20"
+              >
+                <option value="publica">Pública: qualquer morador pode participar</option>
+                <option value="privada">Privada: exige requisitos de entrada</option>
+              </select>
+            </label>
             <div className="mt-4">
               <FormField
                 id="condicoes"
-                label="Condições de participação (opcional)"
+                label="Texto das condições (opcional)"
                 as="textarea"
                 name="condicoes"
                 value={formulario.condicoes}
                 onChange={atualizarCampo}
-                placeholder="O que o morador precisa fazer para participar"
+                placeholder="Explique ao morador como funciona a campanha"
               />
+            </div>
+            <div className="mt-4">
+              <CampaignRequirementsEditor acesso={formulario.acesso} requisitos={requisitos} onChange={setRequisitos} />
             </div>
           </SectionCard>
 
@@ -216,7 +222,7 @@ export default function NovaCampanhaPage() {
 
             <SectionCard
               title="Recompensa"
-              description="Defina a pontuação."
+              description="Pontos pagos uma vez a quem participa e conclui todas as missões."
             >
               <div className="grid gap-4">
                 <CampoComIcone icon={Gift}>

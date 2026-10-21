@@ -14,6 +14,7 @@ export const queryKeys = {
   myVoucherRedemptions: ["my-voucher-redemptions"],
   campaigns: ["campaigns"],
   campaignDetails: (campaignId) => ["campaign-details", campaignId],
+  campaignProgress: (campaignId) => ["campaign-progress", campaignId],
   campaignSubscriptions: ["campaign-subscriptions"],
   collectionPointDashboard: ["collection-point-dashboard"],
   collectionPointRequestStatus: ["collection-point-request-status"],

@@ -19,6 +19,24 @@ export const getCampaign = async (campaignId) => {
   }
 };
 
+export const getCampaignProgress = async (campaignId) => {
+  try {
+    const res = await api.get(`/campanhas/${campaignId}/progresso`);
+    return res.data;
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, "Nao foi possivel carregar o seu progresso."));
+  }
+};
+
+export const claimCampaignReward = async (campaignId) => {
+  try {
+    const res = await api.post(`/campanhas/${campaignId}/recompensa`);
+    return res.data;
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, "Nao foi possivel receber a recompensa."));
+  }
+};
+
 export const listMyCampaignSubscriptions = async () => {
   try {
     const res = await api.get("/campanhas/minhas-inscricoes");
