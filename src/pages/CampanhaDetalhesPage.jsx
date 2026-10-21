@@ -22,6 +22,18 @@ import SectionCard from "../components/ui/SectionCard";
 import FormField from "../components/forms/FormField";
 import LoadingButton from "../components/ui/LoadingButton";
 import InlineAlert from "../components/ui/InlineAlert";
+import CampaignRequirementsEditor, {
+  MATERIAL_LABELS,
+  requisitosDaApi,
+  requisitosParaPayload,
+  validarRequisitos,
+} from "../components/Campanhas/CampaignRequirementsEditor";
+import CampaignMechanicsEditor, {
+  MECHANICS,
+  mecanicasDaApi,
+  mecanicasParaPayload,
+  validarMecanicas,
+} from "../components/Campanhas/CampaignMechanicsEditor";
 import { listCampanhas, updateCampanha } from "../services/admin";
 import { getApiErrorMessage } from "../services/http/getApiErrorMessage";
 
@@ -37,9 +49,13 @@ export default function CampanhaDetalhesPage() {
     descricao: "",
     patrocinador: "",
     pontos_recompensa: "",
+    acesso: "publica",
+    condicoes: "",
     data_inicio: "",
     data_fim: "",
   });
+  const [requisitos, setRequisitos] = useState([]);
+  const [mecanicas, setMecanicas] = useState([]);
   const [erro, setErro] = useState("");
   const [sucesso, setSucesso] = useState(false);
 
@@ -57,9 +73,13 @@ export default function CampanhaDetalhesPage() {
         descricao: campanha.descricao || "",
         patrocinador: campanha.patrocinador || "",
         pontos_recompensa: campanha.pontos_recompensa || "",
+        acesso: campanha.acesso || "publica",
+        condicoes: campanha.condicoes || "",
         data_inicio: campanha.data_inicio ? campanha.data_inicio.split("T")[0] : "",
         data_fim: campanha.data_fim ? campanha.data_fim.split("T")[0] : "",
       });
+      setRequisitos(requisitosDaApi(campanha.requisitos));
+      setMecanicas(mecanicasDaApi(campanha.mecanicas));
     }
   }, [campanha]);
 
@@ -123,16 +143,27 @@ export default function CampanhaDetalhesPage() {
       ...dadosAtuais,
       [name]: value,
     }));
+    // Campanha pública não tem requisito de entrada.
+    if (name === "acesso" && value === "publica") {
+      setRequisitos((atuais) => atuais.filter((item) => item.papel !== "entrada"));
+    }
   }
 
   function salvarCampanha(event) {
     event.preventDefault();
-    if (
-      !formulario.titulo ||
-      !formulario.patrocinador ||
-      !formulario.pontos_recompensa
-    ) {
-      setErro("Preencha título, patrocinador e pontos de recompensa antes de salvar.");
+    if (!formulario.titulo || !formulario.patrocinador) {
+      setErro("Preencha título e patrocinador antes de salvar.");
+      return;
+    }
+
+    const erroRequisitos = validarRequisitos(formulario.acesso, requisitos, formulario.pontos_recompensa);
+    if (erroRequisitos) {
+      setErro(erroRequisitos);
+      return;
+    }
+    const erroMecanicas = validarMecanicas(mecanicas);
+    if (erroMecanicas) {
+      setErro(erroMecanicas);
       return;
     }
 
@@ -141,6 +172,10 @@ export default function CampanhaDetalhesPage() {
       descricao: formulario.descricao || null,
       patrocinador: formulario.patrocinador,
       pontos_recompensa: Number(formulario.pontos_recompensa) || 0,
+      acesso: formulario.acesso,
+      condicoes: String(formulario.condicoes).trim() || null,
+      requisitos: requisitosParaPayload(requisitos),
+      mecanicas: mecanicasParaPayload(mecanicas),
       data_inicio: formulario.data_inicio ? new Date(formulario.data_inicio).toISOString() : null,
       data_fim: formulario.data_fim ? new Date(formulario.data_fim).toISOString() : null,
     };
@@ -198,6 +233,39 @@ export default function CampanhaDetalhesPage() {
               </div>
             </SectionCard>
 
+            <SectionCard title="Acesso, requisitos e missões" description="Participar é gratuito, mas só quem participa recebe o bônus, e só contam descartes feitos depois da adesão. Na campanha privada, cumprir os requisitos de entrada libera os bônus.">
+              <label className="block text-sm font-semibold text-[var(--color-primary)]">
+                Acesso
+                <select
+                  name="acesso"
+                  value={formulario.acesso}
+                  onChange={atualizarCampo}
+                  className="mt-1.5 min-h-12 w-full rounded-2xl border border-[var(--color-border)] bg-white px-4 py-3 text-base text-[var(--color-text)] outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20"
+                >
+                  <option value="publica">Pública: qualquer morador pode participar</option>
+                  <option value="privada">Privada: exige requisitos de entrada</option>
+                </select>
+              </label>
+              <div className="mt-4">
+                <FormField
+                  id="condicoes"
+                  label="Texto das condições (opcional)"
+                  as="textarea"
+                  name="condicoes"
+                  value={formulario.condicoes}
+                  onChange={atualizarCampo}
+                  placeholder="Explique ao morador como funciona a campanha"
+                />
+              </div>
+              <div className="mt-4">
+                <CampaignRequirementsEditor acesso={formulario.acesso} requisitos={requisitos} onChange={setRequisitos} />
+              </div>
+            </SectionCard>
+
+            <SectionCard title="Mecânicas de bônus" description="Cada campanha tem as mecânicas que você ligar. Valem só para quem participa e para descartes feitos depois da adesão.">
+              <CampaignMechanicsEditor mecanicas={mecanicas} onChange={setMecanicas} />
+            </SectionCard>
+
             <div className="grid gap-5 lg:grid-cols-2">
               <SectionCard title="Período" description="Informe a janela operacional da campanha.">
                 <div className="grid gap-4">
@@ -225,7 +293,7 @@ export default function CampanhaDetalhesPage() {
                 </div>
               </SectionCard>
 
-              <SectionCard title="Recompensa" description="Defina a pontuação.">
+              <SectionCard title="Recompensa" description="Pontos pagos uma vez a quem participa e conclui todas as missões.">
                 <div className="grid gap-4">
                   <CampoComIcone icon={Gift}>
                     <FormField
@@ -296,6 +364,39 @@ export default function CampanhaDetalhesPage() {
                 Descrição
               </h3>
               <DescricaoCampanha campanha={campanha} />
+            </div>
+
+            <div>
+              <h3 className="mb-4 text-base font-extrabold uppercase tracking-wider text-[var(--color-text-muted)]">
+                Condições para o morador
+              </h3>
+              <div className="rounded-2xl border border-[var(--color-border)] bg-white p-5 text-sm font-medium leading-relaxed text-[var(--color-text)]">
+                <p><strong>Acesso:</strong> {campanha.acesso === "privada" ? "Privada (exige requisitos de entrada)" : "Pública"}</p>
+                {(campanha.requisitos || []).length === 0 ? (
+                  <p className="mt-1">Nenhum requisito ou missão cadastrado.</p>
+                ) : (
+                  <ul className="mt-2 list-disc space-y-1 pl-5">
+                    {campanha.requisitos.map((item) => (
+                      <li key={item.id}>
+                        <strong>{item.papel === "entrada" ? "Entrada" : "Missão"}:</strong>{" "}
+                        {item.descricao || `${item.quantidade} unidade(s)`}
+                        {item.tipo_residuo ? ` · ${MATERIAL_LABELS[item.tipo_residuo] || item.tipo_residuo}` : ""}
+                        {(item.codigos_barras || []).length ? ` · EAN ${item.codigos_barras.join(", ")}` : ""}
+                        {` · meta ${item.quantidade}`}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {(campanha.mecanicas || []).map((mecanica) => (
+                  <p key={mecanica.id} className="mt-2">
+                    <strong>{MECHANICS[mecanica.tipo]?.label || mecanica.tipo} ({mecanica.ativa ? "ligada" : "desligada"}):</strong>{" "}
+                    {mecanica.config?.quantidade} unidade(s)
+                    {mecanica.config?.tipo_residuo ? ` · ${MATERIAL_LABELS[mecanica.config.tipo_residuo] || mecanica.config.tipo_residuo}` : ""}
+                    {(mecanica.config?.codigos_barras || []).length ? ` · EAN ${mecanica.config.codigos_barras.join(", ")}` : ""}
+                  </p>
+                ))}
+                <p className="mt-2 whitespace-pre-wrap"><strong>Condições:</strong> {campanha.condicoes || "não informadas"}</p>
+              </div>
             </div>
 
             <div>
