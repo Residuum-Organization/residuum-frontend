@@ -115,7 +115,7 @@ export default function CampanhaMoradorPage() {
               <div className="grid gap-3 sm:grid-cols-2">
                 <InfoItem icon={Gift} label="Recompensa" value={campaign.pontos_recompensa > 0 ? `+${campaign.pontos_recompensa} pontos ao concluir as missões` : "Sem pontos de recompensa"} />
                 <InfoItem icon={CalendarDays} label="Vigência" value={formatPeriod(campaign.data_inicio, campaign.data_fim)} />
-                <InfoItem icon={isPrivate ? Lock : Users} label="Acesso" value={isPrivate ? "Privada: exige requisitos de entrada" : "Pública: qualquer morador pode participar"} />
+                <InfoItem icon={isPrivate ? Lock : Users} label="Acesso" value={isPrivate ? "Privada: a entrada libera os bônus" : "Pública: qualquer morador pode participar"} />
               </div>
             </SectionCard>
 
@@ -123,7 +123,7 @@ export default function CampanhaMoradorPage() {
             {progressQuery.isError ? <InlineAlert variant="error" title="Atenção">Não foi possível carregar o seu progresso.</InlineAlert> : null}
 
             {progress && progress.entrada.length ? (
-              <SectionCard title="Requisitos de entrada" description="Cumpra todos para poder participar desta campanha privada.">
+              <SectionCard title="Requisitos de entrada" description="Contam a partir da sua participação. Cumpra todos para liberar os bônus desta campanha privada.">
                 <ul className="grid gap-3">{progress.entrada.map((item) => <RequirementProgress key={item.id} item={item} />)}</ul>
               </SectionCard>
             ) : null}
@@ -136,26 +136,27 @@ export default function CampanhaMoradorPage() {
 
             <SectionCard title="Condições de participação" description="Leia antes de participar.">
               <p className="whitespace-pre-line text-sm leading-relaxed text-slate-700">{campaign.condicoes || "Esta campanha não publicou condições adicionais."}</p>
-              <p className="mt-4 text-xs font-semibold text-slate-500">Participar é gratuito, mas só quem participa recebe os bônus da campanha. Pontos são benefícios da plataforma e não podem ser trocados por dinheiro.</p>
+              <p className="mt-4 text-xs font-semibold text-slate-500">Participar é gratuito, mas só quem participa recebe os bônus da campanha. Só contam os descartes feitos depois que você participar. Pontos são benefícios da plataforma e não podem ser trocados por dinheiro.</p>
             </SectionCard>
 
             {progress ? (
               <div className="space-y-3">
                 {!progress.participando ? (
                   <>
-                    <Button type="button" className="w-full sm:w-auto sm:px-10" disabled={!progress.pode_participar || joinMutation.isPending} onClick={() => joinMutation.mutate(campaign.id)}>
+                    <Button type="button" className="w-full sm:w-auto sm:px-10" disabled={joinMutation.isPending} onClick={() => joinMutation.mutate(campaign.id)}>
                       {joinMutation.isPending ? "Confirmando participação..." : "Participar da campanha (grátis)"}
                     </Button>
-                    {!progress.pode_participar ? <p className="text-sm font-semibold text-slate-600">Cumpra os requisitos de entrada para liberar a participação.</p> : null}
+                    <p className="text-sm font-semibold text-slate-600">Seus descartes só contam para esta campanha depois que você participar.{isPrivate ? " Depois, cumpra os requisitos de entrada para liberar os bônus." : ""}</p>
                   </>
                 ) : (
                   <>
                     <p className="inline-flex items-center gap-2 text-sm font-black text-emerald-700"><CheckCircle2 size={18} aria-hidden="true" /> Você participa desta campanha</p>
                     {progress.recompensa_concedida ? <p className="text-sm font-semibold text-slate-600">Recompensa já recebida.</p> : null}
+                    {isPrivate && !progress.acesso_liberado ? <p className="text-sm font-semibold text-slate-600">Cumpra os requisitos de entrada para liberar os bônus desta campanha.</p> : null}
                     {progress.recompensa_disponivel ? (
                       <div><Button type="button" className="w-full sm:w-auto sm:px-10" disabled={claimMutation.isPending} onClick={() => claimMutation.mutate(campaign.id)}>{claimMutation.isPending ? "Recebendo..." : `Receber ${progress.recompensa_pontos} pontos`}</Button></div>
                     ) : null}
-                    {!progress.recompensa_concedida && !progress.recompensa_disponivel && hasMissions ? <p className="text-sm font-semibold text-slate-600">Conclua todas as missões para liberar a recompensa.</p> : null}
+                    {!progress.recompensa_concedida && !progress.recompensa_disponivel && progress.acesso_liberado && hasMissions ? <p className="text-sm font-semibold text-slate-600">Conclua todas as missões para liberar a recompensa.</p> : null}
                   </>
                 )}
               </div>

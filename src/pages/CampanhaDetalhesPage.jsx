@@ -219,7 +219,7 @@ export default function CampanhaDetalhesPage() {
               </div>
             </SectionCard>
 
-            <SectionCard title="Acesso, requisitos e missões" description="Participar é gratuito, mas só quem participa recebe o bônus. Campanha privada exige cumprir os requisitos de entrada antes de participar.">
+            <SectionCard title="Acesso, requisitos e missões" description="Participar é gratuito, mas só quem participa recebe o bônus, e só contam descartes feitos depois da adesão. Na campanha privada, cumprir os requisitos de entrada libera os bônus.">
               <label className="block text-sm font-semibold text-[var(--color-primary)]">
                 Acesso
                 <select

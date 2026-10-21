@@ -132,7 +132,7 @@ function CampaignsTab({ campaigns, subscriptions, isLoading, isError, joinMutati
           <article key={campaign.id} className="overflow-hidden rounded-2xl border border-emerald-100 bg-white p-5 shadow-sm">
             <div className="flex items-start gap-4">
               <span className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-[#0B6B53] text-white">{campaign.patrocinador_logo_url ? <img src={campaign.patrocinador_logo_url} alt="" className="h-full w-full object-cover" /> : <Megaphone size={26} />}</span>
-              <div className="min-w-0"><p className="text-xs font-black uppercase tracking-wider text-[#0B6B53]">{campaign.patrocinador || "Parceiro Residuum"}</p><h3 className="mt-1 text-xl font-black text-[#1A2C71]">{campaign.titulo}</h3><p className="mt-2 text-sm leading-relaxed text-slate-600">{campaign.descricao || "Campanha de engajamento Residuum."}</p></div>
+              <div className="min-w-0"><p className="text-xs font-black uppercase tracking-wider text-[#0B6B53]">{campaign.patrocinador || "Parceiro Residuum"}{campaign.acesso === "privada" ? <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-black text-slate-600"><Lock size={11} aria-hidden="true" /> PRIVADA</span> : null}</p><h3 className="mt-1 text-xl font-black text-[#1A2C71]">{campaign.titulo}</h3><p className="mt-2 text-sm leading-relaxed text-slate-600">{campaign.descricao || "Campanha de engajamento Residuum."}</p></div>
             </div>
             <div className="mt-5 grid gap-2 rounded-2xl bg-white/80 p-4 text-sm font-semibold text-slate-600 sm:grid-cols-2">
               <span className="flex items-center gap-2"><Gift size={17} /> {campaign.pontos_recompensa > 0 ? `+${campaign.pontos_recompensa} pontos ao concluir as missões` : "Sem pontos de recompensa"}</span>
@@ -140,13 +140,9 @@ function CampaignsTab({ campaigns, subscriptions, isLoading, isError, joinMutati
             </div>
             <div className="mt-4 grid gap-2 sm:grid-cols-2">
               <Link to={`/loja/campanhas/${campaign.id}`} className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-[var(--color-border)] bg-white px-4 py-2.5 text-center text-sm font-bold text-[var(--color-primary)] shadow-sm transition hover:border-[var(--color-primary)]/40 hover:bg-[var(--color-surface)]">Ver detalhes</Link>
-              {campaign.acesso === "privada" && !subscribed ? (
-                <span className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-slate-100 px-4 text-sm font-bold text-slate-600"><Lock className="h-4 w-4" aria-hidden="true" /> Campanha privada</span>
-              ) : (
-                <Button type="button" disabled={subscribed || joinMutation.isPending} onClick={() => joinMutation.mutate(campaign.id)}>
-                  {subscribed ? <><CheckCircle2 className="mr-2 h-4 w-4" /> Você já participa</> : joining ? "Confirmando participação..." : "Participar (grátis)"}
-                </Button>
-              )}
+              <Button type="button" disabled={subscribed || joinMutation.isPending} onClick={() => joinMutation.mutate(campaign.id)}>
+                {subscribed ? <><CheckCircle2 className="mr-2 h-4 w-4" /> Você já participa</> : joining ? "Confirmando participação..." : "Participar (grátis)"}
+              </Button>
             </div>
           </article>
         );
