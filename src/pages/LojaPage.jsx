@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useSearchParams } from "react-router-dom";
 import {
@@ -38,6 +38,7 @@ import { getPointsStatement } from "../services/points";
 import { queryKeys } from "../services/queryKeys";
 import { getApiErrorMessage } from "../services/http/getApiErrorMessage";
 import { formatCalendarDate } from "../utils/dates";
+import { newIdempotencyKey } from "../utils/idempotency";
 
 const tabs = [
   { id: "sorteios", label: "Sorteios", Icon: Star },
@@ -253,6 +254,12 @@ export default function LojaPage() {
   const activeTab = tabs.some((tab) => tab.id === requestedTab) ? requestedTab : "sorteios";
   const [feedback, setFeedback] = useState(null);
   const [voucherToRedeem, setVoucherToRedeem] = useState(null);
+  // Uma chave por confirmacao aberta: tentar de novo nao resgata em duplicidade.
+  const redeemKeyRef = useRef(null);
+  const openRedeem = (voucher) => {
+    redeemKeyRef.current = newIdempotencyKey();
+    setVoucherToRedeem(voucher);
+  };
   const [voucherDetail, setVoucherDetail] = useState(null);
   const [isSelectOpen, setIsSelectOpen] = useState(false);
   const queryClient = useQueryClient();
@@ -282,7 +289,7 @@ export default function LojaPage() {
   });
 
   const redeemMutation = useMutation({
-    mutationFn: redeemVoucher,
+    mutationFn: (voucher) => redeemVoucher(voucher, redeemKeyRef.current),
     onSuccess: (redemption) => {
       setVoucherToRedeem(null);
       setFeedback({ type: "success", text: `Voucher resgatado. O código ${redemption.codigo} já está em Minhas recompensas.` });
@@ -345,7 +352,7 @@ export default function LojaPage() {
         <SectionCard title={tabs.find((tab) => tab.id === activeTab)?.label} description={activeTab === "campanhas" ? "Participe de ações e aumente seu saldo." : activeTab === "sorteios" ? "Use pontos para concorrer a grandes prêmios." : activeTab === "vouchers" ? "Troque pontos por benefícios imediatos." : "Consulte códigos e bilhetes vinculados à sua conta."}>
           {activeTab === "campanhas" ? <CampaignsTab campaigns={campaignsQuery.data || []} subscriptions={subscriptionsQuery.data || []} isLoading={campaignsQuery.isLoading || subscriptionsQuery.isLoading} isError={campaignsQuery.isError || subscriptionsQuery.isError} joinMutation={joinMutation} /> : null}
           {activeTab === "sorteios" ? <RafflesTab raffles={rafflesQuery.data || []} isLoading={rafflesQuery.isLoading} isError={rafflesQuery.isError} /> : null}
-          {activeTab === "vouchers" ? <VouchersTab vouchers={vouchersQuery.data || []} isLoading={vouchersQuery.isLoading} isError={vouchersQuery.isError} onRedeem={setVoucherToRedeem} onDetails={setVoucherDetail} /> : null}
+          {activeTab === "vouchers" ? <VouchersTab vouchers={vouchersQuery.data || []} isLoading={vouchersQuery.isLoading} isError={vouchersQuery.isError} onRedeem={openRedeem} onDetails={setVoucherDetail} /> : null}
           {activeTab === "recompensas" ? <RewardsTab redemptions={redemptionsQuery.data || []} tickets={ticketsQuery.data || []} isLoading={redemptionsQuery.isLoading || ticketsQuery.isLoading} /> : null}
         </SectionCard>
       </div>
@@ -355,7 +362,7 @@ export default function LojaPage() {
         onCancel={() => setVoucherDetail(null)}
         onAction={(voucher) => {
           setVoucherDetail(null);
-          setVoucherToRedeem(voucher);
+          openRedeem(voucher);
         }}
       />
 

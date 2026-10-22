@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, Navigate, useParams } from "react-router-dom";
 import {
@@ -23,6 +23,7 @@ import { getPointsStatement } from "../services/points";
 import { queryKeys } from "../services/queryKeys";
 import { getApiErrorMessage } from "../services/http/getApiErrorMessage";
 import { formatCalendarDate } from "../utils/dates";
+import { newIdempotencyKey } from "../utils/idempotency";
 import TermosPrivacidadeModal from "../components/ui/TermosPrivacidadeModal";
 
 function Timeline({ etapas }) {
@@ -108,11 +109,13 @@ export default function SorteioDetalhesPage() {
 
   const [feedback, setFeedback] = useState(null);
   const [aceitouLGPD, setAceitouLGPD] = useState(false);
+  // Uma chave por visita a pagina: reenviar a compra nao debita de novo.
+  const buyKeyRef = useRef(newIdempotencyKey());
   const [isTermosModalOpen, setIsTermosModalOpen] = useState(false);
   const queryClient = useQueryClient();
 
   const buyTicketMutation = useMutation({
-    mutationFn: (sorteioId) => buyTicket(sorteioId),
+    mutationFn: (sorteioId) => buyTicket(sorteioId, buyKeyRef.current),
     onSuccess: () => {
       setFeedback({ type: 'success', text: 'Bilhete garantido com sucesso! Boa sorte!' });
       queryClient.invalidateQueries({ queryKey: queryKeys.raffleDetails(id) });
