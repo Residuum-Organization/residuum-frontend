@@ -11,6 +11,8 @@ export const queryKeys = {
   raffleDetails: (raffleId) => ["raffle-details", raffleId],
   myRaffleTickets: ["my-raffle-tickets"],
   vouchers: ["vouchers"],
+  voucherDetails: (voucherId) => ["voucher-details", voucherId],
+  myNotifications: ["my-notifications"],
   myVoucherRedemptions: ["my-voucher-redemptions"],
   campaigns: ["campaigns"],
   campaignDetails: (campaignId) => ["campaign-details", campaignId],

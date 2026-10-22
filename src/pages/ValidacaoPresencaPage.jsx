@@ -28,7 +28,7 @@ import { listCollectionPoints } from "../services/collectionPoints";
 import { queryKeys } from "../services/queryKeys";
 import { getApiErrorMessage } from "../services/http/getApiErrorMessage";
 
-const POINTS_PER_KG = 10;
+const POINTS_PER_KG = 5;
 
 const formatResidueType = (type) =>
   String(type || "resíduo")

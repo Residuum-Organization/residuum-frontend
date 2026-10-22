@@ -86,9 +86,11 @@ export const listAllVouchers = async () => {
   return res.data;
 };
 
-export const redeemVoucher = async (voucher) => {
+const idempotencyHeaders = (key) => (key ? { headers: { "Idempotency-Key": key } } : undefined);
+
+export const redeemVoucher = async (voucher, idempotencyKey) => {
   try {
-    const res = await api.post(`/vouchers/${voucher.id}/resgatar`);
+    const res = await api.post(`/vouchers/${voucher.id}/resgatar`, null, idempotencyHeaders(idempotencyKey));
     return res.data;
   } catch (error) {
     throw new Error(
@@ -97,9 +99,9 @@ export const redeemVoucher = async (voucher) => {
   }
 };
 
-export const buyTicket = async (sorteioId) => {
+export const buyTicket = async (sorteioId, idempotencyKey) => {
   try {
-    const res = await api.post(`/sorteios/${sorteioId}/comprar-bilhete`);
+    const res = await api.post(`/sorteios/${sorteioId}/comprar-bilhete`, null, idempotencyHeaders(idempotencyKey));
     return res.data;
   } catch (error) {
     throw new Error(
@@ -164,5 +166,32 @@ export const deleteVoucher = async (id) => {
     await api.delete(`/vouchers/${id}`);
   } catch (error) {
     throw new Error(getApiErrorMessage(error, "Não foi possível deletar o voucher."));
+  }
+};
+
+export const getVoucher = async (voucherId) => {
+  try {
+    const res = await api.get(`/vouchers/${voucherId}`);
+    return res.data;
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, "Não foi possível carregar o voucher."));
+  }
+};
+
+export const getVoucherCodes = async (voucherId) => {
+  try {
+    const res = await api.get(`/vouchers/${voucherId}/codigos`);
+    return res.data;
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, "Não foi possível carregar os códigos do voucher."));
+  }
+};
+
+export const addVoucherCodes = async (voucherId, codigos) => {
+  try {
+    const res = await api.post(`/vouchers/${voucherId}/codigos`, { codigos });
+    return res.data;
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, "Não foi possível cadastrar os códigos."));
   }
 };

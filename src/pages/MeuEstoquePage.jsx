@@ -33,7 +33,7 @@ import {
 import { queryKeys } from "../services/queryKeys";
 import { getApiErrorMessage } from "../services/http/getApiErrorMessage";
 
-const POINTS_PER_KG = 10;
+const POINTS_PER_KG = 5;
 
 const getWasteIcon = () => {
   return Recycle;

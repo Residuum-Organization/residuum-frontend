@@ -19,6 +19,8 @@ import {
   deleteRaffle,
   updateVoucher,
   deleteVoucher,
+  addVoucherCodes,
+  getVoucherCodes,
   drawRaffleWinner,
 } from "../services/rewards";
 import {
@@ -362,10 +364,24 @@ function NovaRecompensaModal({ onClose, editData }) {
   );
   const [parceiro, setParceiro] = useState(editData ? (editData.parceiro || "") : "");
   const [premio, setPremio] = useState(editData ? (editData.premio || "") : "");
+  const [instrucoes, setInstrucoes] = useState(editData?.instrucoes || "");
+  const [validadeDias, setValidadeDias] = useState(editData?.validade_codigo_dias || "");
+  const [codigosTexto, setCodigosTexto] = useState("");
   const queryClient = useQueryClient();
+  const novosCodigos = codigosTexto.split(/\r?\n/).map((linha) => linha.trim()).filter(Boolean);
+
+  const codigosQuery = useQuery({
+    queryKey: ["admin_voucher_codes", editData?.id],
+    queryFn: () => getVoucherCodes(editData.id),
+    enabled: Boolean(editData) && editData?.type === "voucher",
+  });
 
   const voucherMutation = useMutation({
-    mutationFn: (payload) => editData ? updateVoucher(editData.id, payload) : createVoucher(payload),
+    mutationFn: async ({ codigos, ...payload }) => {
+      const voucher = editData ? await updateVoucher(editData.id, payload) : await createVoucher(payload);
+      if (codigos.length) await addVoucherCodes(voucher.id, codigos);
+      return voucher;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin_vouchers"] });
       onClose();
@@ -386,9 +402,13 @@ function NovaRecompensaModal({ onClose, editData }) {
       voucherMutation.mutate({
         titulo,
         custo_pontos: Number(custoPontos),
-        quantidade_disponivel: Number(quantidadeDisponivel),
+        // Cada codigo colado soma 1 ao estoque no servidor; ao criar, parte de zero.
+        quantidade_disponivel: Number(quantidadeDisponivel) || 0,
         status: "ativo",
         parceiro: parceiro || "Sistema",
+        instrucoes: instrucoes.trim() || null,
+        validade_codigo_dias: validadeDias ? Number(validadeDias) : null,
+        codigos: novosCodigos,
       });
     } else {
       sorteioMutation.mutate({
@@ -517,13 +537,14 @@ function NovaRecompensaModal({ onClose, editData }) {
               </label>
               <input
                 type="number"
-                min="1"
+                min={novosCodigos.length ? "0" : "1"}
                 value={quantidadeDisponivel}
                 onChange={(e) => setQuantidadeDisponivel(e.target.value)}
                 placeholder="Ex: 100"
-                required
+                required={!novosCodigos.length}
                 className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm outline-none focus:border-[#1A2C71]"
               />
+              <p className="mt-1 text-xs text-slate-500">Se o parceiro enviar códigos, cole-os abaixo: cada código soma 1 a esta quantidade.</p>
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-3">
@@ -553,6 +574,55 @@ function NovaRecompensaModal({ onClose, editData }) {
               </div>
             </div>
           )}
+
+          {tipo === "voucher" ? (
+            <>
+              <div>
+                <label className="mb-1 block text-sm font-semibold text-[#1a3a4a]">
+                  Códigos do parceiro (um por linha)
+                </label>
+                <textarea
+                  value={codigosTexto}
+                  onChange={(e) => setCodigosTexto(e.target.value)}
+                  rows={4}
+                  placeholder={"ABC123\nDEF456"}
+                  className="w-full rounded-xl border border-gray-300 px-4 py-3 font-mono text-sm outline-none focus:border-[#1A2C71]"
+                />
+                <p className="mt-1 text-xs text-slate-500">
+                  {novosCodigos.length ? `${novosCodigos.length} código(s) a cadastrar. ` : ""}
+                  {codigosQuery.data ? `Já cadastrados: ${codigosQuery.data.disponiveis} disponíveis e ${codigosQuery.data.resgatados} entregues. ` : ""}
+                  Sem códigos, o sistema gera um código próprio a cada resgate.
+                </p>
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-semibold text-[#1a3a4a]">
+                  Validade do código (dias após o resgate)
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  value={validadeDias}
+                  onChange={(e) => setValidadeDias(e.target.value)}
+                  placeholder="Em branco = sem prazo definido"
+                  className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm outline-none focus:border-[#1A2C71]"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-semibold text-[#1a3a4a]">
+                  Instruções de uso
+                </label>
+                <textarea
+                  value={instrucoes}
+                  onChange={(e) => setInstrucoes(e.target.value)}
+                  rows={3}
+                  maxLength={2000}
+                  placeholder="Em branco = texto padrão (resgatar, informar o código ao parceiro, uso único)"
+                  className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm outline-none focus:border-[#1A2C71]"
+                />
+              </div>
+              {voucherMutation.isError ? <p className="text-sm font-semibold text-red-600">{voucherMutation.error.message}</p> : null}
+            </>
+          ) : null}
 
           <div className="pt-4 flex justify-end gap-3">
             <Button

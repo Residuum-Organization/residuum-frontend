@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useSearchParams } from "react-router-dom";
 import {
@@ -28,14 +28,17 @@ import { joinCampaign, listActiveCampaigns, listMyCampaignSubscriptions } from "
 import {
   listActiveRaffles,
   listMyRaffleTickets,
+  getVoucher,
   listMyVoucherRedemptions,
   listVouchers,
   redeemVoucher,
 } from "../services/rewards";
+import { listMyNotifications, markNotificationRead } from "../services/notifications";
 import { getPointsStatement } from "../services/points";
 import { queryKeys } from "../services/queryKeys";
 import { getApiErrorMessage } from "../services/http/getApiErrorMessage";
 import { formatCalendarDate } from "../utils/dates";
+import { newIdempotencyKey } from "../utils/idempotency";
 
 const tabs = [
   { id: "sorteios", label: "Sorteios", Icon: Star },
@@ -84,6 +87,11 @@ const formatPeriod = (start, end) => {
 };
 
 function VoucherDetailModal({ item, onCancel, onAction }) {
+  const detailQuery = useQuery({
+    queryKey: queryKeys.voucherDetails(item?.id),
+    queryFn: () => getVoucher(item.id),
+    enabled: Boolean(item),
+  });
   if (!item) return null;
   const rows = [
     ["Parceiro", item.parceiro || "Parceiro Residuum"],
@@ -108,6 +116,12 @@ function VoucherDetailModal({ item, onCancel, onAction }) {
             <div key={label} className="flex items-center justify-between gap-4 rounded-2xl bg-slate-50 px-4 py-3 text-sm"><dt className="font-bold text-slate-500">{label}</dt><dd className="text-right font-black text-[#1A2C71]">{value}</dd></div>
           ))}
         </dl>
+        <div className="mt-4 rounded-2xl border border-emerald-100 bg-emerald-50 p-4">
+          <h3 className="text-sm font-black text-[#0B6B53]">Como usar</h3>
+          {detailQuery.isLoading ? <p className="mt-2 text-sm text-slate-500">Carregando instruções...</p> : null}
+          {detailQuery.isError ? <p className="mt-2 text-sm text-slate-500">Não foi possível carregar as instruções agora.</p> : null}
+          {detailQuery.data ? <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-slate-700">{detailQuery.data.instrucoes_uso}</p> : null}
+        </div>
         <p className="mt-4 text-xs font-semibold text-slate-500">Pontos são benefícios da plataforma e não podem ser trocados por dinheiro.</p>
         <div className="mt-6 grid grid-cols-2 gap-3">
           <Button type="button" variant="secondary" onClick={onCancel}>Fechar</Button>
@@ -192,12 +206,43 @@ function VouchersTab({ vouchers, isLoading, isError, onRedeem, onDetails }) {
   );
 }
 
+function NoticesBanner({ notices, onRead, isPending }) {
+  const unread = notices.filter((notice) => !notice.lida);
+  if (!unread.length) return null;
+  return (
+    <section aria-label="Avisos" className="space-y-2">
+      {unread.map((notice) => (
+        <div key={notice.id} className={`flex flex-wrap items-center justify-between gap-3 rounded-2xl border px-4 py-3 text-sm font-semibold ${notice.tipo === "sorteio_ganhador" ? "border-amber-200 bg-amber-50 text-amber-900" : "border-sky-200 bg-sky-50 text-sky-900"}`}>
+          <span className="min-w-0 flex-1">{notice.mensagem}</span>
+          <Button type="button" variant="secondary" disabled={isPending} onClick={() => onRead(notice.id)}>Entendi</Button>
+        </div>
+      ))}
+    </section>
+  );
+}
+
 function RewardsTab({ redemptions, tickets, isLoading }) {
   if (isLoading) return <LoadingState title="Carregando suas recompensas..." />;
   if (!redemptions.length && !tickets.length) return <EmptyState icon={Sparkles} title="Você ainda não possui recompensas." description="Vouchers resgatados e bilhetes aparecerão aqui." />;
   return (
     <div className="grid gap-4 lg:grid-cols-2">
-      {redemptions.map((item) => <article key={`voucher-${item.id}`} className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5"><p className="text-xs font-black uppercase tracking-wider text-emerald-700">Voucher ativo</p><h3 className="mt-1 font-black text-[#1A2C71]">{item.titulo || "Voucher Residuum"}</h3><p className="mt-4 break-all rounded-xl bg-white px-3 py-3 font-mono text-lg font-black tracking-wider text-[#0B6B53]">{item.codigo}</p><p className="mt-2 text-xs font-semibold text-slate-500">{item.parceiro || "Parceiro Residuum"} · {item.pontos_utilizados} pontos</p></article>)}
+      {redemptions.map((item) => {
+        const expired = item.status === "expirado";
+        return (
+          <article key={`voucher-${item.id}`} className={`rounded-2xl border p-5 ${expired ? "border-slate-200 bg-slate-50" : "border-emerald-200 bg-emerald-50"}`}>
+            <p className={`text-xs font-black uppercase tracking-wider ${expired ? "text-slate-500" : "text-emerald-700"}`}>{expired ? "Voucher expirado" : "Voucher ativo"}</p>
+            <h3 className="mt-1 font-black text-[#1A2C71]">{item.titulo || "Voucher Residuum"}</h3>
+            <p className={`mt-4 break-all rounded-xl bg-white px-3 py-3 font-mono text-lg font-black tracking-wider ${expired ? "text-slate-400 line-through" : "text-[#0B6B53]"}`}>{item.codigo}</p>
+            <p className="mt-2 text-xs font-semibold text-slate-500">{item.parceiro || "Parceiro Residuum"} · {item.pontos_utilizados} pontos{item.valido_ate ? ` · ${expired ? "venceu em" : "válido até"} ${formatCalendarDate(item.valido_ate)}` : ""}</p>
+            {item.instrucoes_uso ? (
+              <details className="mt-3 text-xs text-slate-600">
+                <summary className="cursor-pointer font-black text-[#1A2C71]">Como usar</summary>
+                <p className="mt-2 whitespace-pre-line leading-relaxed">{item.instrucoes_uso}</p>
+              </details>
+            ) : null}
+          </article>
+        );
+      })}
       {tickets.map((item) => <article key={`ticket-${item.id}`} className="rounded-2xl border border-sky-200 bg-sky-50 p-5"><p className="text-xs font-black uppercase tracking-wider text-sky-700">Bilhete confirmado</p><h3 className="mt-1 font-black text-[#1A2C71]">{item.titulo || "Sorteio Residuum"}</h3><p className="mt-4 text-3xl font-black text-[#1A2C71]">#{String(item.numero).padStart(4, "0")}</p><p className="mt-2 text-xs font-semibold text-slate-500">{item.premio || "Prêmio informado no sorteio"}</p><Link to={`/sorteios/${item.sorteio_id}`} className="mt-3 inline-flex text-xs font-black text-[#1A2C71]">Ver sorteio e resultado</Link></article>)}
     </div>
   );
@@ -209,6 +254,12 @@ export default function LojaPage() {
   const activeTab = tabs.some((tab) => tab.id === requestedTab) ? requestedTab : "sorteios";
   const [feedback, setFeedback] = useState(null);
   const [voucherToRedeem, setVoucherToRedeem] = useState(null);
+  // Uma chave por confirmacao aberta: tentar de novo nao resgata em duplicidade.
+  const redeemKeyRef = useRef(null);
+  const openRedeem = (voucher) => {
+    redeemKeyRef.current = newIdempotencyKey();
+    setVoucherToRedeem(voucher);
+  };
   const [voucherDetail, setVoucherDetail] = useState(null);
   const [isSelectOpen, setIsSelectOpen] = useState(false);
   const queryClient = useQueryClient();
@@ -220,6 +271,12 @@ export default function LojaPage() {
   const vouchersQuery = useQuery({ queryKey: queryKeys.vouchers, queryFn: listVouchers });
   const redemptionsQuery = useQuery({ queryKey: queryKeys.myVoucherRedemptions, queryFn: listMyVoucherRedemptions });
   const ticketsQuery = useQuery({ queryKey: queryKeys.myRaffleTickets, queryFn: listMyRaffleTickets });
+  const noticesQuery = useQuery({ queryKey: queryKeys.myNotifications, queryFn: listMyNotifications });
+
+  const readNoticeMutation = useMutation({
+    mutationFn: markNotificationRead,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.myNotifications }),
+  });
 
   const joinMutation = useMutation({
     mutationFn: joinCampaign,
@@ -232,7 +289,7 @@ export default function LojaPage() {
   });
 
   const redeemMutation = useMutation({
-    mutationFn: redeemVoucher,
+    mutationFn: (voucher) => redeemVoucher(voucher, redeemKeyRef.current),
     onSuccess: (redemption) => {
       setVoucherToRedeem(null);
       setFeedback({ type: "success", text: `Voucher resgatado. O código ${redemption.codigo} já está em Minhas recompensas.` });
@@ -288,12 +345,14 @@ export default function LojaPage() {
           </Select>
         </div>
 
+        <NoticesBanner notices={noticesQuery.data || []} onRead={readNoticeMutation.mutate} isPending={readNoticeMutation.isPending} />
+
         {feedback ? <InlineAlert variant={feedback.type} title={feedback.type === "success" ? "Tudo certo" : "Atenção"}>{feedback.text}</InlineAlert> : null}
 
         <SectionCard title={tabs.find((tab) => tab.id === activeTab)?.label} description={activeTab === "campanhas" ? "Participe de ações e aumente seu saldo." : activeTab === "sorteios" ? "Use pontos para concorrer a grandes prêmios." : activeTab === "vouchers" ? "Troque pontos por benefícios imediatos." : "Consulte códigos e bilhetes vinculados à sua conta."}>
           {activeTab === "campanhas" ? <CampaignsTab campaigns={campaignsQuery.data || []} subscriptions={subscriptionsQuery.data || []} isLoading={campaignsQuery.isLoading || subscriptionsQuery.isLoading} isError={campaignsQuery.isError || subscriptionsQuery.isError} joinMutation={joinMutation} /> : null}
           {activeTab === "sorteios" ? <RafflesTab raffles={rafflesQuery.data || []} isLoading={rafflesQuery.isLoading} isError={rafflesQuery.isError} /> : null}
-          {activeTab === "vouchers" ? <VouchersTab vouchers={vouchersQuery.data || []} isLoading={vouchersQuery.isLoading} isError={vouchersQuery.isError} onRedeem={setVoucherToRedeem} onDetails={setVoucherDetail} /> : null}
+          {activeTab === "vouchers" ? <VouchersTab vouchers={vouchersQuery.data || []} isLoading={vouchersQuery.isLoading} isError={vouchersQuery.isError} onRedeem={openRedeem} onDetails={setVoucherDetail} /> : null}
           {activeTab === "recompensas" ? <RewardsTab redemptions={redemptionsQuery.data || []} tickets={ticketsQuery.data || []} isLoading={redemptionsQuery.isLoading || ticketsQuery.isLoading} /> : null}
         </SectionCard>
       </div>
@@ -303,7 +362,7 @@ export default function LojaPage() {
         onCancel={() => setVoucherDetail(null)}
         onAction={(voucher) => {
           setVoucherDetail(null);
-          setVoucherToRedeem(voucher);
+          openRedeem(voucher);
         }}
       />
 
