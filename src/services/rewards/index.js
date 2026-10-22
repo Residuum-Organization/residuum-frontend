@@ -166,3 +166,30 @@ export const deleteVoucher = async (id) => {
     throw new Error(getApiErrorMessage(error, "Não foi possível deletar o voucher."));
   }
 };
+
+export const getVoucher = async (voucherId) => {
+  try {
+    const res = await api.get(`/vouchers/${voucherId}`);
+    return res.data;
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, "Não foi possível carregar o voucher."));
+  }
+};
+
+export const getVoucherCodes = async (voucherId) => {
+  try {
+    const res = await api.get(`/vouchers/${voucherId}/codigos`);
+    return res.data;
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, "Não foi possível carregar os códigos do voucher."));
+  }
+};
+
+export const addVoucherCodes = async (voucherId, codigos) => {
+  try {
+    const res = await api.post(`/vouchers/${voucherId}/codigos`, { codigos });
+    return res.data;
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, "Não foi possível cadastrar os códigos."));
+  }
+};
