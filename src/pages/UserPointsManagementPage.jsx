@@ -14,7 +14,7 @@ import { getCooperativaDiscards } from "../services/discards";
 import { queryKeys } from "../services/queryKeys";
 import { useAuth } from "../contexts/AuthContext";
 
-const POINTS_PER_UNIT = 10;
+const POINTS_PER_UNIT = 5;
 
 const formatNumber = (value) =>
   Number(value || 0).toLocaleString("pt-BR", {
@@ -132,7 +132,7 @@ export default function UserPointsManagementPage() {
             label="Pontos Creditados" 
             value={formatNumber(totalPontosEstimados)} 
             icon={Coins} 
-            subtitle="10 pts por unidade"
+            subtitle="5 pts por unidade"
           />
           <MetricCard 
             label="Entregas Realizadas" 
